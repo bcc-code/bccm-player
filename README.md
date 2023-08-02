@@ -35,9 +35,6 @@ This means the video is rendered in the native view hierarchy without any interm
 - [x] NPAW/Youbora analytics
 - [x] Metadata
 - [x] HDR content
-- [ ] Custom controls (almost, see [Custom controls](#custom-controls))
-- [ ] DRM
-- [ ] Sideloaded subtitles
 
 # Installation
 
