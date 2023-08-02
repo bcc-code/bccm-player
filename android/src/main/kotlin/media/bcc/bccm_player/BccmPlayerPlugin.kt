@@ -1,17 +1,24 @@
 package media.bcc.bccm_player
 
 import android.app.Activity
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.res.Configuration
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
+import android.widget.FrameLayout
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.android.gms.cast.framework.CastContext
 import com.google.common.util.concurrent.ListenableFuture
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -30,6 +37,7 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlaybackPlatformPigeon
 import media.bcc.bccm_player.views.FlutterCastButton
 import media.bcc.bccm_player.views.FlutterCastPlayerView
 import media.bcc.bccm_player.views.FlutterExoPlayerView
+import media.bcc.bccm_player.views.FullscreenPlayerView
 
 class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveHintListener {
     companion object {
@@ -47,6 +55,23 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
             }
         }
         private var playbackService: PlaybackService? = null
+
+        /***
+         * Call this from your activity's onBackPressed.
+         * This makes the back button work correctly in the native fullscreen player.
+         * Returns true if the event was handled.
+         */
+        fun handleOnBackPressed(activity: Activity): Boolean {
+            val rootLayout: FrameLayout =
+                activity.window.decorView.findViewById(android.R.id.content)
+            val view: View? = rootLayout.getChildAt(rootLayout.childCount - 1)
+            return if (view is FullscreenPlayerView) {
+                view.exit()
+                true
+            } else {
+                false
+            }
+        }
     }
 
     private var pluginBinding: FlutterPlugin.FlutterPluginBinding? = null
@@ -149,13 +174,15 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         }
     }
 
-    fun onStop() {
-        mainScope.launch {
-            BccmPlayerPluginSingleton.eventBus.emit(OnActivityStop())
-        }
-    }
 
-    fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+    /***
+     * Call this from your activity's onPictureInPictureModeChanged.
+     * This is important for PiP to behave correctly (e.g. pause video when exiting PiP).
+     */
+    fun handleOnPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
         val activityBinding = activityBinding ?: return
         val lifecycleState =
             FlutterLifecycleAdapter.getActivityLifecycle(activityBinding).currentState

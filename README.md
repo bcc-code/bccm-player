@@ -44,6 +44,32 @@ This means the video is rendered in the native view hierarchy without any interm
    flutter pub add bccm_player
    ```
 
+2. (Android) For native fullscreen and picture-in-picture to work correctly, you need to override these 2 methods on your MainActivity:
+
+   ```kotlin
+   class MainActivity : FlutterFragmentActivity() {
+       @SuppressLint("MissingSuperCall")
+       override fun onPictureInPictureModeChanged(
+           isInPictureInPictureMode: Boolean,
+           newConfig: Configuration?
+       ) {
+           super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+           // This is important for PiP to behave correctly (e.g. pause video when exiting PiP).
+           val bccmPlayer =
+               flutterEngine?.plugins?.get(BccmPlayerPlugin::class.javaObjectType) as BccmPlayerPlugin?
+           bccmPlayer?.handleOnPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+       }
+
+       override fun onBackPressed() {
+           // This makes the back button work correctly in the native fullscreen player.
+           // Returns true if the event was handled.
+           if (!BccmPlayerPlugin.handleOnBackPressed(this)) {
+               super.onBackPressed()
+           }
+       }
+   }
+   ```
+
 # Usage
 
 ## Initialize
