@@ -55,7 +55,3 @@ flutter:
       web:
         pluginClass: BccmPlayerWeb
         fileName: bccm_player_web.dart
-
-  assets:
-    - assets/icons/
-    - assets/images/chromecast_bg.svg

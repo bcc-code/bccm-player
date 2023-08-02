@@ -1,28 +1,32 @@
 import 'package:bccm_player/bccm_player.dart';
+import 'package:bccm_player/src/utils/svg_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class CastPlayer extends StatefulWidget {
+import '../../../theme/player_theme.dart';
+
+class CastPlayer extends StatelessWidget {
   const CastPlayer({super.key});
 
   @override
-  State<CastPlayer> createState() => _BccmPlayerState();
-}
-
-class _BccmPlayerState extends State<CastPlayer> {
-  @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         BccmPlayerInterface.instance.openExpandedCastController();
       },
-      splashColor: Colors.transparent,
       child: ClipRect(
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: Container(
-            decoration: const BoxDecoration(color: Color.fromARGB(255, 29, 40, 56)),
-            child: SvgPicture.asset('assets/images/chromecast_bg.svg', fit: BoxFit.cover, package: 'bccm_player', semanticsLabel: 'Casting'),
+            decoration: BoxDecoration(color: PlayerTheme.safeOf(context).controls?.settingsListBackgroundColor),
+            child: Center(
+              child: SvgPicture.string(
+                SvgIcons.castButton,
+                height: 100,
+                colorFilter: ColorFilter.mode(PlayerTheme.safeOf(context).controls?.primaryColor ?? Colors.white, BlendMode.srcIn),
+              ),
+            ),
           ),
         ),
       ),

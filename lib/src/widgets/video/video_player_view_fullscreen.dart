@@ -8,10 +8,12 @@ class VideoPlayerViewFullscreen extends HookWidget {
     super.key,
     required this.playerId,
     this.playNextButton,
+    this.castPlayerBuilder,
   });
 
   final String playerId;
   final WidgetBuilder? playNextButton;
+  final WidgetBuilder? castPlayerBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class VideoPlayerViewFullscreen extends HookWidget {
                 useNativeControls: false,
                 isFullscreenPlayer: true,
                 playNextButton: playNextButton,
+                castPlayerBuilder: castPlayerBuilder,
               ),
             ),
           ),

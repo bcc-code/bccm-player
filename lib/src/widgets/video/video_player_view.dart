@@ -24,6 +24,7 @@ class VideoPlayerView extends HookWidget {
   final WidgetBuilder? playNextButton;
   final List<double>? playbackSpeeds;
   final bool? showPlaybackSpeed;
+  final WidgetBuilder? castPlayerBuilder;
 
   const VideoPlayerView({
     super.key,
@@ -34,6 +35,7 @@ class VideoPlayerView extends HookWidget {
     this.playNextButton,
     this.playbackSpeeds,
     this.showPlaybackSpeed,
+    this.castPlayerBuilder,
   });
 
   @override
@@ -49,7 +51,7 @@ class VideoPlayerView extends HookWidget {
     }, [id, isFullscreenPlayer]);
 
     if (id == 'chromecast') {
-      return const CastPlayer();
+      return castPlayerBuilder != null ? castPlayerBuilder!(context) : const CastPlayer();
     }
     if (useNativeControls) {
       return VideoPlatformView(
