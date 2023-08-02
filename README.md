@@ -2,9 +2,9 @@
 
 **Note: This was recently published so documentation may be lacking, but we want this to work for others, so create an issue on github if you need help.**
 
-This is a video player primarily designed for video-heavy applications that need features like background playback, PiP, casting, analytics, etc.
+This is a video player primarily designed for video-heavy apps that need features like background playback, PiP, casting, analytics, etc.
 
-Used on the open source apps [Bible Kids](https://play.google.com/store/apps/details?id=media.bcc.kids) and [BCC Media](https://apps.apple.com/no/app/brunstadtv/id913268220). ([source code here](https://github.com/bcc-code/bcc-media-app)).
+Used by the open source apps [Bible Kids](https://play.google.com/store/apps/details?id=media.bcc.kids) and [BCC Media](https://apps.apple.com/no/app/brunstadtv/id913268220). ([source code here](https://github.com/bcc-code/bcc-media-app)).
 
 ### Difference from video_player/chewie/betterplayer, etc.
 

@@ -1,3 +1,9 @@
+/*
+The MIT License (MIT)
+Copyright (c) 2018 Brian Egan
+https://github.com/brianegan/transparent_image
+*/
+
 library transparent_image;
 
 import 'dart:typed_data';
