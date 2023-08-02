@@ -144,9 +144,9 @@ Casting requires some extra steps to setup.
 
 2. (iOS) Follow the cast sdk documentation on how to add the "NSBonjourServices" and "NSLocalNetworkUsageDescription" plist values: https://developers.google.com/cast/docs/ios_sender#ios_14
 3. (iOS) Add your receiver id to your Info.plist:
-   ```diff
-   +  <key>cast_app_id</key>
-   +  <string>ABCD1234</string>
+   ```xml
+      <key>cast_app_id</key>
+      <string>ABCD1234</string>
    ```
 4. (Android) Add a values.xml with your own receiver id: `<string name="cast_app_id">ABCD1234</string>`
 

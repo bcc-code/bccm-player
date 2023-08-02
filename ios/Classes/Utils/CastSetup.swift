@@ -9,10 +9,10 @@ import Foundation
 import GoogleCast
 
 func setupCast() {
-    var criteria = GCKDiscoveryCriteria(applicationID: "BC91FA3B")
-    if let appId = Bundle.main.object(forInfoDictionaryKey: "cast_app_id") as? String {
-        criteria = GCKDiscoveryCriteria(applicationID: appId)
+    guard let appId = Bundle.main.object(forInfoDictionaryKey: "cast_app_id") as? String else {
+        return 
     }
+    let criteria = GCKDiscoveryCriteria(applicationID: appId)
     let options = GCKCastOptions(discoveryCriteria: criteria)
     GCKCastContext.setSharedInstanceWith(options)
     let styler = GCKUIStyle.sharedInstance()
