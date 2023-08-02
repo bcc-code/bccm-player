@@ -110,7 +110,7 @@ class PlayNextButton extends HookWidget {
                                       SvgIcons.play,
                                       width: 20,
                                       height: 20,
-                                      color: Theme.of(context).textTheme.titleMedium?.color,
+                                      colorFilter: ColorFilter.mode(Theme.of(context).textTheme.titleMedium?.color ?? Colors.white, BlendMode.srcIn),
                                     ),
                             ),
                             Text(

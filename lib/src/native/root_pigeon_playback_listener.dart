@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import '../../bccm_player.dart';
 import '../pigeon/playback_platform_pigeon.g.dart';
 

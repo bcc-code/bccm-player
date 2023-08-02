@@ -33,7 +33,7 @@ class MyApp extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final player = ref.watch(primaryPlayerProvider);
     if (player == null) {
-      return const Center(child: const Text('Player id not set'));
+      return const Center(child: Text('Player id not set'));
     }
     return MaterialApp(
       home: Scaffold(
