@@ -72,17 +72,20 @@ class MiniPlayer extends HookWidget {
               borderRadius: BorderRadius.circular(4),
               border: Border.all(color: theme.thumbnailBorderColor ?? Colors.transparent, width: 1),
             ),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: FadeInImage.memoryNetwork(
-                  fadeInDuration: const Duration(milliseconds: 200),
-                  placeholder: kTransparentImage,
-                  fit: BoxFit.fill,
-                  image: artworkUri ?? 'https://static.bcc.media/images/placeholder.jpg',
-                  imageCacheHeight: 64,
-                  width: 64,
-                  height: 36,
-                )),
+            child: artworkUri == null
+                ? null
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: FadeInImage.memoryNetwork(
+                      fadeInDuration: const Duration(milliseconds: 200),
+                      placeholder: kTransparentImage,
+                      fit: BoxFit.fill,
+                      image: artworkUri!,
+                      imageCacheHeight: 64,
+                      width: 64,
+                      height: 36,
+                    ),
+                  ),
           ),
           Expanded(
             child: Column(
