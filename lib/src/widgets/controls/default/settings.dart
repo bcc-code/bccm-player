@@ -173,37 +173,3 @@ class _SettingsBottomSheet extends HookWidget {
     );
   }
 }
-
-class SettingsTrackList extends StatelessWidget {
-  const SettingsTrackList({
-    super.key,
-    required this.tracks,
-    required this.controlsTheme,
-  });
-
-  final List<Track?> tracks;
-  final ControlsThemeData controlsTheme;
-
-  @override
-  Widget build(BuildContext context) {
-    // show list of audio tracks with a tick on the selected one
-    return Container(
-      color: controlsTheme.settingsListBackgroundColor,
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          for (final track in tracks.safe)
-            ListTile(
-              dense: true,
-              onTap: () {
-                // select this track
-                Navigator.pop(context, track.id);
-              },
-              title: Text(track.labelWithFallback, style: controlsTheme.settingsListTextStyle),
-              trailing: track.isSelected ? const Icon(Icons.check) : null,
-            ),
-        ],
-      ),
-    );
-  }
-}
