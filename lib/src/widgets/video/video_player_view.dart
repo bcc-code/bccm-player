@@ -29,7 +29,7 @@ class VideoPlayerView extends HookWidget {
   const VideoPlayerView({
     super.key,
     required this.id,
-    this.useNativeControls = true,
+    this.useNativeControls = false,
     this.isFullscreenPlayer = false,
     this.resetSystemOverlays,
     this.playNextButton,

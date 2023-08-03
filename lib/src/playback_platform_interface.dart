@@ -14,8 +14,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   static BccmPlayerInterface _instance = BccmPlayerNative();
   static BccmPlayerInterface get instance => _instance;
   static Object? playerHtmlElement;
-  final PlayerPluginStateNotifier stateNotifier =
-      PlayerPluginStateNotifier(keepAlive: true);
+  final PlayerPluginStateNotifier stateNotifier = PlayerPluginStateNotifier(keepAlive: true);
   Stream<ChromecastEvent> get chromecastEventStream;
   Stream<dynamic> get playerEventStream;
 
@@ -38,8 +37,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('setPrimary() has not been implemented.');
   }
 
-  Future<void> replaceCurrentMediaItem(String playerId, MediaItem mediaItem,
-      {bool? playbackPositionFromPrimary, bool? autoplay = true}) {
+  Future<void> replaceCurrentMediaItem(String playerId, MediaItem mediaItem, {bool? playbackPositionFromPrimary, bool? autoplay = true}) {
     throw UnimplementedError('setUrl() has not been implemented.');
   }
 
@@ -62,8 +60,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   }
 
   void openExpandedCastController() {
-    throw UnimplementedError(
-        'openExpandedCastController() has not been implemented.');
+    throw UnimplementedError('openExpandedCastController() has not been implemented.');
   }
 
   void openCastDialog() {
@@ -75,8 +72,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   }
 
   Future<void> removePlaybackListener(PlaybackListenerPigeon listener) async {
-    throw UnimplementedError(
-        'removePlaybackListener() has not been implemented.');
+    throw UnimplementedError('removePlaybackListener() has not been implemented.');
   }
 
   void play(String playerId) {
@@ -95,8 +91,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('stop() has not been implemented.');
   }
 
-  Future<void> setSelectedTrack(
-      String playerId, TrackType type, String? trackId) {
+  Future<void> setSelectedTrack(String playerId, TrackType type, String? trackId) {
     throw UnimplementedError('setSelectedTrack() has not been implemented.');
   }
 
@@ -110,7 +105,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
 
   Future enterFullscreen(
     String playerId, {
-    bool? useNativeControls = true,
+    bool? useNativeControls = false,
     BuildContext? context,
     void Function()? resetSystemOverlays,
     WidgetBuilder? playNextButton,
