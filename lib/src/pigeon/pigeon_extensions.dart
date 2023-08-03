@@ -7,3 +7,5 @@ extension TrackX on Track {
 extension TrackListX on List<Track?> {
   Iterable<Track> get safe => whereType<Track>();
 }
+
+const autoTrackId = "auto";

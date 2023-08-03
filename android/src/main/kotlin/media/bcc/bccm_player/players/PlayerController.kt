@@ -183,9 +183,14 @@ abstract class PlayerController : Player.Listener {
         val currentTextTrack =
             currentTracks.groups.firstOrNull { it.isSelected && it.type == C.TRACK_TYPE_TEXT }
                 ?.getTrackFormat(0)
+        val videoOverride =
+            player.trackSelectionParameters.overrides.filter { i -> i.value.type == C.TRACK_TYPE_VIDEO }.values.firstOrNull()
+        val currentExplicitlySelectedVideoTrackFormat =
+            videoOverride?.mediaTrackGroup?.getFormat(videoOverride.trackIndices.first())
 
         val audioTracks = mutableListOf<PlaybackPlatformApi.Track>()
         val textTracks = mutableListOf<PlaybackPlatformApi.Track>()
+        val videoTracks = mutableListOf<PlaybackPlatformApi.Track>()
         for (trackGroup in currentTracks.groups) {
             if (trackGroup.type == C.TRACK_TYPE_AUDIO) {
                 val track = trackGroup.getTrackFormat(0)
@@ -195,6 +200,7 @@ abstract class PlayerController : Player.Listener {
                         .setId(id)
                         .setLanguage(track.language)
                         .setLabel(track.label)
+                        .setBitrate(track.averageBitrate.toLong())
                         .setIsSelected(track == currentAudioTrack)
                         .build()
                 )
@@ -206,15 +212,37 @@ abstract class PlayerController : Player.Listener {
                         .setId(id)
                         .setLanguage(track.language)
                         .setLabel(track.label)
+                        .setBitrate(track.averageBitrate.toLong())
                         .setIsSelected(track == currentTextTrack)
                         .build()
                 )
+            } else if (trackGroup.type == C.TRACK_TYPE_VIDEO) {
+                for (trackIndex in 0 until trackGroup.length) {
+                    val trackFormat = trackGroup.getTrackFormat(trackIndex)
+                    if (trackGroup.isTrackSupported(trackIndex)) {
+                        val trackId = trackFormat.id ?: continue;
+                        videoTracks.add(
+                            PlaybackPlatformApi.Track.Builder()
+                                .setId(trackId)
+                                .setLanguage(null)
+                                .setLabel("${trackFormat.width} x ${trackFormat.height}")
+                                .setWidth(trackFormat.width.toLong())
+                                .setHeight(trackFormat.height.toLong())
+                                .setBitrate(trackFormat.averageBitrate.toLong())
+                                .setIsSelected(trackFormat == currentExplicitlySelectedVideoTrackFormat)
+                                .build()
+                        )
+
+                    }
+                }
             }
         }
+
         return PlaybackPlatformApi.PlayerTracksSnapshot.Builder()
             .setPlayerId(id)
             .setAudioTracks(audioTracks)
             .setTextTracks(textTracks)
+            .setVideoTracks(videoTracks.apply { this.sortBy { t -> t.height } })
             .build()
     }
 
@@ -231,17 +259,32 @@ abstract class PlayerController : Player.Listener {
             return;
         }
         setTrackTypeDisabled(type, false);
-        val tracks = tracksOverride ?: player.currentTracks
-        val trackGroup = tracks.groups.firstOrNull {
-            it.type == type
-                    && it.mediaTrackGroup.length > 0
-                    && it.mediaTrackGroup.getFormat(0).id == trackId
-        }
-        if (trackGroup != null) {
+
+        if (trackId == "auto") {
             player.trackSelectionParameters = player.trackSelectionParameters
                 .buildUpon()
                 .clearOverridesOfType(type)
-                .setOverrideForType(TrackSelectionOverride(trackGroup.mediaTrackGroup, 0))
+                .build()
+            return
+        }
+
+        val tracks = tracksOverride ?: player.currentTracks
+        var trackGroup: Tracks.Group? = null
+        var trackIndex: Int? = null
+        for (group in tracks.groups.filter { it.type == type && it.length > 0 }) {
+            for (i in 0 until group.length) {
+                val format = group.getTrackFormat(i);
+                if (format.id == trackId) {
+                    trackGroup = group
+                    trackIndex = i
+                }
+            }
+        }
+        if (trackGroup != null && trackIndex != null) {
+            player.trackSelectionParameters = player.trackSelectionParameters
+                .buildUpon()
+                .clearOverridesOfType(type)
+                .setOverrideForType(TrackSelectionOverride(trackGroup.mediaTrackGroup, trackIndex))
                 .build()
         }
     }

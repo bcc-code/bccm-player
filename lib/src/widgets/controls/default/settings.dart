@@ -81,6 +81,9 @@ class _SettingsBottomSheet extends HookWidget {
 
     final selectedAudioTrack = tracksData?.audioTracks.safe.firstWhereOrNull((element) => element.isSelected);
     final selectedTextTrack = tracksData?.textTracks.safe.firstWhereOrNull((element) => element.isSelected);
+    final selectedVideoTrack = tracksData?.videoTracks.safe.firstWhereOrNull((element) => element.isSelected);
+    var uniqueHeights = <int>{};
+    final uniqueVideoTracks = tracksData?.videoTracks.safe.where((t) => uniqueHeights.add(t.height ?? 0)).toList();
 
     final playbackSpeed = useState(BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.state.playbackSpeed ?? 1.0);
     final isLive = useState(false);
@@ -139,6 +142,33 @@ class _SettingsBottomSheet extends HookWidget {
                 );
                 if (selected != null && context.mounted) {
                   await BccmPlayerInterface.instance.setSelectedTrack(playerId, TrackType.text, selected.value?.id);
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    if (!context.mounted) return;
+                    tracksFuture.value = getTracks();
+                  });
+                }
+              },
+            ),
+          if (uniqueVideoTracks != null && uniqueVideoTracks.length > 1)
+            ListTile(
+              dense: true,
+              title: Text('Quality: ${selectedVideoTrack?.labelWithFallback ?? 'Auto'}', style: controlsTheme.settingsListTextStyle),
+              onTap: () async {
+                final selected = await showModalOptionList<Track?>(
+                  context: context,
+                  options: [
+                    SettingsOption(value: null, label: "Auto", isSelected: selectedVideoTrack == null),
+                    ...uniqueVideoTracks.map(
+                      (track) => SettingsOption(value: track, label: track.labelWithFallback, isSelected: track.isSelected),
+                    )
+                  ],
+                );
+                if (selected != null && context.mounted) {
+                  await BccmPlayerInterface.instance.setSelectedTrack(
+                    playerId,
+                    TrackType.video,
+                    selected.value != null ? selected.value!.id : autoTrackId,
+                  );
                   Future.delayed(const Duration(milliseconds: 100), () {
                     if (!context.mounted) return;
                     tracksFuture.value = getTracks();
