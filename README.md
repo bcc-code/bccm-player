@@ -70,6 +70,15 @@ This means the video is rendered in the native view hierarchy without any interm
    }
    ```
 
+3. (Android) Add `supportsPictureInPicture="true"` to your AndroidManifest for MainActivity:
+
+```xml
+        <activity
+            android:name=".MainActivity"
+            android:supportsPictureInPicture="true"
+            ...
+```
+
 # Usage
 
 ## Initialize

@@ -3,6 +3,7 @@ package media.bcc.bccm_player.views
 import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.util.Rational
@@ -191,12 +192,16 @@ class FullscreenPlayerView(
             else Rational(it.videoSize.width, it.videoSize.height)
         } ?: Rational(16, 9)
 
-        activity.enterPictureInPictureMode(
-            PictureInPictureParams.Builder()
-                .setAspectRatio(aspectRatio)
-                .build()
-        )
-        playerView?.hideController()
+        try {
+            activity.enterPictureInPictureMode(
+                PictureInPictureParams.Builder()
+                    .setAspectRatio(aspectRatio)
+                    .build()
+            )
+            playerView?.hideController()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
