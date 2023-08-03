@@ -6,7 +6,7 @@ import 'package:bccm_player/src/state/state_playback_listener.dart';
 import 'package:bccm_player/src/widgets/video/video_player_view_fullscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'bccm_player.dart';
 
@@ -138,7 +138,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
   @override
   Future enterFullscreen(
     String playerId, {
-    bool? useNativeControls = true,
+    bool? useNativeControls = false,
     BuildContext? context,
     void Function()? resetSystemOverlays,
     WidgetBuilder? playNextButton,
@@ -148,7 +148,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
     } else if (context == null) {
       throw ErrorDescription('enterFullscreen: context cant be null if useNativeControls is false.');
     } else {
-      Wakelock.enable();
+      WakelockPlus.enable();
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
       debugPrint('bccm: setPreferredOrientations landscape');
@@ -179,7 +179,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
       debugPrint('bccm: setPreferredOrientations portraitUp');
 
       stateNotifier.getPlayerNotifier(playerId)?.setIsFlutterFullscreen(false);
-      Wakelock.disable();
+      WakelockPlus.disable();
     }
   }
 
