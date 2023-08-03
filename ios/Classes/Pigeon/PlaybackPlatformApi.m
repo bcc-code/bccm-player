@@ -378,6 +378,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 + (instancetype)makeWithId:(NSString *)id
     label:(nullable NSString *)label
     language:(nullable NSString *)language
+    frameRate:(nullable NSNumber *)frameRate
     bitrate:(nullable NSNumber *)bitrate
     width:(nullable NSNumber *)width
     height:(nullable NSNumber *)height
@@ -386,6 +387,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.id = id;
   pigeonResult.label = label;
   pigeonResult.language = language;
+  pigeonResult.frameRate = frameRate;
   pigeonResult.bitrate = bitrate;
   pigeonResult.width = width;
   pigeonResult.height = height;
@@ -398,10 +400,11 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   NSAssert(pigeonResult.id != nil, @"");
   pigeonResult.label = GetNullableObjectAtIndex(list, 1);
   pigeonResult.language = GetNullableObjectAtIndex(list, 2);
-  pigeonResult.bitrate = GetNullableObjectAtIndex(list, 3);
-  pigeonResult.width = GetNullableObjectAtIndex(list, 4);
-  pigeonResult.height = GetNullableObjectAtIndex(list, 5);
-  pigeonResult.isSelected = GetNullableObjectAtIndex(list, 6);
+  pigeonResult.frameRate = GetNullableObjectAtIndex(list, 3);
+  pigeonResult.bitrate = GetNullableObjectAtIndex(list, 4);
+  pigeonResult.width = GetNullableObjectAtIndex(list, 5);
+  pigeonResult.height = GetNullableObjectAtIndex(list, 6);
+  pigeonResult.isSelected = GetNullableObjectAtIndex(list, 7);
   NSAssert(pigeonResult.isSelected != nil, @"");
   return pigeonResult;
 }
@@ -413,6 +416,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.id ?: [NSNull null]),
     (self.label ?: [NSNull null]),
     (self.language ?: [NSNull null]),
+    (self.frameRate ?: [NSNull null]),
     (self.bitrate ?: [NSNull null]),
     (self.width ?: [NSNull null]),
     (self.height ?: [NSNull null]),

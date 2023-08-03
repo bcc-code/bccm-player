@@ -147,6 +147,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 + (instancetype)makeWithId:(NSString *)id
     label:(nullable NSString *)label
     language:(nullable NSString *)language
+    frameRate:(nullable NSNumber *)frameRate
     bitrate:(nullable NSNumber *)bitrate
     width:(nullable NSNumber *)width
     height:(nullable NSNumber *)height
@@ -154,6 +155,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, copy) NSString * id;
 @property(nonatomic, copy, nullable) NSString * label;
 @property(nonatomic, copy, nullable) NSString * language;
+@property(nonatomic, strong, nullable) NSNumber * frameRate;
 @property(nonatomic, strong, nullable) NSNumber * bitrate;
 @property(nonatomic, strong, nullable) NSNumber * width;
 @property(nonatomic, strong, nullable) NSNumber * height;

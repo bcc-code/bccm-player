@@ -159,6 +159,7 @@ class Track {
   late String id;
   late String? label;
   late String? language;
+  late double? frameRate;
   late int? bitrate;
   late int? width;
   late int? height;

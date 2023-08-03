@@ -23,7 +23,8 @@ class VideoPlayerView extends HookWidget {
   final VoidCallback? resetSystemOverlays;
   final WidgetBuilder? playNextButton;
   final List<double>? playbackSpeeds;
-  final bool? showPlaybackSpeed;
+  final bool? hidePlaybackSpeed;
+  final bool? hideQualitySelector;
   final WidgetBuilder? castPlayerBuilder;
 
   const VideoPlayerView({
@@ -34,7 +35,8 @@ class VideoPlayerView extends HookWidget {
     this.resetSystemOverlays,
     this.playNextButton,
     this.playbackSpeeds,
-    this.showPlaybackSpeed,
+    this.hidePlaybackSpeed,
+    this.hideQualitySelector,
     this.castPlayerBuilder,
   });
 
@@ -121,7 +123,8 @@ class _VideoWithControls extends HookWidget {
               goFullscreen: goFullscreen,
               playNextButton: parent.playNextButton,
               playbackSpeeds: parent.playbackSpeeds,
-              showPlaybackSpeed: parent.showPlaybackSpeed,
+              hidePlaybackSpeed: parent.hidePlaybackSpeed,
+              hideQualitySelector: parent.hideQualitySelector,
             );
           }),
         ),

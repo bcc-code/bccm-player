@@ -1037,6 +1037,16 @@ public class PlaybackPlatformApi {
       this.language = setterArg;
     }
 
+    private @Nullable Double frameRate;
+
+    public @Nullable Double getFrameRate() {
+      return frameRate;
+    }
+
+    public void setFrameRate(@Nullable Double setterArg) {
+      this.frameRate = setterArg;
+    }
+
     private @Nullable Long bitrate;
 
     public @Nullable Long getBitrate() {
@@ -1106,6 +1116,13 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable Double frameRate;
+
+      public @NonNull Builder setFrameRate(@Nullable Double setterArg) {
+        this.frameRate = setterArg;
+        return this;
+      }
+
       private @Nullable Long bitrate;
 
       public @NonNull Builder setBitrate(@Nullable Long setterArg) {
@@ -1139,6 +1156,7 @@ public class PlaybackPlatformApi {
         pigeonReturn.setId(id);
         pigeonReturn.setLabel(label);
         pigeonReturn.setLanguage(language);
+        pigeonReturn.setFrameRate(frameRate);
         pigeonReturn.setBitrate(bitrate);
         pigeonReturn.setWidth(width);
         pigeonReturn.setHeight(height);
@@ -1149,10 +1167,11 @@ public class PlaybackPlatformApi {
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(7);
+      ArrayList<Object> toListResult = new ArrayList<Object>(8);
       toListResult.add(id);
       toListResult.add(label);
       toListResult.add(language);
+      toListResult.add(frameRate);
       toListResult.add(bitrate);
       toListResult.add(width);
       toListResult.add(height);
@@ -1168,13 +1187,15 @@ public class PlaybackPlatformApi {
       pigeonResult.setLabel((String) label);
       Object language = list.get(2);
       pigeonResult.setLanguage((String) language);
-      Object bitrate = list.get(3);
+      Object frameRate = list.get(3);
+      pigeonResult.setFrameRate((Double) frameRate);
+      Object bitrate = list.get(4);
       pigeonResult.setBitrate((bitrate == null) ? null : ((bitrate instanceof Integer) ? (Integer) bitrate : (Long) bitrate));
-      Object width = list.get(4);
+      Object width = list.get(5);
       pigeonResult.setWidth((width == null) ? null : ((width instanceof Integer) ? (Integer) width : (Long) width));
-      Object height = list.get(5);
+      Object height = list.get(6);
       pigeonResult.setHeight((height == null) ? null : ((height instanceof Integer) ? (Integer) height : (Long) height));
-      Object isSelected = list.get(6);
+      Object isSelected = list.get(7);
       pigeonResult.setIsSelected((Boolean) isSelected);
       return pigeonResult;
     }

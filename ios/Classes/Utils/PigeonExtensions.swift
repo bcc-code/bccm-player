@@ -14,6 +14,8 @@ extension TrackType {
             return .audible
         } else if self == .text {
             return .legible
+        } else if self == .video {
+            return .visual
         } else {
             return nil
         }

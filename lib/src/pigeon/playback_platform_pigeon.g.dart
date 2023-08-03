@@ -321,6 +321,7 @@ class Track {
     required this.id,
     this.label,
     this.language,
+    this.frameRate,
     this.bitrate,
     this.width,
     this.height,
@@ -332,6 +333,8 @@ class Track {
   String? label;
 
   String? language;
+
+  double? frameRate;
 
   int? bitrate;
 
@@ -346,6 +349,7 @@ class Track {
       id,
       label,
       language,
+      frameRate,
       bitrate,
       width,
       height,
@@ -359,10 +363,11 @@ class Track {
       id: result[0]! as String,
       label: result[1] as String?,
       language: result[2] as String?,
-      bitrate: result[3] as int?,
-      width: result[4] as int?,
-      height: result[5] as int?,
-      isSelected: result[6]! as bool,
+      frameRate: result[3] as double?,
+      bitrate: result[4] as int?,
+      width: result[5] as int?,
+      height: result[6] as int?,
+      isSelected: result[7]! as bool,
     );
   }
 }

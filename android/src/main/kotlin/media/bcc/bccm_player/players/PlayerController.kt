@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.media3.common.C
+import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -228,6 +229,7 @@ abstract class PlayerController : Player.Listener {
                                 .setLabel("${trackFormat.width} x ${trackFormat.height}")
                                 .setWidth(trackFormat.width.toLong())
                                 .setHeight(trackFormat.height.toLong())
+                                .setFrameRate(if (trackFormat.frameRate.toInt() == Format.NO_VALUE) null else trackFormat.frameRate.toDouble())
                                 .setBitrate(trackFormat.averageBitrate.toLong())
                                 .setIsSelected(trackFormat == currentExplicitlySelectedVideoTrackFormat)
                                 .build()
@@ -242,7 +244,7 @@ abstract class PlayerController : Player.Listener {
             .setPlayerId(id)
             .setAudioTracks(audioTracks)
             .setTextTracks(textTracks)
-            .setVideoTracks(videoTracks.apply { this.sortBy { t -> t.height } })
+            .setVideoTracks(videoTracks.apply { this.sortByDescending { t -> t.height } })
             .build()
     }
 

@@ -37,7 +37,6 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
   }
 
   void resyncPlaybackPositionTimer() {
-    debugPrint("resyncPlaybackPositionTimer: ${state.playbackPositionMs}");
     positionUpdateTimer.cancel();
     positionUpdateTimer = Timer.periodic(const Duration(seconds: 1), updatePosition);
   }

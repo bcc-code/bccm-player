@@ -56,7 +56,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     
     public func getPlayerTracksSnapshot() -> PlayerTracksSnapshot {
         guard let currentItem = player.currentItem else {
-            return PlayerTracksSnapshot.make(withPlayerId: id, audioTracks: [], textTracks: [])
+            return PlayerTracksSnapshot.make(withPlayerId: id, audioTracks: [], textTracks: [], videoTracks: [])
         }
             
         // Get the asset
@@ -69,6 +69,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 let track = Track.make(withId: "\(index)",
                                        label: option.displayName,
                                        language: option.locale?.identifier,
+                                       frameRate: nil,
+                                       bitrate: nil,
+                                       width: nil,
+                                       height: nil,
                                        isSelected: NSNumber(value: currentItem.currentMediaSelection.selectedMediaOption(in: audioGroup) == option))
                 audioTracks.append(track)
             }
@@ -81,12 +85,47 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 let track = Track.make(withId: "\(index)",
                                        label: option.displayName,
                                        language: option.locale?.identifier,
+                                       frameRate: nil,
+                                       bitrate: nil,
+                                       width: nil,
+                                       height: nil,
                                        isSelected: NSNumber(value: currentItem.currentMediaSelection.selectedMediaOption(in: subtitleGroup) == option))
                 textTracks.append(track)
             }
         }
+        
+        // Get the video selection group
+        var videoTracks: [Track] = []
+        let urlAsset = asset as? AVURLAsset
+        if #available(iOS 15, *), let urlAsset = urlAsset {
+            let variants = urlAsset.variants
+            for variant in variants {
+                guard let bitrate = variant.averageBitRate,
+                      let width = variant.videoAttributes?.presentationSize.width,
+                      let height = variant.videoAttributes?.presentationSize.height,
+                      let frameRate = variant.videoAttributes?.nominalFrameRate
+                else {
+                    continue
+                }
+                let currentlySelected = player.currentItem?.preferredPeakBitRate
+                let track = Track.make(withId: "\(Int(bitrate))",
+                                       label: "\(Int(width)) x \(Int(height))",
+                                       language: nil,
+                                       frameRate: frameRate as NSNumber,
+                                       bitrate: Int(bitrate) as NSNumber,
+                                       width: Int(width) as NSNumber,
+                                       height: Int(height) as NSNumber,
+                                       isSelected: (currentlySelected != nil && Int(currentlySelected!) == Int(bitrate)) as NSNumber)
+                videoTracks.append(track)
+            }
+        }
 
-        return PlayerTracksSnapshot.make(withPlayerId: id, audioTracks: audioTracks, textTracks: textTracks)
+        return PlayerTracksSnapshot.make(
+            withPlayerId: id,
+            audioTracks: audioTracks,
+            textTracks: textTracks,
+            videoTracks: videoTracks.sorted { (($0.height?.intValue) ?? 0) > (($1.height?.intValue) ?? 0) }
+        )
     }
     
     public func setSelectedTrack(type: TrackType, trackId: String?) {
@@ -94,6 +133,19 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             debugPrint("Tried to setSelectedTrack, but no item is currently loaded in the player")
             return
         }
+        
+        if type == .video {
+            if trackId == "auto" {
+                currentItem.preferredPeakBitRate = 0
+            }
+            guard let trackId = trackId, let bitrate = Int(trackId) else {
+                debugPrint("Tried to setSelectedTrack for video, but trackId (bitrate): \(trackId?.debugDescription) is not an int")
+                return
+            }
+            currentItem.preferredPeakBitRate = Double(bitrate)
+            return
+        }
+        
         guard let mediaCharacteristic = type.asAVMediaCharacteristic() else {
             debugPrint("Tried to setSelectedTrack, but type is unknown: " + type.rawValue.description)
             return
