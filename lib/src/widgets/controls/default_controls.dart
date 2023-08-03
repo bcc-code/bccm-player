@@ -25,7 +25,8 @@ class DefaultControls extends HookWidget {
     required this.exitFullscreen,
     this.playNextButton,
     this.playbackSpeeds,
-    this.showPlaybackSpeed,
+    this.hidePlaybackSpeed,
+    this.hideQualitySelector,
   });
 
   final String playerId;
@@ -33,7 +34,8 @@ class DefaultControls extends HookWidget {
   final Future Function() exitFullscreen;
   final WidgetBuilder? playNextButton;
   final List<double>? playbackSpeeds;
-  final bool? showPlaybackSpeed;
+  final bool? hidePlaybackSpeed;
+  final bool? hideQualitySelector;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +125,8 @@ class DefaultControls extends HookWidget {
                           playerId: playerId,
                           padding: const EdgeInsets.only(top: 12, bottom: 24, left: 24, right: 8),
                           controlsTheme: controlsTheme,
-                          showPlaybackSpeed: showPlaybackSpeed,
+                          hidePlaybackSpeed: hidePlaybackSpeed,
+                          hideQualitySelector: hideQualitySelector,
                           playbackSpeeds: playbackSpeeds,
                         ),
                       ],

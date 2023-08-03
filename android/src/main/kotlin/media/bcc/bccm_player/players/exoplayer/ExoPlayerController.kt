@@ -28,7 +28,6 @@ import media.bcc.bccm_player.PictureInPictureModeChangedEvent
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.NpawConfig
 import media.bcc.bccm_player.players.PlayerController
-import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import java.util.UUID
 
@@ -191,35 +190,15 @@ class ExoPlayerController(private val context: Context) :
      * Expected it to stop loading video segments if you disable the renderer,
      * but it doesn't. This is still an open issue: https://github.com/google/ExoPlayer/issues/9282
      */
-    private fun setForceLowestVideoBitrate(enabled: Boolean) {
-        var indexOfVideoRenderer = -1
-
-        exoPlayer.let {
-            for (i in 0 until it.rendererCount) {
-                it.getRenderer(i).state
-                if (it.getRendererType(i) == C.TRACK_TYPE_VIDEO) {
-                    indexOfVideoRenderer = i
-                    break
-                }
-            }
-        }
-
+    private fun setForceLowestVideoBitrate(force: Boolean) {
         val parametersBuilder = trackSelector.buildUponParameters()
-        parametersBuilder.clearOverridesOfType(C.TRACK_TYPE_VIDEO)
-
-        if (enabled) {
-            // Force lowest quality
-            val mappedTrackInfo = trackSelector.currentMappedTrackInfo
-            val trackGroup = mappedTrackInfo?.getTrackGroups(indexOfVideoRenderer)?.get(0) ?: return
-            parametersBuilder.setOverrideForType(
-                TrackSelectionOverride(trackGroup, getLowestBitrateTrackIndex(trackGroup))
-            )
-        }
+        parametersBuilder.setForceLowestBitrate(force)
 
         trackSelector.setParameters(parametersBuilder)
+
         Log.d(
             "bccm",
-            if (enabled) "Forcing lowest bitrate" else "No longer forcing lowest bitrate"
+            if (force) "Forcing lowest bitrate" else "No longer forcing lowest bitrate"
         )
     }
 
@@ -237,15 +216,43 @@ class ExoPlayerController(private val context: Context) :
     }
 
     fun takeOwnership(playerView: PlayerView, viewController: BccmPlayerViewController) {
+        Log.d(
+            "bccm",
+            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
+        )
         if (currentPlayerView != null && currentPlayerView != playerView) {
             PlayerView.switchTargetView(player, currentPlayerView, playerView)
+            Log.d(
+                "bccm",
+                "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
+            )
             currentPlayerViewController?.onOwnershipLost();
+            Log.d(
+                "bccm",
+                "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
+            )
         } else {
             playerView.player = player
         }
+        Log.d(
+            "bccm",
+            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
+        )
         currentPlayerView = playerView
+        Log.d(
+            "bccm",
+            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
+        )
         currentPlayerViewController = viewController
+        Log.d(
+            "bccm",
+            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
+        )
         pluginPlayerListener?.onManualPlayerStateUpdate()
+        Log.d(
+            "bccm",
+            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
+        )
     }
 
     fun releasePlayerView(playerView: PlayerView) {

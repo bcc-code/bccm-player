@@ -10,7 +10,6 @@ class StatePlaybackListener implements PlaybackListenerPigeon {
 
   @override
   void onPlaybackStateChanged(event) {
-    debugPrint('bccm received onPlaybackStateChanged ${event.encode()}');
     pluginStateNotifier.getOrAddPlayerNotifier(event.playerId)
       ..setIsBuffering(event.isBuffering)
       ..setPlaybackState(event.playbackState)

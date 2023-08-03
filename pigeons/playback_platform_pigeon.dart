@@ -14,10 +14,8 @@ abstract class PlaybackPlatformPigeon {
   void queueMediaItem(String playerId, MediaItem mediaItem);
 
   @async
-  @ObjCSelector(
-      "replaceCurrentMediaItem:mediaItem:playbackPositionFromPrimary:autoplay:")
-  void replaceCurrentMediaItem(String playerId, MediaItem mediaItem,
-      bool? playbackPositionFromPrimary, bool? autoplay);
+  @ObjCSelector("replaceCurrentMediaItem:mediaItem:playbackPositionFromPrimary:autoplay:")
+  void replaceCurrentMediaItem(String playerId, MediaItem mediaItem, bool? playbackPositionFromPrimary, bool? autoplay);
 
   @ObjCSelector("setPlayerViewVisibility:visible:")
   void setPlayerViewVisibility(int viewId, bool visible);
@@ -148,18 +146,23 @@ enum CastConnectionState {
   connected,
 }
 
-enum TrackType { audio, text }
+enum TrackType { audio, text, video }
 
 class PlayerTracksSnapshot {
   late String playerId;
   late List<Track?> audioTracks;
   late List<Track?> textTracks;
+  late List<Track?> videoTracks;
 }
 
 class Track {
   late String id;
   late String? label;
   late String? language;
+  late double? frameRate;
+  late int? bitrate;
+  late int? width;
+  late int? height;
   late bool isSelected;
 }
 
@@ -208,10 +211,7 @@ class PlaybackStateChangedEvent implements PlayerEvent {
   String playerId;
   PlaybackState playbackState;
   bool isBuffering;
-  PlaybackStateChangedEvent(
-      {required this.playerId,
-      required this.playbackState,
-      required this.isBuffering});
+  PlaybackStateChangedEvent({required this.playerId, required this.playbackState, required this.isBuffering});
 }
 
 class PlaybackEndedEvent implements PlayerEvent {
@@ -225,8 +225,7 @@ class PictureInPictureModeChangedEvent implements PlayerEvent {
   @override
   String playerId;
   bool isInPipMode;
-  PictureInPictureModeChangedEvent(
-      {required this.playerId, required this.isInPipMode});
+  PictureInPictureModeChangedEvent({required this.playerId, required this.isInPipMode});
 }
 
 class MediaItemTransitionEvent implements PlayerEvent {

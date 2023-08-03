@@ -8,15 +8,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BccmPlayerInterface.instance.setup();
-  final playerId = await BccmPlayerInterface.instance.newPlayer();
-  await BccmPlayerInterface.instance.replaceCurrentMediaItem(
-    playerId,
-    MediaItem(
-      url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      mimeType: 'video/mp4',
-      metadata: MediaMetadata(title: 'Bick Buck Bunny (MP4)'),
-    ),
-  );
   final providerContainer = ProviderContainer();
   runApp(
     UncontrolledProviderScope(
@@ -50,6 +41,8 @@ class MyApp extends HookConsumerWidget {
                   id: player.playerId,
                   useNativeControls: false,
                   playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
+                  hidePlaybackSpeed: false,
+                  hideQualitySelector: false,
                 ),
                 ...[
                   MediaItem(

@@ -46,17 +46,23 @@ class CastPlayerController: NSObject, PlayerController {
             return PlayerTracksSnapshot.make(
                 withPlayerId: id,
                 audioTracks: [],
-                textTracks: []
+                textTracks: [],
+                videoTracks: []
             )
         }
         var audioTracks = [Track]()
         var textTracks = [Track]()
+        var videoTracks = [Track]()
          
         for track in tracks {
             let isSelected = mediaStatus.activeTrackIDs?.contains(where: { $0.intValue == track.identifier }) ?? false
             let convertedTrack = Track.make(withId: "\(track.identifier)",
                                             label: track.name,
                                             language: track.languageCode,
+                                            frameRate: nil,
+                                            bitrate: nil,
+                                            width: nil,
+                                            height: nil,
                                             isSelected: NSNumber(booleanLiteral: isSelected))
              
             switch track.type {
@@ -64,12 +70,14 @@ class CastPlayerController: NSObject, PlayerController {
                 audioTracks.append(convertedTrack)
             case .text:
                 textTracks.append(convertedTrack)
+            case .video:
+                continue // not supporting video tracks yet
             default:
                 continue
             }
         }
 
-        return PlayerTracksSnapshot.make(withPlayerId: id, audioTracks: audioTracks, textTracks: textTracks)
+        return PlayerTracksSnapshot.make(withPlayerId: id, audioTracks: audioTracks, textTracks: textTracks, videoTracks: videoTracks)
     }
     
     func setSelectedTrack(type: TrackType, trackId: String?) {
