@@ -5,6 +5,7 @@ import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -34,6 +35,7 @@ class FlutterExoPlayerView(
     private val playerId: String,
     private val showControls: Boolean?,
     private val enableDebugView: Boolean?,
+    private val useSurfaceView: Boolean?,
 ) : PlatformView, BccmPlayerViewController {
     private var playerController: ExoPlayerController? = null
     private val _v: LinearLayout = SystemGestureExcludedLinearLayout(context)
@@ -62,6 +64,7 @@ class FlutterExoPlayerView(
                 creationParams["player_id"] as String,
                 creationParams["show_controls"] as? Boolean?,
                 creationParams["enable_debug_view"] as? Boolean?,
+                creationParams["use_surface_view"] as? Boolean?,
             )
         }
     }
@@ -82,14 +85,20 @@ class FlutterExoPlayerView(
         ioScope.cancel()
     }
 
-
     private fun setup() {
         if (_playerView?.player != null) {
             return
         }
-        Log.d("bccm", "Setting up flutter view for playerId: $playerId")
+        Log.d(
+            "bccm",
+            "Setting up flutter view for playerId: $playerId with surfaceView: $useSurfaceView"
+        )
         _v.removeAllViews()
-        LayoutInflater.from(context).inflate(R.layout.player_view, _v, true)
+        if (useSurfaceView == true) {
+            LayoutInflater.from(context).inflate(R.layout.surface_player_view, _v, true)
+        } else {
+            LayoutInflater.from(context).inflate(R.layout.player_view, _v, true)
+        }
         playerController = playbackService.getController(playerId) as ExoPlayerController
 
         if (playerController == null) {

@@ -34,7 +34,7 @@ This means the video is rendered in the native view hierarchy without any interm
 - [x] Fullscreen
 - [x] NPAW/Youbora analytics
 - [x] Metadata
-- [x] HDR content
+- [x] HDR content (see [HDR](#hdr-content-surfaceviews))
 
 # Installation
 
@@ -161,6 +161,21 @@ BccmPlayerInterface.instance.setAppConfig(
 
 This is designed to be possible but it's not possible yet.
 If anyone needs this I can make it possible very quickly so just create an issue and tag @andreasgangso.
+
+### HDR content, SurfaceViews
+
+For this to work on Android you need to enable SurfaceViews.
+However, the reason this isn't enabled by default is because flutter has a bug with surface views.
+Check out [this issue on the flutter repo](https://github.com/flutter/flutter/issues/89558).
+
+You can opt-in to using surfaceViews via the `useSurfaceView` property on VideoPlayerView or VideoPlatformView:
+
+```dart
+VideoPlayerView(
+    id: player.playerId,
+    useSurfaceView: true,
+),
+```
 
 ### Chromecast
 
