@@ -1,6 +1,7 @@
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/plugins/riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -26,6 +27,7 @@ class MyApp extends HookConsumerWidget {
     if (player == null) {
       return const Center(child: Text('Player id not set'));
     }
+    final useSurfaceView = useState(true);
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -38,11 +40,13 @@ class MyApp extends HookConsumerWidget {
                 Text(player.playerId),
                 Text(player.playbackSpeed.toString()),
                 VideoPlayerView(
+                  key: ValueKey('player surface-view:${useSurfaceView.value}'),
                   id: player.playerId,
                   useNativeControls: false,
                   playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
                   hidePlaybackSpeed: false,
                   hideQualitySelector: false,
+                  useSurfaceView: useSurfaceView.value,
                 ),
                 ...[
                   MediaItem(
@@ -82,6 +86,12 @@ class MyApp extends HookConsumerWidget {
                     child: Text('playbackSpeed $speed'),
                   ),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    useSurfaceView.value = !useSurfaceView.value;
+                  },
+                  child: Text('useSurfaceView: ${useSurfaceView.value}'),
+                )
               ],
             ),
           ),

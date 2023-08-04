@@ -26,6 +26,7 @@ class VideoPlayerView extends HookWidget {
   final bool? hidePlaybackSpeed;
   final bool? hideQualitySelector;
   final WidgetBuilder? castPlayerBuilder;
+  final bool? useSurfaceView;
 
   const VideoPlayerView({
     super.key,
@@ -38,6 +39,7 @@ class VideoPlayerView extends HookWidget {
     this.hidePlaybackSpeed,
     this.hideQualitySelector,
     this.castPlayerBuilder,
+    this.useSurfaceView,
   });
 
   @override
@@ -59,6 +61,7 @@ class VideoPlayerView extends HookWidget {
       return VideoPlatformView(
         id: id,
         showControls: true,
+        useSurfaceView: useSurfaceView,
       );
     }
     if (disableLocally.value) {
@@ -112,6 +115,7 @@ class _VideoWithControls extends HookWidget {
             child: VideoPlatformView(
               id: parent.id,
               showControls: false,
+              useSurfaceView: parent.useSurfaceView,
             ),
           ),
         ),

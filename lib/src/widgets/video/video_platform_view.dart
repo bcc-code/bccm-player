@@ -9,11 +9,13 @@ import 'package:flutter/services.dart';
 class VideoPlatformView extends StatelessWidget {
   final String id;
   final bool showControls;
+  final bool? useSurfaceView;
 
   const VideoPlatformView({
     super.key,
     required this.id,
     this.showControls = true,
+    this.useSurfaceView,
   });
 
   @override
@@ -106,6 +108,7 @@ class _AndroidPlayer extends StatelessWidget {
           creationParams: <String, dynamic>{
             'player_id': parent.id,
             'show_controls': parent.showControls,
+            if (parent.useSurfaceView == true) 'use_surface_view': true,
           },
           creationParamsCodec: const StandardMessageCodec(),
           onFocus: () {
