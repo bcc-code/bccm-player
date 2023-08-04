@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/playerRoot"
@@ -34,7 +35,7 @@
         app:controller_layout_id="@layout/player_controls"
         app:show_buffering="never"
         app:show_subtitle_button="true"
-        app:surface_type="texture_view"
+        app:surface_type="surface_view"
         tools:layout_conversion_absoluteHeight="0dp"
         tools:layout_conversion_absoluteWidth="0dp"
         tools:layout_editor_absoluteY="1dp"
