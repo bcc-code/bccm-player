@@ -1,3 +1,12 @@
+## 0.2.1
+
+- New property `useSurfaceView` to support HDR content (#6). It's opt-in because it can trigger a flutter bug, see [README.md](./README.md#hdr-content-surfaceviews)
+
+## 0.2.0
+
+- New feature: Quality selection ([#4](https://github.com/bcc-code/bccm-player/pull/4)) ("Max quality" on iOS because its practically impossible to force a rendition with avplayer)
+- BREAKING CHANGE: `showPlaybackSpeed` renamed to `hidePlaybackSpeed`
+
 ## 0.1.0
 
 - BREAKING CHANGE: `useNativeControls` on enterFullscreen and VideoPlayerView now defaults to false instead of true.
