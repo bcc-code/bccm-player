@@ -32,6 +32,12 @@ class MyApp extends HookConsumerWidget {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
+          actions: const [
+            Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: CastButton(color: Colors.white),
+            ),
+          ],
         ),
         body: SafeArea(
           child: Center(
