@@ -61,6 +61,6 @@ internal class FlutterCastButton(
             btn.setRemoteIndicatorDrawable(drawable)
         }
         _view = btn
-        CastButtonFactory.setUpMediaRouteButton(context, btn)
+        CastButtonFactory.setUpMediaRouteButton(wrappedContext, btn)
     }
 }

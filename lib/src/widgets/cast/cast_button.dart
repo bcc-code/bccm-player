@@ -15,17 +15,23 @@ class CastButton extends StatelessWidget {
       if (color != null) 'color': color!.value,
     };
     if (Platform.isAndroid) {
-      return AndroidView(
-        viewType: 'bccm_player/cast_button',
-        layoutDirection: TextDirection.ltr,
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
+      return SizedBox(
+        width: 24,
+        child: AndroidView(
+          viewType: 'bccm_player/cast_button',
+          layoutDirection: TextDirection.ltr,
+          creationParams: creationParams,
+          creationParamsCodec: const StandardMessageCodec(),
+        ),
       );
     } else if (Platform.isIOS && const String.fromEnvironment('IS_MAESTRO_TEST', defaultValue: 'false') != 'true') {
-      return UiKitView(
-        viewType: 'bccm_player/cast_button',
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
+      return SizedBox(
+        width: 24,
+        child: UiKitView(
+          viewType: 'bccm_player/cast_button',
+          creationParams: creationParams,
+          creationParamsCodec: const StandardMessageCodec(),
+        ),
       );
     }
     return Container();
