@@ -1,0 +1,8 @@
+site_name: BccmPlayer docs
+docs_dir: doc/
+theme:
+  name: readthedocs
+plugins:
+  - exclude:
+      glob:
+        - api/*
