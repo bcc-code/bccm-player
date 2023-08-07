@@ -12,7 +12,14 @@
          running.
 
          This Theme is only used starting with V2 of Flutter's Android embedding. -->
-    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+    <style name="NormalTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="colorPrimary">#ffffffff</item>
+        <item name="mediaRouteTheme">@style/CustomMediaRouterTheme</item>
+    </style>
+
+    <style name="CustomMediaRouterTheme" parent="Theme.MediaRouter">
+        <item name="android:windowBackground">#ff000000</item>
+        <item name="android:colorBackground">#ff000000</item>
     </style>
 </resources>
