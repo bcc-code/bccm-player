@@ -1,3 +1,7 @@
+## 0.2.2
+
+- Chromecast setup improvements, add missing documentation.
+
 ## 0.2.1
 
 - New property `useSurfaceView` to support HDR content (#6). It's opt-in because it can trigger a flutter bug, see [README.md](./README.md#hdr-content-surfaceviews)
