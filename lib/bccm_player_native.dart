@@ -2,12 +2,7 @@ import 'package:bccm_player/src/pigeon/chromecast_pigeon.g.dart';
 import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/native/chromecast_pigeon_listener.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
-import 'package:bccm_player/src/state/player_controller.dart';
 import 'package:bccm_player/src/state/state_playback_listener.dart';
-import 'package:bccm_player/src/widgets/video/video_player_view_fullscreen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'bccm_player.dart';
 

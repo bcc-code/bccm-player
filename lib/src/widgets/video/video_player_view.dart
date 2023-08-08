@@ -1,11 +1,9 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player/src/state/player_controller.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../cast/cast_player.dart';
-import 'package:bccm_player/src/playback_platform_interface.dart';
 import 'package:flutter/material.dart';
 
 import '../controls/default_controls.dart';

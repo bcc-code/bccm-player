@@ -1,5 +1,4 @@
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player/src/state/player_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
