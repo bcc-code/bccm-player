@@ -4,6 +4,7 @@ import 'package:state_notifier/state_notifier.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../bccm_player.dart';
+import '../pigeon/playback_platform_pigeon.g.dart';
 import '../widgets/video/video_player_view_fullscreen.dart';
 
 class BccmPlayerController extends ValueNotifier<PlayerState> {
@@ -93,6 +94,14 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
 
   Future<void> play() async {
     BccmPlayerInterface.instance.play(value.playerId);
+  }
+
+  Future<PlayerTracksSnapshot?> getTracks() {
+    return BccmPlayerInterface.instance.getPlayerTracks(playerId: value.playerId);
+  }
+
+  Future<void> setSelectedTrack(TrackType type, String? trackId) {
+    return BccmPlayerInterface.instance.setSelectedTrack(value.playerId, type, trackId);
   }
 
   void setPrimary() {

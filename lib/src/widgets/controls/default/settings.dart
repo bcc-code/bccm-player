@@ -73,8 +73,7 @@ class _SettingsBottomSheet extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    getTracks() => BccmPlayerInterface.instance.getPlayerTracks(playerId: controller.value.playerId);
-    final tracksFuture = useState(useMemoized(getTracks));
+    final tracksFuture = useState(useMemoized(controller.getTracks));
     final tracksSnapshot = useFuture(tracksFuture.value);
 
     if (tracksSnapshot.data == null && tracksSnapshot.connectionState == ConnectionState.waiting) {
@@ -101,7 +100,7 @@ class _SettingsBottomSheet extends HookWidget {
         isLive.value = controller.value.currentMediaItem?.isLive == true;
         if (playbackState.value != controller.value.playbackState) {
           playbackState.value = controller.value.playbackState;
-          tracksFuture.value = getTracks();
+          tracksFuture.value = controller.getTracks();
         }
       }
 
@@ -123,10 +122,10 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await BccmPlayerInterface.instance.setSelectedTrack(controller.value.playerId, TrackType.audio, selected.value.id);
+              await controller.setSelectedTrack(TrackType.audio, selected.value.id);
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
-                tracksFuture.value = getTracks();
+                tracksFuture.value = controller.getTracks();
               });
             }
           },
@@ -150,10 +149,10 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await BccmPlayerInterface.instance.setSelectedTrack(controller.value.playerId, TrackType.text, selected.value?.id);
+              await controller.setSelectedTrack(TrackType.text, selected.value?.id);
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
-                tracksFuture.value = getTracks();
+                tracksFuture.value = controller.getTracks();
               });
             }
           },
@@ -196,14 +195,13 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await BccmPlayerInterface.instance.setSelectedTrack(
-                controller.value.playerId,
+              await controller.setSelectedTrack(
                 TrackType.video,
                 selected.value != null ? selected.value!.id : autoTrackId,
               );
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
-                tracksFuture.value = getTracks();
+                tracksFuture.value = controller.getTracks();
               });
             }
           },
