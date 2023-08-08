@@ -16,6 +16,9 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   late final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener(this);
 
   @override
+  BccmPlayerController get primaryController => throw UnimplementedError('primaryController has not been implemented for web.');
+
+  @override
   Future setup() async {}
 
   static void registerWith(Registrar registrar) {

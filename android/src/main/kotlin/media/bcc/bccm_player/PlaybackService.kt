@@ -54,6 +54,17 @@ class PlaybackService : MediaSessionService() {
         return pc
     }
 
+    fun disposePlayer(playerId: String): Boolean {
+        val controller = getController(playerId);
+        if (controller != null) {
+            controller.release()
+            playerControllers.remove(controller);
+            return true
+        }
+        return false
+    }
+
+
     fun setPrimary(playerId: String) {
         if (playerId == primaryPlayerController?.id) return
         Log.d("bccm", "PlaybackService(${this.hashCode()})::setPrimary($playerId) called")

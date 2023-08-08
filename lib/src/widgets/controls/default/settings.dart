@@ -3,6 +3,7 @@
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:bccm_player/src/pigeon/pigeon_extensions.dart';
+import 'package:bccm_player/src/state/player_controller.dart';
 import 'package:bccm_player/src/widgets/controls/default/settings_option_list.dart';
 import 'package:bccm_player/theme/bccm_player_theme.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -14,7 +15,7 @@ import 'package:universal_io/io.dart';
 class SettingsButton extends HookWidget {
   const SettingsButton({
     super.key,
-    required this.playerId,
+    required this.controller,
     required this.controlsTheme,
     this.padding,
     this.playbackSpeeds,
@@ -22,7 +23,7 @@ class SettingsButton extends HookWidget {
     this.hideQualitySelector,
   });
 
-  final String playerId;
+  final BccmPlayerController controller;
   final ControlsThemeData controlsTheme;
   final EdgeInsets? padding;
   final List<double>? playbackSpeeds;
@@ -39,7 +40,7 @@ class SettingsButton extends HookWidget {
           context: context,
           isDismissible: true,
           builder: (context) => _SettingsBottomSheet(
-            playerId: playerId,
+            controller: controller,
             controlsTheme: controlsTheme,
             playbackSpeeds: playbackSpeeds ?? const [0.75, 1.0, 1.25, 1.5, 2.0],
             hidePlaybackSpeed: hidePlaybackSpeed,
@@ -57,14 +58,14 @@ class SettingsButton extends HookWidget {
 
 class _SettingsBottomSheet extends HookWidget {
   const _SettingsBottomSheet({
-    required this.playerId,
+    required this.controller,
     required this.controlsTheme,
     required this.playbackSpeeds,
     required this.hidePlaybackSpeed,
     required this.hideQualitySelector,
   });
 
-  final String playerId;
+  final BccmPlayerController controller;
   final ControlsThemeData controlsTheme;
   final List<double> playbackSpeeds;
   final bool? hidePlaybackSpeed;
@@ -72,7 +73,7 @@ class _SettingsBottomSheet extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    getTracks() => BccmPlayerInterface.instance.getPlayerTracks(playerId: playerId);
+    getTracks() => BccmPlayerInterface.instance.getPlayerTracks(playerId: controller.value.playerId);
     final tracksFuture = useState(useMemoized(getTracks));
     final tracksSnapshot = useFuture(tracksFuture.value);
 
@@ -91,20 +92,21 @@ class _SettingsBottomSheet extends HookWidget {
     var uniqueHeights = <int>{};
     final uniqueVideoTracks = tracksData?.videoTracks.safe.where((t) => uniqueHeights.add(t.height ?? 0)).toList();
 
-    final playbackSpeed = useState(BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.state.playbackSpeed ?? 1.0);
+    final playbackSpeed = useState(controller.value.playbackSpeed);
     final isLive = useState(false);
-    final playbackState = useState(BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.state.playbackState);
+    final playbackState = useState(controller.value.playbackState);
     useEffect(() {
-      void listener(PlayerState state) {
-        playbackSpeed.value = state.playbackSpeed;
-        isLive.value = state.currentMediaItem?.isLive == true;
-        if (playbackState.value != state.playbackState) {
-          playbackState.value = state.playbackState;
+      void listener() {
+        playbackSpeed.value = controller.value.playbackSpeed;
+        isLive.value = controller.value.currentMediaItem?.isLive == true;
+        if (playbackState.value != controller.value.playbackState) {
+          playbackState.value = controller.value.playbackState;
           tracksFuture.value = getTracks();
         }
       }
 
-      return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.addListener(listener);
+      controller.addListener(listener);
+      return () => controller.removeListener(listener);
     });
 
     final settings = [
@@ -121,7 +123,7 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await BccmPlayerInterface.instance.setSelectedTrack(playerId, TrackType.audio, selected.value.id);
+              await BccmPlayerInterface.instance.setSelectedTrack(controller.value.playerId, TrackType.audio, selected.value.id);
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
                 tracksFuture.value = getTracks();
@@ -148,7 +150,7 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await BccmPlayerInterface.instance.setSelectedTrack(playerId, TrackType.text, selected.value?.id);
+              await BccmPlayerInterface.instance.setSelectedTrack(controller.value.playerId, TrackType.text, selected.value?.id);
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
                 tracksFuture.value = getTracks();
@@ -174,7 +176,7 @@ class _SettingsBottomSheet extends HookWidget {
                   .toList(),
             );
             if (selected != null && context.mounted) {
-              BccmPlayerInterface.instance.setPlaybackSpeed(playerId, selected.value);
+              controller.setPlaybackSpeed(selected.value);
             }
           },
         ),
@@ -195,7 +197,7 @@ class _SettingsBottomSheet extends HookWidget {
             );
             if (selected != null && context.mounted) {
               await BccmPlayerInterface.instance.setSelectedTrack(
-                playerId,
+                controller.value.playerId,
                 TrackType.video,
                 selected.value != null ? selected.value!.id : autoTrackId,
               );

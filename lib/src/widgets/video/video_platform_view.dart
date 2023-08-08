@@ -6,27 +6,66 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-class VideoPlatformView extends StatelessWidget {
-  final String id;
+import '../../../bccm_player.dart';
+import '../cast/cast_player.dart';
+
+class VideoPlatformView extends StatefulWidget {
+  final BccmPlayerController controller;
   final bool showControls;
   final bool? useSurfaceView;
 
   const VideoPlatformView({
     super.key,
-    required this.id,
+    required this.controller,
     this.showControls = true,
     this.useSurfaceView,
   });
 
   @override
+  State<VideoPlatformView> createState() => _VideoPlatformViewState();
+}
+
+class _VideoPlatformViewState extends State<VideoPlatformView> {
+  late String playerId;
+  late bool isInitialized;
+
+  @override
+  void initState() {
+    super.initState();
+    playerId = widget.controller.value.playerId;
+    isInitialized = widget.controller.value.isInitialized;
+    widget.controller.addListener(onControllerStateChanged);
+  }
+
+  void onControllerStateChanged() {
+    if (!mounted) return;
+    setState(() {
+      playerId = widget.controller.value.playerId;
+      isInitialized = widget.controller.value.isInitialized;
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(onControllerStateChanged);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (widget.controller.value.isInitialized == false) {
+      return const SizedBox.shrink();
+    } else if (widget.controller.value.playerId == 'chromecast') {
+      return const CastPlayer();
+    }
+
     Widget getPlatformSpecificPlayer() {
       if (kIsWeb) {
-        return _WebPlayer(parent: this);
+        return _WebPlayer(parent: widget);
       } else if (Platform.isAndroid) {
-        return _AndroidPlayer(parent: this);
+        return _AndroidPlayer(parent: widget);
       } else if (Platform.isIOS) {
-        return _IOSPlayer(parent: this);
+        return _IOSPlayer(parent: widget);
       }
       return const SizedBox.shrink();
     }
@@ -47,7 +86,7 @@ class _WebPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(viewType: 'bccm-player-${parent.id}');
+    return HtmlElementView(viewType: 'bccm-player-${parent.controller.value.playerId}');
   }
 }
 
@@ -69,7 +108,7 @@ class _IOSPlayer extends StatelessWidget {
         ),
       },
       creationParams: <String, dynamic>{
-        'player_id': parent.id,
+        'player_id': parent.controller.value.playerId,
         'show_controls': parent.showControls,
       },
       creationParamsCodec: const StandardMessageCodec(),
@@ -106,7 +145,7 @@ class _AndroidPlayer extends StatelessWidget {
           viewType: 'bccm-player',
           layoutDirection: TextDirection.ltr,
           creationParams: <String, dynamic>{
-            'player_id': parent.id,
+            'player_id': parent.controller.value.playerId,
             'show_controls': parent.showControls,
             if (parent.useSurfaceView == true) 'use_surface_view': true,
           },

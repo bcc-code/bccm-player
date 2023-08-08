@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:bccm_player/bccm_player.dart';
+import 'package:bccm_player/src/state/player_controller.dart';
 import 'package:bccm_player/src/utils/debouncer.dart';
 import 'package:bccm_player/src/widgets/controls/controls_wrapper.dart';
 import 'package:bccm_player/src/widgets/mini_player/loading_indicator.dart';
@@ -20,7 +21,7 @@ import 'default/settings.dart';
 class DefaultControls extends HookWidget {
   const DefaultControls({
     super.key,
-    required this.playerId,
+    required this.controller,
     required this.goFullscreen,
     required this.exitFullscreen,
     this.playNextButton,
@@ -29,7 +30,7 @@ class DefaultControls extends HookWidget {
     this.hideQualitySelector,
   });
 
-  final String playerId;
+  final BccmPlayerController controller;
   final Future Function() goFullscreen;
   final Future Function() exitFullscreen;
   final WidgetBuilder? playNextButton;
@@ -40,20 +41,13 @@ class DefaultControls extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final controlsTheme = PlayerTheme.safeOf(context).controls!;
-    final player = useState(BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.state);
+    final player = useListenable(controller);
     final seekDebouncer = useMemoized(() => Debouncer(milliseconds: 1000));
     final forwardRewindDebouncer = useMemoized(() => Debouncer(milliseconds: 200, debounceInitial: false));
-    useEffect(() {
-      void listener(PlayerState state) {
-        player.value = state;
-      }
-
-      return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.addListener(listener);
-    });
-    final currentMs = player.value?.playbackPositionMs ?? 0;
-    final duration = player.value?.currentMediaItem?.metadata?.durationMs ?? player.value?.playbackPositionMs?.toDouble() ?? 1;
+    final currentMs = player.value.playbackPositionMs ?? 0;
+    final duration = player.value.currentMediaItem?.metadata?.durationMs ?? player.value?.playbackPositionMs?.toDouble() ?? 1;
     final forwardRewindDurationSec = Duration(milliseconds: duration.toInt()).inMinutes > 60 ? 30 : 15;
-    final isFullscreen = player.value?.isFlutterFullscreen == true;
+    final isFullscreen = player.value.isFlutterFullscreen == true;
     final seeking = useState(false);
     final currentScrub = useState(0.0);
     final totalSeekToDurationMs = useRef(0.0);
@@ -67,7 +61,7 @@ class DefaultControls extends HookWidget {
       seeking.value = true;
       seekDebouncer.run(() async {
         if (!context.mounted) return;
-        await BccmPlayerInterface.instance.seekTo(playerId, currentScrub.value * duration);
+        await controller.seekTo(Duration(milliseconds: (currentScrub.value * duration).round()));
         seeking.value = false;
       });
     }
@@ -80,7 +74,7 @@ class DefaultControls extends HookWidget {
       currentScrub.value = newPositionMs / duration;
       forwardRewindDebouncer.run(() async {
         if (!context.mounted) return;
-        await BccmPlayerInterface.instance.seekTo(playerId, newPositionMs);
+        await controller.seekTo(Duration(milliseconds: (newPositionMs).round()));
         totalSeekToDurationMs.value = 0;
         seeking.value = false;
       });
@@ -122,7 +116,7 @@ class DefaultControls extends HookWidget {
                         ],
                         const Spacer(),
                         SettingsButton(
-                          playerId: playerId,
+                          controller: controller,
                           padding: const EdgeInsets.only(top: 12, bottom: 24, left: 24, right: 8),
                           controlsTheme: controlsTheme,
                           hidePlaybackSpeed: hidePlaybackSpeed,
@@ -163,7 +157,7 @@ class DefaultControls extends HookWidget {
                           ),
                           color: controlsTheme.iconColor,
                           onPressed: () {
-                            BccmPlayerInterface.instance.play(playerId);
+                            controller.play();
                           },
                         )
                       else
@@ -186,7 +180,7 @@ class DefaultControls extends HookWidget {
                           iconSize: 42,
                           color: controlsTheme.iconColor,
                           onPressed: () {
-                            BccmPlayerInterface.instance.pause(playerId);
+                            controller.pause();
                           },
                         ),
                       Padding(

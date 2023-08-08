@@ -10,6 +10,10 @@ abstract class PlaybackPlatformPigeon {
   String newPlayer(String? url);
 
   @async
+  @ObjCSelector("disposePlayer:")
+  bool disposePlayer(String playerId);
+
+  @async
   @ObjCSelector("queueMediaItem:mediaItem:")
   void queueMediaItem(String playerId, MediaItem mediaItem);
 

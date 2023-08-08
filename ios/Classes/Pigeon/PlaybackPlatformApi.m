@@ -731,6 +731,25 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.PlaybackPlatformPigeon.disposePlayer"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(disposePlayer:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(disposePlayer:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
+        [api disposePlayer:arg_playerId completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.PlaybackPlatformPigeon.queueMediaItem"
         binaryMessenger:binaryMessenger
         codec:PlaybackPlatformPigeonGetCodec()];

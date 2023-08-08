@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:bccm_player/src/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
@@ -14,7 +15,17 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
   late Timer positionUpdateTimer;
 
   PlayerStateNotifier({PlayerState? player, this.onDispose, required this.keepAlive}) : super(player ?? const PlayerState(playerId: 'unknown')) {
-    positionUpdateTimer = Timer.periodic(const Duration(seconds: 1), updatePosition);
+    positionUpdateTimer = Timer.periodic(const Duration(seconds: 1), _updatePosition);
+  }
+
+  static PlayerStateNotifier? primary() {
+    final id = BccmPlayerInterface.instance.stateNotifier.getPrimaryPlayerId();
+    if (id == null) return null;
+    return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(id);
+  }
+
+  static PlayerStateNotifier? existing(String playerId) {
+    return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId);
   }
 
   @override
@@ -23,11 +34,12 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     // prevents riverpods StateNotifierProvider from disposing it
     if (!keepAlive || force == true) {
       onDispose?.call();
+      positionUpdateTimer.cancel();
       super.dispose();
     }
   }
 
-  void updatePosition(Timer t) {
+  void _updatePosition(Timer t) {
     if (!mounted) return t.cancel();
     if (state.playbackPositionMs != null && state.playbackState == PlaybackState.playing) {
       // Increase by 1000 * playbackSpeed, because timer is called every 1000ms
@@ -38,7 +50,7 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
 
   void resyncPlaybackPositionTimer() {
     positionUpdateTimer.cancel();
-    positionUpdateTimer = Timer.periodic(const Duration(seconds: 1), updatePosition);
+    positionUpdateTimer = Timer.periodic(const Duration(seconds: 1), _updatePosition);
   }
 
   void setMediaItem(MediaItem? mediaItem) {
@@ -84,6 +96,7 @@ class PlayerState with _$PlayerState {
     @Default(PlaybackState.stopped) PlaybackState playbackState,
     @Default(false) bool isBuffering,
     @Default(false) bool isInPipMode,
+    @Default(false) bool isInitialized,
   }) = _PlayerState;
 
   bool get isFullscreen => isNativeFullscreen || isFlutterFullscreen;
@@ -97,6 +110,7 @@ class PlayerState with _$PlayerState {
       playbackState: state.playbackState,
       isBuffering: state.isBuffering,
       isNativeFullscreen: state.isFullscreen,
+      isInitialized: true,
     );
   }
 }
@@ -106,6 +120,7 @@ extension on PlayerState {
     return PlayerState.fromPlayerStateSnapshot(snapshot).copyWith(
       isInPipMode: isInPipMode, // not part of snapshot
       isFlutterFullscreen: isFlutterFullscreen, // not part of snapshot
+      isInitialized: true,
     );
   }
 }

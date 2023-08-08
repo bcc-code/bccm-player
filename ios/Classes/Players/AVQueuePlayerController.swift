@@ -17,6 +17,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     var refreshStateTimer: Timer? = nil
     var currentViewController: AVPlayerViewController? = nil
     var fullscreenViewController: AVPlayerViewController? = nil
+    var isPrimary = false
 
     init(id: String? = nil, playbackListener: PlaybackListenerPigeon, npawConfig: NpawConfig?, appConfig: AppConfig?) {
         self.id = id ?? UUID().uuidString
@@ -198,6 +199,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     public func hasBecomePrimary() {
+        isPrimary = true
         setupCommandCenter()
     }
     
@@ -426,7 +428,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         completion(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")
-                        completion(FlutterError(code: "", message: "MediaItem failed to load", details: ["playerItem.status", playerItem.status.rawValue]))
+                        completion(FlutterError(code: "", message: "MediaItem failed to load", details: ["playerItem.status", playerItem.status.rawValue, "playerItem.error", playerItem.error?.localizedDescription]))
                     }
                     self.temporaryStatusObserver?.invalidate()
                     self.temporaryStatusObserver = nil

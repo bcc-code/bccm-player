@@ -129,6 +129,16 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         result.success(playerController.id)
     }
 
+    override fun disposePlayer(playerId: String, result: PlaybackPlatformApi.Result<Boolean>) {
+        val playbackService = plugin.getPlaybackService()
+        if (playbackService == null) {
+            result.error(Error("Playback service doesnt exist"))
+            return
+        }
+        val didDispose = playbackService.disposePlayer(playerId)
+        result.success(didDispose);
+    }
+
     override fun replaceCurrentMediaItem(
         playerId: String,
         mediaItem: PlaybackPlatformApi.MediaItem,

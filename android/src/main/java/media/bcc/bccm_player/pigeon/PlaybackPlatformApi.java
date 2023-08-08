@@ -1772,6 +1772,8 @@ public class PlaybackPlatformApi {
 
     void newPlayer(@Nullable String url, @NonNull Result<String> result);
 
+    void disposePlayer(@NonNull String playerId, @NonNull Result<Boolean> result);
+
     void queueMediaItem(@NonNull String playerId, @NonNull MediaItem mediaItem, @NonNull Result<Void> result);
 
     void replaceCurrentMediaItem(@NonNull String playerId, @NonNull MediaItem mediaItem, @Nullable Boolean playbackPositionFromPrimary, @Nullable Boolean autoplay, @NonNull Result<Void> result);
@@ -1867,6 +1869,35 @@ public class PlaybackPlatformApi {
                     };
 
                 api.newPlayer(urlArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.PlaybackPlatformPigeon.disposePlayer", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                Result<Boolean> resultCallback =
+                    new Result<Boolean>() {
+                      public void success(Boolean result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.disposePlayer(playerIdArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

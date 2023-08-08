@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:bccm_player/bccm_player.dart';
+import 'package:bccm_player/src/state/player_controller.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../cast/cast_player.dart';
@@ -17,7 +18,7 @@ import 'video_platform_view.dart';
 /// * [playNextButton] is a widget that will be shown in the bottom right corner of the player.
 /// * [isFullscreenPlayer] should only be used when this is used in a fullscreen context.
 class VideoPlayerView extends HookWidget {
-  final String id;
+  final BccmPlayerController controller;
   final bool useNativeControls;
   final bool isFullscreenPlayer;
   final VoidCallback? resetSystemOverlays;
@@ -30,7 +31,7 @@ class VideoPlayerView extends HookWidget {
 
   const VideoPlayerView({
     super.key,
-    required this.id,
+    required this.controller,
     this.useNativeControls = false,
     this.isFullscreenPlayer = false,
     this.resetSystemOverlays,
@@ -46,20 +47,25 @@ class VideoPlayerView extends HookWidget {
   Widget build(BuildContext context) {
     final isMounted = useIsMounted();
     final disableLocally = useState(
-      BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(id)?.state.isFlutterFullscreen == true && !isFullscreenPlayer,
+      controller.value.isFlutterFullscreen == true && !isFullscreenPlayer,
     );
+    final playerId = useState(controller.value.playerId);
     useEffect(() {
-      return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(id)?.addListener((state) {
-        state.isFlutterFullscreen == true && !isFullscreenPlayer ? disableLocally.value = true : disableLocally.value = false;
-      });
-    }, [id, isFullscreenPlayer]);
+      listener() {
+        disableLocally.value = controller.value.isFlutterFullscreen == true && !isFullscreenPlayer;
+        playerId.value = controller.value.playerId;
+      }
 
-    if (id == 'chromecast') {
+      controller.addListener(listener);
+      return () => controller.removeListener(listener);
+    }, [playerId, isFullscreenPlayer]);
+
+    if (playerId.value == 'chromecast') {
       return castPlayerBuilder != null ? castPlayerBuilder!(context) : const CastPlayer();
     }
     if (useNativeControls) {
       return VideoPlatformView(
-        id: id,
+        controller: controller,
         showControls: true,
         useSurfaceView: useSurfaceView,
       );
@@ -70,8 +76,7 @@ class VideoPlayerView extends HookWidget {
 
     Future goFullscreen() async {
       disableLocally.value = true;
-      await BccmPlayerInterface.instance.enterFullscreen(
-        id,
+      controller.enterFullscreen(
         useNativeControls: useNativeControls,
         context: context,
         resetSystemOverlays: resetSystemOverlays,
@@ -83,7 +88,7 @@ class VideoPlayerView extends HookWidget {
     }
 
     Future exitFullscreen() async {
-      BccmPlayerInterface.instance.exitFullscreen(id);
+      BccmPlayerInterface.instance.exitFullscreen(playerId.value);
     }
 
     return _VideoWithControls(
@@ -113,7 +118,7 @@ class _VideoWithControls extends HookWidget {
           child: IgnorePointer(
             ignoring: true,
             child: VideoPlatformView(
-              id: parent.id,
+              controller: parent.controller,
               showControls: false,
               useSurfaceView: parent.useSurfaceView,
             ),
@@ -122,7 +127,7 @@ class _VideoWithControls extends HookWidget {
         Positioned.fill(
           child: Builder(builder: (context) {
             return DefaultControls(
-              playerId: parent.id,
+              controller: parent.controller,
               exitFullscreen: exitFullscreen,
               goFullscreen: goFullscreen,
               playNextButton: parent.playNextButton,
