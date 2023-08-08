@@ -338,4 +338,6 @@ abstract class PlayerController : Player.Listener {
         player.setPlaybackSpeed(speed)
         pluginPlayerListener?.onManualPlayerStateUpdate()
     }
+
+    abstract fun setMixWithOthers(mixWithOthers: Boolean);
 }

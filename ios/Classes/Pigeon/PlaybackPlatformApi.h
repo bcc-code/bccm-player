@@ -242,6 +242,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)setPlaybackSpeed:(NSString *)playerId speed:(NSNumber *)speed completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)exitFullscreen:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)enterFullscreen:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
+- (void)setMixWithOthers:(NSString *)playerId mixWithOthers:(NSNumber *)mixWithOthers completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setNpawConfig:(nullable NpawConfig *)config error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setAppConfig:(nullable AppConfig *)config error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)getTracks:(nullable NSString *)playerId completion:(void (^)(PlayerTracksSnapshot *_Nullable, FlutterError *_Nullable))completion;

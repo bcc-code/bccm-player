@@ -3,7 +3,6 @@ package media.bcc.bccm_player.views
 import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.util.Rational
@@ -20,7 +19,7 @@ import androidx.media3.ui.PlayerView
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filterIsInstance
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
-import media.bcc.bccm_player.PictureInPictureModeChangedEvent2
+import media.bcc.bccm_player.PictureInPictureModeChangedEvent
 import media.bcc.bccm_player.R
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.players.exoplayer.ExoPlayerController
@@ -104,7 +103,7 @@ class FullscreenPlayerView(
         })
 
         mainScope.launch {
-            BccmPlayerPluginSingleton.eventBus.filterIsInstance<PictureInPictureModeChangedEvent2>()
+            BccmPlayerPluginSingleton.eventBus.filterIsInstance<PictureInPictureModeChangedEvent>()
                 .collect { event ->
                     isInPip = event.isInPictureInPictureMode
                     Log.d("bccm", "PictureInPictureModeChangedEvent2, isInPiP: $isInPip")

@@ -395,6 +395,22 @@ class MockBccmPlayerInterface extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+  @override
+  _i3.Future<void> setMixWithOthers(
+    String? playerId,
+    bool? mixWithOthers,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setMixWithOthers,
+          [
+            playerId,
+            mixWithOthers,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
 
 /// A class which mocks [PlayerPluginStateNotifier].

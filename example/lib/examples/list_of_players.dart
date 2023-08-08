@@ -18,10 +18,11 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
       BccmPlayerController.empty(),
       ...exampleVideos.map(
         (e) => BccmPlayerController(e),
-      )
+      ),
+      BccmPlayerInterface.instance.primaryController,
     ];
-    for (var element in controllers) {
-      element.initialize();
+    for (final controller in controllers) {
+      controller.initialize().then((_) => controller.setMixWithOthers(true));
     }
     super.initState();
   }
@@ -29,7 +30,7 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
   @override
   void dispose() {
     for (var element in controllers) {
-      element.dispose();
+      if (!element.isPrimary) element.dispose();
     }
     super.dispose();
   }

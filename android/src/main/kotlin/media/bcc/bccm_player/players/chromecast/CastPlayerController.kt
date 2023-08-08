@@ -49,6 +49,10 @@ class CastPlayerController(
         }
     }
 
+    override fun setMixWithOthers(mixWithOthers: Boolean) {
+        // no-op for chromecast
+    }
+
     fun getState(): PlaybackPlatformApi.ChromecastState {
         val builder = PlaybackPlatformApi.ChromecastState.Builder()
         Log.d("bccm", "getState, player currentMediaItem: " + player.currentMediaItem)

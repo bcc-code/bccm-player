@@ -121,4 +121,8 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   void setPlayerViewVisibility(int viewId, bool visible) {
     throw UnimplementedError('setPlayerViewVisibility() has not been implemented.');
   }
+
+  Future<void> setMixWithOthers(String playerId, bool mixWithOthers) {
+    throw UnimplementedError('setMixWithOthers() has not been implemented.');
+  }
 }

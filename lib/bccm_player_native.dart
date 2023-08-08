@@ -184,4 +184,9 @@ class BccmPlayerNative extends BccmPlayerInterface {
   void setPlayerViewVisibility(int viewId, bool visible) {
     _pigeon.setPlayerViewVisibility(viewId, visible);
   }
+
+  @override
+  Future<void> setMixWithOthers(String playerId, bool mixWithOthers) {
+    return _pigeon.setMixWithOthers(playerId, mixWithOthers);
+  }
 }

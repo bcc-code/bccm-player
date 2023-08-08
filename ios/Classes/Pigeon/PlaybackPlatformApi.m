@@ -988,6 +988,26 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.PlaybackPlatformPigeon.setMixWithOthers"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(setMixWithOthers:mixWithOthers:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setMixWithOthers:mixWithOthers:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
+        NSNumber *arg_mixWithOthers = GetNullableObjectAtIndex(args, 1);
+        [api setMixWithOthers:arg_playerId mixWithOthers:arg_mixWithOthers completion:^(FlutterError *_Nullable error) {
+          callback(wrapResult(nil, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.PlaybackPlatformPigeon.setNpawConfig"
         binaryMessenger:binaryMessenger
         codec:PlaybackPlatformPigeonGetCodec()];

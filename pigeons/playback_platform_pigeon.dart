@@ -55,6 +55,10 @@ abstract class PlaybackPlatformPigeon {
   @ObjCSelector("enterFullscreen:")
   void enterFullscreen(String playerId);
 
+  @async
+  @ObjCSelector("setMixWithOthers:mixWithOthers:")
+  void setMixWithOthers(String playerId, bool mixWithOthers);
+
   @ObjCSelector("setNpawConfig:")
   void setNpawConfig(NpawConfig? config);
 

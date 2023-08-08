@@ -14,25 +14,14 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   NavigatorState? _currentFullscreenNavigator;
   StateNotifier<PlayerState>? get stateNotifier => _stateNotifier;
 
-  void swapPlayerNotifier(PlayerStateNotifier notifier) {
-    _listenToNotifier(notifier);
-  }
-
-  void _listenToNotifier(PlayerStateNotifier notifier) {
-    _removeStateListener?.call();
-    _removeStateListener = notifier.addListener((state) {
-      value = state;
-    });
-    _stateNotifier = notifier;
-  }
+  BccmPlayerController(MediaItem mediaItem)
+      : _intialMediaItem = mediaItem,
+        super(const PlayerState(
+          playerId: 'unknown',
+          isInitialized: false,
+        ));
 
   @protected
-  BccmPlayerController.fromStateNotifier(PlayerStateNotifier notifier)
-      : _intialMediaItem = null,
-        super(notifier.state) {
-    _listenToNotifier(notifier);
-  }
-
   BccmPlayerController.empty()
       : _intialMediaItem = null,
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
@@ -46,12 +35,30 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
         ),
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
 
-  BccmPlayerController(MediaItem mediaItem)
-      : _intialMediaItem = mediaItem,
-        super(const PlayerState(playerId: 'unknown', isInitialized: false));
+  void swapPlayerNotifier(PlayerStateNotifier notifier) {
+    _listenToNotifier(notifier);
+  }
+
+  void _listenToNotifier(PlayerStateNotifier notifier) {
+    _removeStateListener?.call();
+    _removeStateListener = notifier.addListener((state) {
+      value = state;
+    });
+    _stateNotifier = notifier;
+  }
+
+  bool get isPrimary => BccmPlayerInterface.instance.primaryController.value.playerId == value.playerId;
 
   @override
   Future<void> dispose() async {
+    assert(
+      !isPrimary,
+      "The primary player can't be disposed",
+    );
+    if (isPrimary) {
+      debugPrint("Warning: The primary player can't be disposed, but it was attempted.");
+      return;
+    }
     _removeStateListener?.call();
     super.dispose();
     return BccmPlayerInterface.instance.disposePlayer(value.playerId);
@@ -98,6 +105,12 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     } else {
       BccmPlayerInterface.instance.exitFullscreen(playerId);
     }
+  }
+
+  /// Sets to mix audio with other apps/players.
+  /// Untested on iOS, might be a bit buggy because we are setting this setting multiple places.
+  Future<void> setMixWithOthers(bool bool) {
+    return BccmPlayerInterface.instance.setMixWithOthers(value.playerId, bool);
   }
 
   Future enterFullscreen({

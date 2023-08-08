@@ -5,23 +5,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "bccm_player",
-      "request": "launch",
-      "type": "dart"
-    },
-    {
-      "name": "bccm_player (profile mode)",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "profile"
-    },
-    {
-      "name": "bccm_player (release mode)",
-      "request": "launch",
-      "type": "dart",
-      "flutterMode": "release"
-    },
-    {
       "name": "example",
       "cwd": "example",
       "request": "launch",
@@ -40,6 +23,12 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "release"
+    },
+    {
+      "name": "example (attach)",
+      "cwd": "example",
+      "request": "attach",
+      "type": "dart"
     }
   ]
 }

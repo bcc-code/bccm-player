@@ -26,8 +26,36 @@ class PlaybackService : MediaSessionService() {
     fun attachPlugin(plugin: BccmPlayerPlugin) {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::attachPlugin called")
         this.plugin = plugin
+        playerControllers.forEach {
+            if (it != primaryPlayerController && it != castPlayerController) {
+                it.release()
+            }
+        }
+        val filteredControllers =
+            playerControllers.filter { it == primaryPlayerController || it == castPlayerController }
+        playerControllers.clear()
+        playerControllers.addAll(filteredControllers)
+        if (castPlayerController == null) {
+            this.setupChromecastController();
+        }
         this.playerControllers.forEach {
             it.attachPlugin(plugin)
+        }
+    }
+
+    private fun setupChromecastController() {
+        try {
+            val castContext =
+                CastContext.getSharedInstance(applicationContext)
+            castPlayerController = CastPlayerController(castContext, this).also {
+                playerControllers.add(it)
+            }
+            if (castContext.castState == CastState.CONNECTED) {
+                setPrimary(castPlayerController!!.id)
+            }
+        } catch (e: Exception) {
+            //TODO: log exception
+            Log.e("bccm", "cast init failed: $e ${e.cause}")
         }
     }
 
@@ -50,6 +78,9 @@ class PlaybackService : MediaSessionService() {
     fun newPlayer(): PlayerController {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::newPlayer called")
         val pc = ExoPlayerController(this)
+        plugin?.let {
+            pc.attachPlugin(it)
+        }
         playerControllers.add(pc)
         return pc
     }
@@ -122,20 +153,6 @@ class PlaybackService : MediaSessionService() {
         newPlayer().let {
             mediaSession = MediaSession.Builder(this, it.player).build()
             setPrimary(it.id)
-        }
-
-        try {
-            val castContext =
-                CastContext.getSharedInstance(applicationContext)
-            castPlayerController = CastPlayerController(castContext, this).also {
-                playerControllers.add(it)
-            }
-            if (castContext.castState == CastState.CONNECTED) {
-                setPrimary(castPlayerController!!.id)
-            }
-        } catch (e: Exception) {
-            //TODO: log exception
-            Log.e("bccm", "cast init failed: $e ${e.cause}")
         }
     }
 

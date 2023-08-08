@@ -177,6 +177,14 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         let player = getPlayer(playerId)
         player?.enterFullscreen()
     }
+
+    public func setMixWithOthers(_ playerId: String, mixWithOthers: NSNumber, completion: @escaping (FlutterError?) -> Void) {
+        if mixWithOthers.boolValue {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
+        } else {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        }
+    }
 }
 
 public extension PlaybackApiImpl {
