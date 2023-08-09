@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Plugins - BccmPlayer docs</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Plugins";
+        var mkdocs_page_input_path = "advanced-setup/plugins.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BccmPlayer docs
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced setup</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../app-config/">App config / default languages</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../chromecast/">Chromecast</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Plugins</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#riverpod">Riverpod</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#npaw-youbora">Npaw / Youbora</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#for-bcc-media-apps">For BCC Media apps</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced usage</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/custom-controls/">Custom controls</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/hdr-content/">HDR content / SurfaceView</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/primary-player/">Primary player</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BccmPlayer docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Advanced setup &raquo;</li>
+      <li class="breadcrumb-item active">Plugins</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="plugins">Plugins</h1>
+<h2 id="riverpod">Riverpod</h2>
+<p>The riverpod providers are there to simplify usage of the StateNotifiers and event streams. See <a href="./lib/src/plugins/riverpod/providers">./lib/src/plugins/riverpod/providers</a> to find available providers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">final</span><span class="w"> </span><span class="kt">String</span><span class="o">?</span><span class="w"> </span><span class="n">currentMediaItemEpisodeId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">primaryPlayerProvider</span><span class="p">.</span><span class="n">select</span><span class="p">(</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">player</span><span class="o">?</span><span class="p">.</span><span class="n">currentMediaItem</span><span class="o">?</span><span class="p">.</span><span class="n">metadata</span><span class="o">?</span><span class="p">.</span><span class="n">extras</span><span class="o">?</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">asOrNull</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(),</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">),</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">);</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="kd">final</span><span class="w"> </span><span class="kt">String</span><span class="o">?</span><span class="w"> </span><span class="n">currentMediaItemEpisodeId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">playerProviderFor</span><span class="p">(</span><span class="n">playerId</span><span class="p">).</span><span class="n">select</span><span class="p">(</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="p">(</span><span class="n">player</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">player</span><span class="o">?</span><span class="p">.</span><span class="n">currentMediaItem</span><span class="o">?</span><span class="p">.</span><span class="n">metadata</span><span class="o">?</span><span class="p">.</span><span class="n">extras</span><span class="o">?</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">asOrNull</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(),</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">),</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">);</span>
+</code></pre></div>
+<h2 id="npaw-youbora">Npaw / Youbora</h2>
+<p>NPAW can be enabled with "setNpawConfig()":</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">BccmPlayerInterface</span><span class="p">.</span><span class="n">instance</span><span class="p">.</span><span class="n">setNpawConfig</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">NpawConfig</span><span class="p">(</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="nl">accountCode:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="nl">appName:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">),</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span>
+</code></pre></div>
+<p>It uses title etc from your MediaMetadata by default, but you can customize it via <code>extras</code>.
+Currently limited to the following properties:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">MediaMetadata</span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nl">extras:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="s1">&#39;npaw.content.id&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;123&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="s1">&#39;npaw.content.title&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Live&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="s1">&#39;npaw.content.tvShow&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Show&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="s1">&#39;npaw.content.season&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Season&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="s1">&#39;npaw.content.episodeTitle&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Livestream&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="s1">&#39;npaw.content.isLive&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">);</span>
+</code></pre></div>
+<h2 id="for-bcc-media-apps">For BCC Media apps</h2>
+<p>Add the BCC Media playback listener (sends episode progress to API and that kind of stuff).
+Add it in main.dart.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">BccmPlayerInterface</span><span class="p">.</span><span class="n">instance</span><span class="p">.</span><span class="n">addPlaybackListener</span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">BccmPlaybackListener</span><span class="p">(</span><span class="nl">ref:</span><span class="w"> </span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="nl">apiProvider:</span><span class="w"> </span><span class="n">apiProvider</span><span class="p">),</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">)</span>
+</code></pre></div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../chromecast/" class="btn btn-neutral float-left" title="Chromecast"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../advanced-usage/custom-controls/" class="btn btn-neutral float-right" title="Custom controls">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../chromecast/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../advanced-usage/custom-controls/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
