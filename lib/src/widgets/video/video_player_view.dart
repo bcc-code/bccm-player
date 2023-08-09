@@ -9,12 +9,26 @@ import 'package:flutter/material.dart';
 import '../controls/default_controls.dart';
 import 'video_platform_view.dart';
 
-/// Creates a [VideoPlayerView] widget.
-/// * [id] is the unique identifier for the player.
+/// Creates a video player with controls.
+///
+/// * [controller] is the controller for the player. See [BccmPlayerController].
 /// * [useNativeControls] will use native UI for the player. NOTE: All other options will be ignored if this is true.
-/// * [resetSystemOverlays] is a callback that will be called when the player exits fullscreen.
+/// * [resetSystemOverlays] is a callback that will be called when the player exits fullscreen. Defaults to using [SystemUiMode.edgeToEdge].
 /// * [playNextButton] is a widget that will be shown in the bottom right corner of the player.
 /// * [isFullscreenPlayer] should only be used when this is used in a fullscreen context.
+/// * [playbackSpeeds] is a list of playback speeds that will be shown in the settings menu.
+/// * [hidePlaybackSpeed] will hide the playback speed selector in the settings menu.
+/// * [hideQualitySelector] will hide the quality selector in the settings menu.
+/// * [castPlayerBuilder] is a builder that will be used to build the cast player.
+/// * [useSurfaceView] will use a SurfaceView instead of a TextureView on Android. Fixes HDR but flutter has a bug with SurfaceViews. See [the docs](https://bcc-code.github.io/bccm-player/advanced-usage/hdr-content/)
+///
+/// See also:
+///
+/// * [BccmPlayerController], which is the controller used for the player.
+/// * [VideoPlatformView], which is the widget that actually renders the video.
+/// * [DefaultControls], which is the default controls used for the player.
+/// * [CastPlayer], which is the widget that renders the cast player.
+///
 class VideoPlayerView extends HookWidget {
   final BccmPlayerController controller;
   final bool useNativeControls;
