@@ -9,7 +9,8 @@ Used by the open source apps [Bible Kids](https://play.google.com/store/apps/det
 ### Documentation
 
 For all the features to work correctly, it's vital that you read the docs.
-Documentation: https://bcc-code.github.io/bccm-player
+
+Documentation: https://bcc-code.github.io/bccm-player/
 
 ### Difference from video_player/chewie/betterplayer, etc.
 
@@ -39,7 +40,7 @@ This means the video is rendered in the native view hierarchy without any interm
 - [x] Fullscreen
 - [x] NPAW/Youbora analytics
 - [x] Metadata
-- [x] HDR content (see [HDR](#hdr-content-surfaceviews))
+- [x] HDR content (read [HDR](https://bcc-code.github.io/bccm-player/advanced-usage/hdr-content/) in the docs)
 
 # Example
 
@@ -107,4 +108,8 @@ class _SinglePlayerState extends State<SinglePlayer> {
 
 # Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md)
+Thank you for the interest in contributing!
+We want to improve the codebase so that it's usable for others too, so we are very open for PRs and issues.
+The docs has a page about architecture details to help you understand the codebase.
+
+Before starting on a bigger change it might be a good idea to create an issue about your ideas so that we can help you out and become aligned.

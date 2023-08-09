@@ -2,7 +2,7 @@
 
 Casting requires some extra steps to setup.
 
-You need a [receiver app ID](https://developers.google.com/cast/docs/overview). Recommend starting with the receiver code at https://github.com/bcc-code/bccm-player-chromecast, as it includes support for [default languages](#configure-default-languages). That receiver is also available at this appId for testing: `519C9F80`.
+You need a [receiver app ID](https://developers.google.com/cast/docs/overview). Recommend starting with the receiver code at https://github.com/bcc-code/bccm-player-chromecast, as it includes support for default languages (see "App config" docs). That receiver is also available at this appId for testing: `519C9F80`.
 
 ## Android
 
