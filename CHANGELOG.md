@@ -1,4 +1,4 @@
-## 0.2.3-alpha.1
+## 0.2.3
 
 - Major breaking changes to how to use the plugin
 - Introduced a BccmPlayerController which makes usage more idiomatic and more alike other video player packages.
