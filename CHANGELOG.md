@@ -1,3 +1,8 @@
+## 0.2.4
+
+- Improved code comments
+- Fix: [VideoPlatformView] was not exported.
+
 ## 0.2.3
 
 - Major breaking changes to how to use the plugin
