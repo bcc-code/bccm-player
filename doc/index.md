@@ -1,5 +1,11 @@
 # Installation
 
+- Package: [https://pub.dev/packages/bccm_player](https://pub.dev/packages/bccm_player)
+
+- Github: [https://github.com/bcc-code/bccm-player](https://github.com/bcc-code/bccm-player)
+
+---
+
 1. Add the dependency
 
    ```bash
