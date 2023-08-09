@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Architecture - BccmPlayer docs</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Architecture";
+        var mkdocs_page_input_path = "contributing/architecture.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BccmPlayer docs
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced setup</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/app-config/">App config / default languages</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/chromecast/">Chromecast</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/plugins/">Plugins</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced usage</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/custom-controls/">Custom controls</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/hdr-content/">HDR content / SurfaceView</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/primary-player/">Primary player</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Architecture</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BccmPlayer docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Contributing &raquo;</li>
+      <li class="breadcrumb-item active">Architecture</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="players-and-controllers">Players and controllers</h2>
+<p>The plugin manages a list of "PlayerControllers", which currently has the following implementations:</p>
+<ul>
+<li>(iOS) AVQueuePlayerController, which uses AVQueuePlayer.</li>
+<li>(Android) ExoPlayerController, which uses Media3 ExoPlayer.</li>
+<li>CastPlayerController, for chromecasts. Expected to be only one of this.</li>
+</ul>
+<h2 id="player-views">Player views</h2>
+<p>The following views are accessible from flutter:</p>
+<h2 id="state-management">State management</h2>
+<p>State management is built-in, see <a href="./lib/src/state/plugin_state_notifier.dart">PluginStateNotifier</a>. This has a <code>players</code> map with <a href="./lib/src/state/player_state_notifier.dart">PlayerStateNotifiers</a>. The PluginStateNotifier is kept in sync with the native side counterparts: <code>PlaybackService</code> (Android) and <code>PlaybackApiImpl</code> (iOS).</p>
+<p>Data is transferred back and forth via pigeons: PlaybackPlatformPigeon, ChromecastPigeon, PlaybackListenerPigeon etc.
+See <a href="./pigeons/README.md">./pigeons/README.md</a>.</p>
+<h2 id="plugin-initialization">Plugin initialization</h2>
+<p>The plugin does the following during init:</p>
+<p><strong>Native</strong></p>
+<ul>
+<li>(Android only) Creates a <em>bounded</em> service, PlaybackService, which enables background playback and a notification.</li>
+<li>Creates 1x PlayerController to be used as primary by default.</li>
+<li>Creates a CastPlayerController. Expected to be only one. Becomes primary if a session exists.</li>
+</ul>
+<p><strong>Dart</strong></p>
+<ul>
+<li>Calls .attach() which hooks in the listeners etc for the plugin. This is necessary because all dart isolates enables all plugins, at least on Android, and this makes it easy to identify which is the 'real' dart isolate.</li>
+<li>Gets state for the primary player</li>
+</ul>
+<h2 id="chromecast-technical-details">Chromecast technical details</h2>
+<p>On session start/resume:</p>
+<ul>
+<li>If the current primary player is playing, transfers the state automatically to the chromecast so that it continues playing on the chromecast instead.</li>
+<li>It then does <code>.setPrimary('chromecast');</code></li>
+</ul>
+<p>On session stop:</p>
+<ul>
+<li>Currently the state is only transferred back to the primary player manually on the episode page.</li>
+<li>CastPlayerController does <code>.unclaimPrimary()</code> which sets the previous primary player to be primary again. A random native PlayerController will be chosen if there was no previous primary, for example if the app was launched while a session was active.</li>
+</ul>
+<h2 id="data-transfer-between-flutter-native-and-chromecast">Data transfer between flutter, native and chromecast</h2>
+<p>This table outlines where metadata is stored during its journey up and down the stack.</p>
+<table>
+<thead>
+<tr>
+<th>Flutter</th>
+<th>iOS</th>
+<th>Android</th>
+<th>Chromecast</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MediaItem.Metadata.Extras["KEY"]</td>
+<td>PlayerItem.externalMetadata["media.bcc.extras.<strong>KEY</strong>")</td>
+<td>MediaItem.MediaMetadata.Extras["media.bcc.extras.<strong>KEY</strong>"]</td>
+<td>mediaInfo.metadata["media.bcc.extras.<strong>KEY</strong>"]</td>
+</tr>
+<tr>
+<td>MediaItem.isLive</td>
+<td>PlayerItem.externalMetadata["media.bcc.player.is_live"]</td>
+<td>MediaItem.MediaMetadata.Extras["media.bcc.player.is_live"]</td>
+<td>mediaInfo.metadata["media.bcc.player.is_live"]</td>
+</tr>
+<tr>
+<td>MediaItem.mimeType</td>
+<td>PlayerItem.externalMetadata["media.bcc.player.mime_type"]</td>
+<td>MediaItem.MediaMetadata.Extras["media.bcc.player.mime_type"]</td>
+<td>mediaInfo.metadata["media.bcc.player.mime_type"]</td>
+</tr>
+</tbody>
+</table>
+<h1 id="idea-dump">Idea dump</h1>
+<ul>
+<li>Move chromecast logic to a standalone package? We could set it as primary via listeners on the flutter-side. Would it simplify? Probably not. It would maintain its own custom "MediaItem" types, so we would have to do some extra mapping. The native side would have to have to import it as a plugin which could be annoying. If we want to enable usage of the castplayer without hijacking primaryplayer etc, then it would make more sense to just add a configuration flag to disable that feature.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../advanced-usage/primary-player/" class="btn btn-neutral float-left" title="Primary player"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../advanced-usage/primary-player/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
