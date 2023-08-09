@@ -24,7 +24,7 @@ This means the video is rendered in the native view hierarchy without any interm
 
 - [x] iOS
 - [x] Android
-- [-] Web (partial/hacky)
+- [ ] Web (almost, but its partial/hacky)
 
 ## Features
 
