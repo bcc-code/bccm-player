@@ -77,15 +77,28 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     _listenToNotifier(notifier);
   }
 
-  Future<void> seekTo(Duration moment) async {
+  Future<void> replaceCurrentMediaItem(
+    MediaItem mediaItem, {
+    bool? autoplay = true,
+    bool? playbackPositionFromPrimary,
+  }) {
+    return BccmPlayerInterface.instance.replaceCurrentMediaItem(
+      value.playerId,
+      mediaItem,
+      autoplay: autoplay,
+      playbackPositionFromPrimary: playbackPositionFromPrimary,
+    );
+  }
+
+  Future<void> seekTo(Duration moment) {
     if (_stateNotifier == null) {
       throw Exception("Player is not initialized");
     }
-    BccmPlayerInterface.instance.seekTo(value.playerId, moment.inMilliseconds.toDouble());
+    return BccmPlayerInterface.instance.seekTo(value.playerId, moment.inMilliseconds.toDouble());
   }
 
-  Future<void> setPlaybackSpeed(double speed) async {
-    BccmPlayerInterface.instance.setPlaybackSpeed(value.playerId, speed);
+  Future<void> setPlaybackSpeed(double speed) {
+    return BccmPlayerInterface.instance.setPlaybackSpeed(value.playerId, speed);
   }
 
   Future<void> pause() async {
@@ -129,42 +142,41 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     WidgetBuilder? playNextButton,
   }) async {
     if (useNativeControls == true) {
-      BccmPlayerInterface.instance.enterFullscreen(value.playerId);
+      return BccmPlayerInterface.instance.enterFullscreen(value.playerId);
     } else if (context == null) {
       throw ErrorDescription('enterFullscreen: context cant be null if useNativeControls is false.');
-    } else {
-      WakelockPlus.enable();
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-      debugPrint('bccm: setPreferredOrientations landscape');
-
-      _stateNotifier?.setIsFlutterFullscreen(true);
-      _currentFullscreenNavigator = Navigator.of(context, rootNavigator: true);
-      await Navigator.of(context, rootNavigator: true).push(
-        PageRouteBuilder(
-          pageBuilder: (context, aAnim, bAnim) => VideoPlayerViewFullscreen(
-            controller: this,
-            playNextButton: playNextButton,
-          ),
-          transitionsBuilder: (context, aAnim, bAnim, child) => FadeTransition(
-            opacity: aAnim,
-            child: child,
-          ),
-          fullscreenDialog: true,
-        ),
-      );
-
-      if (resetSystemOverlays != null) {
-        resetSystemOverlays();
-      } else {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      }
-
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      debugPrint('bccm: setPreferredOrientations portraitUp');
-
-      _stateNotifier?.setIsFlutterFullscreen(false);
-      WakelockPlus.disable();
     }
+    WakelockPlus.enable();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    debugPrint('bccm: setPreferredOrientations landscape');
+
+    _stateNotifier?.setIsFlutterFullscreen(true);
+    _currentFullscreenNavigator = Navigator.of(context, rootNavigator: true);
+    await Navigator.of(context, rootNavigator: true).push(
+      PageRouteBuilder(
+        pageBuilder: (context, aAnim, bAnim) => VideoPlayerViewFullscreen(
+          controller: this,
+          playNextButton: playNextButton,
+        ),
+        transitionsBuilder: (context, aAnim, bAnim, child) => FadeTransition(
+          opacity: aAnim,
+          child: child,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+
+    if (resetSystemOverlays != null) {
+      resetSystemOverlays();
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    debugPrint('bccm: setPreferredOrientations portraitUp');
+
+    _stateNotifier?.setIsFlutterFullscreen(false);
+    WakelockPlus.disable();
   }
 }
