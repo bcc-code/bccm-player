@@ -1,3 +1,12 @@
+# Setup
+# pip install mkdocs
+# pip install mkdocs-exclude
+# pip install pymdown-extensions
+#
+# Usage
+# Serve: mkdocs serve
+# Deploy: mkdocs gh-deploy
+
 site_name: BccmPlayer docs
 docs_dir: doc/
 theme:
