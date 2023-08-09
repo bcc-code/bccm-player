@@ -1,5 +1,4 @@
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player_example/example_videos.dart';
 import 'package:flutter/material.dart';
 
 class SinglePlayer extends StatefulWidget {
