@@ -79,6 +79,16 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         completion(player.id, nil)
     }
 
+    public func disposePlayer(_ playerId: String, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+        guard let player = getPlayer(playerId) else {
+            completion(false, nil)
+            return
+        }
+        player.stop(reset: true)
+        players.removeAll(where: { $0.id == playerId })
+        completion(true, nil)
+    }
+
     public func getChromecastState(_ completion: @escaping (ChromecastState?, FlutterError?) -> Void) {
         let castPlayer = players.first(where: { $0.id == CastPlayerController.DEFAULT_ID })
         let mediaItem = castPlayer?.getCurrentItem()
@@ -166,6 +176,14 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     public func enterFullscreen(_ playerId: String, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
         let player = getPlayer(playerId)
         player?.enterFullscreen()
+    }
+
+    public func setMixWithOthers(_ playerId: String, mixWithOthers: NSNumber, completion: @escaping (FlutterError?) -> Void) {
+        if mixWithOthers.boolValue {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
+        } else {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        }
     }
 }
 

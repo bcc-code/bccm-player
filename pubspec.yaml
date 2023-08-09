@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   flutter_hooks: ^0.18.6
   flutter_plugin_android_lifecycle: ^2.0.9
+  flutter_state_notifier: ^0.7.3
   flutter_svg: ^2.0.2
   flutter_web_plugins:
     sdk: flutter
@@ -32,6 +33,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   pigeon: ^9.0.1
   build_runner: ^2.3.3
+  mockito: ^5.4.2
 
 # The following section is specific to Flutter packages.
 flutter:

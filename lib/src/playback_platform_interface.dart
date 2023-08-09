@@ -1,10 +1,8 @@
-import 'package:bccm_player/src/native/chromecast_events.dart';
-import 'package:flutter/material.dart';
+import 'package:bccm_player/bccm_player.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'pigeon/playback_platform_pigeon.g.dart';
 import '../bccm_player_native.dart';
-import 'state/plugin_state_notifier.dart';
 
 abstract class BccmPlayerInterface extends PlatformInterface {
   /// Constructs a PlaybackServiceInterface.
@@ -17,6 +15,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   final PlayerPluginStateNotifier stateNotifier = PlayerPluginStateNotifier(keepAlive: true);
   Stream<ChromecastEvent> get chromecastEventStream;
   Stream<dynamic> get playerEventStream;
+  BccmPlayerController get primaryController;
 
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [BccmPlayerInterface] when
@@ -31,6 +30,10 @@ abstract class BccmPlayerInterface extends PlatformInterface {
 
   Future<String> newPlayer({String? url}) {
     throw UnimplementedError('newPlayer() has not been implemented.');
+  }
+
+  Future<void> disposePlayer(String playerId) {
+    throw UnimplementedError('disposePlayer() has not been implemented.');
   }
 
   Future<bool> setPrimary(String id) {
@@ -103,13 +106,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('exitFullscreen() has not been implemented.');
   }
 
-  Future enterFullscreen(
-    String playerId, {
-    bool? useNativeControls = false,
-    BuildContext? context,
-    void Function()? resetSystemOverlays,
-    WidgetBuilder? playNextButton,
-  }) {
+  Future<void> enterFullscreen(String playerId) {
     throw UnimplementedError('enterFullscreen() has not been implemented.');
   }
 
@@ -122,6 +119,10 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   }
 
   void setPlayerViewVisibility(int viewId, bool visible) {
-    throw UnimplementedError('setAppConfig() has not been implemented.');
+    throw UnimplementedError('setPlayerViewVisibility() has not been implemented.');
+  }
+
+  Future<void> setMixWithOthers(String playerId, bool mixWithOthers) {
+    throw UnimplementedError('setMixWithOthers() has not been implemented.');
   }
 }

@@ -10,6 +10,10 @@ abstract class PlaybackPlatformPigeon {
   String newPlayer(String? url);
 
   @async
+  @ObjCSelector("disposePlayer:")
+  bool disposePlayer(String playerId);
+
+  @async
   @ObjCSelector("queueMediaItem:mediaItem:")
   void queueMediaItem(String playerId, MediaItem mediaItem);
 
@@ -50,6 +54,10 @@ abstract class PlaybackPlatformPigeon {
 
   @ObjCSelector("enterFullscreen:")
   void enterFullscreen(String playerId);
+
+  @async
+  @ObjCSelector("setMixWithOthers:mixWithOthers:")
+  void setMixWithOthers(String playerId, bool mixWithOthers);
 
   @ObjCSelector("setNpawConfig:")
   void setNpawConfig(NpawConfig? config);

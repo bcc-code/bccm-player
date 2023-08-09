@@ -229,6 +229,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 @protocol PlaybackPlatformPigeon
 - (void)attachWithCompletion:(void (^)(FlutterError *_Nullable))completion;
 - (void)newPlayer:(nullable NSString *)url completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)disposePlayer:(NSString *)playerId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)queueMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)replaceCurrentMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem playbackPositionFromPrimary:(nullable NSNumber *)playbackPositionFromPrimary autoplay:(nullable NSNumber *)autoplay completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setPlayerViewVisibility:(NSNumber *)viewId visible:(NSNumber *)visible error:(FlutterError *_Nullable *_Nonnull)error;
@@ -241,6 +242,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)setPlaybackSpeed:(NSString *)playerId speed:(NSNumber *)speed completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)exitFullscreen:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)enterFullscreen:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
+- (void)setMixWithOthers:(NSString *)playerId mixWithOthers:(NSNumber *)mixWithOthers completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setNpawConfig:(nullable NpawConfig *)config error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setAppConfig:(nullable AppConfig *)config error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)getTracks:(nullable NSString *)playerId completion:(void (^)(PlayerTracksSnapshot *_Nullable, FlutterError *_Nullable))completion;

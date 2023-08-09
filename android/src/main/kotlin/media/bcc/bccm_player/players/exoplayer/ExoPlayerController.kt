@@ -24,7 +24,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
-import media.bcc.bccm_player.PictureInPictureModeChangedEvent
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.NpawConfig
 import media.bcc.bccm_player.players.PlayerController
@@ -288,24 +287,7 @@ class ExoPlayerController(private val context: Context) :
         mediaItem?.mediaMetadata?.let { onMediaMetadataChanged(it) }
     }
 
-    /*override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-        updateYouboraOptions()
-    }*/
-
-    val emitter = object : Emitter {
-        override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
-            mainScope.launch {
-                BccmPlayerPluginSingleton.eventBus.emit(
-                    PictureInPictureModeChangedEvent(
-                        id,
-                        isInPictureInPictureMode
-                    )
-                )
-            }
-        }
-    }
-
-    interface Emitter {
-        fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean)
+    override fun setMixWithOthers(mixWithOthers: Boolean) {
+        exoPlayer.setAudioAttributes(AudioAttributes.DEFAULT, !mixWithOthers)
     }
 }

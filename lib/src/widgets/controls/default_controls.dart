@@ -20,7 +20,7 @@ import 'default/settings.dart';
 class DefaultControls extends HookWidget {
   const DefaultControls({
     super.key,
-    required this.playerId,
+    required this.controller,
     required this.goFullscreen,
     required this.exitFullscreen,
     this.playNextButton,
@@ -29,7 +29,7 @@ class DefaultControls extends HookWidget {
     this.hideQualitySelector,
   });
 
-  final String playerId;
+  final BccmPlayerController controller;
   final Future Function() goFullscreen;
   final Future Function() exitFullscreen;
   final WidgetBuilder? playNextButton;
@@ -40,20 +40,13 @@ class DefaultControls extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final controlsTheme = PlayerTheme.safeOf(context).controls!;
-    final player = useState(BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.state);
+    final player = useListenable(controller);
     final seekDebouncer = useMemoized(() => Debouncer(milliseconds: 1000));
     final forwardRewindDebouncer = useMemoized(() => Debouncer(milliseconds: 200, debounceInitial: false));
-    useEffect(() {
-      void listener(PlayerState state) {
-        player.value = state;
-      }
-
-      return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.addListener(listener);
-    });
-    final currentMs = player.value?.playbackPositionMs ?? 0;
-    final duration = player.value?.currentMediaItem?.metadata?.durationMs ?? player.value?.playbackPositionMs?.toDouble() ?? 1;
+    final currentMs = player.value.playbackPositionMs ?? 0;
+    final duration = player.value.currentMediaItem?.metadata?.durationMs ?? player.value.playbackPositionMs?.toDouble() ?? 1;
     final forwardRewindDurationSec = Duration(milliseconds: duration.toInt()).inMinutes > 60 ? 30 : 15;
-    final isFullscreen = player.value?.isFlutterFullscreen == true;
+    final isFullscreen = player.value.isFlutterFullscreen == true;
     final seeking = useState(false);
     final currentScrub = useState(0.0);
     final totalSeekToDurationMs = useRef(0.0);
@@ -67,7 +60,7 @@ class DefaultControls extends HookWidget {
       seeking.value = true;
       seekDebouncer.run(() async {
         if (!context.mounted) return;
-        await BccmPlayerInterface.instance.seekTo(playerId, currentScrub.value * duration);
+        await controller.seekTo(Duration(milliseconds: (currentScrub.value * duration).round()));
         seeking.value = false;
       });
     }
@@ -80,17 +73,17 @@ class DefaultControls extends HookWidget {
       currentScrub.value = newPositionMs / duration;
       forwardRewindDebouncer.run(() async {
         if (!context.mounted) return;
-        await BccmPlayerInterface.instance.seekTo(playerId, newPositionMs);
+        await controller.seekTo(Duration(milliseconds: (newPositionMs).round()));
         totalSeekToDurationMs.value = 0;
         seeking.value = false;
       });
     }
 
-    final title = player.value?.currentMediaItem?.metadata?.title;
+    final title = player.value.currentMediaItem?.metadata?.title;
 
     return SizedBox.expand(
       child: ControlsWrapper(
-        autoHide: player.value?.playbackState == PlaybackState.playing,
+        autoHide: player.value.playbackState == PlaybackState.playing,
         builder: (context) => SafeArea(
           child: Stack(
             children: [
@@ -122,7 +115,7 @@ class DefaultControls extends HookWidget {
                         ],
                         const Spacer(),
                         SettingsButton(
-                          playerId: playerId,
+                          controller: controller,
                           padding: const EdgeInsets.only(top: 12, bottom: 24, left: 24, right: 8),
                           controlsTheme: controlsTheme,
                           hidePlaybackSpeed: hidePlaybackSpeed,
@@ -150,7 +143,7 @@ class DefaultControls extends HookWidget {
                           onPressed: () => seekToRelative(-forwardRewindDurationSec),
                         ),
                       ),
-                      if (player.value?.playbackState != PlaybackState.playing)
+                      if (player.value.playbackState != PlaybackState.playing)
                         IconButton(
                           constraints: const BoxConstraints.tightFor(width: 68, height: 68),
                           icon: Padding(
@@ -163,13 +156,13 @@ class DefaultControls extends HookWidget {
                           ),
                           color: controlsTheme.iconColor,
                           onPressed: () {
-                            BccmPlayerInterface.instance.play(playerId);
+                            controller.play();
                           },
                         )
                       else
                         IconButton(
                           constraints: const BoxConstraints.tightFor(width: 68, height: 68),
-                          icon: player.value?.isBuffering == true
+                          icon: player.value.isBuffering == true
                               ? LoadingIndicator(
                                   width: 42,
                                   height: 42,
@@ -186,7 +179,7 @@ class DefaultControls extends HookWidget {
                           iconSize: 42,
                           color: controlsTheme.iconColor,
                           onPressed: () {
-                            BccmPlayerInterface.instance.pause(playerId);
+                            controller.pause();
                           },
                         ),
                       Padding(
@@ -229,7 +222,7 @@ class DefaultControls extends HookWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            if (player.value?.currentMediaItem?.isLive != true)
+                            if (player.value.currentMediaItem?.isLive != true)
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 8, left: 12),
                                 child: Text(
@@ -261,7 +254,7 @@ class DefaultControls extends HookWidget {
                         ),
                       ),
                     ),
-                    if (player.value?.currentMediaItem?.isLive == true)
+                    if (player.value.currentMediaItem?.isLive == true)
                       const Padding(padding: EdgeInsets.only(top: 12))
                     else
                       ControlFadeOut(

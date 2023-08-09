@@ -1,14 +1,12 @@
 package media.bcc.bccm_player
 
 import android.app.Activity
-import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.Configuration
 import android.os.Build
-import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.View
@@ -17,8 +15,6 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.android.gms.cast.framework.CastContext
 import com.google.common.util.concurrent.ListenableFuture
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -31,6 +27,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import media.bcc.bccm_player.pigeon.ChromecastControllerPigeon
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlaybackPlatformPigeon
@@ -87,13 +85,29 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
     /***
      * Should be called only by the main flutter isolate. Complete quickly, because this is awaited.
      */
-    fun attach() {
+    fun attach(onComplete: () -> Unit) {
         if (playbackService != null) {
             playbackService!!.attachPlugin(this@BccmPlayerPlugin);
+            onComplete()
         } else {
             Log.d("bccm", "playbackService was null when attach() was run. That's ok.")
             mainScope.launch {
-                playbackServiceCompleter.await().attachPlugin(this@BccmPlayerPlugin);
+                try {
+                    val result = withTimeoutOrNull(1000) {
+                        playbackServiceCompleter.await().attachPlugin(this@BccmPlayerPlugin);
+                        true
+                    }
+                    if (result == null) {
+                        Log.d(
+                            "bccm",
+                            "playbackService did not initialize within 1000ms. Continuing with crossed fingers."
+                        )
+                    }
+                } catch (e: Error) {
+                    throw e;
+                } finally {
+                    onComplete()
+                }
             }
         }
     }
@@ -167,9 +181,12 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
                 .collect { event ->
                     val pipEvent = event as PictureInPictureModeChangedEvent
                     val builder = PlaybackPlatformApi.PictureInPictureModeChangedEvent.Builder()
-                    builder.setPlayerId(pipEvent.playerId)
-                    builder.setIsInPipMode(pipEvent.isInPictureInPictureMode)
-                    playbackPigeon?.onPictureInPictureModeChanged(builder.build()) {}
+                    val primaryId = playbackService?.getPrimaryController()?.id
+                    if (primaryId != null) {
+                        builder.setPlayerId(primaryId)
+                        builder.setIsInPipMode(pipEvent.isInPictureInPictureMode)
+                        playbackPigeon?.onPictureInPictureModeChanged(builder.build()) {}
+                    }
                 }
         }
     }
@@ -189,7 +206,7 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
 
         mainScope.launch {
             BccmPlayerPluginSingleton.eventBus.emit(
-                PictureInPictureModeChangedEvent2(isInPictureInPictureMode, lifecycleState)
+                PictureInPictureModeChangedEvent(isInPictureInPictureMode, lifecycleState)
             )
         }
     }

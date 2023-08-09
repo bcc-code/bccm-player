@@ -26,7 +26,6 @@ class PlayerPluginStateNotifier extends StateNotifier<PlayerPluginState> {
   }
 
   void setPrimaryPlayer(String? playerId) {
-    if (playerId != null) getOrAddPlayerNotifier(playerId);
     state = state.copyWith(primaryPlayerId: playerId);
   }
 
@@ -57,7 +56,7 @@ class PlayerPluginStateNotifier extends StateNotifier<PlayerPluginState> {
     final notifier = PlayerStateNotifier(
       keepAlive: true,
       onDispose: () => _removePlayer(playerId),
-      player: PlayerState(playerId: playerId),
+      player: PlayerState(playerId: playerId, isInitialized: true),
     );
     state = state.copyWith(
       players: {...state.players, playerId: notifier},

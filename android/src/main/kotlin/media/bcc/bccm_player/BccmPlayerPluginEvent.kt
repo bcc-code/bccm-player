@@ -10,13 +10,8 @@ class DetachedFromActivityEvent : BccmPlayerPluginEvent
 class SetPlayerViewVisibilityEvent(val viewId: Long, val visible: Boolean) :
     BccmPlayerPluginEvent
 
-class PictureInPictureModeChangedEvent2(
+class PictureInPictureModeChangedEvent(
     val isInPictureInPictureMode: Boolean,
     val lifecycleState: Lifecycle.State
 ) :
     BccmPlayerPluginEvent
-
-class PictureInPictureModeChangedEvent(
-    val playerId: String,
-    val isInPictureInPictureMode: Boolean
-) : BccmPlayerPluginEvent

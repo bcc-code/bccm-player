@@ -3,10 +3,6 @@ import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/native/chromecast_pigeon_listener.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:bccm_player/src/state/state_playback_listener.dart';
-import 'package:bccm_player/src/widgets/video/video_player_view_fullscreen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'bccm_player.dart';
 
@@ -15,7 +11,36 @@ class BccmPlayerNative extends BccmPlayerInterface {
   final PlaybackPlatformPigeon _pigeon = PlaybackPlatformPigeon();
   late final RootPigeonPlaybackListener _rootPlaybackListener;
   final ChromecastPigeonListener _chromecastListener = ChromecastPigeonListener();
+  BccmPlayerController? _primaryController;
+  void Function()? _removePrimaryPlayerListener;
   Future<void>? setupFuture;
+
+  /// This class is currently long lived so dispose is not used
+  void dispose() {
+    _removePrimaryPlayerListener?.call();
+  }
+
+  @override
+  get primaryController {
+    if (_primaryController != null) {
+      return _primaryController!;
+    } else {
+      final controller = BccmPlayerController.empty();
+      _removePrimaryPlayerListener = BccmPlayerInterface.instance.stateNotifier.addListener((state) {
+        if (state.primaryPlayerId != controller.value.playerId) {
+          final id = state.primaryPlayerId;
+          if (id != null) {
+            final notifier = BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(id);
+            assert(notifier != null, 'Something went wrong. Primary player should always have a notifier.');
+            if (notifier != null) {
+              controller.swapPlayerNotifier(notifier);
+            }
+          }
+        }
+      }, fireImmediately: true);
+      return _primaryController = controller;
+    }
+  }
 
   @override
   get chromecastEventStream => _chromecastListener.stream;
@@ -47,6 +72,11 @@ class BccmPlayerNative extends BccmPlayerInterface {
     final playerId = await _pigeon.newPlayer(url);
     stateNotifier.getOrAddPlayerNotifier(playerId);
     return playerId;
+  }
+
+  @override
+  Future<void> disposePlayer(String playerId) {
+    return _pigeon.disposePlayer(playerId);
   }
 
   @override
@@ -127,60 +157,12 @@ class BccmPlayerNative extends BccmPlayerInterface {
 
   @override
   void exitFullscreen(String playerId) {
-    if (currentFullscreenNavigator != null) {
-      currentFullscreenNavigator?.maybePop();
-    } else {
-      _pigeon.exitFullscreen(playerId);
-    }
+    _pigeon.exitFullscreen(playerId);
   }
 
-  NavigatorState? currentFullscreenNavigator;
   @override
-  Future enterFullscreen(
-    String playerId, {
-    bool? useNativeControls = false,
-    BuildContext? context,
-    void Function()? resetSystemOverlays,
-    WidgetBuilder? playNextButton,
-  }) async {
-    if (useNativeControls == true) {
-      _pigeon.enterFullscreen(playerId);
-    } else if (context == null) {
-      throw ErrorDescription('enterFullscreen: context cant be null if useNativeControls is false.');
-    } else {
-      WakelockPlus.enable();
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-      debugPrint('bccm: setPreferredOrientations landscape');
-
-      stateNotifier.getPlayerNotifier(playerId)?.setIsFlutterFullscreen(true);
-      currentFullscreenNavigator = Navigator.of(context, rootNavigator: true);
-      await Navigator.of(context, rootNavigator: true).push(
-        PageRouteBuilder(
-          pageBuilder: (context, aAnim, bAnim) => VideoPlayerViewFullscreen(
-            playerId: playerId,
-            playNextButton: playNextButton,
-          ),
-          transitionsBuilder: (context, aAnim, bAnim, child) => FadeTransition(
-            opacity: aAnim,
-            child: child,
-          ),
-          fullscreenDialog: true,
-        ),
-      );
-
-      if (resetSystemOverlays != null) {
-        resetSystemOverlays();
-      } else {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      }
-
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      debugPrint('bccm: setPreferredOrientations portraitUp');
-
-      stateNotifier.getPlayerNotifier(playerId)?.setIsFlutterFullscreen(false);
-      WakelockPlus.disable();
-    }
+  Future<void> enterFullscreen(String playerId) {
+    return _pigeon.enterFullscreen(playerId);
   }
 
   @override
@@ -196,5 +178,10 @@ class BccmPlayerNative extends BccmPlayerInterface {
   @override
   void setPlayerViewVisibility(int viewId, bool visible) {
     _pigeon.setPlayerViewVisibility(viewId, visible);
+  }
+
+  @override
+  Future<void> setMixWithOthers(String playerId, bool mixWithOthers) {
+    return _pigeon.setMixWithOthers(playerId, mixWithOthers);
   }
 }

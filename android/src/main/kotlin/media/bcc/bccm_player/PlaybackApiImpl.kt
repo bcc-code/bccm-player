@@ -20,8 +20,10 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
 
     override fun attach(result: PlaybackPlatformApi.Result<Void>) {
         Log.d("bccm", "attaching plugin")
-        plugin.attach()
-        result.success(null) // Extremely important to call result.success or result.fail
+        // Extremely important to call result.success or result.fail
+        plugin.attach(onComplete = {
+            result.success(null)
+        })
     }
 
     override fun setNpawConfig(config: PlaybackPlatformApi.NpawConfig?) {
@@ -127,6 +129,16 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
             )
         }
         result.success(playerController.id)
+    }
+
+    override fun disposePlayer(playerId: String, result: PlaybackPlatformApi.Result<Boolean>) {
+        val playbackService = plugin.getPlaybackService()
+        if (playbackService == null) {
+            result.error(Error("Playback service doesnt exist"))
+            return
+        }
+        val didDispose = playbackService.disposePlayer(playerId)
+        result.success(didDispose);
     }
 
     override fun replaceCurrentMediaItem(
@@ -243,6 +255,17 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
             ?: throw Error("Player with id $playerId does not exist.")
 
         playerController.currentPlayerViewController?.enterFullscreen()
+    }
+
+    override fun setMixWithOthers(
+        playerId: String,
+        mixWithOthers: Boolean,
+        result: PlaybackPlatformApi.Result<Void>
+    ) {
+        val playbackService = plugin.getPlaybackService() ?: return
+        val playerController = playbackService.getController(playerId)
+            ?: throw Error("Player with id $playerId does not exist.")
+        playerController.setMixWithOthers(mixWithOthers)
     }
 
     override fun getChromecastState(result: PlaybackPlatformApi.Result<PlaybackPlatformApi.ChromecastState>) {
