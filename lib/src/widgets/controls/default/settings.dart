@@ -2,8 +2,6 @@
 
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
-import 'package:bccm_player/src/pigeon/pigeon_extensions.dart';
-import 'package:bccm_player/src/state/player_controller.dart';
 import 'package:bccm_player/src/widgets/controls/default/settings_option_list.dart';
 import 'package:bccm_player/theme/bccm_player_theme.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';

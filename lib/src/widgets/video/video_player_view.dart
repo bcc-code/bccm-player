@@ -7,7 +7,6 @@ import '../cast/cast_player.dart';
 import 'package:flutter/material.dart';
 
 import '../controls/default_controls.dart';
-import 'video_platform_view.dart';
 
 /// Creates a video player with controls.
 ///

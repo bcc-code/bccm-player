@@ -33,6 +33,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
             final notifier = BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(id);
             assert(notifier != null, 'Something went wrong. Primary player should always have a notifier.');
             if (notifier != null) {
+              // ignore: invalid_use_of_protected_member
               controller.swapPlayerNotifier(notifier);
             }
           }
