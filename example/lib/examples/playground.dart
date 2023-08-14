@@ -20,7 +20,7 @@ class _PlaygroundState extends State<Playground> {
       playerController: BccmPlayerController.primary,
       config: BccmPlayerViewConfig(
         useSurfaceView: useSurfaceView,
-        controlsConfig: PlayerControlsConfig(
+        controlsConfig: BccmPlayerControlsConfig(
           playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
           hidePlaybackSpeed: false,
           hideQualitySelector: false,

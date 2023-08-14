@@ -75,7 +75,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
   Widget build(BuildContext context) {
     if (!isCurrentPlayerView) {
       debugPrint('bccm: hiding $playerId in $this');
-      return AspectRatio(aspectRatio: 16 / 9, child: Container(color: const Color(0xff000000)));
+      return AspectRatio(aspectRatio: 16 / 9, child: Container(color: const Color(0x00000000)));
     }
     if (widget.playerController.value.isInitialized == false) {
       return const SizedBox.shrink();

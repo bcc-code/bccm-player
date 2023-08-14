@@ -23,7 +23,6 @@ export 'src/widgets/cast/cast_button.dart';
 export 'src/widgets/mini_player/mini_player.dart';
 export 'src/widgets/controls/play_next_button.dart';
 export 'src/widgets/utils/bccm_player_state_builder.dart';
-export 'src/widgets/controls/player_controls.dart';
 export 'src/model/player_view_config.dart';
 export 'src/theme/controls_theme_data.dart';
 export 'src/theme/bccm_player_theme.dart';

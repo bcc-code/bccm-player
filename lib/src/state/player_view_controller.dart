@@ -19,6 +19,7 @@ class BccmPlayerViewController extends ChangeNotifier {
   BccmPlayerViewConfig get config => _config;
   bool _isFullscreen = false;
   bool get isFullscreen => _isFullscreen;
+  bool _isDisposed = false;
   NavigatorState? _currentFullscreenNavigator;
   BccmPlayerViewController? _fullscreenViewController;
   BccmPlayerViewController? get fullscreenViewController => _fullscreenViewController;
@@ -27,6 +28,12 @@ class BccmPlayerViewController extends ChangeNotifier {
     required this.playerController,
     BccmPlayerViewConfig? config,
   }) : _config = config ?? const BccmPlayerViewConfig();
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   /// Enters fullscreen.
   ///
@@ -74,7 +81,9 @@ class BccmPlayerViewController extends ChangeNotifier {
     _fullscreenViewController = null;
     _currentFullscreenNavigator = null;
     _isFullscreen = false;
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
 
     if (_config.resetSystemOverlays != null) {
       _config.resetSystemOverlays!();
@@ -97,7 +106,7 @@ class BccmPlayerViewController extends ChangeNotifier {
 
   BccmPlayerViewController copyWith({
     BccmPlayerController? playerController,
-    PlayerControlsConfig? controlsConfig,
+    BccmPlayerControlsConfig? controlsConfig,
     bool? useSurfaceView,
     FullscreenPageRouteBuilderFactory? fullscreenRouteBuilderFactory,
     WidgetBuilder? castPlayerBuilder,

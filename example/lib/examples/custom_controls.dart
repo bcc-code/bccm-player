@@ -11,7 +11,7 @@ class CustomControls extends StatelessWidget {
         BccmPlayerView(
           BccmPlayerController.primary,
           config: BccmPlayerViewConfig(
-            controlsConfig: PlayerControlsConfig(
+            controlsConfig: BccmPlayerControlsConfig(
               customBuilder: (context) => const MyControls(),
             ),
           ),
