@@ -19,7 +19,7 @@ This means the video is rendered in the native view hierarchy without any interm
 
 - Native video performance
 - Subtitles are rendered by the native player (avplayer/exoplayer)
-- Can use native controls (`useNativeControls` on VideoPlayerView)
+- Can use native controls (`showControls` on [VideoPlatformView])
 
 ## Platforms
 
@@ -46,38 +46,36 @@ This means the video is rendered in the native view hierarchy without any interm
 
 ```dart
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player_example/example_videos.dart';
 import 'package:flutter/material.dart';
 
-class SinglePlayer extends StatefulWidget {
-  const SinglePlayer({super.key});
+class SimplePlayer extends StatefulWidget {
+  const SimplePlayer({super.key});
 
   @override
-  State<SinglePlayer> createState() => _SinglePlayerState();
+  State<SimplePlayer> createState() => _SimplePlayerState();
 }
 
-class _SinglePlayerState extends State<SinglePlayer> {
-  late BccmPlayerController controller;
+class _SimplePlayerState extends State<SimplePlayer> {
+  late BccmPlayerController playerController;
 
   @override
   void initState() {
-    // You can also use the global "primary" controller.
-    // The primary player has superpowers like notification player, background playback, casting, etc:
-    // final controller = BccmPlayerInterface.instance.primaryController;
-    controller = BccmPlayerController(
+    // You can also use the global "primary" controller: BccmPlayerController.primary;
+    // The primary player has superpowers like notification player, background playback, casting, etc.
+    playerController = BccmPlayerController(
       MediaItem(
         url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8',
         mimeType: 'application/x-mpegURL',
         metadata: MediaMetadata(title: 'Apple advanced (HLS/HDR)'),
       ),
     );
-    controller.initialize().then((_) => controller.setMixWithOthers(true)); // if you want to play together with other videos
+    playerController.initialize().then((_) => playerController.setMixWithOthers(true)); // if you want to play together with other videos
     super.initState();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    playerController.dispose();
     super.dispose();
   }
 
@@ -87,12 +85,21 @@ class _SinglePlayerState extends State<SinglePlayer> {
       children: [
         Column(
           children: [
-            VideoPlayerView(controller: controller),
+            BccmPlayerView(
+              playerController,
+              //config: BccmPlayerViewConfig()
+            ),
             ElevatedButton(
               onPressed: () {
-                final currentMs = controller.value.playbackPositionMs;
+                playerController.setPrimary();
+              },
+              child: const Text('Make primary'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final currentMs = playerController.value.playbackPositionMs;
                 if (currentMs != null) {
-                  controller.seekTo(Duration(milliseconds: currentMs + 20000));
+                  playerController.seekTo(Duration(milliseconds: currentMs + 20000));
                 }
               },
               child: const Text('Skip 20 seconds'),
@@ -103,6 +110,7 @@ class _SinglePlayerState extends State<SinglePlayer> {
     );
   }
 }
+
 
 ```
 

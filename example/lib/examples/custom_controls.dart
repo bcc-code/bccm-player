@@ -1,11 +1,3 @@
-### Custom controls
-
-You can set a custom `controlsBuilder`.
-Find "Custom controls" in the example project for an up-to-date example if this is outdated.
-
-#### Example
-
-```dart
 import 'package:bccm_player/bccm_player.dart';
 import 'package:flutter/material.dart';
 
@@ -14,13 +6,28 @@ class CustomControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BccmPlayerView(
-      BccmPlayerController.primary,
-      config: BccmPlayerViewConfig(
-        controlsConfig: PlayerControlsConfig(
-          customBuilder: (context) => const MyControls(),
+    return ListView(
+      children: [
+        BccmPlayerView(
+          BccmPlayerController.primary,
+          config: BccmPlayerViewConfig(
+            controlsConfig: BccmPlayerControlsConfig(
+              customBuilder: (context) => const MyControls(),
+            ),
+          ),
         ),
-      ),
+        ElevatedButton(
+            onPressed: () {
+              BccmPlayerController.primary.replaceCurrentMediaItem(
+                MediaItem(
+                  url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8',
+                  mimeType: 'application/x-mpegURL',
+                  metadata: MediaMetadata(title: 'Apple advanced (HLS/HDR)'),
+                ),
+              );
+            },
+            child: const Text('Play something'))
+      ],
     );
   }
 }
@@ -94,4 +101,3 @@ class MyControls extends StatelessWidget {
     );
   }
 }
-```

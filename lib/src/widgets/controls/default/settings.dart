@@ -3,7 +3,6 @@
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:bccm_player/src/widgets/controls/default/settings_option_list.dart';
-import 'package:bccm_player/theme/bccm_player_theme.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'package:collection/collection.dart';
@@ -13,7 +12,7 @@ import 'package:universal_io/io.dart';
 class SettingsButton extends HookWidget {
   const SettingsButton({
     super.key,
-    required this.controller,
+    required this.viewController,
     required this.controlsTheme,
     this.padding,
     this.playbackSpeeds,
@@ -21,7 +20,7 @@ class SettingsButton extends HookWidget {
     this.hideQualitySelector,
   });
 
-  final BccmPlayerController controller;
+  final BccmPlayerViewController viewController;
   final ControlsThemeData controlsTheme;
   final EdgeInsets? padding;
   final List<double>? playbackSpeeds;
@@ -37,13 +36,7 @@ class SettingsButton extends HookWidget {
         showModalBottomSheet(
           context: context,
           isDismissible: true,
-          builder: (context) => _SettingsBottomSheet(
-            controller: controller,
-            controlsTheme: controlsTheme,
-            playbackSpeeds: playbackSpeeds ?? const [0.75, 1.0, 1.25, 1.5, 2.0],
-            hidePlaybackSpeed: hidePlaybackSpeed,
-            hideQualitySelector: hideQualitySelector,
-          ),
+          builder: (context) => _SettingsBottomSheet(viewController: viewController),
         );
       },
       child: Padding(
@@ -55,23 +48,16 @@ class SettingsButton extends HookWidget {
 }
 
 class _SettingsBottomSheet extends HookWidget {
-  const _SettingsBottomSheet({
-    required this.controller,
-    required this.controlsTheme,
-    required this.playbackSpeeds,
-    required this.hidePlaybackSpeed,
-    required this.hideQualitySelector,
-  });
+  const _SettingsBottomSheet({required this.viewController});
 
-  final BccmPlayerController controller;
-  final ControlsThemeData controlsTheme;
-  final List<double> playbackSpeeds;
-  final bool? hidePlaybackSpeed;
-  final bool? hideQualitySelector;
+  final BccmPlayerViewController viewController;
 
   @override
   Widget build(BuildContext context) {
-    final tracksFuture = useState(useMemoized(controller.getTracks));
+    final controlsTheme = PlayerTheme.safeOf(context).controls ?? ControlsThemeData.defaultTheme(context);
+    final playerController = viewController.playerController;
+    final controlsConfig = viewController.config.controlsConfig;
+    final tracksFuture = useState(useMemoized(playerController.getTracks));
     final tracksSnapshot = useFuture(tracksFuture.value);
 
     if (tracksSnapshot.data == null && tracksSnapshot.connectionState == ConnectionState.waiting) {
@@ -89,21 +75,21 @@ class _SettingsBottomSheet extends HookWidget {
     var uniqueHeights = <int>{};
     final uniqueVideoTracks = tracksData?.videoTracks.safe.where((t) => uniqueHeights.add(t.height ?? 0)).toList();
 
-    final playbackSpeed = useState(controller.value.playbackSpeed);
+    final playbackSpeed = useState(playerController.value.playbackSpeed);
     final isLive = useState(false);
-    final playbackState = useState(controller.value.playbackState);
+    final playbackState = useState(playerController.value.playbackState);
     useEffect(() {
       void listener() {
-        playbackSpeed.value = controller.value.playbackSpeed;
-        isLive.value = controller.value.currentMediaItem?.isLive == true;
-        if (playbackState.value != controller.value.playbackState) {
-          playbackState.value = controller.value.playbackState;
-          tracksFuture.value = controller.getTracks();
+        playbackSpeed.value = playerController.value.playbackSpeed;
+        isLive.value = playerController.value.currentMediaItem?.isLive == true;
+        if (playbackState.value != playerController.value.playbackState) {
+          playbackState.value = playerController.value.playbackState;
+          tracksFuture.value = playerController.getTracks();
         }
       }
 
-      controller.addListener(listener);
-      return () => controller.removeListener(listener);
+      playerController.addListener(listener);
+      return () => playerController.removeListener(listener);
     });
 
     final settings = [
@@ -120,10 +106,10 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await controller.setSelectedTrack(TrackType.audio, selected.value.id);
+              await playerController.setSelectedTrack(TrackType.audio, selected.value.id);
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
-                tracksFuture.value = controller.getTracks();
+                tracksFuture.value = playerController.getTracks();
               });
             }
           },
@@ -147,22 +133,22 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await controller.setSelectedTrack(TrackType.text, selected.value?.id);
+              await playerController.setSelectedTrack(TrackType.text, selected.value?.id);
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
-                tracksFuture.value = controller.getTracks();
+                tracksFuture.value = playerController.getTracks();
               });
             }
           },
         ),
-      if (hidePlaybackSpeed == false || hidePlaybackSpeed == null && !isLive.value)
+      if (controlsConfig.hidePlaybackSpeed == false || controlsConfig.hidePlaybackSpeed == null && !isLive.value)
         ListTile(
           dense: true,
           title: Text('Playback speed: ${playbackSpeed.value.toStringAsFixed(1)}x', style: controlsTheme.settingsListTextStyle),
           onTap: () async {
             final selected = await showModalOptionList<double>(
               context: context,
-              options: playbackSpeeds
+              options: controlsConfig.playbackSpeeds
                   .map(
                     (speed) => SettingsOption(
                       value: speed,
@@ -173,11 +159,11 @@ class _SettingsBottomSheet extends HookWidget {
                   .toList(),
             );
             if (selected != null && context.mounted) {
-              controller.setPlaybackSpeed(selected.value);
+              playerController.setPlaybackSpeed(selected.value);
             }
           },
         ),
-      if (hideQualitySelector != true && uniqueVideoTracks != null && uniqueVideoTracks.length > 1)
+      if (controlsConfig.hideQualitySelector != true && uniqueVideoTracks != null && uniqueVideoTracks.length > 1)
         ListTile(
           dense: true,
           title: Text('${Platform.isIOS ? 'Max ' : ''}Quality: ${selectedVideoTrack?.labelWithFallback ?? 'Auto'}',
@@ -193,13 +179,13 @@ class _SettingsBottomSheet extends HookWidget {
               ],
             );
             if (selected != null && context.mounted) {
-              await controller.setSelectedTrack(
+              await playerController.setSelectedTrack(
                 TrackType.video,
                 selected.value != null ? selected.value!.id : autoTrackId,
               );
               Future.delayed(const Duration(milliseconds: 100), () {
                 if (!context.mounted) return;
-                tracksFuture.value = controller.getTracks();
+                tracksFuture.value = playerController.getTracks();
               });
             }
           },

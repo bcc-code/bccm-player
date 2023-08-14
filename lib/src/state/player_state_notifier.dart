@@ -61,11 +61,6 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(playbackState: playbackState);
   }
 
-  void setIsFlutterFullscreen(bool value) {
-    debugPrint("setIsFlutterFullscreen: $value");
-    state = state.copyWith(isFlutterFullscreen: value);
-  }
-
   void setPlaybackPosition(int? ms) {
     state = state.copyWith(playbackPositionMs: ms);
   }
@@ -92,14 +87,11 @@ class PlayerState with _$PlayerState {
     int? playbackPositionMs,
     @Default(1.0) double playbackSpeed,
     @Default(false) bool isNativeFullscreen,
-    @Default(false) bool isFlutterFullscreen,
     @Default(PlaybackState.stopped) PlaybackState playbackState,
     @Default(false) bool isBuffering,
     @Default(false) bool isInPipMode,
     @Default(false) bool isInitialized,
   }) = _PlayerState;
-
-  bool get isFullscreen => isNativeFullscreen || isFlutterFullscreen;
 
   factory PlayerState.fromPlayerStateSnapshot(PlayerStateSnapshot state) {
     return PlayerState(
@@ -119,7 +111,6 @@ extension on PlayerState {
   PlayerState copyWithSnapshot(PlayerStateSnapshot snapshot) {
     return PlayerState.fromPlayerStateSnapshot(snapshot).copyWith(
       isInPipMode: isInPipMode, // not part of snapshot
-      isFlutterFullscreen: isFlutterFullscreen, // not part of snapshot
       isInitialized: true,
     );
   }

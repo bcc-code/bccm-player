@@ -1,5 +1,6 @@
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player_example/examples/single_player.dart';
+import 'package:bccm_player_example/examples/custom_controls.dart';
+import 'package:bccm_player_example/examples/simple_player.dart';
 import 'package:flutter/material.dart';
 
 import 'examples/list_of_players.dart';
@@ -22,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: MaterialApp(
         home: Scaffold(
           appBar: AppBar(
@@ -37,6 +38,7 @@ class _MyAppState extends State<MyApp> {
               Tab(text: 'Playground'),
               Tab(text: 'List Of Players'),
               Tab(text: 'Single player'),
+              Tab(text: 'Custom controls'),
             ]),
           ),
           // tabs with Playground #1 then a new "ListOfPlayers" tab at #2 and controls to navigate between the tabs
@@ -44,7 +46,8 @@ class _MyAppState extends State<MyApp> {
             children: [
               Playground(),
               ListOfPlayers(),
-              SinglePlayer(),
+              SimplePlayer(),
+              CustomControls(),
             ],
           ),
         ),

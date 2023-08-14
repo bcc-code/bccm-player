@@ -11,8 +11,8 @@ The primary player also has some extra superpowers:
 
 ```dart
 // The primary player is automatically initialized on startup
-// It's accessible via BccmPlatformInterface.instance:
-final controller = BccmPlatformInterface.instance.primaryController;
+// It's accessible statically via BccmPlayerController.primary:
+final controller = BccmPlayerController.primary;
 
 // Change video with replaceCurrentMediaItem
 await controller.replaceCurrentMediaItem(
@@ -24,7 +24,7 @@ await controller.replaceCurrentMediaItem(
     );
 
 // Display as usual
-final widget = VideoPlayerView(controller: controller);
+final widget = BccmPlayerView(controller);
 
 // You don't need to (and actually can't) dispose the primary player.
 if (!controller.isPrimary) controller.dispose();
