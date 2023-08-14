@@ -80,7 +80,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
     if (widget.playerController.value.isInitialized == false) {
       return const SizedBox.shrink();
     } else if (widget.playerController.value.playerId == 'chromecast') {
-      return const CastPlayer();
+      return const DefaultCastPlayer();
     }
 
     Widget getPlatformSpecificPlayer() {

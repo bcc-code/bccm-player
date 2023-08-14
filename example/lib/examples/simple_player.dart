@@ -36,7 +36,7 @@ class _SimplePlayerState extends State<SimplePlayer> {
       children: [
         Column(
           children: [
-            BccmPlayerView.simple(playerController),
+            BccmPlayerView(playerController),
             ElevatedButton(
               onPressed: () {
                 playerController.setPrimary();

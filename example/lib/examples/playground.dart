@@ -17,19 +17,21 @@ class _PlaygroundState extends State<Playground> {
   void initState() {
     super.initState();
     viewController = BccmPlayerViewController(
-      playerController: BccmPlayerInterface.instance.primaryController,
-      controlsOptions: PlayerControlsOptions(
-        playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
-        hidePlaybackSpeed: false,
-        hideQualitySelector: false,
+      playerController: BccmPlayerController.primary,
+      config: BccmPlayerViewConfig(
+        useSurfaceView: useSurfaceView,
+        controlsConfig: PlayerControlsConfig(
+          playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
+          hidePlaybackSpeed: false,
+          hideQualitySelector: false,
+        ),
       ),
-      useSurfaceView: useSurfaceView,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = BccmPlayerInterface.instance.primaryController;
+    final controller = BccmPlayerController.primary;
     return SafeArea(
       child: Center(
         child: controller.value.isInitialized == false
@@ -38,7 +40,10 @@ class _PlaygroundState extends State<Playground> {
                 children: [
                   Text(controller.value.playerId),
                   Text(controller.value.playbackSpeed.toString()),
-                  BccmPlayerView(key: ValueKey('player surface-view:$useSurfaceView'), viewController),
+                  BccmPlayerView.withViewController(
+                    viewController,
+                    key: ValueKey('player surface-view:$useSurfaceView'),
+                  ),
                   ...exampleVideos.map(
                     (MediaItem mediaItem) => ElevatedButton(
                       onPressed: () {
@@ -68,6 +73,12 @@ class _PlaygroundState extends State<Playground> {
                       });
                     },
                     child: Text('useSurfaceView: $useSurfaceView'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      viewController.enterFullscreen();
+                    },
+                    child: const Text('enter fullscreen'),
                   )
                 ],
               ),

@@ -19,7 +19,7 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
       ...exampleVideos.map(
         (e) => BccmPlayerController(e),
       ),
-      BccmPlayerInterface.instance.primaryController,
+      BccmPlayerController.primary,
     ];
     for (final controller in controllers) {
       controller.initialize().then((_) => controller.setMixWithOthers(true));
@@ -42,7 +42,7 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
         ...controllers.map(
           (controller) => Column(
             children: [
-              BccmPlayerView.simple(controller),
+              BccmPlayerView(controller),
               ElevatedButton(
                   onPressed: () {
                     controller.setPrimary();

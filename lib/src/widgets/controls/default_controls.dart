@@ -20,25 +20,22 @@ import 'default/settings.dart';
 class DefaultControls extends HookWidget {
   const DefaultControls({
     super.key,
-    required this.viewController,
   });
 
-  final BccmPlayerViewController viewController;
-
-  static ControlsBuilder builder = (BuildContext context, viewController) {
-    return DefaultControls(viewController: viewController);
+  static ControlsBuilder builder = (BuildContext context) {
+    return const DefaultControls();
   };
 
   @override
   Widget build(BuildContext context) {
     final controlsTheme = PlayerTheme.safeOf(context).controls!;
+    final viewController = BccmPlayerViewController.of(context);
     final player = useListenable(viewController.playerController);
     final seekDebouncer = useMemoized(() => Debouncer(milliseconds: 1000));
     final forwardRewindDebouncer = useMemoized(() => Debouncer(milliseconds: 200, debounceInitial: false));
     final currentMs = player.value.playbackPositionMs ?? 0;
     final duration = player.value.currentMediaItem?.metadata?.durationMs ?? player.value.playbackPositionMs?.toDouble() ?? 1;
     final forwardRewindDurationSec = Duration(milliseconds: duration.toInt()).inMinutes > 60 ? 30 : 15;
-    final isFullscreen = player.value.isFlutterFullscreen == true;
     final seeking = useState(false);
     final currentScrub = useState(0.0);
     final totalSeekToDurationMs = useRef(0.0);
@@ -89,7 +86,7 @@ class DefaultControls extends HookWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (isFullscreen) ...[
+                        if (viewController.isFullscreen) ...[
                           IconButton(
                             icon: const Icon(Icons.close),
                             iconSize: 32,
@@ -199,9 +196,10 @@ class DefaultControls extends HookWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          if (viewController.controlsOptions.playNextButton != null && isFullscreen)
+                          if (viewController.config.controlsConfig.playNextButton != null && viewController.isFullscreen)
                             Padding(
-                                padding: const EdgeInsets.only(bottom: 8, right: 12), child: viewController.controlsOptions.playNextButton!(context)),
+                                padding: const EdgeInsets.only(bottom: 8, right: 12),
+                                child: viewController.config.controlsConfig.playNextButton!(context)),
                         ],
                       ),
                     ),
@@ -235,7 +233,7 @@ class DefaultControls extends HookWidget {
                                 alignment: Alignment.bottomRight,
                                 padding: const EdgeInsets.only(right: 8, top: 8, bottom: 5, left: 20),
                                 child: Icon(
-                                  isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                                  viewController.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
                                   color: controlsTheme.iconColor,
                                 ),
                               ),

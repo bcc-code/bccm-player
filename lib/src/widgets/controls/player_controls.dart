@@ -6,8 +6,8 @@ import '../../../bccm_player.dart';
 /// * [playbackSpeeds] is a list of playback speeds that will be shown in the settings menu.
 /// * [hidePlaybackSpeed] will hide the playback speed selector in the settings menu.
 /// * [hideQualitySelector] will hide the quality selector in the settings menu.
-class PlayerControlsOptions {
-  PlayerControlsOptions({
+class PlayerControlsConfig {
+  PlayerControlsConfig({
     this.customBuilder,
     this.playNextButton,
     List<double>? playbackSpeeds,

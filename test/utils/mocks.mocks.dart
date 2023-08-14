@@ -686,14 +686,6 @@ class MockPlayerStateNotifier extends _i1.Mock
         returnValueForMissingStub: null,
       );
   @override
-  void setIsFlutterFullscreen(bool? value) => super.noSuchMethod(
-        Invocation.method(
-          #setIsFlutterFullscreen,
-          [value],
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
   void setPlaybackPosition(int? ms) => super.noSuchMethod(
         Invocation.method(
           #setPlaybackPosition,

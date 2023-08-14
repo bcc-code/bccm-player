@@ -21,7 +21,6 @@ mixin _$PlayerState {
   int? get playbackPositionMs => throw _privateConstructorUsedError;
   double get playbackSpeed => throw _privateConstructorUsedError;
   bool get isNativeFullscreen => throw _privateConstructorUsedError;
-  bool get isFlutterFullscreen => throw _privateConstructorUsedError;
   PlaybackState get playbackState => throw _privateConstructorUsedError;
   bool get isBuffering => throw _privateConstructorUsedError;
   bool get isInPipMode => throw _privateConstructorUsedError;
@@ -44,7 +43,6 @@ abstract class $PlayerStateCopyWith<$Res> {
       int? playbackPositionMs,
       double playbackSpeed,
       bool isNativeFullscreen,
-      bool isFlutterFullscreen,
       PlaybackState playbackState,
       bool isBuffering,
       bool isInPipMode,
@@ -69,7 +67,6 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
     Object? playbackPositionMs = freezed,
     Object? playbackSpeed = null,
     Object? isNativeFullscreen = null,
-    Object? isFlutterFullscreen = null,
     Object? playbackState = null,
     Object? isBuffering = null,
     Object? isInPipMode = null,
@@ -95,10 +92,6 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
       isNativeFullscreen: null == isNativeFullscreen
           ? _value.isNativeFullscreen
           : isNativeFullscreen // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isFlutterFullscreen: null == isFlutterFullscreen
-          ? _value.isFlutterFullscreen
-          : isFlutterFullscreen // ignore: cast_nullable_to_non_nullable
               as bool,
       playbackState: null == playbackState
           ? _value.playbackState
@@ -134,7 +127,6 @@ abstract class _$$_PlayerStateCopyWith<$Res>
       int? playbackPositionMs,
       double playbackSpeed,
       bool isNativeFullscreen,
-      bool isFlutterFullscreen,
       PlaybackState playbackState,
       bool isBuffering,
       bool isInPipMode,
@@ -157,7 +149,6 @@ class __$$_PlayerStateCopyWithImpl<$Res>
     Object? playbackPositionMs = freezed,
     Object? playbackSpeed = null,
     Object? isNativeFullscreen = null,
-    Object? isFlutterFullscreen = null,
     Object? playbackState = null,
     Object? isBuffering = null,
     Object? isInPipMode = null,
@@ -183,10 +174,6 @@ class __$$_PlayerStateCopyWithImpl<$Res>
       isNativeFullscreen: null == isNativeFullscreen
           ? _value.isNativeFullscreen
           : isNativeFullscreen // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isFlutterFullscreen: null == isFlutterFullscreen
-          ? _value.isFlutterFullscreen
-          : isFlutterFullscreen // ignore: cast_nullable_to_non_nullable
               as bool,
       playbackState: null == playbackState
           ? _value.playbackState
@@ -217,7 +204,6 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       this.playbackPositionMs,
       this.playbackSpeed = 1.0,
       this.isNativeFullscreen = false,
-      this.isFlutterFullscreen = false,
       this.playbackState = PlaybackState.stopped,
       this.isBuffering = false,
       this.isInPipMode = false,
@@ -238,9 +224,6 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
   final bool isNativeFullscreen;
   @override
   @JsonKey()
-  final bool isFlutterFullscreen;
-  @override
-  @JsonKey()
   final PlaybackState playbackState;
   @override
   @JsonKey()
@@ -254,7 +237,7 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, isFlutterFullscreen: $isFlutterFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized)';
+    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized)';
   }
 
   @override
@@ -267,7 +250,6 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('playbackPositionMs', playbackPositionMs))
       ..add(DiagnosticsProperty('playbackSpeed', playbackSpeed))
       ..add(DiagnosticsProperty('isNativeFullscreen', isNativeFullscreen))
-      ..add(DiagnosticsProperty('isFlutterFullscreen', isFlutterFullscreen))
       ..add(DiagnosticsProperty('playbackState', playbackState))
       ..add(DiagnosticsProperty('isBuffering', isBuffering))
       ..add(DiagnosticsProperty('isInPipMode', isInPipMode))
@@ -289,8 +271,6 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
                 other.playbackSpeed == playbackSpeed) &&
             (identical(other.isNativeFullscreen, isNativeFullscreen) ||
                 other.isNativeFullscreen == isNativeFullscreen) &&
-            (identical(other.isFlutterFullscreen, isFlutterFullscreen) ||
-                other.isFlutterFullscreen == isFlutterFullscreen) &&
             (identical(other.playbackState, playbackState) ||
                 other.playbackState == playbackState) &&
             (identical(other.isBuffering, isBuffering) ||
@@ -309,7 +289,6 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       playbackPositionMs,
       playbackSpeed,
       isNativeFullscreen,
-      isFlutterFullscreen,
       playbackState,
       isBuffering,
       isInPipMode,
@@ -329,7 +308,6 @@ abstract class _PlayerState extends PlayerState {
       final int? playbackPositionMs,
       final double playbackSpeed,
       final bool isNativeFullscreen,
-      final bool isFlutterFullscreen,
       final PlaybackState playbackState,
       final bool isBuffering,
       final bool isInPipMode,
@@ -346,8 +324,6 @@ abstract class _PlayerState extends PlayerState {
   double get playbackSpeed;
   @override
   bool get isNativeFullscreen;
-  @override
-  bool get isFlutterFullscreen;
   @override
   PlaybackState get playbackState;
   @override

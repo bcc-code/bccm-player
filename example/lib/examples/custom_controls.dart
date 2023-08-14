@@ -9,15 +9,8 @@ class CustomControls extends StatefulWidget {
 }
 
 class _CustomControlsState extends State<CustomControls> {
-  late BccmPlayerViewController playerViewController;
-
   @override
   void initState() {
-    playerViewController = BccmPlayerViewController(
-        playerController: BccmPlayerController.primary,
-        controlsOptions: PlayerControlsOptions(
-          customBuilder: (context, viewController) => MyControls(viewController),
-        ));
     BccmPlayerController.primary.replaceCurrentMediaItem(
       MediaItem(
         url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8',
@@ -29,18 +22,19 @@ class _CustomControlsState extends State<CustomControls> {
   }
 
   @override
-  void dispose() {
-    playerViewController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
         Column(
           children: [
-            BccmPlayerView(playerViewController),
+            BccmPlayerView(
+              BccmPlayerController.primary,
+              config: BccmPlayerViewConfig(
+                controlsConfig: PlayerControlsConfig(
+                  customBuilder: (context) => const MyControls(),
+                ),
+              ),
+            ),
           ],
         ),
       ],
@@ -49,12 +43,11 @@ class _CustomControlsState extends State<CustomControls> {
 }
 
 class MyControls extends StatelessWidget {
-  const MyControls(this.viewController, {Key? key}) : super(key: key);
-
-  final BccmPlayerViewController viewController;
+  const MyControls({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final viewController = BccmPlayerViewController.of(context);
     return Theme(
       data: Theme.of(context).copyWith(
         iconTheme: Theme.of(context).iconTheme.copyWith(color: Colors.white),
@@ -96,6 +89,20 @@ class MyControls extends StatelessWidget {
                   },
                   icon: const Icon(Icons.skip_next),
                 ),
+                if (!viewController.isFullscreen)
+                  IconButton(
+                    onPressed: () {
+                      viewController.enterFullscreen();
+                    },
+                    icon: const Icon(Icons.fullscreen),
+                  ),
+                if (viewController.isFullscreen)
+                  IconButton(
+                    onPressed: () {
+                      viewController.exitFullscreen();
+                    },
+                    icon: const Icon(Icons.fullscreen_exit),
+                  ),
               ],
             ),
           ),

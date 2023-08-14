@@ -9,13 +9,13 @@ import '../../utils/svg_icons.dart';
 class PlayNextButton extends HookWidget {
   const PlayNextButton({
     super.key,
-    required this.playerId,
+    required this.playerController,
     required this.onTap,
     this.text,
     this.appearAtTimeLeft = const Duration(seconds: 10),
   });
 
-  final String playerId;
+  final BccmPlayerController playerController;
   final VoidCallback? onTap;
   final String? text;
   final Duration appearAtTimeLeft;
@@ -23,7 +23,6 @@ class PlayNextButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
     //player state
-    final playerNotifier = BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId);
     final duration = useState<double?>(null);
     final timeLeft = useState(0.0);
     final controller = useAnimationController(
@@ -57,8 +56,8 @@ class PlayNextButton extends HookWidget {
         playbackState.value = state.playbackState;
       }
 
-      return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId)?.addListener(listener, fireImmediately: true);
-    }, [playerNotifier]);
+      return playerController.stateNotifier?.addListener(listener, fireImmediately: true);
+    }, [playerController.stateNotifier]);
 
     final shouldShow =
         duration.value != null && (duration.value! > appearAtTimeLeft.inMilliseconds) && (timeLeft.value < appearAtTimeLeft.inMilliseconds);
