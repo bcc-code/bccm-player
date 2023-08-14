@@ -37,7 +37,7 @@ await controller.initialize();
 // Show it via a widget
 @override
 Widget build(BuildContext context) {
-    return VideoPlayerView(controller: controller);
+    return BccmPlayerView(controller);
 }
 
 // If you created a new player (not primary), remember to dispose it
@@ -51,7 +51,7 @@ void dispose() {
 
 Use the widgets:
 
-- VideoPlayerView(): The normal widget for displaying a video with controls.
+- BccmPlayerView(): The normal widget for displaying a video with controls.
 - VideoPlatformView(): A raw video widget
 - CastButton(): A button to connect to cast-enabled devices
 - MiniPlayer(): A skeleton widget included for convenience.

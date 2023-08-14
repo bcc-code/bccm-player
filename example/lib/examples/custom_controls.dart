@@ -1,42 +1,32 @@
 import 'package:bccm_player/bccm_player.dart';
 import 'package:flutter/material.dart';
 
-class CustomControls extends StatefulWidget {
+class CustomControls extends StatelessWidget {
   const CustomControls({super.key});
-
-  @override
-  State<CustomControls> createState() => _CustomControlsState();
-}
-
-class _CustomControlsState extends State<CustomControls> {
-  @override
-  void initState() {
-    BccmPlayerController.primary.replaceCurrentMediaItem(
-      MediaItem(
-        url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8',
-        mimeType: 'application/x-mpegURL',
-        metadata: MediaMetadata(title: 'Apple advanced (HLS/HDR)'),
-      ),
-    );
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        Column(
-          children: [
-            BccmPlayerView(
-              BccmPlayerController.primary,
-              config: BccmPlayerViewConfig(
-                controlsConfig: PlayerControlsConfig(
-                  customBuilder: (context) => const MyControls(),
-                ),
-              ),
+        BccmPlayerView(
+          BccmPlayerController.primary,
+          config: BccmPlayerViewConfig(
+            controlsConfig: PlayerControlsConfig(
+              customBuilder: (context) => const MyControls(),
             ),
-          ],
+          ),
         ),
+        ElevatedButton(
+            onPressed: () {
+              BccmPlayerController.primary.replaceCurrentMediaItem(
+                MediaItem(
+                  url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8',
+                  mimeType: 'application/x-mpegURL',
+                  metadata: MediaMetadata(title: 'Apple advanced (HLS/HDR)'),
+                ),
+              );
+            },
+            child: const Text('Play something'))
       ],
     );
   }

@@ -24,7 +24,7 @@ await controller.replaceCurrentMediaItem(
     );
 
 // Display as usual
-final widget = VideoPlayerView(controller: controller);
+final widget = BccmPlayerView(controller);
 
 // You don't need to (and actually can't) dispose the primary player.
 if (!controller.isPrimary) controller.dispose();
