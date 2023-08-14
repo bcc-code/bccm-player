@@ -3,8 +3,6 @@ import 'package:bccm_player/src/utils/svg_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../../theme/player_theme.dart';
-
 class DefaultCastPlayer extends StatelessWidget {
   const DefaultCastPlayer({super.key});
 

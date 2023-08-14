@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../bccm_player.dart';
-import '../../../theme/player_theme.dart';
 import '../../utils/svg_icons.dart';
 
 class PlayNextButton extends HookWidget {

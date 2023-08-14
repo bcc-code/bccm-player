@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../theme/player_theme.dart';
+import '../../../theme/player_theme.dart';
 
 class SettingsOption<T> {
   final T value;
