@@ -1,3 +1,9 @@
+## 1.0.0
+
+- BREAKING CHANGE: VideoPlayerView() is now BccmPlayerView() and now takes a BccmPlayerViewConfig instead. This is for consistency and to avoid confusion.
+- Feature: BccmPlayerViewController, which you can use to enter and exit fullscreen programatically.
+- Feature: Custom controls builder
+
 ## 0.2.4
 
 - Improved code comments
