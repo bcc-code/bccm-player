@@ -1,11 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 import 'package:state_notifier/state_notifier.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:collection/collection.dart';
 
 import '../../bccm_player.dart';
 import '../pigeon/playback_platform_pigeon.g.dart';
-import '../widgets/video/video_player_view_fullscreen.dart';
 
 /// The controller represents a player, and it's used to control and listen to player state.
 ///
@@ -20,7 +20,7 @@ import '../widgets/video/video_player_view_fullscreen.dart';
 /// * [primaryPlayerProvider] and [playerProviderFor] for riverpod providers of the stateNotifier.
 /// * [BccmPlayerInterface.instance] which is being used under the hood. You can use this to call methods directly on the native side given a playerId.
 /// * [BccmPlayerInterface.stateNotifier] which holds some global state, including the primaryPlayerId and all active players.
-/// * [BccmPlayerInterface.primaryController] which is the primary player.
+/// * [BccmPlayerController.primary] which is the primary player.
 class BccmPlayerController extends ValueNotifier<PlayerState> {
   PlayerStateNotifier? _stateNotifier;
   RemoveListener? _removeStateListener;
@@ -28,9 +28,32 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   final MediaItem? _intialMediaItem;
   NavigatorState? _currentFullscreenNavigator;
   StateNotifier<PlayerState>? get stateNotifier => _stateNotifier;
+  final Set<State<VideoPlatformView>> _attachedPlayerViews = {};
+  bool _isDisposed = false;
+
+  static BccmPlayerController get primary => BccmPlayerInterface.instance.primaryController;
+
+  State<VideoPlatformView>? get currentPlayerView {
+    return _attachedPlayerViews.lastOrNull;
+  }
+
+  void attach(State<VideoPlatformView> playerView) {
+    if (_isDisposed) return;
+    _attachedPlayerViews.add(playerView);
+    notifyListeners();
+  }
+
+  void detach(State<VideoPlatformView> playerView) {
+    if (_isDisposed) return;
+    _attachedPlayerViews.remove(playerView);
+    if (isPrimary) {
+      debugPrint("bccm: Current primary player view: $currentPlayerView");
+    }
+    notifyListeners();
+  }
 
   /// Creates a [BccmPlayerController] with a [MediaItem].
-  /// Use with e.g. [VideoPlayerView] or [VideoPlatformView].
+  /// Use with e.g. [BccmPlayerView] or [VideoPlatformView].
   ///
   /// **Important:** You must call [initialize] to start loading the video.
   ///
@@ -107,6 +130,7 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
       debugPrint("Warning: The primary player can't be disposed, but it was attempted.");
       return;
     }
+    _isDisposed = true;
     _removeStateListener?.call();
     super.dispose();
     return BccmPlayerInterface.instance.disposePlayer(value.playerId);
@@ -116,12 +140,15 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   ///
   /// You can use [isInitialized] to check if the player is initialized.
   Future<void> initialize() async {
-    if (value.isInitialized) {
+    if (value.isInitialized || _isDisposed) {
       return;
     }
     final playerId = await BccmPlayerInterface.instance.newPlayer();
     if (_intialMediaItem != null) {
       await BccmPlayerInterface.instance.replaceCurrentMediaItem(playerId, _intialMediaItem!);
+    }
+    if (_isDisposed) {
+      return;
     }
     final notifier = BccmPlayerInterface.instance.stateNotifier.getOrAddPlayerNotifier(playerId);
     _listenToNotifier(notifier);
@@ -253,38 +280,6 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     } else if (context == null) {
       throw ErrorDescription('enterFullscreen: context cant be null if useNativeControls is false.');
     }
-    WakelockPlus.enable();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    debugPrint('bccm: setPreferredOrientations landscape');
-
-    _stateNotifier?.setIsFlutterFullscreen(true);
-    _currentFullscreenNavigator = Navigator.of(context, rootNavigator: true);
-    await Navigator.of(context, rootNavigator: true).push(
-      PageRouteBuilder(
-        pageBuilder: (context, aAnim, bAnim) => VideoPlayerViewFullscreen(
-          controller: this,
-          playNextButton: playNextButton,
-        ),
-        transitionsBuilder: (context, aAnim, bAnim, child) => FadeTransition(
-          opacity: aAnim,
-          child: child,
-        ),
-        fullscreenDialog: true,
-      ),
-    );
-
-    if (resetSystemOverlays != null) {
-      resetSystemOverlays();
-    } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
-
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    debugPrint('bccm: setPreferredOrientations portraitUp');
-
-    _stateNotifier?.setIsFlutterFullscreen(false);
-    WakelockPlus.disable();
   }
 
   /// Exits fullscreen.
@@ -302,10 +297,11 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     }
   }
 
-  /// @protected as you probably don't need to use this.
+  /// @internal as you probably don't need to use this.
   /// Used by the primaryController to swap between cast and local player.
-  @protected
+  @internal
   void swapPlayerNotifier(PlayerStateNotifier notifier) {
+    assert(!_isDisposed, "PlayerController was used after being disposed");
     _listenToNotifier(notifier);
   }
 

@@ -13,7 +13,7 @@ import 'package:universal_io/io.dart';
 class SettingsButton extends HookWidget {
   const SettingsButton({
     super.key,
-    required this.controller,
+    required this.viewController,
     required this.controlsTheme,
     this.padding,
     this.playbackSpeeds,
@@ -21,7 +21,7 @@ class SettingsButton extends HookWidget {
     this.hideQualitySelector,
   });
 
-  final BccmPlayerController controller;
+  final BccmPlayerViewController viewController;
   final ControlsThemeData controlsTheme;
   final EdgeInsets? padding;
   final List<double>? playbackSpeeds;
@@ -37,13 +37,7 @@ class SettingsButton extends HookWidget {
         showModalBottomSheet(
           context: context,
           isDismissible: true,
-          builder: (context) => _SettingsBottomSheet(
-            controller: controller,
-            controlsTheme: controlsTheme,
-            playbackSpeeds: playbackSpeeds ?? const [0.75, 1.0, 1.25, 1.5, 2.0],
-            hidePlaybackSpeed: hidePlaybackSpeed,
-            hideQualitySelector: hideQualitySelector,
-          ),
+          builder: (context) => _SettingsBottomSheet(viewController: viewController),
         );
       },
       child: Padding(
@@ -55,22 +49,15 @@ class SettingsButton extends HookWidget {
 }
 
 class _SettingsBottomSheet extends HookWidget {
-  const _SettingsBottomSheet({
-    required this.controller,
-    required this.controlsTheme,
-    required this.playbackSpeeds,
-    required this.hidePlaybackSpeed,
-    required this.hideQualitySelector,
-  });
+  const _SettingsBottomSheet({required this.viewController});
 
-  final BccmPlayerController controller;
-  final ControlsThemeData controlsTheme;
-  final List<double> playbackSpeeds;
-  final bool? hidePlaybackSpeed;
-  final bool? hideQualitySelector;
+  final BccmPlayerViewController viewController;
 
   @override
   Widget build(BuildContext context) {
+    final controlsTheme = PlayerTheme.safeOf(context).controls ?? ControlsThemeData.defaultTheme(context);
+    final options = viewController.controlsOptions;
+    final controller = viewController.playerController;
     final tracksFuture = useState(useMemoized(controller.getTracks));
     final tracksSnapshot = useFuture(tracksFuture.value);
 
@@ -155,14 +142,14 @@ class _SettingsBottomSheet extends HookWidget {
             }
           },
         ),
-      if (hidePlaybackSpeed == false || hidePlaybackSpeed == null && !isLive.value)
+      if (options.hidePlaybackSpeed == false || options.hidePlaybackSpeed == null && !isLive.value)
         ListTile(
           dense: true,
           title: Text('Playback speed: ${playbackSpeed.value.toStringAsFixed(1)}x', style: controlsTheme.settingsListTextStyle),
           onTap: () async {
             final selected = await showModalOptionList<double>(
               context: context,
-              options: playbackSpeeds
+              options: options.playbackSpeeds
                   .map(
                     (speed) => SettingsOption(
                       value: speed,
@@ -177,7 +164,7 @@ class _SettingsBottomSheet extends HookWidget {
             }
           },
         ),
-      if (hideQualitySelector != true && uniqueVideoTracks != null && uniqueVideoTracks.length > 1)
+      if (options.hideQualitySelector != true && uniqueVideoTracks != null && uniqueVideoTracks.length > 1)
         ListTile(
           dense: true,
           title: Text('${Platform.isIOS ? 'Max ' : ''}Quality: ${selectedVideoTrack?.labelWithFallback ?? 'Auto'}',

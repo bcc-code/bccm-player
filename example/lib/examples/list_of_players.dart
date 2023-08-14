@@ -42,7 +42,7 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
         ...controllers.map(
           (controller) => Column(
             children: [
-              VideoPlayerView(controller: controller),
+              BccmPlayerView.simple(controller),
               ElevatedButton(
                   onPressed: () {
                     controller.setPrimary();

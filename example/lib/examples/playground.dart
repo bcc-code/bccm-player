@@ -11,6 +11,21 @@ class Playground extends StatefulWidget {
 
 class _PlaygroundState extends State<Playground> {
   bool useSurfaceView = false;
+  late BccmPlayerViewController viewController;
+
+  @override
+  void initState() {
+    super.initState();
+    viewController = BccmPlayerViewController(
+      playerController: BccmPlayerInterface.instance.primaryController,
+      controlsOptions: PlayerControlsOptions(
+        playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
+        hidePlaybackSpeed: false,
+        hideQualitySelector: false,
+      ),
+      useSurfaceView: useSurfaceView,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +38,7 @@ class _PlaygroundState extends State<Playground> {
                 children: [
                   Text(controller.value.playerId),
                   Text(controller.value.playbackSpeed.toString()),
-                  VideoPlayerView(
-                    key: ValueKey('player surface-view:$useSurfaceView'),
-                    controller: controller,
-                    useNativeControls: false,
-                    playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
-                    hidePlaybackSpeed: false,
-                    hideQualitySelector: false,
-                    useSurfaceView: useSurfaceView,
-                  ),
+                  BccmPlayerView(key: ValueKey('player surface-view:$useSurfaceView'), viewController),
                   ...exampleVideos.map(
                     (MediaItem mediaItem) => ElevatedButton(
                       onPressed: () {

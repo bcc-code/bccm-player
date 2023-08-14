@@ -20,27 +20,19 @@ import 'default/settings.dart';
 class DefaultControls extends HookWidget {
   const DefaultControls({
     super.key,
-    required this.controller,
-    required this.goFullscreen,
-    required this.exitFullscreen,
-    this.playNextButton,
-    this.playbackSpeeds,
-    this.hidePlaybackSpeed,
-    this.hideQualitySelector,
+    required this.viewController,
   });
 
-  final BccmPlayerController controller;
-  final Future Function() goFullscreen;
-  final Future Function() exitFullscreen;
-  final WidgetBuilder? playNextButton;
-  final List<double>? playbackSpeeds;
-  final bool? hidePlaybackSpeed;
-  final bool? hideQualitySelector;
+  final BccmPlayerViewController viewController;
+
+  static ControlsBuilder builder = (BuildContext context, viewController) {
+    return DefaultControls(viewController: viewController);
+  };
 
   @override
   Widget build(BuildContext context) {
     final controlsTheme = PlayerTheme.safeOf(context).controls!;
-    final player = useListenable(controller);
+    final player = useListenable(viewController.playerController);
     final seekDebouncer = useMemoized(() => Debouncer(milliseconds: 1000));
     final forwardRewindDebouncer = useMemoized(() => Debouncer(milliseconds: 200, debounceInitial: false));
     final currentMs = player.value.playbackPositionMs ?? 0;
@@ -60,7 +52,7 @@ class DefaultControls extends HookWidget {
       seeking.value = true;
       seekDebouncer.run(() async {
         if (!context.mounted) return;
-        await controller.seekTo(Duration(milliseconds: (currentScrub.value * duration).round()));
+        await viewController.playerController.seekTo(Duration(milliseconds: (currentScrub.value * duration).round()));
         seeking.value = false;
       });
     }
@@ -73,7 +65,7 @@ class DefaultControls extends HookWidget {
       currentScrub.value = newPositionMs / duration;
       forwardRewindDebouncer.run(() async {
         if (!context.mounted) return;
-        await controller.seekTo(Duration(milliseconds: (newPositionMs).round()));
+        await viewController.playerController.seekTo(Duration(milliseconds: (newPositionMs).round()));
         totalSeekToDurationMs.value = 0;
         seeking.value = false;
       });
@@ -115,12 +107,9 @@ class DefaultControls extends HookWidget {
                         ],
                         const Spacer(),
                         SettingsButton(
-                          controller: controller,
+                          viewController: viewController,
                           padding: const EdgeInsets.only(top: 12, bottom: 24, left: 24, right: 8),
                           controlsTheme: controlsTheme,
-                          hidePlaybackSpeed: hidePlaybackSpeed,
-                          hideQualitySelector: hideQualitySelector,
-                          playbackSpeeds: playbackSpeeds,
                         ),
                       ],
                     ),
@@ -156,7 +145,7 @@ class DefaultControls extends HookWidget {
                           ),
                           color: controlsTheme.iconColor,
                           onPressed: () {
-                            controller.play();
+                            viewController.playerController.play();
                           },
                         )
                       else
@@ -179,7 +168,7 @@ class DefaultControls extends HookWidget {
                           iconSize: 42,
                           color: controlsTheme.iconColor,
                           onPressed: () {
-                            controller.pause();
+                            player.pause();
                           },
                         ),
                       Padding(
@@ -210,8 +199,9 @@ class DefaultControls extends HookWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          if (playNextButton != null && isFullscreen)
-                            Padding(padding: const EdgeInsets.only(bottom: 8, right: 12), child: playNextButton!(context)),
+                          if (viewController.controlsOptions.playNextButton != null && isFullscreen)
+                            Padding(
+                                padding: const EdgeInsets.only(bottom: 8, right: 12), child: viewController.controlsOptions.playNextButton!(context)),
                         ],
                       ),
                     ),
@@ -234,10 +224,10 @@ class DefaultControls extends HookWidget {
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () {
-                                if (!isFullscreen) {
-                                  goFullscreen();
+                                if (!viewController.isFullscreen) {
+                                  viewController.enterFullscreen();
                                 } else {
-                                  exitFullscreen();
+                                  viewController.exitFullscreen();
                                 }
                               },
                               child: Container(
