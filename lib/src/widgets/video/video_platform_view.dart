@@ -41,7 +41,6 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
         isCurrentPlayerView != newIsCurrentPlayerView;
 
     if (anyRelevantFieldHasChanged) {
-      debugPrint('bccm: Updating state isCurrent:$newIsCurrentPlayerView for $this');
       setState(() {
         isCurrentPlayerView = newIsCurrentPlayerView;
         playerId = widget.playerController.value.playerId;
@@ -74,7 +73,6 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
   @override
   Widget build(BuildContext context) {
     if (!isCurrentPlayerView) {
-      debugPrint('bccm: hiding $playerId in $this');
       return AspectRatio(aspectRatio: 16 / 9, child: Container(color: const Color(0x00000000)));
     }
     if (widget.playerController.value.isInitialized == false) {

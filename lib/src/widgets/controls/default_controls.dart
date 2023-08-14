@@ -47,6 +47,7 @@ class DefaultControls extends HookWidget {
       currentScrub.value = value;
       seeking.value = true;
       seekDebouncer.run(() async {
+        debugPrint("Seeking to ${currentScrub.value}");
         if (!context.mounted) return;
         await viewController.playerController.seekTo(Duration(milliseconds: (currentScrub.value * duration).round()));
         seeking.value = false;

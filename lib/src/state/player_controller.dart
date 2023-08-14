@@ -44,9 +44,6 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   void detach(State<VideoPlatformView> playerView) {
     if (_isDisposed) return;
     _attachedPlayerViews.remove(playerView);
-    if (isPrimary) {
-      debugPrint("bccm: Current primary player view: $currentPlayerView");
-    }
     notifyListeners();
   }
 
