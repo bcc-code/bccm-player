@@ -88,20 +88,28 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
       visible: _visible,
       visibilityAnimation: visibilityAnimationController,
       child: Builder(builder: (context) {
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            _setVisible(!_visible);
+        return Listener(
+          onPointerMove: (_) {
+              _setVisible(true);
           },
-          child: Stack(
-            children: [
-              ControlFadeOut(
-                child: Container(
-                  color: Colors.black38,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              _setVisible(!_visible);
+            },
+            onVerticalDragUpdate: (details) {
+              _setVisible(true);
+            },
+            child: Stack(
+              children: [
+                ControlFadeOut(
+                  child: Container(
+                    color: Colors.black38,
+                  ),
                 ),
-              ),
-              widget.builder(context),
-            ],
+                widget.builder(context),
+              ],
+            ),
           ),
         );
       }),
