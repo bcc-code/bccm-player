@@ -21,7 +21,7 @@ class SettingsButton extends HookWidget {
   });
 
   final BccmPlayerViewController viewController;
-  final ControlsThemeData controlsTheme;
+  final BccmControlsThemeData controlsTheme;
   final EdgeInsets? padding;
   final List<double>? playbackSpeeds;
   final bool? hidePlaybackSpeed;
@@ -54,7 +54,7 @@ class _SettingsBottomSheet extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controlsTheme = PlayerTheme.safeOf(context).controls ?? ControlsThemeData.defaultTheme(context);
+    final controlsTheme = BccmPlayerTheme.safeOf(context).controls ?? BccmControlsThemeData.defaultTheme(context);
     final playerController = viewController.playerController;
     final controlsConfig = viewController.config.controlsConfig;
     final tracksFuture = useState(useMemoized(playerController.getTracks));

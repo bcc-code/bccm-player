@@ -3,44 +3,47 @@ import 'package:bccm_player/src/theme/controls_theme_data.dart';
 import 'package:bccm_player/src/theme/mini_player_theme_data.dart';
 import 'package:flutter/material.dart';
 
-class PlayerTheme extends InheritedWidget {
-  PlayerTheme({
+class BccmPlayerTheme extends InheritedWidget {
+  BccmPlayerTheme({
     super.key,
-    required Widget Function(BuildContext) child,
     required this.playerTheme,
-  }) : super(child: Builder(builder: child));
+    Widget Function(BuildContext)? builder,
+    Widget? child,
+  })  : assert(child != null || builder != null, "Either child or builder must be set."),
+        assert(child == null || builder == null, "You cant set both child and builder at the same time."),
+        super(child: Builder(builder: builder ?? (context) => child!));
 
-  final PlayerThemeData playerTheme;
+  final BccmPlayerThemeData playerTheme;
 
   @override
-  bool updateShouldNotify(PlayerTheme oldWidget) => oldWidget.playerTheme != playerTheme;
-  static PlayerThemeData? read(BuildContext context) =>
-      context.getElementForInheritedWidgetOfExactType<PlayerTheme>()?.widget.asOrNull<PlayerTheme>()?.playerTheme;
-  static PlayerThemeData? maybeOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<PlayerTheme>()?.playerTheme;
-  static PlayerThemeData rawOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<PlayerTheme>()!.playerTheme;
+  bool updateShouldNotify(BccmPlayerTheme oldWidget) => oldWidget.playerTheme != playerTheme;
+  static BccmPlayerThemeData? read(BuildContext context) =>
+      context.getElementForInheritedWidgetOfExactType<BccmPlayerTheme>()?.widget.asOrNull<BccmPlayerTheme>()?.playerTheme;
+  static BccmPlayerThemeData? maybeOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<BccmPlayerTheme>()?.playerTheme;
+  static BccmPlayerThemeData rawOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<BccmPlayerTheme>()!.playerTheme;
 
-  static PlayerThemeData safeOf(BuildContext context) {
-    final theme = context.dependOnInheritedWidgetOfExactType<PlayerTheme>()?.playerTheme;
-    final defaults = PlayerThemeData.defaultTheme(context);
+  static BccmPlayerThemeData safeOf(BuildContext context) {
+    final theme = context.dependOnInheritedWidgetOfExactType<BccmPlayerTheme>()?.playerTheme;
+    final defaults = BccmPlayerThemeData.defaultTheme(context);
     return theme?.fillWithDefaults(defaults) ?? defaults;
   }
 }
 
-class PlayerThemeData {
-  PlayerThemeData({this.miniPlayer, this.controls});
+class BccmPlayerThemeData {
+  BccmPlayerThemeData({this.miniPlayer, this.controls});
 
-  final MiniPlayerThemeData? miniPlayer;
-  final ControlsThemeData? controls;
+  final BccmMiniPlayerThemeData? miniPlayer;
+  final BccmControlsThemeData? controls;
 
-  factory PlayerThemeData.defaultTheme(BuildContext context) {
-    return PlayerThemeData(
-      miniPlayer: MiniPlayerThemeData.defaultTheme(context),
-      controls: ControlsThemeData.defaultTheme(context),
+  factory BccmPlayerThemeData.defaultTheme(BuildContext context) {
+    return BccmPlayerThemeData(
+      miniPlayer: BccmMiniPlayerThemeData.defaultTheme(context),
+      controls: BccmControlsThemeData.defaultTheme(context),
     );
   }
 
-  PlayerThemeData fillWithDefaults(PlayerThemeData defaults) {
-    return PlayerThemeData(
+  BccmPlayerThemeData fillWithDefaults(BccmPlayerThemeData defaults) {
+    return BccmPlayerThemeData(
       miniPlayer: miniPlayer?.fillWithDefaults(defaults.miniPlayer!) ?? defaults.miniPlayer,
       controls: controls?.fillWithDefaults(defaults.controls!) ?? defaults.controls,
     );

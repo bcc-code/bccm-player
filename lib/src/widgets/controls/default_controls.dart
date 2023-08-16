@@ -27,7 +27,7 @@ class DefaultControls extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controlsTheme = PlayerTheme.safeOf(context).controls!;
+    final controlsTheme = BccmPlayerTheme.safeOf(context).controls!;
     final viewController = BccmPlayerViewController.of(context);
     final player = useListenable(viewController.playerController);
     final seekDebouncer = useMemoized(() => Debouncer(milliseconds: 1000));
@@ -138,6 +138,7 @@ class DefaultControls extends HookWidget {
                               SvgIcons.play,
                               width: double.infinity,
                               height: double.infinity,
+                              colorFilter: ColorFilter.mode(controlsTheme.iconColor ?? Colors.white, BlendMode.srcIn),
                             ),
                           ),
                           color: controlsTheme.iconColor,

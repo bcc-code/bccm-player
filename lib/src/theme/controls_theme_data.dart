@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ControlsThemeData {
+class BccmControlsThemeData {
   final Color? primaryColor;
   final Color? iconColor;
   final TextStyle? durationTextStyle;
@@ -11,7 +11,7 @@ class ControlsThemeData {
   final Color? playNextButtonBackgroundColor;
   final Color? playNextButtonProgressColor;
 
-  ControlsThemeData({
+  BccmControlsThemeData({
     this.primaryColor,
     this.iconColor,
     this.durationTextStyle,
@@ -23,9 +23,9 @@ class ControlsThemeData {
     this.playNextButtonProgressColor,
   });
 
-  factory ControlsThemeData.defaultTheme(BuildContext context) {
+  factory BccmControlsThemeData.defaultTheme(BuildContext context) {
     final theme = Theme.of(context);
-    return ControlsThemeData(
+    return BccmControlsThemeData(
       primaryColor: theme.colorScheme.primary,
       iconColor: Colors.white,
       durationTextStyle: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onBackground),
@@ -45,21 +45,24 @@ class ControlsThemeData {
     );
   }
 
-  ControlsThemeData fillWithDefaults(ControlsThemeData defaults) {
-    return ControlsThemeData(
+  BccmControlsThemeData fillWithDefaults(BccmControlsThemeData defaults) {
+    return BccmControlsThemeData(
       primaryColor: primaryColor ?? defaults.primaryColor,
-      iconColor: iconColor ?? defaults.iconColor,
+      iconColor: primaryColor ?? iconColor ?? defaults.iconColor,
       durationTextStyle: durationTextStyle ?? defaults.durationTextStyle,
       settingsListBackgroundColor: settingsListBackgroundColor ?? defaults.settingsListBackgroundColor,
       settingsListTextStyle: settingsListTextStyle ?? defaults.settingsListTextStyle,
       fullscreenTitleStyle: fullscreenTitleStyle ?? defaults.fullscreenTitleStyle,
-      progressBarTheme: progressBarTheme ?? defaults.progressBarTheme,
+      progressBarTheme: progressBarTheme ??
+          (primaryColor == null
+              ? defaults.progressBarTheme
+              : defaults.progressBarTheme?.copyWith(activeTrackColor: primaryColor, thumbColor: primaryColor)),
       playNextButtonBackgroundColor: playNextButtonBackgroundColor ?? defaults.playNextButtonBackgroundColor,
       playNextButtonProgressColor: playNextButtonProgressColor ?? defaults.playNextButtonProgressColor,
     );
   }
 
-  ControlsThemeData copyWith({
+  BccmControlsThemeData copyWith({
     Color? primaryColor,
     Color? iconColor,
     TextStyle? durationTextStyle,
@@ -70,7 +73,7 @@ class ControlsThemeData {
     Color? playNextButtonBackgroundColor,
     Color? playNextButtonProgressColor,
   }) {
-    return ControlsThemeData(
+    return BccmControlsThemeData(
       primaryColor: primaryColor ?? this.primaryColor,
       iconColor: iconColor ?? this.iconColor,
       durationTextStyle: durationTextStyle ?? this.durationTextStyle,

@@ -76,7 +76,7 @@ class PlayNextButton extends HookWidget {
                   child: Stack(
                     children: [
                       Positioned.fill(
-                        child: Container(color: PlayerTheme.safeOf(context).controls?.playNextButtonBackgroundColor),
+                        child: Container(color: BccmPlayerTheme.safeOf(context).controls?.playNextButtonBackgroundColor),
                       ),
                       Positioned.fill(
                         child: Align(
@@ -84,7 +84,7 @@ class PlayNextButton extends HookWidget {
                           child: SizeTransition(
                             axis: Axis.horizontal,
                             sizeFactor: controller,
-                            child: Container(color: PlayerTheme.safeOf(context).controls?.playNextButtonProgressColor),
+                            child: Container(color: BccmPlayerTheme.safeOf(context).controls?.playNextButtonProgressColor),
                           ),
                         ),
                       ),

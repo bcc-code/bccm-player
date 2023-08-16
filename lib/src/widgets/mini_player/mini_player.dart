@@ -46,7 +46,7 @@ class MiniPlayer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = PlayerTheme.safeOf(context).miniPlayer!;
+    final theme = BccmPlayerTheme.safeOf(context).miniPlayer!;
 
     return Container(
       height: kMiniPlayerHeight,

@@ -17,12 +17,12 @@ class DefaultCastPlayer extends StatelessWidget {
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: Container(
-            decoration: BoxDecoration(color: PlayerTheme.safeOf(context).controls?.settingsListBackgroundColor),
+            decoration: BoxDecoration(color: BccmPlayerTheme.safeOf(context).controls?.settingsListBackgroundColor),
             child: Center(
               child: SvgPicture.string(
                 SvgIcons.castButton,
                 height: 100,
-                colorFilter: ColorFilter.mode(PlayerTheme.safeOf(context).controls?.primaryColor ?? Colors.white, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(BccmPlayerTheme.safeOf(context).controls?.primaryColor ?? Colors.white, BlendMode.srcIn),
               ),
             ),
           ),

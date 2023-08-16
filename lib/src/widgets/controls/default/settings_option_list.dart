@@ -41,7 +41,7 @@ class SettingsOptionList<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controlsTheme = PlayerTheme.safeOf(context).controls;
+    final controlsTheme = BccmPlayerTheme.safeOf(context).controls;
     return Container(
       color: controlsTheme?.settingsListBackgroundColor,
       child: ListView(

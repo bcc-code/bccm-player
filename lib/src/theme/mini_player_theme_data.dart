@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MiniPlayerThemeData {
+class BccmMiniPlayerThemeData {
   final Color? iconColor;
   final Color? backgroundColor;
   final Color? thumbnailBorderColor;
@@ -8,7 +8,7 @@ class MiniPlayerThemeData {
   final TextStyle? titleStyle;
   final TextStyle? secondaryTitleStyle;
 
-  MiniPlayerThemeData({
+  BccmMiniPlayerThemeData({
     this.iconColor,
     this.backgroundColor,
     this.thumbnailBorderColor,
@@ -17,9 +17,9 @@ class MiniPlayerThemeData {
     this.secondaryTitleStyle,
   });
 
-  factory MiniPlayerThemeData.defaultTheme(BuildContext context) {
+  factory BccmMiniPlayerThemeData.defaultTheme(BuildContext context) {
     final theme = Theme.of(context);
-    return MiniPlayerThemeData(
+    return BccmMiniPlayerThemeData(
       iconColor: theme.colorScheme.onSurface,
       backgroundColor: theme.colorScheme.background,
       thumbnailBorderColor: Colors.white.withOpacity(0.01),
@@ -29,8 +29,8 @@ class MiniPlayerThemeData {
     );
   }
 
-  MiniPlayerThemeData fillWithDefaults(MiniPlayerThemeData defaults) {
-    return MiniPlayerThemeData(
+  BccmMiniPlayerThemeData fillWithDefaults(BccmMiniPlayerThemeData defaults) {
+    return BccmMiniPlayerThemeData(
       iconColor: iconColor ?? defaults.iconColor,
       backgroundColor: backgroundColor ?? defaults.backgroundColor,
       thumbnailBorderColor: thumbnailBorderColor ?? defaults.thumbnailBorderColor,
@@ -40,7 +40,7 @@ class MiniPlayerThemeData {
     );
   }
 
-  MiniPlayerThemeData copyWith({
+  BccmMiniPlayerThemeData copyWith({
     Color? iconColor,
     Color? backgroundColor,
     Color? thumbnailBorderColor,
@@ -48,7 +48,7 @@ class MiniPlayerThemeData {
     TextStyle? titleStyle,
     TextStyle? secondaryTitleStyle,
   }) {
-    return MiniPlayerThemeData(
+    return BccmMiniPlayerThemeData(
       iconColor: iconColor ?? this.iconColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       thumbnailBorderColor: thumbnailBorderColor ?? this.thumbnailBorderColor,
