@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>App config / default languages - BccmPlayer docs</title>
+    <title>Styling - BccmPlayer docs</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "App config / default languages";
-        var mkdocs_page_input_path = "advanced-setup/app-config.md";
+        var mkdocs_page_name = "Styling";
+        var mkdocs_page_input_path = "advanced-usage/styling.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -44,27 +44,29 @@
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Advanced setup</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">App config / default languages</a>
-    <ul class="current">
-    </ul>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/app-config/">App config / default languages</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../chromecast/">Chromecast</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/chromecast/">Chromecast</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../plugins/">Plugins</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/plugins/">Plugins</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Advanced usage</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/airplay/">Airplay</a>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../airplay/">Airplay</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/custom-controls/">Custom controls</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../custom-controls/">Custom controls</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/hdr-content/">HDR content / SurfaceView</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../hdr-content/">HDR content / SurfaceView</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/primary-player/">Primary player</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../primary-player/">Primary player</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/styling/">Styling</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Styling</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#theme">Theme</a>
+    </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Contributing</span></p>
@@ -86,8 +88,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
-          <li>Advanced setup &raquo;</li>
-      <li class="breadcrumb-item active">App config / default languages</li>
+          <li>Advanced usage &raquo;</li>
+      <li class="breadcrumb-item active">Styling</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -96,24 +98,27 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="app-config-default-languages">App config / default languages</h1>
-<p>Use the app config to control global settings like default languages.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">BccmPlayerInterface</span><span class="p">.</span><span class="n">instance</span><span class="p">.</span><span class="n">setAppConfig</span><span class="p">(</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">AppConfig</span><span class="p">(</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">      </span><span class="nl">appLanguage:</span><span class="w"> </span><span class="n">appLanguage</span><span class="p">.</span><span class="n">languageCode</span><span class="p">,</span><span class="w"> </span><span class="c1">// 2-letter IETF BCP 47 code</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">      </span><span class="nl">audioLanguage:</span><span class="w"> </span><span class="n">audioLanguage</span><span class="p">,</span><span class="w"> </span><span class="c1">// 2-letter IETF BCP 47 code</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="nl">subtitleLanguage:</span><span class="w"> </span><span class="n">subtitleLanguage</span><span class="p">,</span><span class="w"> </span><span class="c1">// 2-letter IETF BCP 47 code</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="nl">analyticsId:</span><span class="w"> </span><span class="n">analyticsId</span><span class="p">,</span><span class="w"> </span><span class="c1">// Can be used by analytics services like NPAW</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="nl">sessionId:</span><span class="w"> </span><span class="n">sessionId</span><span class="p">,</span><span class="w"> </span><span class="c1">// Can be used by analytics services like NPAW</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">),</span>
+                <h3 id="styling-theming">Styling / theming</h3>
+<h4 id="theme">Theme</h4>
+<p>You can set a theme to customize some colors and text, similarly to how you set a Material theme.
+Wrap with BccmPlayerTheme somewhere high in the hierarchy.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">BccmPlayerTheme</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nl">playerTheme:</span><span class="w"> </span><span class="n">BccmPlayerThemeData</span><span class="p">(</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="nl">controls:</span><span class="w"> </span><span class="n">BccmControlsThemeData</span><span class="p">(</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">            </span><span class="nl">primaryColor:</span><span class="w"> </span><span class="n">Colors</span><span class="p">.</span><span class="n">lightGreen</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">            </span><span class="nl">durationTextStyle:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">TextStyle</span><span class="p">(</span><span class="nl">color:</span><span class="w"> </span><span class="n">Colors</span><span class="p">.</span><span class="n">green</span><span class="p">),</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="p">),</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">),</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nl">child:</span><span class="w"> </span><span class="n">BccmPlayerView</span><span class="p">(</span><span class="n">BccmPlayerController</span><span class="p">.</span><span class="n">primary</span><span class="p">),</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
 </code></pre></div>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../../usage/" class="btn btn-neutral float-left" title="Usage"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../chromecast/" class="btn btn-neutral float-right" title="Chromecast">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../primary-player/" class="btn btn-neutral float-left" title="Primary player"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../contributing/architecture/" class="btn btn-neutral float-right" title="Architecture">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -136,10 +141,10 @@
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../../usage/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../primary-player/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../chromecast/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../contributing/architecture/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
