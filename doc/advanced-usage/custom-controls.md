@@ -1,5 +1,27 @@
 ### Custom controls
 
+#### Controls customization
+
+For colors, etc, see "Styling".
+If you just want to do simple changes, you have some configuration options for the controls with BccmPlayerViewConfig:
+
+Example:
+
+```dart
+BccmPlayerView(
+    controller,
+    config: BccmPlayerViewConfig(
+        controlsConfig: BccmPlayerControlsConfig(
+            playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
+            hidePlaybackSpeed: false,
+            hideQualitySelector: false,
+        ),
+      ),
+),
+```
+
+#### Advanced customization
+
 You can set a custom `controlsBuilder`.
 Find "Custom controls" in the example project for an up-to-date example if this is outdated.
 
