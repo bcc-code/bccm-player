@@ -8,10 +8,6 @@ import 'package:flutter/widgets.dart';
 import '../controls/default_controls.dart';
 import 'controlled_player_view.dart';
 
-typedef ControlsBuilder = Widget Function(
-  BuildContext context,
-);
-
 /// A widget that displays a video player with controls given a [AbstractBccmPlayerViewController].
 ///
 /// It has two implementations:

@@ -219,6 +219,7 @@ class DefaultControls extends HookWidget {
                                 ),
                               ),
                             const Spacer(),
+                            ...?viewController.config.controlsConfig.additionalActionsBuilder?.call(context),
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () {
@@ -231,7 +232,11 @@ class DefaultControls extends HookWidget {
                               child: Container(
                                 height: double.infinity,
                                 alignment: Alignment.bottomRight,
-                                padding: const EdgeInsets.only(right: 8, top: 8, bottom: 5, left: 20),
+                                padding: EdgeInsets.only(
+                                    right: 8,
+                                    top: 8,
+                                    bottom: 5,
+                                    left: viewController.config.controlsConfig.additionalActionsBuilder != null ? 12 : 20),
                                 child: Icon(
                                   viewController.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
                                   color: controlsTheme.iconColor,
@@ -258,7 +263,7 @@ class DefaultControls extends HookWidget {
                                     child: Slider(
                                       value: seeking.value
                                           ? currentScrub.value
-                                          : min(1, (currentMs.isFinite ? currentMs : 0) / (duration.isFinite && duration > 0 ? duration : 1)),
+                                          : max(0, min(1, (currentMs.isFinite ? currentMs : 0) / (duration.isFinite && duration > 0 ? duration : 1))),
                                       onChanged: (double value) {
                                         scrubTo(value);
                                       },

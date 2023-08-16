@@ -56,6 +56,7 @@ class BccmPlayerControlsConfig {
     List<double>? playbackSpeeds,
     this.hidePlaybackSpeed,
     this.hideQualitySelector,
+    this.additionalActionsBuilder,
   }) : playbackSpeeds = playbackSpeeds ?? [1.0, 1.25, 1.5, 1.75, 2.0];
 
   final ControlsBuilder? customBuilder;
@@ -63,4 +64,8 @@ class BccmPlayerControlsConfig {
   final List<double> playbackSpeeds;
   final bool? hidePlaybackSpeed;
   final bool? hideQualitySelector;
+  final AdditionalControlsBuilder? additionalActionsBuilder;
 }
+
+typedef ControlsBuilder = Widget Function(BuildContext context);
+typedef AdditionalControlsBuilder = List<Widget>? Function(BuildContext context);
