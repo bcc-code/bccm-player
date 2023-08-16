@@ -15,6 +15,7 @@ import '../../utils/svg_icons.dart';
 import '../../utils/time.dart';
 import 'control_fade_out.dart';
 import 'default/settings.dart';
+import 'default/time_skip_button.dart';
 
 class DefaultControls extends HookWidget {
   const DefaultControls({
@@ -122,11 +123,10 @@ class DefaultControls extends HookWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(right: 24),
-                        child: IconButton(
-                          icon: const Icon(Icons.replay),
-                          iconSize: 42,
-                          color: controlsTheme.iconColor,
+                        child: TimeSkipButton(
+                          forwardRewindDurationSec: forwardRewindDurationSec,
                           onPressed: () => seekToRelative(-forwardRewindDurationSec),
+                          icon: const Icon(Icons.replay),
                         ),
                       ),
                       if (player.value.playbackState != PlaybackState.playing)
@@ -171,15 +171,14 @@ class DefaultControls extends HookWidget {
                         ),
                       Padding(
                         padding: const EdgeInsets.only(left: 24),
-                        child: IconButton(
+                        child: TimeSkipButton(
+                          forwardRewindDurationSec: forwardRewindDurationSec,
+                          onPressed: () => seekToRelative(forwardRewindDurationSec),
                           icon: Transform(
                             alignment: Alignment.center,
                             transform: Matrix4.rotationY(pi),
                             child: const Icon(Icons.replay),
                           ),
-                          iconSize: 42,
-                          color: controlsTheme.iconColor,
-                          onPressed: () => seekToRelative(forwardRewindDurationSec),
                         ),
                       ),
                     ],
