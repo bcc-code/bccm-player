@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Feature: show seconds inside skip/rewind buttons and expose the button as a widget in 'package:bccm_player/controls.dart'.
+
 ## 1.0.1
 
 - Feature: additionalActionsBuilder, which allows you to add additional actions next to the fullscreen button.
