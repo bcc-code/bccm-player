@@ -1,3 +1,9 @@
+## 1.0.1
+
+- Feature: additionalActionsBuilder, which allows you to add additional actions next to the fullscreen button.
+- Docs: improved docs for airplay, custom controls, and theming
+- Refactor: Rename `PlayerTheme` to `BccmPlayerTheme` for consistency. Also fixed it so that `primaryColor` is used more.
+
 ## 1.0.0
 
 - BREAKING CHANGE: VideoPlayerView() is now BccmPlayerView() and now takes a BccmPlayerViewConfig instead. This is for consistency and to avoid confusion.
