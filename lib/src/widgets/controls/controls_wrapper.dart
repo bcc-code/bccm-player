@@ -74,7 +74,7 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
 
   void _startTimer() {
     _visibilityTimer?.cancel();
-    _visibilityTimer = Timer(const Duration(seconds: 3), () {
+    _visibilityTimer = Timer(const Duration(seconds: 5), () {
       if (!widget.autoHide || !mounted) {
         return;
       }
@@ -90,7 +90,10 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
       child: Builder(builder: (context) {
         return Listener(
           onPointerMove: (_) {
-              _setVisible(true);
+            _setVisible(true);
+          },
+          onPointerDown: (_) {
+            _setVisible(true);
           },
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,

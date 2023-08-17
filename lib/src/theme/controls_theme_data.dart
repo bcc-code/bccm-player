@@ -35,7 +35,7 @@ class BccmControlsThemeData {
       progressBarTheme: SliderThemeData(
         trackHeight: 2,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-        overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
         activeTrackColor: theme.colorScheme.primary,
         inactiveTrackColor: theme.colorScheme.onBackground.withOpacity(0.2),
         thumbColor: theme.colorScheme.primary,
