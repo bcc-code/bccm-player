@@ -161,6 +161,10 @@ class PlaybackService : MediaSessionService() {
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession =
         mediaSession
 
+    override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
+        super.onUpdateNotification(session, true)
+    }
+
     override fun onDestroy() {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::onDestroy called")
         playerControllers.forEach {
