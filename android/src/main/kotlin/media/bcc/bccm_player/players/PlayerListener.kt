@@ -14,10 +14,6 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
     Player.Listener {
     private val refreshStateTimer: Timer = Timer(object : Timer.TimerEventListener {
         override fun onTimerEvent(delta: Long) {
-            Log.d(
-                "bccm",
-                "refreshStateTimer onTimerEvent(), hashCode:" + this@PlayerListener.hashCode()
-            )
             onManualPlayerStateUpdate()
         }
     }, 15000)
