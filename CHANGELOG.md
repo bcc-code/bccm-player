@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Fix: Scrubbing and seeking in the default controls was very unreliable and jumpy.
+
 ## 1.0.2
 
 - Feature: show seconds inside skip/rewind buttons and expose the button as a widget in 'package:bccm_player/controls.dart'.
@@ -22,7 +26,7 @@
 ## 0.2.3
 
 - Major breaking changes to how to use the plugin
-- Introduced a BccmPlayerController which makes usage more idiomatic and more alike other video player packages.
+- Introduced a BccmPlayerController which makes usage more idiomati and more alike other video player packages.
 
 ## 0.2.2
 
