@@ -1,3 +1,7 @@
+## 1.0.4
+
+- Fix(ios): cast didnt become primary unless avplayer was playing something
+
 ## 1.0.3
 
 - Fix: Scrubbing and seeking in the default controls was very unreliable and jumpy.
