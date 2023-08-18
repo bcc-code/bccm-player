@@ -330,7 +330,6 @@ class CastPlayerController: NSObject, PlayerController {
         remoteMediaClient.loadMedia(with: loadRequestBuilder.build())
         player.removeAllItems()
         player.pause()
-        playbackApi.setPrimary(id, completion: { _ in })
     }
     
     func mapMediaQueueItem(_ mediaQueueItem: GCKMediaQueueItem?) -> MediaItem? {
@@ -464,6 +463,7 @@ extension CastPlayerController: GCKSessionManagerListener {
     ) {
         debugPrint("CastPlayerController::sessionManager(didStart)")
         transferStateFromPrimary()
+        playbackApi.setPrimary(id, completion: { _ in })
         session.add(self)
         self.sessionManager = sessionManager
         session.remoteMediaClient?.add(self)
