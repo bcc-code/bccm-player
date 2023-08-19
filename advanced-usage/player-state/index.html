@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>HDR content / SurfaceView - BccmPlayer docs</title>
+    <title>Player state - BccmPlayer docs</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "HDR content / SurfaceView";
-        var mkdocs_page_input_path = "advanced-usage/hdr-content.md";
+        var mkdocs_page_name = "Player state";
+        var mkdocs_page_input_path = "advanced-usage/player-state.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -58,11 +58,11 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../custom-controls/">Custom controls</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">HDR content / SurfaceView</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../hdr-content/">HDR content / SurfaceView</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Player state</a>
     <ul class="current">
     </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../player-state/">Player state</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../primary-player/">Primary player</a>
                   </li>
@@ -89,7 +89,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
           <li>Advanced usage &raquo;</li>
-      <li class="breadcrumb-item active">HDR content / SurfaceView</li>
+      <li class="breadcrumb-item active">Player state</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -98,24 +98,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="hdr-content-surfaceview">HDR content / SurfaceView</h1>
-<p>HDR should work fine on iOS.</p>
-<p>On Android, you need to enable SurfaceViews. However, the reason this isn't enabled by default is because flutter has a bug with surface views.
-Check out <a href="https://github.com/flutter/flutter/issues/89558">this issue on the flutter repo</a>.</p>
-<p>You can opt-in to using surfaceViews via the <code>useSurfaceView</code> property on BccmPlayerView or VideoPlatformView:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">BccmPlayerView</span><span class="p">(</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">controller</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nl">config:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">BccmPlayerViewConfig</span><span class="p">(</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="nl">useSurfaceView:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">),</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">),</span>
+                <h3 id="player-state">Player state</h3>
+<p>You can get player state from your controller's "value".
+Also, it's a ValueNotifier so you can listen to BccmPlayerController, exactly like other plugins (video_player, etc.).</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">final</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BccmPlayerController</span><span class="p">.</span><span class="n">primary</span><span class="p">;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">controller</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">videoSize</span><span class="p">.</span><span class="n">aspectRatio</span><span class="p">;</span>
 </code></pre></div>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../custom-controls/" class="btn btn-neutral float-left" title="Custom controls"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../player-state/" class="btn btn-neutral float-right" title="Player state">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../hdr-content/" class="btn btn-neutral float-left" title="HDR content / SurfaceView"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../primary-player/" class="btn btn-neutral float-right" title="Primary player">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -138,10 +133,10 @@ Check out <a href="https://github.com/flutter/flutter/issues/89558">this issue o
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../custom-controls/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../hdr-content/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../player-state/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../primary-player/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
