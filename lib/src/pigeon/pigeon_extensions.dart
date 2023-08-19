@@ -18,4 +18,8 @@ extension TrackListX on List<Track?> {
   Iterable<Track> get safe => whereType<Track>();
 }
 
+extension VideoSizeX on VideoSize {
+  double get aspectRatio => width / height;
+}
+
 const autoTrackId = "auto";

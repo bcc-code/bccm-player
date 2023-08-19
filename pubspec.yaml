@@ -32,7 +32,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  pigeon: ^9.0.1
+  pigeon: ^9.0.7
   build_runner: ^2.3.3
   mockito: ^5.4.2
 

@@ -1,3 +1,4 @@
+import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:universal_io/io.dart';
 
 import 'package:flutter/foundation.dart';
@@ -32,19 +33,22 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
   late String playerId;
   late bool isInitialized;
   late bool isCurrentPlayerView;
+  late VideoSize? lastKnownSize;
 
   void onPlayerControllerUpdate() {
     if (!mounted) return;
     final newIsCurrentPlayerView = widget.playerController.currentPlayerView == this;
     final anyRelevantFieldHasChanged = playerId != widget.playerController.value.playerId ||
         isInitialized != widget.playerController.value.isInitialized ||
-        isCurrentPlayerView != newIsCurrentPlayerView;
+        isCurrentPlayerView != newIsCurrentPlayerView ||
+        widget.playerController.value.videoSize != lastKnownSize;
 
     if (anyRelevantFieldHasChanged) {
       setState(() {
         isCurrentPlayerView = newIsCurrentPlayerView;
         playerId = widget.playerController.value.playerId;
         isInitialized = widget.playerController.value.isInitialized;
+        lastKnownSize = widget.playerController.value.videoSize;
       });
     }
   }
@@ -56,6 +60,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
     playerId = widget.playerController.value.playerId;
     isInitialized = widget.playerController.value.isInitialized;
     isCurrentPlayerView = widget.playerController.currentPlayerView == this;
+    lastKnownSize = widget.playerController.value.videoSize;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.playerController.attach(this);
     });
@@ -72,13 +77,16 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
 
   @override
   Widget build(BuildContext context) {
-    if (!isCurrentPlayerView) {
-      return AspectRatio(aspectRatio: 16 / 9, child: Container(color: const Color(0x00000000)));
+    final aspectRatio = lastKnownSize?.aspectRatio ?? 16 / 9;
+    if (!isCurrentPlayerView || widget.playerController.value.isInitialized == false) {
+      return AspectRatio(
+        aspectRatio: aspectRatio,
+        child: Container(color: const Color(0x00000000)),
+      );
     }
-    if (widget.playerController.value.isInitialized == false) {
-      return const SizedBox.shrink();
-    } else if (widget.playerController.value.playerId == 'chromecast') {
-      return const DefaultCastPlayer();
+
+    if (widget.playerController.value.playerId == 'chromecast') {
+      return DefaultCastPlayer(aspectRatio: aspectRatio);
     }
 
     Widget getPlatformSpecificPlayer() {
@@ -93,7 +101,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
     }
 
     return AspectRatio(
-      aspectRatio: 16 / 9,
+      aspectRatio: aspectRatio,
       child: getPlatformSpecificPlayer(),
     );
   }
@@ -151,7 +159,6 @@ class _AndroidPlayer extends StatelessWidget {
     return PlatformViewLink(
       viewType: 'bccm-player',
       surfaceFactory: (context, controller) {
-        debugPrint("viewId ${controller.viewId}");
         return AndroidViewSurface(
           controller: controller as AndroidViewController,
           hitTestBehavior: PlatformViewHitTestBehavior.opaque,

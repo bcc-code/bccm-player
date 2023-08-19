@@ -133,9 +133,15 @@ class PlayerStateSnapshot {
   late bool isBuffering;
   late bool isFullscreen;
   late double playbackSpeed;
+  VideoSize? videoSize;
   MediaItem? currentMediaItem;
   // This is double because pigeon uses NSNumber for int :(
   double? playbackPositionMs;
+}
+
+class VideoSize {
+  late int width;
+  late int height;
 }
 
 enum PlaybackState { stopped, paused, playing }

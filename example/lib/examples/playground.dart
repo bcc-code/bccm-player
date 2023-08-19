@@ -40,9 +40,12 @@ class _PlaygroundState extends State<Playground> {
                 children: [
                   Text(controller.value.playerId),
                   Text(controller.value.playbackSpeed.toString()),
-                  BccmPlayerView.withViewController(
-                    viewController,
-                    key: ValueKey('player surface-view:$useSurfaceView'),
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: BccmPlayerView.withViewController(
+                      viewController,
+                      key: ValueKey('player surface-view:$useSurfaceView'),
+                    ),
                   ),
                   ...exampleVideos.map(
                     (MediaItem mediaItem) => ElevatedButton(

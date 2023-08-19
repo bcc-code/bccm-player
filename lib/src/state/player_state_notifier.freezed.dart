@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$PlayerState {
   String get playerId => throw _privateConstructorUsedError;
   MediaItem? get currentMediaItem => throw _privateConstructorUsedError;
+  VideoSize? get videoSize => throw _privateConstructorUsedError;
   int? get playbackPositionMs => throw _privateConstructorUsedError;
   double get playbackSpeed => throw _privateConstructorUsedError;
   bool get isNativeFullscreen => throw _privateConstructorUsedError;
@@ -40,6 +41,7 @@ abstract class $PlayerStateCopyWith<$Res> {
   $Res call(
       {String playerId,
       MediaItem? currentMediaItem,
+      VideoSize? videoSize,
       int? playbackPositionMs,
       double playbackSpeed,
       bool isNativeFullscreen,
@@ -64,6 +66,7 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
   $Res call({
     Object? playerId = null,
     Object? currentMediaItem = freezed,
+    Object? videoSize = freezed,
     Object? playbackPositionMs = freezed,
     Object? playbackSpeed = null,
     Object? isNativeFullscreen = null,
@@ -81,6 +84,10 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
           ? _value.currentMediaItem
           : currentMediaItem // ignore: cast_nullable_to_non_nullable
               as MediaItem?,
+      videoSize: freezed == videoSize
+          ? _value.videoSize
+          : videoSize // ignore: cast_nullable_to_non_nullable
+              as VideoSize?,
       playbackPositionMs: freezed == playbackPositionMs
           ? _value.playbackPositionMs
           : playbackPositionMs // ignore: cast_nullable_to_non_nullable
@@ -124,6 +131,7 @@ abstract class _$$_PlayerStateCopyWith<$Res>
   $Res call(
       {String playerId,
       MediaItem? currentMediaItem,
+      VideoSize? videoSize,
       int? playbackPositionMs,
       double playbackSpeed,
       bool isNativeFullscreen,
@@ -146,6 +154,7 @@ class __$$_PlayerStateCopyWithImpl<$Res>
   $Res call({
     Object? playerId = null,
     Object? currentMediaItem = freezed,
+    Object? videoSize = freezed,
     Object? playbackPositionMs = freezed,
     Object? playbackSpeed = null,
     Object? isNativeFullscreen = null,
@@ -163,6 +172,10 @@ class __$$_PlayerStateCopyWithImpl<$Res>
           ? _value.currentMediaItem
           : currentMediaItem // ignore: cast_nullable_to_non_nullable
               as MediaItem?,
+      videoSize: freezed == videoSize
+          ? _value.videoSize
+          : videoSize // ignore: cast_nullable_to_non_nullable
+              as VideoSize?,
       playbackPositionMs: freezed == playbackPositionMs
           ? _value.playbackPositionMs
           : playbackPositionMs // ignore: cast_nullable_to_non_nullable
@@ -201,6 +214,7 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
   const _$_PlayerState(
       {required this.playerId,
       this.currentMediaItem,
+      this.videoSize,
       this.playbackPositionMs,
       this.playbackSpeed = 1.0,
       this.isNativeFullscreen = false,
@@ -214,6 +228,8 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
   final String playerId;
   @override
   final MediaItem? currentMediaItem;
+  @override
+  final VideoSize? videoSize;
   @override
   final int? playbackPositionMs;
   @override
@@ -237,7 +253,7 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized)';
+    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, videoSize: $videoSize, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized)';
   }
 
   @override
@@ -247,6 +263,7 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('type', 'PlayerState'))
       ..add(DiagnosticsProperty('playerId', playerId))
       ..add(DiagnosticsProperty('currentMediaItem', currentMediaItem))
+      ..add(DiagnosticsProperty('videoSize', videoSize))
       ..add(DiagnosticsProperty('playbackPositionMs', playbackPositionMs))
       ..add(DiagnosticsProperty('playbackSpeed', playbackSpeed))
       ..add(DiagnosticsProperty('isNativeFullscreen', isNativeFullscreen))
@@ -265,6 +282,8 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
                 other.playerId == playerId) &&
             (identical(other.currentMediaItem, currentMediaItem) ||
                 other.currentMediaItem == currentMediaItem) &&
+            (identical(other.videoSize, videoSize) ||
+                other.videoSize == videoSize) &&
             (identical(other.playbackPositionMs, playbackPositionMs) ||
                 other.playbackPositionMs == playbackPositionMs) &&
             (identical(other.playbackSpeed, playbackSpeed) ||
@@ -286,6 +305,7 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       runtimeType,
       playerId,
       currentMediaItem,
+      videoSize,
       playbackPositionMs,
       playbackSpeed,
       isNativeFullscreen,
@@ -305,6 +325,7 @@ abstract class _PlayerState extends PlayerState {
   const factory _PlayerState(
       {required final String playerId,
       final MediaItem? currentMediaItem,
+      final VideoSize? videoSize,
       final int? playbackPositionMs,
       final double playbackSpeed,
       final bool isNativeFullscreen,
@@ -318,6 +339,8 @@ abstract class _PlayerState extends PlayerState {
   String get playerId;
   @override
   MediaItem? get currentMediaItem;
+  @override
+  VideoSize? get videoSize;
   @override
   int? get playbackPositionMs;
   @override

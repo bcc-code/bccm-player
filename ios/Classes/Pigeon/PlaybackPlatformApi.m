@@ -51,6 +51,12 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList;
 @end
 
+@interface VideoSize ()
++ (VideoSize *)fromList:(NSArray *)list;
++ (nullable VideoSize *)nullableFromList:(NSArray *)list;
+- (NSArray *)toList;
+@end
+
 @interface ChromecastState ()
 + (ChromecastState *)fromList:(NSArray *)list;
 + (nullable ChromecastState *)nullableFromList:(NSArray *)list;
@@ -269,6 +275,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     isBuffering:(NSNumber *)isBuffering
     isFullscreen:(NSNumber *)isFullscreen
     playbackSpeed:(NSNumber *)playbackSpeed
+    videoSize:(nullable VideoSize *)videoSize
     currentMediaItem:(nullable MediaItem *)currentMediaItem
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs {
   PlayerStateSnapshot* pigeonResult = [[PlayerStateSnapshot alloc] init];
@@ -277,6 +284,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.isBuffering = isBuffering;
   pigeonResult.isFullscreen = isFullscreen;
   pigeonResult.playbackSpeed = playbackSpeed;
+  pigeonResult.videoSize = videoSize;
   pigeonResult.currentMediaItem = currentMediaItem;
   pigeonResult.playbackPositionMs = playbackPositionMs;
   return pigeonResult;
@@ -292,8 +300,9 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   NSAssert(pigeonResult.isFullscreen != nil, @"");
   pigeonResult.playbackSpeed = GetNullableObjectAtIndex(list, 4);
   NSAssert(pigeonResult.playbackSpeed != nil, @"");
-  pigeonResult.currentMediaItem = [MediaItem nullableFromList:(GetNullableObjectAtIndex(list, 5))];
-  pigeonResult.playbackPositionMs = GetNullableObjectAtIndex(list, 6);
+  pigeonResult.videoSize = [VideoSize nullableFromList:(GetNullableObjectAtIndex(list, 5))];
+  pigeonResult.currentMediaItem = [MediaItem nullableFromList:(GetNullableObjectAtIndex(list, 6))];
+  pigeonResult.playbackPositionMs = GetNullableObjectAtIndex(list, 7);
   return pigeonResult;
 }
 + (nullable PlayerStateSnapshot *)nullableFromList:(NSArray *)list {
@@ -306,8 +315,36 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.isBuffering ?: [NSNull null]),
     (self.isFullscreen ?: [NSNull null]),
     (self.playbackSpeed ?: [NSNull null]),
+    (self.videoSize ? [self.videoSize toList] : [NSNull null]),
     (self.currentMediaItem ? [self.currentMediaItem toList] : [NSNull null]),
     (self.playbackPositionMs ?: [NSNull null]),
+  ];
+}
+@end
+
+@implementation VideoSize
++ (instancetype)makeWithWidth:(NSNumber *)width
+    height:(NSNumber *)height {
+  VideoSize* pigeonResult = [[VideoSize alloc] init];
+  pigeonResult.width = width;
+  pigeonResult.height = height;
+  return pigeonResult;
+}
++ (VideoSize *)fromList:(NSArray *)list {
+  VideoSize *pigeonResult = [[VideoSize alloc] init];
+  pigeonResult.width = GetNullableObjectAtIndex(list, 0);
+  NSAssert(pigeonResult.width != nil, @"");
+  pigeonResult.height = GetNullableObjectAtIndex(list, 1);
+  NSAssert(pigeonResult.height != nil, @"");
+  return pigeonResult;
+}
++ (nullable VideoSize *)nullableFromList:(NSArray *)list {
+  return (list) ? [VideoSize fromList:list] : nil;
+}
+- (NSArray *)toList {
+  return @[
+    (self.width ?: [NSNull null]),
+    (self.height ?: [NSNull null]),
   ];
 }
 @end
@@ -630,6 +667,8 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
       return [PlayerTracksSnapshot fromList:[self readValue]];
     case 135: 
       return [Track fromList:[self readValue]];
+    case 136: 
+      return [VideoSize fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -663,6 +702,9 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[Track class]]) {
     [self writeByte:135];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[VideoSize class]]) {
+    [self writeByte:136];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -1158,6 +1200,8 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
       return [PositionDiscontinuityEvent fromList:[self readValue]];
     case 137: 
       return [PrimaryPlayerChangedEvent fromList:[self readValue]];
+    case 138: 
+      return [VideoSize fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -1197,6 +1241,9 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[PrimaryPlayerChangedEvent class]]) {
     [self writeByte:137];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[VideoSize class]]) {
+    [self writeByte:138];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];

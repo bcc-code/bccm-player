@@ -32,7 +32,7 @@ class ControlFadeOut extends StatelessWidget {
           Positioned.fill(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () => debugPrint("blocked"),
+              onTap: () {},
             ),
           ),
           child,
