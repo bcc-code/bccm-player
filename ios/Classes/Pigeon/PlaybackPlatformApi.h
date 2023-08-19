@@ -35,6 +35,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class MediaItem;
 @class MediaMetadata;
 @class PlayerStateSnapshot;
+@class VideoSize;
 @class ChromecastState;
 @class PlayerTracksSnapshot;
 @class Track;
@@ -108,6 +109,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     isBuffering:(NSNumber *)isBuffering
     isFullscreen:(NSNumber *)isFullscreen
     playbackSpeed:(NSNumber *)playbackSpeed
+    videoSize:(nullable VideoSize *)videoSize
     currentMediaItem:(nullable MediaItem *)currentMediaItem
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs;
 @property(nonatomic, copy) NSString * playerId;
@@ -115,8 +117,18 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong) NSNumber * isBuffering;
 @property(nonatomic, strong) NSNumber * isFullscreen;
 @property(nonatomic, strong) NSNumber * playbackSpeed;
+@property(nonatomic, strong, nullable) VideoSize * videoSize;
 @property(nonatomic, strong, nullable) MediaItem * currentMediaItem;
 @property(nonatomic, strong, nullable) NSNumber * playbackPositionMs;
+@end
+
+@interface VideoSize : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithWidth:(NSNumber *)width
+    height:(NSNumber *)height;
+@property(nonatomic, strong) NSNumber * width;
+@property(nonatomic, strong) NSNumber * height;
 @end
 
 @interface ChromecastState : NSObject

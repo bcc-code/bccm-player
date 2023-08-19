@@ -50,9 +50,20 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             isBuffering: NSNumber(booleanLiteral: isBuffering()),
             isFullscreen: (currentViewController != nil && currentViewController == fullscreenViewController) as NSNumber,
             playbackSpeed: getPlaybackSpeed() as NSNumber,
+            videoSize: getVideoSize(),
             currentMediaItem: MediaItemMapper.mapPlayerItem(player.currentItem),
             playbackPositionMs: NSNumber(value: player.currentTime().seconds * 1000)
         )
+    }
+    
+    public func getVideoSize() -> VideoSize? {
+        guard let width = player.currentItem?.presentationSize.width, let height = player.currentItem?.presentationSize.height else {
+            return nil
+        }
+        if width <= 0 || height <= 0 {
+            return nil
+        }
+        return VideoSize.make(withWidth: Int(width) as NSNumber, height: Int(height) as NSNumber)
     }
     
     public func getPlayerTracksSnapshot() -> PlayerTracksSnapshot {
@@ -539,6 +550,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 // Update language in NPAW
                 self.youboraPlugin?.options.contentLanguage = player.currentItem?.getSelectedAudioLanguage()
                 self.youboraPlugin?.options.contentSubtitles = player.currentItem?.getSelectedSubtitleLanguage()
+            })
+            
+            self.observers.append(player.observe(\.currentItem?.presentationSize, options: [.old, .new]) {
+                _, _ in
+                self.onManualPlayerStateUpdate()
             })
             NotificationCenter.default
                 .addObserver(self,

@@ -131,6 +131,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
             playerViewController.exitsFullScreenWhenPlaybackEnds = false
             playerViewController.allowsPictureInPicturePlayback = true
             playerViewController.updatesNowPlayingInfoCenter = false
+            playerViewController.view.backgroundColor = UIColor(white: 0, alpha: 0)
             if #available(iOS 16.0, *) {
                 var speeds = AVPlaybackSpeed.systemDefaultSpeeds
                 speeds.append(AVPlaybackSpeed(rate: 0.75, localizedName: "0.75x"))

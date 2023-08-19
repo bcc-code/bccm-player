@@ -691,6 +691,16 @@ public class PlaybackPlatformApi {
       this.playbackSpeed = setterArg;
     }
 
+    private @Nullable VideoSize videoSize;
+
+    public @Nullable VideoSize getVideoSize() {
+      return videoSize;
+    }
+
+    public void setVideoSize(@Nullable VideoSize setterArg) {
+      this.videoSize = setterArg;
+    }
+
     private @Nullable MediaItem currentMediaItem;
 
     public @Nullable MediaItem getCurrentMediaItem() {
@@ -751,6 +761,13 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable VideoSize videoSize;
+
+      public @NonNull Builder setVideoSize(@Nullable VideoSize setterArg) {
+        this.videoSize = setterArg;
+        return this;
+      }
+
       private @Nullable MediaItem currentMediaItem;
 
       public @NonNull Builder setCurrentMediaItem(@Nullable MediaItem setterArg) {
@@ -772,6 +789,7 @@ public class PlaybackPlatformApi {
         pigeonReturn.setIsBuffering(isBuffering);
         pigeonReturn.setIsFullscreen(isFullscreen);
         pigeonReturn.setPlaybackSpeed(playbackSpeed);
+        pigeonReturn.setVideoSize(videoSize);
         pigeonReturn.setCurrentMediaItem(currentMediaItem);
         pigeonReturn.setPlaybackPositionMs(playbackPositionMs);
         return pigeonReturn;
@@ -780,12 +798,13 @@ public class PlaybackPlatformApi {
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(7);
+      ArrayList<Object> toListResult = new ArrayList<Object>(8);
       toListResult.add(playerId);
       toListResult.add(playbackState == null ? null : playbackState.index);
       toListResult.add(isBuffering);
       toListResult.add(isFullscreen);
       toListResult.add(playbackSpeed);
+      toListResult.add((videoSize == null) ? null : videoSize.toList());
       toListResult.add((currentMediaItem == null) ? null : currentMediaItem.toList());
       toListResult.add(playbackPositionMs);
       return toListResult;
@@ -803,10 +822,85 @@ public class PlaybackPlatformApi {
       pigeonResult.setIsFullscreen((Boolean) isFullscreen);
       Object playbackSpeed = list.get(4);
       pigeonResult.setPlaybackSpeed((Double) playbackSpeed);
-      Object currentMediaItem = list.get(5);
+      Object videoSize = list.get(5);
+      pigeonResult.setVideoSize((videoSize == null) ? null : VideoSize.fromList((ArrayList<Object>) videoSize));
+      Object currentMediaItem = list.get(6);
       pigeonResult.setCurrentMediaItem((currentMediaItem == null) ? null : MediaItem.fromList((ArrayList<Object>) currentMediaItem));
-      Object playbackPositionMs = list.get(6);
+      Object playbackPositionMs = list.get(7);
       pigeonResult.setPlaybackPositionMs((Double) playbackPositionMs);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class VideoSize {
+    private @NonNull Long width;
+
+    public @NonNull Long getWidth() {
+      return width;
+    }
+
+    public void setWidth(@NonNull Long setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"width\" is null.");
+      }
+      this.width = setterArg;
+    }
+
+    private @NonNull Long height;
+
+    public @NonNull Long getHeight() {
+      return height;
+    }
+
+    public void setHeight(@NonNull Long setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"height\" is null.");
+      }
+      this.height = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    VideoSize() {}
+
+    public static final class Builder {
+
+      private @Nullable Long width;
+
+      public @NonNull Builder setWidth(@NonNull Long setterArg) {
+        this.width = setterArg;
+        return this;
+      }
+
+      private @Nullable Long height;
+
+      public @NonNull Builder setHeight(@NonNull Long setterArg) {
+        this.height = setterArg;
+        return this;
+      }
+
+      public @NonNull VideoSize build() {
+        VideoSize pigeonReturn = new VideoSize();
+        pigeonReturn.setWidth(width);
+        pigeonReturn.setHeight(height);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(2);
+      toListResult.add(width);
+      toListResult.add(height);
+      return toListResult;
+    }
+
+    static @NonNull VideoSize fromList(@NonNull ArrayList<Object> list) {
+      VideoSize pigeonResult = new VideoSize();
+      Object width = list.get(0);
+      pigeonResult.setWidth((width == null) ? null : ((width instanceof Integer) ? (Integer) width : (Long) width));
+      Object height = list.get(1);
+      pigeonResult.setHeight((height == null) ? null : ((height instanceof Integer) ? (Integer) height : (Long) height));
       return pigeonResult;
     }
   }
@@ -1728,6 +1822,8 @@ public class PlaybackPlatformApi {
           return PlayerTracksSnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 135:
           return Track.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 136:
+          return VideoSize.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
       }
@@ -1759,6 +1855,9 @@ public class PlaybackPlatformApi {
       } else if (value instanceof Track) {
         stream.write(135);
         writeValue(stream, ((Track) value).toList());
+      } else if (value instanceof VideoSize) {
+        stream.write(136);
+        writeValue(stream, ((VideoSize) value).toList());
       } else {
         super.writeValue(stream, value);
       }
@@ -2471,6 +2570,8 @@ public class PlaybackPlatformApi {
           return PositionDiscontinuityEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 137:
           return PrimaryPlayerChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 138:
+          return VideoSize.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
       }
@@ -2508,6 +2609,9 @@ public class PlaybackPlatformApi {
       } else if (value instanceof PrimaryPlayerChangedEvent) {
         stream.write(137);
         writeValue(stream, ((PrimaryPlayerChangedEvent) value).toList());
+      } else if (value instanceof VideoSize) {
+        stream.write(138);
+        writeValue(stream, ((VideoSize) value).toList());
       } else {
         super.writeValue(stream, value);
       }

@@ -1,6 +1,4 @@
 import 'package:bccm_player/bccm_player.dart';
-
-import '../cast/cast_player.dart';
 import 'package:flutter/widgets.dart';
 
 import '../controls/default_controls.dart';
@@ -49,7 +47,13 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
           // Note: This is not redudant, InheritedBccmPlayerViewController.of(context) makes sure we rebuild when the viewController calls notifyListeners().
           final viewController = InheritedBccmPlayerViewController.of(context);
           if (isChromecast) {
-            return viewController.config.castPlayerBuilder != null ? viewController.config.castPlayerBuilder!(context) : const DefaultCastPlayer();
+            return viewController.config.castPlayerBuilder != null
+                ? viewController.config.castPlayerBuilder!(context)
+                : VideoPlatformView(
+                    playerController: viewController.playerController,
+                    showControls: false,
+                    useSurfaceView: viewController.config.useSurfaceView,
+                  );
           }
 
           return Stack(

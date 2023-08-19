@@ -84,6 +84,7 @@ class PlayerState with _$PlayerState {
   const factory PlayerState({
     required String playerId,
     MediaItem? currentMediaItem,
+    VideoSize? videoSize,
     int? playbackPositionMs,
     @Default(1.0) double playbackSpeed,
     @Default(false) bool isNativeFullscreen,
@@ -97,6 +98,7 @@ class PlayerState with _$PlayerState {
     return PlayerState(
       playerId: state.playerId,
       currentMediaItem: state.currentMediaItem,
+      videoSize: state.videoSize,
       playbackPositionMs: state.playbackPositionMs?.finiteOrNull()?.round(),
       playbackSpeed: state.playbackSpeed,
       playbackState: state.playbackState,

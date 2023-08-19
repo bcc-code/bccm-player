@@ -35,9 +35,17 @@ class CastPlayerController: NSObject, PlayerController {
             isBuffering: NSNumber(booleanLiteral: mediaStatus?.playerState == .buffering),
             isFullscreen: false,
             playbackSpeed: mediaStatus?.playbackRate as NSNumber? ?? 1.0,
+            videoSize: mediaStatus != nil ? getVideoSize(mediaStatus!) : nil,
             currentMediaItem: currentItem,
             playbackPositionMs: mediaStatus == nil ? nil : NSNumber(value: mediaStatus!.streamPosition * 1000)
         )
+    }
+    
+    public func getVideoSize(_ mediaStatus: GCKMediaStatus) -> VideoSize? {
+        guard let width = mediaStatus.videoInfo?.width, let height = mediaStatus.videoInfo?.height else {
+            return nil
+        }
+        return VideoSize.make(withWidth: width as NSNumber, height: height as NSNumber)
     }
     
     public func getPlayerTracksSnapshot() -> PlayerTracksSnapshot {

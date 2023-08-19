@@ -12,6 +12,7 @@ import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
+import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.VideoSize
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.BCCM_META_EXTRAS
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
@@ -172,6 +173,13 @@ abstract class PlayerController : Player.Listener {
             .setPlaybackSpeed(player.playbackParameters.speed.toDouble())
             .setIsBuffering(player.playbackState == Player.STATE_BUFFERING)
             .setIsFullscreen(currentPlayerViewController?.isFullscreen == true)
+            .setVideoSize(
+                if (player.videoSize.height <= 0) null
+                else VideoSize.Builder()
+                    .setWidth(player.videoSize.width.toLong())
+                    .setHeight(player.videoSize.height.toLong())
+                    .build()
+            )
             .build()
     }
 

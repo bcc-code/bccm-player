@@ -206,6 +206,7 @@ class PlayerStateSnapshot {
     required this.isBuffering,
     required this.isFullscreen,
     required this.playbackSpeed,
+    this.videoSize,
     this.currentMediaItem,
     this.playbackPositionMs,
   });
@@ -220,6 +221,8 @@ class PlayerStateSnapshot {
 
   double playbackSpeed;
 
+  VideoSize? videoSize;
+
   MediaItem? currentMediaItem;
 
   double? playbackPositionMs;
@@ -231,6 +234,7 @@ class PlayerStateSnapshot {
       isBuffering,
       isFullscreen,
       playbackSpeed,
+      videoSize?.encode(),
       currentMediaItem?.encode(),
       playbackPositionMs,
     ];
@@ -244,10 +248,39 @@ class PlayerStateSnapshot {
       isBuffering: result[2]! as bool,
       isFullscreen: result[3]! as bool,
       playbackSpeed: result[4]! as double,
-      currentMediaItem: result[5] != null
-          ? MediaItem.decode(result[5]! as List<Object?>)
+      videoSize: result[5] != null
+          ? VideoSize.decode(result[5]! as List<Object?>)
           : null,
-      playbackPositionMs: result[6] as double?,
+      currentMediaItem: result[6] != null
+          ? MediaItem.decode(result[6]! as List<Object?>)
+          : null,
+      playbackPositionMs: result[7] as double?,
+    );
+  }
+}
+
+class VideoSize {
+  VideoSize({
+    required this.width,
+    required this.height,
+  });
+
+  int width;
+
+  int height;
+
+  Object encode() {
+    return <Object?>[
+      width,
+      height,
+    ];
+  }
+
+  static VideoSize decode(Object result) {
+    result as List<Object?>;
+    return VideoSize(
+      width: result[0]! as int,
+      height: result[1]! as int,
     );
   }
 }
@@ -586,6 +619,9 @@ class _PlaybackPlatformPigeonCodec extends StandardMessageCodec {
     } else if (value is Track) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
+    } else if (value is VideoSize) {
+      buffer.putUint8(136);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -610,6 +646,8 @@ class _PlaybackPlatformPigeonCodec extends StandardMessageCodec {
         return PlayerTracksSnapshot.decode(readValue(buffer)!);
       case 135: 
         return Track.decode(readValue(buffer)!);
+      case 136: 
+        return VideoSize.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1177,6 +1215,9 @@ class _PlaybackListenerPigeonCodec extends StandardMessageCodec {
     } else if (value is PrimaryPlayerChangedEvent) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
+    } else if (value is VideoSize) {
+      buffer.putUint8(138);
+      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -1205,6 +1246,8 @@ class _PlaybackListenerPigeonCodec extends StandardMessageCodec {
         return PositionDiscontinuityEvent.decode(readValue(buffer)!);
       case 137: 
         return PrimaryPlayerChangedEvent.decode(readValue(buffer)!);
+      case 138: 
+        return VideoSize.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }

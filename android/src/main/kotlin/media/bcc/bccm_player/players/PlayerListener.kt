@@ -5,6 +5,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
+import androidx.media3.common.VideoSize
 import com.npaw.youbora.lib6.Timer
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
@@ -32,6 +33,10 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
             "refreshStateTimer stop(), ${playerController}, hashCode:" + this@PlayerListener.hashCode()
         )
         refreshStateTimer.stop()
+    }
+
+    override fun onVideoSizeChanged(videoSize: VideoSize) {
+        onManualPlayerStateUpdate()
     }
 
     fun onManualPlayerStateUpdate() {
