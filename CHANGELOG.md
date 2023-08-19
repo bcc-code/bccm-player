@@ -1,3 +1,8 @@
+## 1.0.5
+
+- Feature: Dynamically adjust aspect ratio instead of assuming 16/9.
+- Feature: Current width/height available on `controller.value.videoSize`. Null if not available.
+
 ## 1.0.4
 
 - Fix(ios): cast didnt become primary unless avplayer was playing something
