@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../bccm_player.dart';
 
@@ -10,6 +11,45 @@ class BccmPlayerViewConfig {
   final FullscreenPageRouteBuilderFactory? fullscreenRouteBuilderFactory;
   final WidgetBuilder? castPlayerBuilder;
   final VoidCallback? resetSystemOverlays;
+
+  /// A callback to control device orientations upon exiting fullscreen.
+  ///
+  /// **Return null to use defaults.**
+  /// Default is DeviceOrientation.values.
+  ///
+  /// Example for a portraitUp-only app where fullscreen will always be landscapeLeft:
+  ///
+  /// ```dart
+  /// BccmPlayerViewConfig(
+  ///  deviceOrientationsNormal: (_) => [DeviceOrientations.portraitUp],
+  ///  deviceOrientationsFullscreen: (_) => [DeviceOrientations.landscapeLeft],
+  /// )
+  /// ```
+  final DeviceOrientationsCallback? deviceOrientationsNormal;
+
+  /// A callback to control device orientations in fullscreen.
+  ///
+  /// **Return null to use defaults.**
+  /// Default is [.landscapeLeft, .landscapeRight] for landscape videos, [.portraitUp, .portraitDown] for portrait videos and "all" orientations for square/uninitialized videos.
+  ///
+  /// Example where fullscreen will force landscapeLeft for uninitialized and square videos:
+  ///
+  /// ```dart
+  /// BccmPlayerViewConfig(
+  ///   deviceOrientationsNormal: (_) => [DeviceOrientations.portraitUp],
+  ///   deviceOrientationsFullscreen: (viewController) {
+  ///     final videoSize = viewController.playerController.value.videoSize;
+  ///     if (videoSize == null || videoSize.aspectRatio == 1) {
+  ///         // square or uninitialized
+  ///         return [DeviceOrientation.landscapeLeft];
+  ///     }
+  ///     // return null to get default behavior
+  ///     return null;
+  ///   },
+  /// )
+  /// ```
+  final DeviceOrientationsCallback? deviceOrientationsFullscreen;
+
   BccmPlayerControlsConfig get controlsConfig => _controlsConfig ?? BccmPlayerControlsConfig();
 
   /// Configuration usually passed to a [BccmPlayerView] or a [BccmPlayerViewController].
@@ -19,6 +59,8 @@ class BccmPlayerViewConfig {
   /// * [allowSystemGestures] (android-only) will allow system gestures (e.g. swipe to go back) on top of the native video. Default is `false` to prevent conflicts with the seekbar and such.
   /// * [fullscreenRouteBuilderFactory] is a factory that creates a [PageRouteBuilder] that will be used to build the fullscreen route.
   /// * [resetSystemOverlays] is a callback that will be called when the player exits fullscreen. Defaults to using [SystemUiMode.edgeToEdge].
+  /// * [deviceOrientationsNormal] is a callback used upon exiting fullscreen to get the orientations to set. Return null for defaults.
+  /// * [deviceOrientationsFullscreen] is a callback used upon **entering** fullscreen to get the orientations to set. Return null for defaults.
   /// * [castPlayerBuilder] is a builder that will be used to build the cast player.
   const BccmPlayerViewConfig({
     BccmPlayerControlsConfig? controlsConfig,
@@ -27,6 +69,8 @@ class BccmPlayerViewConfig {
     this.castPlayerBuilder,
     this.fullscreenRouteBuilderFactory,
     this.resetSystemOverlays,
+    this.deviceOrientationsNormal,
+    this.deviceOrientationsFullscreen,
   }) : _controlsConfig = controlsConfig;
 
   BccmPlayerViewConfig copyWith({
@@ -35,6 +79,9 @@ class BccmPlayerViewConfig {
     FullscreenPageRouteBuilderFactory? fullscreenRouteBuilderFactory,
     WidgetBuilder? castPlayerBuilder,
     VoidCallback? resetSystemOverlays,
+    bool? allowSystemGestures,
+    DeviceOrientationsCallback? deviceOrientationsNormal,
+    DeviceOrientationsCallback? deviceOrientationsFullscreen,
   }) {
     return BccmPlayerViewConfig(
       controlsConfig: controlsConfig ?? this.controlsConfig,
@@ -42,6 +89,9 @@ class BccmPlayerViewConfig {
       fullscreenRouteBuilderFactory: fullscreenRouteBuilderFactory ?? this.fullscreenRouteBuilderFactory,
       castPlayerBuilder: castPlayerBuilder ?? this.castPlayerBuilder,
       resetSystemOverlays: resetSystemOverlays ?? this.resetSystemOverlays,
+      allowSystemGestures: allowSystemGestures ?? this.allowSystemGestures,
+      deviceOrientationsNormal: deviceOrientationsNormal ?? this.deviceOrientationsNormal,
+      deviceOrientationsFullscreen: deviceOrientationsFullscreen ?? this.deviceOrientationsFullscreen,
     );
   }
 }
@@ -71,3 +121,4 @@ class BccmPlayerControlsConfig {
 
 typedef ControlsBuilder = Widget Function(BuildContext context);
 typedef AdditionalControlsBuilder = List<Widget>? Function(BuildContext context);
+typedef DeviceOrientationsCallback = List<DeviceOrientation>? Function(BccmPlayerViewController viewController);

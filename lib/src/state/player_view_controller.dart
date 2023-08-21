@@ -57,8 +57,7 @@ class BccmPlayerViewController extends ChangeNotifier {
     }
     WakelockPlus.enable();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    debugPrint('bccm: setPreferredOrientations landscape');
+    SystemChrome.setPreferredOrientations(_getFullscreenOrientations());
 
     context ??= playerController.currentPlayerView?.context;
 
@@ -91,10 +90,41 @@ class BccmPlayerViewController extends ChangeNotifier {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
 
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    debugPrint('bccm: setPreferredOrientations portraitUp');
-
+    SystemChrome.setPreferredOrientations(_getNormalOrientations());
     WakelockPlus.disable();
+  }
+
+  List<DeviceOrientation> _getFullscreenOrientations() {
+    List<DeviceOrientation>? orientations;
+    if (config.deviceOrientationsFullscreen != null) {
+      orientations = config.deviceOrientationsFullscreen!(this);
+    }
+    if (orientations != null) {
+      return orientations;
+    }
+
+    final aspectRatio = playerController.value.videoSize?.aspectRatio;
+    if (aspectRatio != null) {
+      if (aspectRatio > 1) {
+        return [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight];
+      } else if (aspectRatio < 1) {
+        return [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown];
+      }
+    }
+    // not initialized or square
+    return DeviceOrientation.values;
+  }
+
+  List<DeviceOrientation> _getNormalOrientations() {
+    List<DeviceOrientation>? orientations;
+    if (config.deviceOrientationsNormal != null) {
+      orientations = config.deviceOrientationsNormal!(this);
+    }
+    if (orientations != null) {
+      return orientations;
+    }
+
+    return DeviceOrientation.values.toList();
   }
 
   Future<void> exitFullscreen() async {
