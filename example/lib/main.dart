@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
             bottom: const TabBar(tabs: [
               Tab(text: 'Playground'),
               Tab(text: 'List Of Players'),
-              Tab(text: 'Single player'),
+              Tab(text: 'Simple player'),
               Tab(text: 'Custom controls'),
             ]),
           ),

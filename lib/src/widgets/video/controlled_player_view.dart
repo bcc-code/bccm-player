@@ -53,6 +53,7 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
                     playerController: viewController.playerController,
                     showControls: false,
                     useSurfaceView: viewController.config.useSurfaceView,
+                    allowSystemGestures: viewController.config.allowSystemGestures,
                   );
           }
 
@@ -65,6 +66,7 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
                     playerController: viewController.playerController,
                     showControls: false,
                     useSurfaceView: viewController.config.useSurfaceView,
+                    allowSystemGestures: viewController.config.allowSystemGestures,
                   ),
                 ),
               ),

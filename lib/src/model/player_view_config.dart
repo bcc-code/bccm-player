@@ -6,6 +6,7 @@ import '../../bccm_player.dart';
 class BccmPlayerViewConfig {
   final BccmPlayerControlsConfig? _controlsConfig;
   final bool useSurfaceView;
+  final bool allowSystemGestures;
   final FullscreenPageRouteBuilderFactory? fullscreenRouteBuilderFactory;
   final WidgetBuilder? castPlayerBuilder;
   final VoidCallback? resetSystemOverlays;
@@ -14,14 +15,15 @@ class BccmPlayerViewConfig {
   /// Configuration usually passed to a [BccmPlayerView] or a [BccmPlayerViewController].
   ///
   /// * [controlsConfig] configuration for the controls.
-  /// * [useSurfaceView] is a flag to use a SurfaceView for the player on android. NOTE: has limitations, see docs.
+  /// * [useSurfaceView] (android-only) will use a SurfaceView instead of a TextureView on Android. Fixes HDR but flutter has a bug with SurfaceViews. See [the docs](https://bcc-code.github.io/bccm-player/advanced-usage/hdr-content/)
+  /// * [allowSystemGestures] (android-only) will allow system gestures (e.g. swipe to go back) on top of the native video. Default is `false` to prevent conflicts with the seekbar and such.
   /// * [fullscreenRouteBuilderFactory] is a factory that creates a [PageRouteBuilder] that will be used to build the fullscreen route.
   /// * [resetSystemOverlays] is a callback that will be called when the player exits fullscreen. Defaults to using [SystemUiMode.edgeToEdge].
   /// * [castPlayerBuilder] is a builder that will be used to build the cast player.
-  /// * [useSurfaceView] will use a SurfaceView instead of a TextureView on Android. Fixes HDR but flutter has a bug with SurfaceViews. See [the docs](https://bcc-code.github.io/bccm-player/advanced-usage/hdr-content/)
   const BccmPlayerViewConfig({
     BccmPlayerControlsConfig? controlsConfig,
     this.useSurfaceView = false,
+    this.allowSystemGestures = false,
     this.castPlayerBuilder,
     this.fullscreenRouteBuilderFactory,
     this.resetSystemOverlays,

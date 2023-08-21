@@ -17,12 +17,14 @@ class VideoPlatformView extends StatefulWidget {
   final BccmPlayerController playerController;
   final bool showControls;
   final bool? useSurfaceView;
+  final bool? allowSystemGestures;
 
   const VideoPlatformView({
     super.key,
     required this.playerController,
     required this.showControls,
     this.useSurfaceView,
+    this.allowSystemGestures,
   });
 
   @override
@@ -177,6 +179,7 @@ class _AndroidPlayer extends StatelessWidget {
             'player_id': parent.playerController.value.playerId,
             'show_controls': parent.showControls,
             if (parent.useSurfaceView == true) 'use_surface_view': true,
+            if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
           },
           creationParamsCodec: const StandardMessageCodec(),
           onFocus: () {

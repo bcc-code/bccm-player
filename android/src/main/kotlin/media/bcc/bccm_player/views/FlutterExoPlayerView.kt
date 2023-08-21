@@ -5,9 +5,7 @@ import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.media3.common.Player
@@ -36,9 +34,10 @@ class FlutterExoPlayerView(
     private val showControls: Boolean?,
     private val enableDebugView: Boolean?,
     private val useSurfaceView: Boolean?,
+    private val allowSystemGestures: Boolean?
 ) : PlatformView, BccmPlayerViewController {
     private var playerController: ExoPlayerController? = null
-    private val _v: LinearLayout = SystemGestureExcludedLinearLayout(context)
+    private val _v = SystemGestureExcludedLinearLayout(context)
     private var _playerView: PlayerView? = null
     private val ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var setupDone = false
@@ -65,6 +64,7 @@ class FlutterExoPlayerView(
                 creationParams["show_controls"] as? Boolean?,
                 creationParams["enable_debug_view"] as? Boolean?,
                 creationParams["use_surface_view"] as? Boolean?,
+                creationParams["allow_system_gestures"] as? Boolean?
             )
         }
     }
@@ -94,6 +94,7 @@ class FlutterExoPlayerView(
             "Setting up flutter view for playerId: $playerId with surfaceView: $useSurfaceView"
         )
         _v.removeAllViews()
+        _v.setExclusionEnabled(allowSystemGestures != true)
         if (useSurfaceView == true) {
             LayoutInflater.from(context).inflate(R.layout.surface_player_view, _v, true)
         } else {
