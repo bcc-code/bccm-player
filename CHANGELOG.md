@@ -1,3 +1,7 @@
+## 1.1.1
+
+- Docs: Updated readme with screenshots, etc.
+
 ## 1.1.0
 
 - Feature: custom orientation callbacks in BccmPlayerViewConfig: `deviceOrientationsNormal`/`deviceOrientationsFullscreen`. See "orientations" in docs for details.
