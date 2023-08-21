@@ -14,10 +14,13 @@ You need a [receiver app ID](https://developers.google.com/cast/docs/overview). 
    + class MainActivity : FlutterFragmentActivity() {
    ```
 
-2. Add a values.xml with your own receiver id:
+2. Add a cast_app_id to your AndroidManifest.xml
 
-   ```
-   <string name="cast_app_id">ABCD1234</string>
+   ```xml
+   <!-- within <application> -->
+   <meta-data
+      android:name="cast_app_id"
+      android:value="519C9F80" />
    ```
 
 3. Update `NormalTheme` in your `styles.xml` to use an AppCompat theme and have a `colorPrimary`. This is a requirement from the Cast SDK.
