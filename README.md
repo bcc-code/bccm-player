@@ -11,7 +11,7 @@ Used by the open source apps [Bible Kids](https://play.google.com/store/apps/det
 ![Demo on android](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/demo.gif?raw=true) \_
 ![Casting screenshot](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/casting.jpg?raw=true)
 
-### Documentation
+## Documentation
 
 For all the features to work correctly, it's vital that you read the docs.
 
@@ -19,7 +19,7 @@ Documentation: https://bcc-code.github.io/bccm-player/
 
 **Create an issue on github if you need help.**
 
-### Difference from video_player/chewie/betterplayer, etc.
+## Difference from video_player/chewie/betterplayer, etc.
 
 A major difference is that BccmPlayer uses hybrid composition platform views to display the video instead of textures.
 This means the video is rendered in the native view hierarchy without any intermediate steps, which has several benefits:
