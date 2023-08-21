@@ -7,9 +7,9 @@ Used by the open source apps [Bible Kids](https://play.google.com/store/apps/det
 [![pub package](https://img.shields.io/pub/v/bccm_player.svg)](https://pub.dev/packages/bccm_player)
 
 ![Controls screenshot](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/controls.jpg?raw=true)
-![Casting screenshot](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/casting.jpg?raw=true)
 
-![Demo on android](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/demo.gif?raw=true)
+![Demo on android](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/demo.gif?raw=true) \_
+![Casting screenshot](/doc/demo/casting.jpg?raw=true)
 
 ### Documentation
 
