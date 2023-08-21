@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Feature: custom orientation callbacks in BccmPlayerViewConfig: `deviceOrientationsNormal`/`deviceOrientationsFullscreen`. See "orientations" in docs for details.
+
 ## 1.0.6
 
 - Feature: Configure `allowSystemGestures` in BccmPlayerViewConfig. This is `false` by default to prevent conflicts with the seekbar.
