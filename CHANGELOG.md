@@ -1,3 +1,7 @@
+## 1.0.6
+
+- Feature: Configure `allowSystemGestures` in BccmPlayerViewConfig. This is `false` by default to prevent conflicts with the seekbar.
+
 ## 1.0.5
 
 - Feature: Dynamically adjust aspect ratio instead of assuming 16/9.
