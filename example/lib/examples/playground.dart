@@ -29,11 +29,7 @@ class _PlaygroundState extends State<Playground> {
           }
           return null;
         },
-        controlsConfig: BccmPlayerControlsConfig(
-          playbackSpeeds: const [0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0],
-          hidePlaybackSpeed: false,
-          hideQualitySelector: false,
-        ),
+        controlsConfig: BccmPlayerControlsConfig(),
       ),
     );
   }
@@ -48,8 +44,13 @@ class _PlaygroundState extends State<Playground> {
             : SingleChildScrollView(
                 child: Column(
                   children: [
-                    Text(controller.value.playerId),
-                    Text(controller.value.playbackSpeed.toString()),
+                    Container(
+                      padding: const EdgeInsets.only(top: 24, bottom: 16),
+                      child: Text(
+                        'Playground',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
                     AspectRatio(
                       aspectRatio: 16 / 9,
                       child: BccmPlayerView.withViewController(
@@ -57,6 +58,20 @@ class _PlaygroundState extends State<Playground> {
                         key: ValueKey('player surface-view:$useSurfaceView'),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    ValueListenableBuilder<PlayerState>(
+                      valueListenable: controller,
+                      builder: (context, value, _) => MiniPlayer(
+                        title: controller.value.currentMediaItem?.metadata?.title ?? 'Not playing',
+                        secondaryTitle: null,
+                        artworkUri: controller.value.currentMediaItem?.metadata?.artworkUri,
+                        isPlaying: controller.value.playbackState == PlaybackState.playing,
+                        onPlayTap: () => controller.play(),
+                        onPauseTap: () => controller.pause(),
+                        onCloseTap: () => controller.stop(reset: true),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
                     ...exampleVideos.map(
                       (MediaItem mediaItem) => ElevatedButton(
                         onPressed: () {

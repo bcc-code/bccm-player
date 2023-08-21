@@ -4,7 +4,11 @@ final exampleVideos = [
   MediaItem(
     url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     mimeType: 'video/mp4',
-    metadata: MediaMetadata(title: 'Big Buck Bunny (MP4)'),
+    metadata: MediaMetadata(
+      title: 'Big Buck Bunny (MP4)',
+      artist: 'Blender Foundation',
+      artworkUri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg',
+    ),
   ),
   MediaItem(
     url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
@@ -14,6 +18,10 @@ final exampleVideos = [
   MediaItem(
     url: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8',
     mimeType: 'application/x-mpegURL',
-    metadata: MediaMetadata(title: 'Apple advanced (HLS/HDR)'),
+    metadata: MediaMetadata(
+      title: 'Apple advanced (HLS/HDR)',
+      artist: 'Apple Inc.',
+      artworkUri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg',
+    ),
   ),
 ];

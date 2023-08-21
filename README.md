@@ -1,16 +1,23 @@
 # BccmPlayer - a flutter video player package
 
-**Note: This was recently published so documentation may be lacking, but we want this to work for others, so create an issue on github if you need help.**
-
 This is a video player primarily designed for video-heavy apps that need features like background playback, PiP, casting, analytics, etc.
 
 Used by the open source apps [Bible Kids](https://play.google.com/store/apps/details?id=media.bcc.kids) and [BCC Media](https://apps.apple.com/no/app/brunstadtv/id913268220). ([source code here](https://github.com/bcc-code/bcc-media-app)).
+
+[![pub package](https://img.shields.io/pub/v/bccm_player.svg)](https://pub.dev/packages/bccm_player)
+
+![Controls screenshot](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/controls.jpg?raw=true)
+![Casting screenshot](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/casting.jpg?raw=true)
+
+![Demo on android](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/demo.mp4?raw=true)
 
 ### Documentation
 
 For all the features to work correctly, it's vital that you read the docs.
 
 Documentation: https://bcc-code.github.io/bccm-player/
+
+**Create an issue on github if you need help.**
 
 ### Difference from video_player/chewie/betterplayer, etc.
 
@@ -25,7 +32,7 @@ This means the video is rendered in the native view hierarchy without any interm
 
 - [x] iOS
 - [x] Android
-- [ ] Web (almost, but its partial/hacky)
+- [ ] ~~Web~~. Some groundwork is there, but it's not complete and it's not supported.
 
 ## Features
 

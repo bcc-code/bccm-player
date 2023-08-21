@@ -79,7 +79,7 @@ class MiniPlayer extends HookWidget {
                     child: FadeInImage.memoryNetwork(
                       fadeInDuration: const Duration(milliseconds: 200),
                       placeholder: kTransparentImage,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
                       image: artworkUri!,
                       imageCacheHeight: 64,
                       width: 64,
