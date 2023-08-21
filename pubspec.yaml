@@ -55,6 +55,3 @@ flutter:
         pluginClass: BccmPlayerPlugin
       ios:
         pluginClass: BccmPlayerPlugin
-      web:
-        pluginClass: BccmPlayerWeb
-        fileName: bccm_player_web.dart
