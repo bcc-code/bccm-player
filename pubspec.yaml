@@ -1,6 +1,6 @@
 name: bccm_player
 description: ExoPlayer/AVPlayer via platform views, with cast, PiP, background audio, audio selection, etc.
-version: 1.1.1
+version: 1.1.2
 documentation: https://bcc-code.github.io/bccm-player/
 repository: https://github.com/bcc-code/bccm-player
 
