@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Example - BccmPlayer docs</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Example";
+        var mkdocs_page_input_path = "contributing/example.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> BccmPlayer docs
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Installation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced setup</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/app-config/">App config / default languages</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/chromecast/">Chromecast</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-setup/plugins/">Plugins</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Advanced usage</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/airplay/">Airplay</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/custom-controls/">Custom controls</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/hdr-content/">HDR content / SurfaceView</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/orientations/">Orientations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/player-state/">Player state</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/primary-player/">Primary player</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../advanced-usage/styling/">Styling</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Contributing</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/">Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../basics/">Basics</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Example</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#rough-overview">Rough overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#1-generating-the-native-code">1. Generating the native code</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#open-pigeonsplayback_platform_pigeondart">Open pigeons/playback_platform_pigeon.dart.</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-android-implementing-setvolume">2. Android: Implementing setVolume()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-ios-implementing-setvolume">3. iOS: Implementing setVolume()</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-flutter-making-setvolume-available">4. Flutter: Making setVolume() available</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#open-playback_platform_interfacedart-and-add-an-empty-implementation">Open playback_platform_interface.dart and add an empty implementation:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#open-bccm_player_nativedart-and-override-it">Open bccm_player_native.dart and override it:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-finally">5. Finally</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">BccmPlayer docs</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+          <li>Contributing &raquo;</li>
+      <li class="breadcrumb-item active">Example</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="example-guide-implementing-setvolume">Example guide: Implementing setVolume()</h2>
+<p>Here's a short guide on how to implement volume. I think it's a good example because it requires all these things:</p>
+<ul>
+<li>Generating code to communicate with the native side: Pigeons</li>
+<li>Writing native code: we will set the volume on the native AVPlayer/ExoPlayer</li>
+<li>Adding a new API to BccmPlayerController: we are going to add a setVolume() function.</li>
+</ul>
+<p>This assumes you have followed the steps under "Basics" to get up and running with a local clone.</p>
+<h3 id="rough-overview">Rough overview</h3>
+<p>Here are the steps in a rough overview:</p>
+<ul>
+<li>Generate a bunch of code with pigeon</li>
+<li>Implement the native api via PlaybackApiImpl.swift and PlaybackApiImpl.kt</li>
+<li>Call player.volume on AVPlayer/ExoPlayer/CastPlayer</li>
+<li>Use it in dart: Add a setVolume() to BccmPlayerInterface</li>
+<li>Override the BccmPlayerInterface.setVolume() method in BccmPlayerNative.</li>
+<li>Call BccmPlayerInterface.instance.setVolume() from BccmPlayerController</li>
+</ul>
+<h3 id="1-generating-the-native-code">1. Generating the native code</h3>
+<p>In order to get type-safe code when communicating with the native side, bccm_player uses <a href="https://pub.dev/packages/pigeon">pigeon</a>. It also speeds up the process a bit because you don't have to write any method channel communication stuff yourself.</p>
+<h4 id="open-pigeonsplayback_platform_pigeondart">Open pigeons/playback_platform_pigeon.dart.</h4>
+<p>This is the main pigeon file and the most important bit is the "PlaybackPlatformPigeon" class.
+Anything we add here will be callable from flutter and has to be implemented on the native side.</p>
+<p>Let's add a setVolume() function somewhere, with a <code>double</code> to represent the volume from 0.0 to 1.0.
+You almost always need to include a <code>playerId</code>, in order to know which player to work with (you'll see later).</p>
+<p>We attribute the method with a @ObjCSelector with this syntax: <code>functionName:secondParam:</code>. This isn't strictly necessary but it helps keep the iOS code a bit cleaner.</p>
+<p>So something like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@HostApi</span><span class="p">()</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kd">abstract</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">PlaybackPlatformPigeon</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">   </span><span class="c1">// ... other methods</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="nd">@ObjCSelector</span><span class="p">(</span><span class="s2">&quot;setVolume:volume:&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">setVolume</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">playerId</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">volume</span><span class="p">);</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">   </span><span class="c1">// ... other methods</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
+</code></pre></div>
+<p><em>Tip: You can use advanced argument types (see MediaItem, etc), pigeon will generate iOS/Android code for those too. But everything needs to be defined inside this one .dart file, as 'import' is not supported.</em></p>
+<p>After any edits to playback_platform_pigeon.dart we need to run pigeon to generate everything:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>dart<span class="w"> </span>run<span class="w"> </span>pigeon<span class="w"> </span>--input<span class="w"> </span>pigeons/playback_platform_pigeon.dart
+</code></pre></div>
+<h3 id="2-android-implementing-setvolume">2. Android: Implementing setVolume()</h3>
+<p>In Android Studio, open the example project. In the project explorer, you'll find bccm_player.</p>
+<p><img alt="Image of the project explorer" src="../project_hierarchy.png" /></p>
+<p>Open the file called PlaybackApiImpl.kt. The class in that file should have an error saying something like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Class &#39;PlaybackApiImpl&#39; is not abstract and does not implement abstract member public abstract fun setVolume(playerId: String, volume: Double, result: PlaybackPlatformApi.Result&lt;Void!&gt;)
+</code></pre></div>
+<p>Hovering the error and clicking "Implement members" will make android studio generate something like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">setVolume</span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">playerId</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">volume</span><span class="p">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">result</span><span class="p">:</span><span class="w"> </span><span class="n">PlaybackPlatformApi</span><span class="p">.</span><span class="na">Result</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="n">TODO</span><span class="p">(</span><span class="s">&quot;Not yet implemented&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>Now we just need to implement it.
+You can usually look at similar methods in the class and see how it's done. You usually just get the correct PlayerController based on the <code>playerId</code> argument, and call some method on that.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">setVolume</span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">playerId</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">volume</span><span class="p">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">result</span><span class="p">:</span><span class="w"> </span><span class="n">PlaybackPlatformApi</span><span class="p">.</span><span class="na">Result</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">playbackService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="na">getPlaybackService</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">playerController</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">playbackService</span><span class="p">.</span><span class="na">getController</span><span class="p">(</span><span class="n">playerId</span><span class="p">)</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="n">Error</span><span class="p">(</span><span class="s">&quot;Player with id </span><span class="si">$</span><span class="n">playerId</span><span class="s"> does not exist.&quot;</span><span class="p">))</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">playerController</span><span class="p">.</span><span class="na">setVolume</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="n">result</span><span class="p">.</span><span class="na">success</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="c1">// It&#39;s important to call result.error or result.success, otherwise the dart Future will never complete.</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="p">}</span>
+</code></pre></div>
+<p>PlayerController.setVolume() doesn't exist yet, so open PlayerController.kt and add it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">fun</span><span class="w"> </span><span class="nf">setVolume</span><span class="p">(</span><span class="n">volume</span><span class="p">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">safeVolume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clamp</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span><span class="w"> </span><span class="m">0.0</span><span class="p">,</span><span class="w"> </span><span class="m">1.0</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">player</span><span class="p">.</span><span class="na">volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">safeVolume</span><span class="p">.</span><span class="na">toFloat</span><span class="p">();</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">pluginPlayerListener</span><span class="o">?.</span><span class="na">onManualPlayerStateUpdate</span><span class="p">()</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
+</code></pre></div>
+<p>PlayerController is just abstract and these classes are the real ones being used: ExoPlayerController/CastPlayerController.
+If you need to add something more advanced which requires chromecast or exoplayer specific stuff, you can override the setVolume method in <code>ExoPlayerController.kt</code> or <code>CastPlayerController.kt</code>.</p>
+<h3 id="3-ios-implementing-setvolume">3. iOS: Implementing setVolume()</h3>
+<p>It's very similar to the android side, so I'll keep it concise:</p>
+<ol>
+<li>Open PlaybackApiImpl.swift in xcode. It should have an error too; just implement the missing "setVolume" function with e.g.
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">public</span> <span class="kd">func</span> <span class="nf">setPlaybackSpeed</span><span class="p">(</span><span class="kc">_</span> <span class="n">playerId</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="n">speed</span><span class="p">:</span> <span class="bp">NSNumber</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="p">@</span><span class="n">escaping</span> <span class="p">(</span><span class="n">FlutterError</span><span class="p">?)</span> <span class="p">-&gt;</span> <span class="nb">Void</span><span class="p">)</span> <span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="kd">let</span> <span class="nv">player</span> <span class="p">=</span> <span class="n">getPlayer</span><span class="p">(</span><span class="n">playerId</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">player</span><span class="p">?.</span><span class="n">setPlaybackSpeed</span><span class="p">(</span><span class="n">speed</span><span class="p">.</span><span class="n">floatValue</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">completion</span><span class="p">(</span><span class="kc">nil</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">}</span>
+</code></pre></div></li>
+<li>Open PlayerController.swift and add
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span> <span class="nf">setVolume</span><span class="p">(</span><span class="kc">_</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">Float</span><span class="p">)</span>
+</code></pre></div></li>
+<li>On the iOS side, PlayerController is just a "protocol"/"interface", not an abstract class. So we need to open AVQueuePlayerController.swift to implement it:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">public</span> <span class="kd">func</span> <span class="nf">setVolume</span><span class="p">(</span><span class="kc">_</span> <span class="n">volume</span><span class="p">:</span> <span class="nb">Float</span><span class="p">)</span> <span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">player</span><span class="p">.</span><span class="n">volume</span> <span class="p">=</span> <span class="n">volume</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="cm">/* Call onManualPlayerStateUpdate() to update the state (i.e. controller.value). */</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">onManualPlayerStateUpdate</span><span class="p">()</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">}</span>
+</code></pre></div></li>
+<li>And for CastPlayerController.swift:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">public</span> <span class="kd">func</span> <span class="nf">setVolume</span><span class="p">(</span><span class="kc">_</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">Float</span><span class="p">)</span> <span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="k">guard</span> <span class="kd">let</span> <span class="nv">remoteMediaClient</span> <span class="p">=</span> <span class="n">GCKCastContext</span><span class="p">.</span><span class="n">sharedInstance</span><span class="p">().</span><span class="n">sessionManager</span><span class="p">.</span><span class="n">currentSession</span><span class="p">?.</span><span class="n">remoteMediaClient</span> <span class="k">else</span> <span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>        <span class="k">return</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="p">}</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">remoteMediaClient</span><span class="p">.</span><span class="n">setStreamVolume</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span> <span class="p">{</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>        <span class="kd">let</span> <span class="nv">event</span> <span class="p">=</span> <span class="n">PlayerStateUpdateEvent</span><span class="p">.</span><span class="n">make</span><span class="p">(</span><span class="n">withPlayerId</span><span class="p">:</span> <span class="kc">self</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">:</span> <span class="kc">self</span><span class="p">.</span><span class="n">getPlayerStateSnapshot</span><span class="p">())</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        <span class="kc">self</span><span class="p">.</span><span class="n">playbackApi</span><span class="p">.</span><span class="n">playbackListener</span><span class="p">.</span><span class="n">onPlayerStateUpdate</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">completion</span><span class="p">:</span> <span class="p">{</span> <span class="kc">_</span> <span class="k">in</span> <span class="p">})</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="p">}</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">}</span>
+</code></pre></div></li>
+</ol>
+<h3 id="4-flutter-making-setvolume-available">4. Flutter: Making setVolume() available</h3>
+<p>Now we have fully implemented the setVolume() pigeon, but it's not available on the PlayerController.</p>
+<p>The flow is usually like this:</p>
+<ul>
+<li>BccmPlayerController (dart): <code>BccmPlayerInterface.setVolume();</code></li>
+<li>BccmPlayerInterface (dart abstract class)</li>
+<li>BccmPlayerNative (implementation of BccmPlayerInterface): <code>_pigeon.setVolume();</code></li>
+</ul>
+<p>So we first gotta add it to the abstract BccmPlayerInterface and BccmPlayerNative.</p>
+<h4 id="open-playback_platform_interfacedart-and-add-an-empty-implementation">Open playback_platform_interface.dart and add an empty implementation:</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">setVolume</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">playerId</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">volume</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="n">UnimplementedError</span><span class="p">(</span><span class="s1">&#39;setVolume() has not been implemented.&#39;</span><span class="p">);</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">}</span>
+</code></pre></div>
+<h4 id="open-bccm_player_nativedart-and-override-it">Open bccm_player_native.dart and override it:</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nd">@override</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">setVolume</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">playerId</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">volume</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_pigeon</span><span class="p">.</span><span class="n">setVolume</span><span class="p">(</span><span class="n">playerId</span><span class="p">,</span><span class="w"> </span><span class="n">volume</span><span class="p">);</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="5-finally">5. Finally</h3>
+<p>Open player_controller.dart and add the method there too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">/// Sets the volume. The value should be between 0.0 and 1.0.</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1">/// The setting is kept across videos.</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="c1">///</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1">/// ```dart</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1">/// controller.setVolume(1); // Will set to max volume.</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="c1">/// ```</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">setVolume</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">volume</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">BccmPlayerInterface</span><span class="p">.</span><span class="n">instance</span><span class="p">.</span><span class="n">setVolume</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">playerId</span><span class="p">,</span><span class="w"> </span><span class="n">volume</span><span class="p">);</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="conclusion">Conclusion</h3>
+<p>This guide covered how to implement setVolume() for all platforms: on the native AVPlayer (iOS), the native ExoPlayer (Android), and for chromecasts.</p>
+<p>If you've followed along, you'll know now roughly know how to implement native code changes. This was a simple feature, but for more advanced features, we recommend looking around and imitating how similar use cases was solved.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../basics/" class="btn btn-neutral float-left" title="Basics"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../basics/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
