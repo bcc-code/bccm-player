@@ -32,6 +32,7 @@ Let's add a setVolume() function somewhere, with a `double` to represent the vol
 You almost always need to include a `playerId`, in order to know which player to work with (you'll see later).
 
 We attribute the method with a @ObjCSelector with this syntax: `functionName:secondParam:`. This isn't strictly necessary but it helps keep the iOS code a bit cleaner.
+The @async makes the generated dart code return a Future, allowing us to await it if necessary.
 
 So something like this:
 
@@ -40,6 +41,7 @@ So something like this:
 abstract class PlaybackPlatformPigeon {
    // ... other methods
 
+  @async
   @ObjCSelector("setVolume:volume:")
   void setVolume(String playerId, double volume);
 
