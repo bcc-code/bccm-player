@@ -157,6 +157,11 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
+  Future<void> setVolume(String playerId, double volume) {
+    return _pigeon.setVolume(playerId, volume);
+  }
+
+  @override
   void exitFullscreen(String playerId) {
     _pigeon.exitFullscreen(playerId);
   }

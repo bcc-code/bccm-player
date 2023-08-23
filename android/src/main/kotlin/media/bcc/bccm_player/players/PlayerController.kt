@@ -3,6 +3,7 @@ package media.bcc.bccm_player.players
 import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.CallSuper
+import androidx.core.math.MathUtils.clamp
 import androidx.media3.common.C
 import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
@@ -17,6 +18,7 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
+import kotlin.math.max
 
 
 abstract class PlayerController : Player.Listener {
@@ -57,6 +59,12 @@ abstract class PlayerController : Player.Listener {
 
     fun pause() {
         player.pause()
+    }
+
+    fun setVolume(volume: Double) {
+        val safeVolume = clamp(volume, 0.0, 1.0)
+        player.volume = safeVolume.toFloat();
+        pluginPlayerListener?.onManualPlayerStateUpdate()
     }
 
     abstract fun stop(reset: Boolean)

@@ -233,6 +233,19 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         playerController.pause()
     }
 
+    override fun setVolume(
+        playerId: String,
+        volume: Double,
+        result: PlaybackPlatformApi.Result<Void>
+    ) {
+        val playbackService = plugin.getPlaybackService() ?: return
+        val playerController = playbackService.getController(playerId)
+            ?: return result.error(Error("Player with id $playerId does not exist."))
+
+        playerController.setVolume(volume)
+        result.success(null)
+    }
+
     override fun stop(playerId: String, reset: Boolean) {
         val playbackService = plugin.getPlaybackService() ?: return
         val playerController = playbackService.getController(playerId)

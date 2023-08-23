@@ -102,6 +102,10 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('setAppConfig() has not been implemented.');
   }
 
+  Future<void> setVolume(String playerId, double volume) {
+    throw UnimplementedError('setVolume() has not been implemented.');
+  }
+
   void exitFullscreen(String playerId) {
     throw UnimplementedError('exitFullscreen() has not been implemented.');
   }

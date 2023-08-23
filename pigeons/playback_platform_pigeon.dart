@@ -63,6 +63,10 @@ abstract class PlaybackPlatformPigeon {
   void stop(String playerId, bool reset);
 
   @async
+  @ObjCSelector("setVolume:volume:")
+  void setVolume(String playerId, double volume);
+
+  @async
   @ObjCSelector("setSelectedTrack:type:trackId:")
   void setSelectedTrack(String playerId, TrackType type, String? trackId);
 

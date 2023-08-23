@@ -131,6 +131,16 @@ class CastPlayerController: NSObject, PlayerController {
         playbackApi.playbackListener.onPlayerStateUpdate(event, completion: { _ in })
     }
     
+    public func setVolume(_ speed: Float) {
+        guard let remoteMediaClient = GCKCastContext.sharedInstance().sessionManager.currentSession?.remoteMediaClient else {
+            return
+        }
+        remoteMediaClient.setStreamVolume(speed) {
+            let event = PlayerStateUpdateEvent.make(withPlayerId: self.id, snapshot: self.getPlayerStateSnapshot())
+            self.playbackApi.playbackListener.onPlayerStateUpdate(event, completion: { _ in })
+        }
+    }
+    
     func getCurrentItem() -> MediaItem? {
         if let currentItem = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus?.currentQueueItem {
             return mapMediaQueueItem(currentItem)
