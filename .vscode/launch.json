@@ -29,6 +29,14 @@
       "cwd": "example",
       "request": "attach",
       "type": "dart"
+    },
+    {
+      "name": "Debug build_runner",
+      "cwd": "${workspaceFolder}",
+      "request": "launch",
+      "program": ".dart_tool/build/entrypoint/build.dart",
+      "type": "dart",
+      "args": ["build", "--delete-conflicting-outputs"]
     }
   ]
 }
