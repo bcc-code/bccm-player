@@ -205,6 +205,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
     
+    public func setVolume(_ volume: Float) {
+        player.volume = volume
+        onManualPlayerStateUpdate()
+    }
+    
     public func getCurrentItem() -> MediaItem? {
         return MediaItemMapper.mapPlayerItem(player.currentItem)
     }

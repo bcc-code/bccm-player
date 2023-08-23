@@ -146,6 +146,12 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         completion(nil)
     }
 
+    public func setVolume(_ playerId: String, volume: NSNumber, completion: @escaping (FlutterError?) -> Void) {
+        let player = getPlayer(playerId)
+        player?.setVolume(volume.floatValue)
+        completion(nil)
+    }
+
     public func play(_ playerId: String, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
         let player = getPlayer(playerId)
         player?.play()

@@ -13,6 +13,7 @@ class Playground extends StatefulWidget {
 class _PlaygroundState extends State<Playground> {
   bool useSurfaceView = false;
   late BccmPlayerViewController viewController;
+  double tempVolume = 1;
 
   @override
   void initState() {
@@ -107,7 +108,21 @@ class _PlaygroundState extends State<Playground> {
                         viewController.enterFullscreen();
                       },
                       child: const Text('enter fullscreen'),
-                    )
+                    ),
+                    Slider(
+                      value: tempVolume,
+                      onChanged: ((value) {
+                        setState(() {
+                          tempVolume = value;
+                        });
+                      }),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        controller.setVolume(tempVolume);
+                      },
+                      child: const Text('set volume'),
+                    ),
                   ],
                 ),
               ),

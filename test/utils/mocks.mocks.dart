@@ -356,6 +356,22 @@ class MockBccmPlayerInterface extends _i1.Mock
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
   @override
+  _i3.Future<void> setVolume(
+    String? playerId,
+    double? volume,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setVolume,
+          [
+            playerId,
+            volume,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+  @override
   void exitFullscreen(String? playerId) => super.noSuchMethod(
         Invocation.method(
           #exitFullscreen,

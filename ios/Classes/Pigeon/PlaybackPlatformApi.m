@@ -956,6 +956,26 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setVolume"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(setVolume:volume:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setVolume:volume:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
+        NSNumber *arg_volume = GetNullableObjectAtIndex(args, 1);
+        [api setVolume:arg_playerId volume:arg_volume completion:^(FlutterError *_Nullable error) {
+          callback(wrapResult(nil, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
         initWithName:@"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setSelectedTrack"
         binaryMessenger:binaryMessenger
         codec:PlaybackPlatformPigeonGetCodec()];

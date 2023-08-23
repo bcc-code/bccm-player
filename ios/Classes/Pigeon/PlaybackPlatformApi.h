@@ -251,6 +251,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)seek:(NSString *)playerId positionMs:(NSNumber *)positionMs completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)pause:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)stop:(NSString *)playerId reset:(NSNumber *)reset error:(FlutterError *_Nullable *_Nonnull)error;
+- (void)setVolume:(NSString *)playerId volume:(NSNumber *)volume completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setSelectedTrack:(NSString *)playerId type:(TrackType)type trackId:(nullable NSString *)trackId completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setPlaybackSpeed:(NSString *)playerId speed:(NSNumber *)speed completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)exitFullscreen:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;

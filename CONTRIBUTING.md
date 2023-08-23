@@ -5,3 +5,5 @@ We want to improve the codebase so that it's usable for others too, so we are ve
 The docs has a page about architecture details to help you understand the codebase.
 
 Before starting on a bigger change it might be a good idea to create an issue about your ideas so that we can help you out and become aligned.
+
+See "Contributing" in [the docs](https://bcc-code.github.io/bccm-player/) for details and guides to get started.

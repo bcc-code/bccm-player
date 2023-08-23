@@ -1893,6 +1893,8 @@ public class PlaybackPlatformApi {
 
     void stop(@NonNull String playerId, @NonNull Boolean reset);
 
+    void setVolume(@NonNull String playerId, @NonNull Double volume, @NonNull Result<Void> result);
+
     void setSelectedTrack(@NonNull String playerId, @NonNull TrackType type, @Nullable String trackId, @NonNull Result<Void> result);
 
     void setPlaybackSpeed(@NonNull String playerId, @NonNull Double speed, @NonNull Result<Void> result);
@@ -2222,6 +2224,36 @@ public class PlaybackPlatformApi {
                   wrapped = wrappedError;
                 }
                 reply.reply(wrapped);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setVolume", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                Double volumeArg = (Double) args.get(1);
+                Result<Void> resultCallback =
+                    new Result<Void>() {
+                      public void success(Void result) {
+                        wrapped.add(0, null);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.setVolume(playerIdArg, volumeArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

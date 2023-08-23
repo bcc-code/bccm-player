@@ -193,6 +193,16 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     return BccmPlayerInterface.instance.setPlaybackSpeed(value.playerId, speed);
   }
 
+  /// Sets the volume. The value should be between 0.0 and 1.0.
+  /// The setting is kept across videos.
+  ///
+  /// ```dart
+  /// controller.setVolume(1); // Will set to max volume.
+  /// ```
+  Future<void> setVolume(double volume) {
+    return BccmPlayerInterface.instance.setVolume(value.playerId, volume);
+  }
+
   /// Pauses the video.
   ///
   /// See also:
