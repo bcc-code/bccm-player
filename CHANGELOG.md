@@ -1,3 +1,8 @@
+## 1.1.2
+
+- Feature: setVolume(double)
+- Docs: Added a contributing guide on how setVolume() was implemented.
+
 ## 1.1.1
 
 - Docs: Updated readme with screenshots, etc.
