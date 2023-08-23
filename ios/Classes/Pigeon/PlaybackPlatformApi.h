@@ -238,6 +238,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 /// The codec used by PlaybackPlatformPigeon.
 NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 
+/// The main interface, used by the flutter side to control the player.
 @protocol PlaybackPlatformPigeon
 - (void)attachWithCompletion:(void (^)(FlutterError *_Nullable))completion;
 - (void)newPlayer:(nullable NSString *)url completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;

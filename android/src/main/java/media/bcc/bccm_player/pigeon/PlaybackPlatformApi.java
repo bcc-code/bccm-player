@@ -1864,7 +1864,11 @@ public class PlaybackPlatformApi {
     }
   }
 
-  /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
+  /**
+   * The main interface, used by the flutter side to control the player.
+   *
+   * Generated interface from Pigeon that represents a handler of messages from Flutter.
+   */
   public interface PlaybackPlatformPigeon {
 
     void attach(@NonNull Result<Void> result);

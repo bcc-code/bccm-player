@@ -654,6 +654,7 @@ class _PlaybackPlatformPigeonCodec extends StandardMessageCodec {
   }
 }
 
+/// The main interface, used by the flutter side to control the player.
 class PlaybackPlatformPigeon {
   /// Constructor for [PlaybackPlatformPigeon].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default

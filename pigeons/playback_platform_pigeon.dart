@@ -1,5 +1,26 @@
 import 'package:pigeon/pigeon.dart';
 
+// IMPORTANT INFORMATION
+// This is a template pigeon file,
+// After doing edits to this file you have to run pigeon to generate playback_platform_pigeon.g.dart:
+//
+// ```sh
+// dart run pigeon --input pigeons/playback_platform_pigeon.dart
+// ```
+//
+// See the "Contributing" docs for bccm_player for more info.
+
+@ConfigurePigeon(PigeonOptions(
+  dartOut: 'lib/src/pigeon/playback_platform_pigeon.g.dart',
+  dartOptions: DartOptions(),
+  javaOut: 'android/src/main/java/media/bcc/bccm_player/pigeon/PlaybackPlatformApi.java',
+  javaOptions: JavaOptions(package: 'media.bcc.bccm_player.pigeon'),
+  objcHeaderOut: 'ios/Classes/Pigeon/PlaybackPlatformApi.h',
+  objcSourceOut: 'ios/Classes/Pigeon/PlaybackPlatformApi.m',
+  objcOptions: ObjcOptions(),
+))
+
+/// The main interface, used by the flutter side to control the player.
 @HostApi()
 abstract class PlaybackPlatformPigeon {
   @async
