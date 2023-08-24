@@ -15,7 +15,10 @@ class _NativeControlsState extends State<NativeControls> {
       children: [
         Column(
           children: [
-            BccmPlayerView.native(BccmPlayerController.primary),
+            VideoPlatformView(
+              playerController: BccmPlayerController.primary,
+              showControls: true,
+            ),
           ],
         ),
       ],

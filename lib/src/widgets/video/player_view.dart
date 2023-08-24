@@ -57,11 +57,6 @@ abstract class BccmPlayerView extends Widget {
     BccmPlayerViewController viewController, {
     Key? key,
   }) = ControlledBccmPlayerView;
-
-  const factory BccmPlayerView.native(
-    BccmPlayerController playerController, {
-    Key? key,
-  }) = NativeBccmPlayerView;
 }
 
 /// Creates and manages the lifetime of a [BccmPlayerViewController] to use with a [ControlledBccmPlayerView].

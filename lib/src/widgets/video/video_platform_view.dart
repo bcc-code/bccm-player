@@ -13,7 +13,7 @@ import '../cast/cast_player.dart';
 /// Creates a platform view for video playback.
 ///
 /// Use this if you need a very custom setup, otherwise use [BccmPlayerView] which provides a simpler API.
-class VideoPlatformView extends StatefulWidget {
+class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
   final BccmPlayerController playerController;
   final bool showControls;
   final bool? useSurfaceView;
