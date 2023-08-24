@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import '../controls/default_controls.dart';
 import 'controlled_player_view.dart';
+import 'native_player_view.dart';
 
 /// A widget that displays a video player with controls given a [AbstractBccmPlayerViewController].
 ///
@@ -56,6 +57,11 @@ abstract class BccmPlayerView extends Widget {
     BccmPlayerViewController viewController, {
     Key? key,
   }) = ControlledBccmPlayerView;
+
+  const factory BccmPlayerView.native(
+    BccmPlayerController playerController, {
+    Key? key,
+  }) = NativeBccmPlayerView;
 }
 
 /// Creates and manages the lifetime of a [BccmPlayerViewController] to use with a [ControlledBccmPlayerView].
