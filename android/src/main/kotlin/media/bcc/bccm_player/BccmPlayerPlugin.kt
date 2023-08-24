@@ -117,7 +117,15 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         // So we are also doing some steps via PlaybackApiImpl.attach -> attach()
         // which we should only call via the primary flutter dart engine.
 
-        CastContext.getSharedInstance(flutterPluginBinding.applicationContext)
+        try {
+            CastContext.getSharedInstance(flutterPluginBinding.applicationContext)
+        } catch (e: Exception) {
+            Log.d(
+                "bccm",
+                "CastContext.getSharedInstance() failed in onAttachedToEngine. Stack trace:"
+            );
+            e.printStackTrace()
+        }
 
         pluginBinding = flutterPluginBinding
         playbackPigeon =
