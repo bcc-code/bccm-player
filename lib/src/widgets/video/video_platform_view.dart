@@ -10,15 +10,15 @@ import 'package:flutter/services.dart';
 import '../../../bccm_player.dart';
 import '../cast/cast_player.dart';
 
-/// Creates a platform view for video playback.
-///
-/// Use this if you need a very custom setup, otherwise use [BccmPlayerView] which provides a simpler API.
 class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
   final BccmPlayerController playerController;
   final bool showControls;
   final bool? useSurfaceView;
   final bool? allowSystemGestures;
 
+  /// Creates a platform view for video playback.
+  ///
+  /// Use this if you need a very custom setup, otherwise use [BccmPlayerView] which provides a simpler API.
   const VideoPlatformView({
     super.key,
     required this.playerController,
