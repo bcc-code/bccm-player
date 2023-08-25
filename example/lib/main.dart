@@ -8,7 +8,6 @@ import 'examples/custom_controls.dart';
 import 'examples/simple_player.dart';
 
 Future main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   await BccmPlayerInterface.instance.setup();
   runApp(const MyApp());
 }

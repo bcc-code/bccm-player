@@ -3,6 +3,7 @@ import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/native/chromecast_pigeon_listener.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:bccm_player/src/state/state_playback_listener.dart';
+import 'package:flutter/widgets.dart';
 
 import 'bccm_player.dart';
 
@@ -55,6 +56,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   Future<void> _setup() async {
+    WidgetsFlutterBinding.ensureInitialized();
     await _pigeon.attach();
     _rootPlaybackListener = RootPigeonPlaybackListener(this);
     _rootPlaybackListener.addListener(StatePlaybackListener(stateNotifier));
