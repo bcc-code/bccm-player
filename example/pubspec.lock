@@ -223,6 +223,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  focus_debugger:
+    dependency: "direct main"
+    description:
+      name: focus_debugger
+      sha256: "6ee81da57291a83f23b05f45837e81a98311b589a81c9538a1eae6523d30d321"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   freezed:
     dependency: transitive
     description:

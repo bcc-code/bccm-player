@@ -104,7 +104,12 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
 
     return AspectRatio(
       aspectRatio: aspectRatio,
-      child: getPlatformSpecificPlayer(),
+      child: Focus(
+        canRequestFocus: widget.showControls,
+        descendantsAreFocusable: widget.showControls,
+        descendantsAreTraversable: widget.showControls,
+        child: getPlatformSpecificPlayer(),
+      ),
     );
   }
 }

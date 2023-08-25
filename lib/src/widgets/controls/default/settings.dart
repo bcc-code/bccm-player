@@ -29,19 +29,28 @@ class SettingsButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    void onTap() {
+      // open bottom sheet with settings
+      showModalBottomSheet(
+        context: context,
+        isDismissible: true,
+        builder: (context) => _SettingsBottomSheet(viewController: viewController),
+      );
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
-        // open bottom sheet with settings
-        showModalBottomSheet(
-          context: context,
-          isDismissible: true,
-          builder: (context) => _SettingsBottomSheet(viewController: viewController),
-        );
-      },
+      onTap: onTap,
       child: Padding(
         padding: padding ?? const EdgeInsets.all(0),
-        child: Icon(Icons.settings, color: controlsTheme.iconColor),
+        child: FocusableActionDetector(
+          actions: {
+            ActivateIntent: CallbackAction<Intent>(
+              onInvoke: (Intent intent) => onTap(),
+            ),
+          },
+          child: Icon(Icons.settings, color: controlsTheme.iconColor),
+        ),
       ),
     );
   }
