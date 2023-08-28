@@ -18,6 +18,8 @@ class SettingsButton extends HookWidget {
     this.playbackSpeeds,
     this.hidePlaybackSpeed,
     this.hideQualitySelector,
+    this.iconSize = 24,
+    this.removePadding = false,
   });
 
   final BccmPlayerViewController viewController;
@@ -26,9 +28,13 @@ class SettingsButton extends HookWidget {
   final List<double>? playbackSpeeds;
   final bool? hidePlaybackSpeed;
   final bool? hideQualitySelector;
+  final double iconSize;
+  final bool removePadding;
 
   @override
   Widget build(BuildContext context) {
+    final focusing = useState(false);
+
     void onTap() {
       // open bottom sheet with settings
       showModalBottomSheet(
@@ -49,7 +55,21 @@ class SettingsButton extends HookWidget {
               onInvoke: (Intent intent) => onTap(),
             ),
           },
-          child: Icon(Icons.settings, color: controlsTheme.iconColor),
+          onFocusChange: (value) => focusing.value = value,
+          child: SizedBox(
+            width: removePadding ? iconSize : null,
+            height: removePadding ? iconSize : null,
+            child: IconButton(
+              onPressed: onTap,
+              icon: const Icon(
+                Icons.settings,
+              ),
+              constraints: removePadding ? const BoxConstraints() : null,
+              padding: removePadding ? EdgeInsets.zero : null,
+              iconSize: iconSize,
+              color: controlsTheme.iconColor,
+            ),
+          ),
         ),
       ),
     );
@@ -201,7 +221,7 @@ class _SettingsBottomSheet extends HookWidget {
         ),
     ];
 
-    return Container(
+    return Material(
       color: controlsTheme.settingsListBackgroundColor,
       child: ListView(
         shrinkWrap: true,

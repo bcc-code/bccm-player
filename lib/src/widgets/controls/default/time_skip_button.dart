@@ -7,11 +7,13 @@ class TimeSkipButton extends StatelessWidget {
     required this.forwardRewindDurationSec,
     required this.icon,
     required this.onPressed,
+    this.iconSize = 52,
   });
 
   final int forwardRewindDurationSec;
   final Widget icon;
   final VoidCallback onPressed;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class TimeSkipButton extends StatelessWidget {
         IconButton(
           icon: icon,
           padding: const EdgeInsets.all(0),
-          iconSize: 52,
+          iconSize: iconSize,
           color: controlsTheme?.iconColor,
           onPressed: onPressed,
         ),

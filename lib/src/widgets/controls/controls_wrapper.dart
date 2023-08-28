@@ -3,20 +3,6 @@ import 'dart:async';
 import 'package:bccm_player/src/widgets/controls/control_fade_out.dart';
 import 'package:flutter/material.dart';
 
-class ControlsWrapper extends StatefulWidget {
-  const ControlsWrapper({
-    super.key,
-    required this.builder,
-    required this.autoHide,
-  });
-
-  final WidgetBuilder builder;
-  final bool autoHide;
-
-  @override
-  ControlsWrapperState createState() => ControlsWrapperState();
-}
-
 class ControlsState extends InheritedWidget {
   final bool visible;
   final Animation<double> visibilityAnimation;
@@ -39,6 +25,22 @@ class ControlsState extends InheritedWidget {
   }
 }
 
+class ControlsWrapper extends StatefulWidget {
+  const ControlsWrapper({
+    super.key,
+    required this.builder,
+    required this.autoHide,
+    this.showByDefault = true,
+  });
+
+  final WidgetBuilder builder;
+  final bool autoHide;
+  final bool showByDefault;
+
+  @override
+  ControlsWrapperState createState() => ControlsWrapperState();
+}
+
 class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProviderStateMixin {
   bool _visible = true;
   Timer? _visibilityTimer;
@@ -50,6 +52,7 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
     visibilityAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
+      value: widget.showByDefault ? 1.0 : 0.0,
     );
     _startTimer();
   }

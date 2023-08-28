@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/utils/debouncer.dart';
 import 'package:bccm_player/src/widgets/controls/controls_wrapper.dart';
+import 'package:bccm_player/src/widgets/controls/default/fullscreen_button.dart';
 import 'package:bccm_player/src/widgets/mini_player/loading_indicator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -15,12 +16,10 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../utils/svg_icons.dart';
 import '../../utils/time.dart';
+import '../../utils/num.dart';
 import 'control_fade_out.dart';
 import 'default/settings.dart';
 import 'default/time_skip_button.dart';
-
-double _safeDouble(double input) => input.isNaN || !input.isFinite ? 0 : input.toDouble();
-int _safeInt(int input) => input.isNaN || !input.isFinite ? 0 : input;
 
 class DefaultControls extends HookWidget {
   const DefaultControls({
@@ -36,14 +35,12 @@ class DefaultControls extends HookWidget {
     final controlsTheme = BccmPlayerTheme.safeOf(context).controls!;
     final viewController = BccmPlayerViewController.of(context);
     final player = useListenable(viewController.playerController);
-    final actualTimeMs = _safeInt(player.value.playbackPositionMs ?? 0);
-    final duration = max(0.0, _safeDouble(player.value.currentMediaItem?.metadata?.durationMs ?? player.value.playbackPositionMs?.toDouble() ?? 1.0));
+    final actualTimeMs = safeInt(player.value.playbackPositionMs ?? 0);
+    final duration = max(0.0, safeDouble(player.value.currentMediaItem?.metadata?.durationMs ?? player.value.playbackPositionMs?.toDouble() ?? 1.0));
     final forwardRewindDurationSec = Duration(milliseconds: duration.toInt()).inMinutes > 60 ? 30 : 15;
     final seeking = useState(false);
     final currentScrub = useState(0.0);
     final seekScheduler = useMemoized(() => OneAsyncAtATime());
-
-    final playButtonFocusNode = useFocusNode(descendantsAreFocusable: false);
 
     // Dispose
     useEffect(() => () => seekScheduler.reset(), []);
@@ -123,6 +120,7 @@ class DefaultControls extends HookWidget {
                                 viewController: viewController,
                                 padding: const EdgeInsets.only(top: 12, bottom: 24, left: 24, right: 10),
                                 controlsTheme: controlsTheme,
+                                removePadding: true,
                               ),
                             ],
                           ),
@@ -146,7 +144,6 @@ class DefaultControls extends HookWidget {
                             ),
                             if (player.value.playbackState != PlaybackState.playing)
                               IconButton(
-                                focusNode: playButtonFocusNode,
                                 autofocus: true,
                                 constraints: const BoxConstraints.tightFor(width: 68, height: 68),
                                 icon: Padding(
@@ -238,7 +235,15 @@ class DefaultControls extends HookWidget {
                                     ),
                                   const Spacer(),
                                   ...?viewController.config.controlsConfig.additionalActionsBuilder?.call(context),
-                                  _FullscreenButton(viewController: viewController),
+                                  FullscreenButton(
+                                    viewController: viewController,
+                                    padding: EdgeInsets.only(
+                                      right: 10,
+                                      top: 8,
+                                      bottom: 5,
+                                      left: viewController.config.controlsConfig.additionalActionsBuilder != null ? 12 : 20,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -284,47 +289,6 @@ class DefaultControls extends HookWidget {
                 ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FullscreenButton extends StatelessWidget {
-  const _FullscreenButton({
-    required this.viewController,
-  });
-
-  final BccmPlayerViewController viewController;
-
-  @override
-  Widget build(BuildContext context) {
-    final controlsTheme = BccmPlayerTheme.safeOf(context).controls!;
-    void onTap() {
-      if (!viewController.isFullscreen) {
-        viewController.enterFullscreen();
-      } else {
-        viewController.exitFullscreen();
-      }
-    }
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        height: double.infinity,
-        alignment: Alignment.bottomRight,
-        padding: EdgeInsets.only(right: 10, top: 8, bottom: 5, left: viewController.config.controlsConfig.additionalActionsBuilder != null ? 12 : 20),
-        child: FocusableActionDetector(
-          actions: {
-            ActivateIntent: CallbackAction<Intent>(
-              onInvoke: (Intent intent) => onTap(),
-            ),
-          },
-          child: Icon(
-            viewController.isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-            color: controlsTheme.iconColor,
           ),
         ),
       ),

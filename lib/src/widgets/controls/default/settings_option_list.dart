@@ -42,10 +42,11 @@ class SettingsOptionList<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controlsTheme = BccmPlayerTheme.safeOf(context).controls;
-    return Container(
+    return Material(
       color: controlsTheme?.settingsListBackgroundColor,
       child: ListView(
         shrinkWrap: true,
+        cacheExtent: 1000,
         children: [
           for (final option in options)
             ListTile(
@@ -53,6 +54,7 @@ class SettingsOptionList<T> extends StatelessWidget {
               onTap: () {
                 onSelect(option);
               },
+              autofocus: option.isSelected,
               title: Text(option.label, style: controlsTheme?.settingsListTextStyle),
               trailing: option.isSelected ? const Icon(Icons.check) : null,
             ),
