@@ -10,6 +10,7 @@ import 'examples/playground.dart';
 import 'examples/native_controls.dart';
 import 'examples/custom_controls.dart';
 import 'examples/simple_player.dart';
+import 'examples/downloader.dart';
 
 Future main() async {
   await BccmPlayerInterface.instance.setup();
@@ -36,7 +37,7 @@ class _MyAppState extends State<MyApp> {
           LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
         },
         child: DefaultTabController(
-          length: 5,
+          length: 6,
           child: MaterialApp(
             home: Scaffold(
               appBar: AppBar(
@@ -53,6 +54,7 @@ class _MyAppState extends State<MyApp> {
                   Tab(text: 'Simple player'),
                   Tab(text: 'Custom controls'),
                   Tab(text: 'Native controls'),
+                  Tab(text: 'Downloader')
                 ]),
               ),
               // tabs with Playground #1 then a new "ListOfPlayers" tab at #2 and controls to navigate between the tabs
@@ -63,6 +65,7 @@ class _MyAppState extends State<MyApp> {
                   SimplePlayer(),
                   CustomControls(),
                   NativeControls(),
+                  Downloader(),
                 ],
               ),
             ),
