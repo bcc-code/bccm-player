@@ -30,6 +30,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import media.bcc.bccm_player.pigeon.ChromecastControllerPigeon
+import media.bcc.bccm_player.pigeon.DownloaderApi
+import media.bcc.bccm_player.pigeon.DownloaderApi.DownloaderPigeon
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlaybackPlatformPigeon
 import media.bcc.bccm_player.views.FlutterCastButton
@@ -174,6 +176,7 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         activityBinding?.addOnUserLeaveHintListener(this)
 
         PlaybackPlatformPigeon.setup(pluginBinding!!.binaryMessenger, PlaybackApiImpl(this))
+        DownloaderPigeon.setup(pluginBinding!!.binaryMessenger, DownloaderApiImpl(Downloader(binding.activity)))
 
         val sessionToken = SessionToken(
             binding.activity, ComponentName(binding.activity, PlaybackService::class.java)
