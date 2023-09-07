@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bccm_player/bccm_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:focus_debugger/focus_debugger.dart';
 
 import 'examples/list_of_players.dart';
 import 'examples/playground.dart';
@@ -15,7 +14,7 @@ import 'examples/downloader.dart';
 Future main() async {
   await BccmPlayerInterface.instance.setup();
 
-  FocusDebugger.instance.activate();
+  // FocusDebugger.instance.activate();
 
   runApp(const MyApp());
 }

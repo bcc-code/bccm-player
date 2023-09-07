@@ -68,6 +68,12 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList;
 @end
 
+@interface MediaInfo ()
++ (MediaInfo *)fromList:(NSArray *)list;
++ (nullable MediaInfo *)nullableFromList:(NSArray *)list;
+- (NSArray *)toList;
+@end
+
 @interface PlayerTracksSnapshot ()
 + (PlayerTracksSnapshot *)fromList:(NSArray *)list;
 + (nullable PlayerTracksSnapshot *)nullableFromList:(NSArray *)list;
@@ -379,6 +385,38 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 }
 @end
 
+@implementation MediaInfo
++ (instancetype)makeWithAudioTracks:(NSArray<Track *> *)audioTracks
+    textTracks:(NSArray<Track *> *)textTracks
+    videoTracks:(NSArray<Track *> *)videoTracks {
+  MediaInfo* pigeonResult = [[MediaInfo alloc] init];
+  pigeonResult.audioTracks = audioTracks;
+  pigeonResult.textTracks = textTracks;
+  pigeonResult.videoTracks = videoTracks;
+  return pigeonResult;
+}
++ (MediaInfo *)fromList:(NSArray *)list {
+  MediaInfo *pigeonResult = [[MediaInfo alloc] init];
+  pigeonResult.audioTracks = GetNullableObjectAtIndex(list, 0);
+  NSAssert(pigeonResult.audioTracks != nil, @"");
+  pigeonResult.textTracks = GetNullableObjectAtIndex(list, 1);
+  NSAssert(pigeonResult.textTracks != nil, @"");
+  pigeonResult.videoTracks = GetNullableObjectAtIndex(list, 2);
+  NSAssert(pigeonResult.videoTracks != nil, @"");
+  return pigeonResult;
+}
++ (nullable MediaInfo *)nullableFromList:(NSArray *)list {
+  return (list) ? [MediaInfo fromList:list] : nil;
+}
+- (NSArray *)toList {
+  return @[
+    (self.audioTracks ?: [NSNull null]),
+    (self.textTracks ?: [NSNull null]),
+    (self.videoTracks ?: [NSNull null]),
+  ];
+}
+@end
+
 @implementation PlayerTracksSnapshot
 + (instancetype)makeWithPlayerId:(NSString *)playerId
     audioTracks:(NSArray<Track *> *)audioTracks
@@ -661,18 +699,20 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     case 129: 
       return [ChromecastState fromList:[self readValue]];
     case 130: 
-      return [MediaItem fromList:[self readValue]];
+      return [MediaInfo fromList:[self readValue]];
     case 131: 
-      return [MediaMetadata fromList:[self readValue]];
+      return [MediaItem fromList:[self readValue]];
     case 132: 
-      return [NpawConfig fromList:[self readValue]];
+      return [MediaMetadata fromList:[self readValue]];
     case 133: 
-      return [PlayerStateSnapshot fromList:[self readValue]];
+      return [NpawConfig fromList:[self readValue]];
     case 134: 
-      return [PlayerTracksSnapshot fromList:[self readValue]];
+      return [PlayerStateSnapshot fromList:[self readValue]];
     case 135: 
-      return [Track fromList:[self readValue]];
+      return [PlayerTracksSnapshot fromList:[self readValue]];
     case 136: 
+      return [Track fromList:[self readValue]];
+    case 137: 
       return [VideoSize fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
@@ -690,26 +730,29 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   } else if ([value isKindOfClass:[ChromecastState class]]) {
     [self writeByte:129];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[MediaItem class]]) {
+  } else if ([value isKindOfClass:[MediaInfo class]]) {
     [self writeByte:130];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[MediaMetadata class]]) {
+  } else if ([value isKindOfClass:[MediaItem class]]) {
     [self writeByte:131];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[NpawConfig class]]) {
+  } else if ([value isKindOfClass:[MediaMetadata class]]) {
     [self writeByte:132];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
+  } else if ([value isKindOfClass:[NpawConfig class]]) {
     [self writeByte:133];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerTracksSnapshot class]]) {
+  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
     [self writeByte:134];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[Track class]]) {
+  } else if ([value isKindOfClass:[PlayerTracksSnapshot class]]) {
     [self writeByte:135];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[VideoSize class]]) {
+  } else if ([value isKindOfClass:[Track class]]) {
     [self writeByte:136];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[VideoSize class]]) {
+    [self writeByte:137];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -1194,6 +1237,25 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
         FlutterError *error;
         [api openCastDialog:&error];
         callback(wrapResult(nil, error));
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.fetchMediaInfo"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(fetchMediaInfo:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(fetchMediaInfo:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSString *arg_url = GetNullableObjectAtIndex(args, 0);
+        [api fetchMediaInfo:arg_url completion:^(MediaInfo *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
       }];
     } else {
       [channel setMessageHandler:nil];

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player/src/pigeon/downloader_pigeon.g.dart';
 import 'package:bccm_player_example/example_videos.dart';
 import 'package:flutter/material.dart';
 
@@ -123,23 +122,54 @@ class _DownloaderState extends State<Downloader> {
                       child: const Text("Remove"))
                 ])),
             ...exampleVideos.map(
-              (mediaItem) => ElevatedButton(
-                onPressed: () async {
-                  statusLoopRunning = false;
-                  final config = DownloadConfig(
-                      url: mediaItem.url!,
-                      mimeType: mediaItem.mimeType!,
-                      title: mediaItem.metadata?.title ?? "Unknown title",
-                      tracks: [],
-                      additionalData: {"test": "Coen"});
-                  final download = await DownloaderInterface.instance.startDownload(config);
-                  setState(() {
-                    downloads.add(DownloadState(download: download, progress: 0.0));
-                    downloads.sort((a, b) => a.download.key.compareTo(b.download.key));
-                  });
-                  startStatusLoop();
-                },
-                child: Text('Download ${mediaItem.metadata?.title ?? "Unknown"}'),
+              (mediaItem) => Column(
+                children: [
+                  Text(mediaItem.metadata?.title ?? "Unknown"),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final info = await BccmPlayerInterface.instance.fetchMediaInfo(url: mediaItem.url!);
+                      if (!context.mounted) return;
+                      showModalBottomSheet(
+                        useRootNavigator: true,
+                        enableDrag: true,
+                        context: context,
+                        builder: (ctx) => ListView(
+                          cacheExtent: 10000,
+                          shrinkWrap: true,
+                          children: [
+                            const Text("Media info"),
+                            Text("Audio tracks", style: const TextStyle(fontWeight: FontWeight.bold)),
+                            ...info.audioTracks.safe.map((e) => Text("${e.id} - ${e.labelWithFallback}")),
+                            Text("Text tracks", style: const TextStyle(fontWeight: FontWeight.bold)),
+                            ...info.textTracks.safe.map((e) => Text("${e.id} - ${e.labelWithFallback}")),
+                            Text("Video tracks", style: const TextStyle(fontWeight: FontWeight.bold)),
+                            ...info.videoTracks.safe.map((e) => Text("${e.id} - ${e.labelWithFallback}")),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Text('Fetch info'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      statusLoopRunning = false;
+                      final config = DownloadConfig(
+                          url: mediaItem.url!,
+                          mimeType: mediaItem.mimeType!,
+                          title: mediaItem.metadata?.title ?? "Unknown title",
+                          audioTrackIds: [],
+                          videoTrackIds: [],
+                          additionalData: {"test": "Coen"});
+                      final download = await DownloaderInterface.instance.startDownload(config);
+                      setState(() {
+                        downloads.add(DownloadState(download: download, progress: 0.0));
+                        downloads.sort((a, b) => a.download.key.compareTo(b.download.key));
+                      });
+                      startStatusLoop();
+                    },
+                    child: Text('Download'),
+                  ),
+                ],
               ),
             ),
           ],

@@ -129,4 +129,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   Future<void> setMixWithOthers(String playerId, bool mixWithOthers) {
     throw UnimplementedError('setMixWithOthers() has not been implemented.');
   }
+
+  /// Gets information about tracks (minimum), potentionally drm stuff later, etc.
+  Future<MediaInfo> fetchMediaInfo({required String url});
 }

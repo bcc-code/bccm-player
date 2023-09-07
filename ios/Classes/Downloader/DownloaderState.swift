@@ -5,8 +5,8 @@
 //  Created by Coen Jan Wessels on 05/09/2023.
 //
 
-public struct DownloaderState : Codable {
-    public struct Track : Codable {
+public struct DownloaderState: Codable {
+    public struct Track: Codable {
         public let id: String
         public let label: String?
         public let language: String?
@@ -17,7 +17,7 @@ public struct DownloaderState : Codable {
         public let isSelected: Bool
     }
 
-    public struct TaskInput : Codable {
+    public struct TaskInput: Codable {
         public let url: URL
         public let mimeType: String
         public let title: String
@@ -25,7 +25,7 @@ public struct DownloaderState : Codable {
         public let additionalData: [String: String]
     }
 
-    public struct TaskState : Codable {
+    public struct TaskState: Codable {
         public let key: UUID
         public let input: TaskInput
         public var offlineUrl: URL? = nil
@@ -34,7 +34,7 @@ public struct DownloaderState : Codable {
     }
 
     var tasks: [String: TaskState]
-    
+
     mutating func add(input: TaskInput) -> TaskState {
         let task = TaskState(key: UUID(), input: input)
         update(task: task)
@@ -46,25 +46,13 @@ public struct DownloaderState : Codable {
     }
 }
 
-extension DownloaderState.Track {
-    var downloaderTrack: DownloaderTrack {
-        DownloaderTrack.make(withId: id,
-                             label: label,
-                             language: language,
-                             frameRate: frameRate.map(NSNumber.init(value:)),
-                             bitrate: bitrate.map(NSNumber.init(value:)),
-                             width: width.map(NSNumber.init(value:)),
-                             height: height.map(NSNumber.init(value:)),
-                             isSelected: NSNumber(value: isSelected))
-    }
-}
-
 extension DownloaderState.TaskInput {
     var downloadConfig: DownloadConfig {
         DownloadConfig.make(withUrl: url.absoluteString,
                             mimeType: mimeType,
                             title: title,
-                            tracks: tracks.map { track in track.downloaderTrack },
+                            audioTrackIds: [],
+                            videoTrackIds: [],
                             additionalData: additionalData)
     }
 }

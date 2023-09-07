@@ -107,6 +107,10 @@ abstract class PlaybackPlatformPigeon {
 
   @ObjCSelector("openCastDialog")
   void openCastDialog();
+
+  @async
+  @ObjCSelector("fetchMediaInfo:")
+  MediaInfo fetchMediaInfo(String url);
 }
 
 class NpawConfig {
@@ -186,6 +190,12 @@ enum CastConnectionState {
 }
 
 enum TrackType { audio, text, video }
+
+class MediaInfo {
+  late List<Track?> audioTracks;
+  late List<Track?> textTracks;
+  late List<Track?> videoTracks;
+}
 
 class PlayerTracksSnapshot {
   late String playerId;

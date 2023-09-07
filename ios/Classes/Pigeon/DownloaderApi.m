@@ -32,12 +32,6 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList;
 @end
 
-@interface DownloaderTrack ()
-+ (DownloaderTrack *)fromList:(NSArray *)list;
-+ (nullable DownloaderTrack *)nullableFromList:(NSArray *)list;
-- (NSArray *)toList;
-@end
-
 @interface Download ()
 + (Download *)fromList:(NSArray *)list;
 + (nullable Download *)nullableFromList:(NSArray *)list;
@@ -54,13 +48,15 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 + (instancetype)makeWithUrl:(NSString *)url
     mimeType:(NSString *)mimeType
     title:(NSString *)title
-    tracks:(NSArray<DownloaderTrack *> *)tracks
+    audioTrackIds:(NSArray<NSString *> *)audioTrackIds
+    videoTrackIds:(NSArray<NSString *> *)videoTrackIds
     additionalData:(NSDictionary<NSString *, NSString *> *)additionalData {
   DownloadConfig* pigeonResult = [[DownloadConfig alloc] init];
   pigeonResult.url = url;
   pigeonResult.mimeType = mimeType;
   pigeonResult.title = title;
-  pigeonResult.tracks = tracks;
+  pigeonResult.audioTrackIds = audioTrackIds;
+  pigeonResult.videoTrackIds = videoTrackIds;
   pigeonResult.additionalData = additionalData;
   return pigeonResult;
 }
@@ -72,9 +68,11 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   NSAssert(pigeonResult.mimeType != nil, @"");
   pigeonResult.title = GetNullableObjectAtIndex(list, 2);
   NSAssert(pigeonResult.title != nil, @"");
-  pigeonResult.tracks = GetNullableObjectAtIndex(list, 3);
-  NSAssert(pigeonResult.tracks != nil, @"");
-  pigeonResult.additionalData = GetNullableObjectAtIndex(list, 4);
+  pigeonResult.audioTrackIds = GetNullableObjectAtIndex(list, 3);
+  NSAssert(pigeonResult.audioTrackIds != nil, @"");
+  pigeonResult.videoTrackIds = GetNullableObjectAtIndex(list, 4);
+  NSAssert(pigeonResult.videoTrackIds != nil, @"");
+  pigeonResult.additionalData = GetNullableObjectAtIndex(list, 5);
   NSAssert(pigeonResult.additionalData != nil, @"");
   return pigeonResult;
 }
@@ -86,59 +84,9 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.url ?: [NSNull null]),
     (self.mimeType ?: [NSNull null]),
     (self.title ?: [NSNull null]),
-    (self.tracks ?: [NSNull null]),
+    (self.audioTrackIds ?: [NSNull null]),
+    (self.videoTrackIds ?: [NSNull null]),
     (self.additionalData ?: [NSNull null]),
-  ];
-}
-@end
-
-@implementation DownloaderTrack
-+ (instancetype)makeWithId:(NSString *)id
-    label:(nullable NSString *)label
-    language:(nullable NSString *)language
-    frameRate:(nullable NSNumber *)frameRate
-    bitrate:(nullable NSNumber *)bitrate
-    width:(nullable NSNumber *)width
-    height:(nullable NSNumber *)height
-    isSelected:(NSNumber *)isSelected {
-  DownloaderTrack* pigeonResult = [[DownloaderTrack alloc] init];
-  pigeonResult.id = id;
-  pigeonResult.label = label;
-  pigeonResult.language = language;
-  pigeonResult.frameRate = frameRate;
-  pigeonResult.bitrate = bitrate;
-  pigeonResult.width = width;
-  pigeonResult.height = height;
-  pigeonResult.isSelected = isSelected;
-  return pigeonResult;
-}
-+ (DownloaderTrack *)fromList:(NSArray *)list {
-  DownloaderTrack *pigeonResult = [[DownloaderTrack alloc] init];
-  pigeonResult.id = GetNullableObjectAtIndex(list, 0);
-  NSAssert(pigeonResult.id != nil, @"");
-  pigeonResult.label = GetNullableObjectAtIndex(list, 1);
-  pigeonResult.language = GetNullableObjectAtIndex(list, 2);
-  pigeonResult.frameRate = GetNullableObjectAtIndex(list, 3);
-  pigeonResult.bitrate = GetNullableObjectAtIndex(list, 4);
-  pigeonResult.width = GetNullableObjectAtIndex(list, 5);
-  pigeonResult.height = GetNullableObjectAtIndex(list, 6);
-  pigeonResult.isSelected = GetNullableObjectAtIndex(list, 7);
-  NSAssert(pigeonResult.isSelected != nil, @"");
-  return pigeonResult;
-}
-+ (nullable DownloaderTrack *)nullableFromList:(NSArray *)list {
-  return (list) ? [DownloaderTrack fromList:list] : nil;
-}
-- (NSArray *)toList {
-  return @[
-    (self.id ?: [NSNull null]),
-    (self.label ?: [NSNull null]),
-    (self.language ?: [NSNull null]),
-    (self.frameRate ?: [NSNull null]),
-    (self.bitrate ?: [NSNull null]),
-    (self.width ?: [NSNull null]),
-    (self.height ?: [NSNull null]),
-    (self.isSelected ?: [NSNull null]),
   ];
 }
 @end
@@ -217,8 +165,6 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
       return [Download fromList:[self readValue]];
     case 130: 
       return [DownloadConfig fromList:[self readValue]];
-    case 131: 
-      return [DownloaderTrack fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -237,9 +183,6 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[DownloadConfig class]]) {
     [self writeByte:130];
-    [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[DownloaderTrack class]]) {
-    [self writeByte:131];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -374,8 +317,6 @@ void DownloaderPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<
       return [DownloadConfig fromList:[self readValue]];
     case 130: 
       return [DownloadStatusChangedEvent fromList:[self readValue]];
-    case 131: 
-      return [DownloaderTrack fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -394,9 +335,6 @@ void DownloaderPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[DownloadStatusChangedEvent class]]) {
     [self writeByte:130];
-    [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[DownloaderTrack class]]) {
-    [self writeByte:131];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];

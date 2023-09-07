@@ -71,66 +71,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             return PlayerTracksSnapshot.make(withPlayerId: id, audioTracks: [], textTracks: [], videoTracks: [])
         }
             
-        // Get the asset
-        let asset = currentItem.asset
-
-        // Get the audio selection group
-        var audioTracks: [Track] = []
-        if let audioGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
-            for (index, option) in audioGroup.options.enumerated() {
-                let track = Track.make(withId: "\(index)",
-                                       label: option.displayName,
-                                       language: option.locale?.identifier,
-                                       frameRate: nil,
-                                       bitrate: nil,
-                                       width: nil,
-                                       height: nil,
-                                       isSelected: NSNumber(value: currentItem.currentMediaSelection.selectedMediaOption(in: audioGroup) == option))
-                audioTracks.append(track)
-            }
-        }
-
-        // Get the subtitle selection group
-        var textTracks: [Track] = []
-        if let subtitleGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .legible) {
-            for (index, option) in subtitleGroup.options.enumerated() {
-                let track = Track.make(withId: "\(index)",
-                                       label: option.displayName,
-                                       language: option.locale?.identifier,
-                                       frameRate: nil,
-                                       bitrate: nil,
-                                       width: nil,
-                                       height: nil,
-                                       isSelected: NSNumber(value: currentItem.currentMediaSelection.selectedMediaOption(in: subtitleGroup) == option))
-                textTracks.append(track)
-            }
-        }
-        
-        // Get the video selection group
-        var videoTracks: [Track] = []
-        let urlAsset = asset as? AVURLAsset
-        if #available(iOS 15, *), let urlAsset = urlAsset {
-            let variants = urlAsset.variants
-            for variant in variants {
-                guard let bitrate = variant.averageBitRate,
-                      let width = variant.videoAttributes?.presentationSize.width,
-                      let height = variant.videoAttributes?.presentationSize.height,
-                      let frameRate = variant.videoAttributes?.nominalFrameRate
-                else {
-                    continue
-                }
-                let currentlySelected = player.currentItem?.preferredPeakBitRate
-                let track = Track.make(withId: "\(Int(bitrate))",
-                                       label: "\(Int(width)) x \(Int(height))",
-                                       language: nil,
-                                       frameRate: frameRate as NSNumber,
-                                       bitrate: Int(bitrate) as NSNumber,
-                                       width: Int(width) as NSNumber,
-                                       height: Int(height) as NSNumber,
-                                       isSelected: (currentlySelected != nil && Int(currentlySelected!) == Int(bitrate)) as NSNumber)
-                videoTracks.append(track)
-            }
-        }
+        let audioTracks: [Track] = TrackUtils.getAudioTracksForAsset(currentItem.asset, playerItem: currentItem)
+        let textTracks: [Track] = TrackUtils.getTextTracksForAsset(currentItem.asset, playerItem: currentItem)
+        let videoTracks: [Track] = TrackUtils.getVideoTracksForAsset(currentItem.asset, playerItem: currentItem)
 
         return PlayerTracksSnapshot.make(
             withPlayerId: id,
@@ -151,7 +94,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 currentItem.preferredPeakBitRate = 0
             }
             guard let trackId = trackId, let bitrate = Int(trackId) else {
-                debugPrint("Tried to setSelectedTrack for video, but trackId (bitrate): \(trackId?.debugDescription) is not an int")
+                debugPrint("Tried to setSelectedTrack for video, but trackId (bitrate): \(trackId?.debugDescription ?? "null") is not an int")
                 return
             }
             currentItem.preferredPeakBitRate = Double(bitrate)
@@ -607,53 +550,5 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     @objc private func playerDidFinishPlaying(note: NSNotification) {
         let endedEvent = PlaybackEndedEvent.make(withPlayerId: id, mediaItem: getCurrentItem())
         playbackListener.onPlaybackEnded(endedEvent, completion: { _ in })
-    }
-}
-
-extension AVPlayerItem {
-    func setAudioLanguage(_ audioLanguage: String) -> Bool {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: AVMediaCharacteristic.audible) {
-            let locale = Locale(identifier: audioLanguage)
-            let options = AVMediaSelectionGroup.mediaSelectionOptions(from: group.options, with: locale)
-            if let option = options.first {
-                select(option, in: group)
-                return true
-            }
-        }
-        return false
-    }
-
-    func setSubtitleLanguage(_ subtitleLanguage: String) -> Bool {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: AVMediaCharacteristic.legible) {
-            let locale = Locale(identifier: subtitleLanguage)
-            let options = AVMediaSelectionGroup.mediaSelectionOptions(from: group.options, with: locale)
-            if let option = options.first {
-                select(option, in: group)
-                return true
-            }
-        }
-        return false
-    }
-    
-    func getSelectedAudioLanguage() -> String? {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: .audible),
-           let selectedOption = currentMediaSelection.selectedMediaOption(in: group),
-           let languageCode = selectedOption.extendedLanguageTag
-        {
-            return languageCode
-        }
-        
-        return nil
-    }
-    
-    func getSelectedSubtitleLanguage() -> String? {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: .legible),
-           let selectedOption = currentMediaSelection.selectedMediaOption(in: group),
-           let languageCode = selectedOption.extendedLanguageTag
-        {
-            return languageCode
-        }
-        
-        return nil
     }
 }

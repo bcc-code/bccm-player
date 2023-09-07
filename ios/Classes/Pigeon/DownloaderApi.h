@@ -11,7 +11,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class DownloadConfig;
-@class DownloaderTrack;
 @class Download;
 @class DownloadStatusChangedEvent;
 
@@ -21,34 +20,15 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)makeWithUrl:(NSString *)url
     mimeType:(NSString *)mimeType
     title:(NSString *)title
-    tracks:(NSArray<DownloaderTrack *> *)tracks
+    audioTrackIds:(NSArray<NSString *> *)audioTrackIds
+    videoTrackIds:(NSArray<NSString *> *)videoTrackIds
     additionalData:(NSDictionary<NSString *, NSString *> *)additionalData;
 @property(nonatomic, copy) NSString * url;
 @property(nonatomic, copy) NSString * mimeType;
 @property(nonatomic, copy) NSString * title;
-@property(nonatomic, strong) NSArray<DownloaderTrack *> * tracks;
+@property(nonatomic, strong) NSArray<NSString *> * audioTrackIds;
+@property(nonatomic, strong) NSArray<NSString *> * videoTrackIds;
 @property(nonatomic, strong) NSDictionary<NSString *, NSString *> * additionalData;
-@end
-
-@interface DownloaderTrack : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithId:(NSString *)id
-    label:(nullable NSString *)label
-    language:(nullable NSString *)language
-    frameRate:(nullable NSNumber *)frameRate
-    bitrate:(nullable NSNumber *)bitrate
-    width:(nullable NSNumber *)width
-    height:(nullable NSNumber *)height
-    isSelected:(NSNumber *)isSelected;
-@property(nonatomic, copy) NSString * id;
-@property(nonatomic, copy, nullable) NSString * label;
-@property(nonatomic, copy, nullable) NSString * language;
-@property(nonatomic, strong, nullable) NSNumber * frameRate;
-@property(nonatomic, strong, nullable) NSNumber * bitrate;
-@property(nonatomic, strong, nullable) NSNumber * width;
-@property(nonatomic, strong, nullable) NSNumber * height;
-@property(nonatomic, strong) NSNumber * isSelected;
 @end
 
 @interface Download : NSObject

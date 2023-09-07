@@ -313,6 +313,37 @@ class ChromecastState {
   }
 }
 
+class MediaInfo {
+  MediaInfo({
+    required this.audioTracks,
+    required this.textTracks,
+    required this.videoTracks,
+  });
+
+  List<Track?> audioTracks;
+
+  List<Track?> textTracks;
+
+  List<Track?> videoTracks;
+
+  Object encode() {
+    return <Object?>[
+      audioTracks,
+      textTracks,
+      videoTracks,
+    ];
+  }
+
+  static MediaInfo decode(Object result) {
+    result as List<Object?>;
+    return MediaInfo(
+      audioTracks: (result[0] as List<Object?>?)!.cast<Track?>(),
+      textTracks: (result[1] as List<Object?>?)!.cast<Track?>(),
+      videoTracks: (result[2] as List<Object?>?)!.cast<Track?>(),
+    );
+  }
+}
+
 class PlayerTracksSnapshot {
   PlayerTracksSnapshot({
     required this.playerId,
@@ -601,26 +632,29 @@ class _PlaybackPlatformPigeonCodec extends StandardMessageCodec {
     } else if (value is ChromecastState) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is MediaItem) {
+    } else if (value is MediaInfo) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is MediaMetadata) {
+    } else if (value is MediaItem) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    } else if (value is NpawConfig) {
+    } else if (value is MediaMetadata) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    } else if (value is PlayerStateSnapshot) {
+    } else if (value is NpawConfig) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    } else if (value is PlayerTracksSnapshot) {
+    } else if (value is PlayerStateSnapshot) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is Track) {
+    } else if (value is PlayerTracksSnapshot) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is VideoSize) {
+    } else if (value is Track) {
       buffer.putUint8(136);
+      writeValue(buffer, value.encode());
+    } else if (value is VideoSize) {
+      buffer.putUint8(137);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -635,18 +669,20 @@ class _PlaybackPlatformPigeonCodec extends StandardMessageCodec {
       case 129: 
         return ChromecastState.decode(readValue(buffer)!);
       case 130: 
-        return MediaItem.decode(readValue(buffer)!);
+        return MediaInfo.decode(readValue(buffer)!);
       case 131: 
-        return MediaMetadata.decode(readValue(buffer)!);
+        return MediaItem.decode(readValue(buffer)!);
       case 132: 
-        return NpawConfig.decode(readValue(buffer)!);
+        return MediaMetadata.decode(readValue(buffer)!);
       case 133: 
-        return PlayerStateSnapshot.decode(readValue(buffer)!);
+        return NpawConfig.decode(readValue(buffer)!);
       case 134: 
-        return PlayerTracksSnapshot.decode(readValue(buffer)!);
+        return PlayerStateSnapshot.decode(readValue(buffer)!);
       case 135: 
-        return Track.decode(readValue(buffer)!);
+        return PlayerTracksSnapshot.decode(readValue(buffer)!);
       case 136: 
+        return Track.decode(readValue(buffer)!);
+      case 137: 
         return VideoSize.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1200,6 +1236,33 @@ class PlaybackPlatformPigeon {
       );
     } else {
       return;
+    }
+  }
+
+  Future<MediaInfo> fetchMediaInfo(String arg_url) async {
+    final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+        'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.fetchMediaInfo', codec,
+        binaryMessenger: _binaryMessenger);
+    final List<Object?>? replyList =
+        await channel.send(<Object?>[arg_url]) as List<Object?>?;
+    if (replyList == null) {
+      throw PlatformException(
+        code: 'channel-error',
+        message: 'Unable to establish connection on channel.',
+      );
+    } else if (replyList.length > 1) {
+      throw PlatformException(
+        code: replyList[0]! as String,
+        message: replyList[1] as String?,
+        details: replyList[2],
+      );
+    } else if (replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (replyList[0] as MediaInfo?)!;
     }
   }
 }

@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-
-import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/pigeon/downloader_pigeon.g.dart';
 import 'package:collection/collection.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -68,9 +65,6 @@ abstract class DownloaderInterface extends PlatformInterface {
   }
 
   Stream<DownloadStatusChangedEvent> get downloadStatusEvents;
-
-  /// Gets information about tracks (minimum), potentionally drm stuff later, etc.
-  // Future<MediaInfo> getMediaInfo({required String url});
 
   /// Starts the download, returns a key to check status.
   Future<Download> startDownload(DownloadConfig config);

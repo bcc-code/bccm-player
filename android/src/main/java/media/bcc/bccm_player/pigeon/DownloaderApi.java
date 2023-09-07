@@ -98,17 +98,30 @@ public class DownloaderApi {
       this.title = setterArg;
     }
 
-    private @NonNull List<DownloaderTrack> tracks;
+    private @NonNull List<String> audioTrackIds;
 
-    public @NonNull List<DownloaderTrack> getTracks() {
-      return tracks;
+    public @NonNull List<String> getAudioTrackIds() {
+      return audioTrackIds;
     }
 
-    public void setTracks(@NonNull List<DownloaderTrack> setterArg) {
+    public void setAudioTrackIds(@NonNull List<String> setterArg) {
       if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"tracks\" is null.");
+        throw new IllegalStateException("Nonnull field \"audioTrackIds\" is null.");
       }
-      this.tracks = setterArg;
+      this.audioTrackIds = setterArg;
+    }
+
+    private @NonNull List<String> videoTrackIds;
+
+    public @NonNull List<String> getVideoTrackIds() {
+      return videoTrackIds;
+    }
+
+    public void setVideoTrackIds(@NonNull List<String> setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"videoTrackIds\" is null.");
+      }
+      this.videoTrackIds = setterArg;
     }
 
     private @NonNull Map<String, String> additionalData;
@@ -150,10 +163,17 @@ public class DownloaderApi {
         return this;
       }
 
-      private @Nullable List<DownloaderTrack> tracks;
+      private @Nullable List<String> audioTrackIds;
 
-      public @NonNull Builder setTracks(@NonNull List<DownloaderTrack> setterArg) {
-        this.tracks = setterArg;
+      public @NonNull Builder setAudioTrackIds(@NonNull List<String> setterArg) {
+        this.audioTrackIds = setterArg;
+        return this;
+      }
+
+      private @Nullable List<String> videoTrackIds;
+
+      public @NonNull Builder setVideoTrackIds(@NonNull List<String> setterArg) {
+        this.videoTrackIds = setterArg;
         return this;
       }
 
@@ -169,7 +189,8 @@ public class DownloaderApi {
         pigeonReturn.setUrl(url);
         pigeonReturn.setMimeType(mimeType);
         pigeonReturn.setTitle(title);
-        pigeonReturn.setTracks(tracks);
+        pigeonReturn.setAudioTrackIds(audioTrackIds);
+        pigeonReturn.setVideoTrackIds(videoTrackIds);
         pigeonReturn.setAdditionalData(additionalData);
         return pigeonReturn;
       }
@@ -177,11 +198,12 @@ public class DownloaderApi {
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(5);
+      ArrayList<Object> toListResult = new ArrayList<Object>(6);
       toListResult.add(url);
       toListResult.add(mimeType);
       toListResult.add(title);
-      toListResult.add(tracks);
+      toListResult.add(audioTrackIds);
+      toListResult.add(videoTrackIds);
       toListResult.add(additionalData);
       return toListResult;
     }
@@ -194,209 +216,12 @@ public class DownloaderApi {
       pigeonResult.setMimeType((String) mimeType);
       Object title = list.get(2);
       pigeonResult.setTitle((String) title);
-      Object tracks = list.get(3);
-      pigeonResult.setTracks((List<DownloaderTrack>) tracks);
-      Object additionalData = list.get(4);
+      Object audioTrackIds = list.get(3);
+      pigeonResult.setAudioTrackIds((List<String>) audioTrackIds);
+      Object videoTrackIds = list.get(4);
+      pigeonResult.setVideoTrackIds((List<String>) videoTrackIds);
+      Object additionalData = list.get(5);
       pigeonResult.setAdditionalData((Map<String, String>) additionalData);
-      return pigeonResult;
-    }
-  }
-
-  /** Generated class from Pigeon that represents data sent in messages. */
-  public static final class DownloaderTrack {
-    private @NonNull String id;
-
-    public @NonNull String getId() {
-      return id;
-    }
-
-    public void setId(@NonNull String setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"id\" is null.");
-      }
-      this.id = setterArg;
-    }
-
-    private @Nullable String label;
-
-    public @Nullable String getLabel() {
-      return label;
-    }
-
-    public void setLabel(@Nullable String setterArg) {
-      this.label = setterArg;
-    }
-
-    private @Nullable String language;
-
-    public @Nullable String getLanguage() {
-      return language;
-    }
-
-    public void setLanguage(@Nullable String setterArg) {
-      this.language = setterArg;
-    }
-
-    private @Nullable Double frameRate;
-
-    public @Nullable Double getFrameRate() {
-      return frameRate;
-    }
-
-    public void setFrameRate(@Nullable Double setterArg) {
-      this.frameRate = setterArg;
-    }
-
-    private @Nullable Long bitrate;
-
-    public @Nullable Long getBitrate() {
-      return bitrate;
-    }
-
-    public void setBitrate(@Nullable Long setterArg) {
-      this.bitrate = setterArg;
-    }
-
-    private @Nullable Long width;
-
-    public @Nullable Long getWidth() {
-      return width;
-    }
-
-    public void setWidth(@Nullable Long setterArg) {
-      this.width = setterArg;
-    }
-
-    private @Nullable Long height;
-
-    public @Nullable Long getHeight() {
-      return height;
-    }
-
-    public void setHeight(@Nullable Long setterArg) {
-      this.height = setterArg;
-    }
-
-    private @NonNull Boolean isSelected;
-
-    public @NonNull Boolean getIsSelected() {
-      return isSelected;
-    }
-
-    public void setIsSelected(@NonNull Boolean setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"isSelected\" is null.");
-      }
-      this.isSelected = setterArg;
-    }
-
-    /** Constructor is non-public to enforce null safety; use Builder. */
-    DownloaderTrack() {}
-
-    public static final class Builder {
-
-      private @Nullable String id;
-
-      public @NonNull Builder setId(@NonNull String setterArg) {
-        this.id = setterArg;
-        return this;
-      }
-
-      private @Nullable String label;
-
-      public @NonNull Builder setLabel(@Nullable String setterArg) {
-        this.label = setterArg;
-        return this;
-      }
-
-      private @Nullable String language;
-
-      public @NonNull Builder setLanguage(@Nullable String setterArg) {
-        this.language = setterArg;
-        return this;
-      }
-
-      private @Nullable Double frameRate;
-
-      public @NonNull Builder setFrameRate(@Nullable Double setterArg) {
-        this.frameRate = setterArg;
-        return this;
-      }
-
-      private @Nullable Long bitrate;
-
-      public @NonNull Builder setBitrate(@Nullable Long setterArg) {
-        this.bitrate = setterArg;
-        return this;
-      }
-
-      private @Nullable Long width;
-
-      public @NonNull Builder setWidth(@Nullable Long setterArg) {
-        this.width = setterArg;
-        return this;
-      }
-
-      private @Nullable Long height;
-
-      public @NonNull Builder setHeight(@Nullable Long setterArg) {
-        this.height = setterArg;
-        return this;
-      }
-
-      private @Nullable Boolean isSelected;
-
-      public @NonNull Builder setIsSelected(@NonNull Boolean setterArg) {
-        this.isSelected = setterArg;
-        return this;
-      }
-
-      public @NonNull DownloaderTrack build() {
-        DownloaderTrack pigeonReturn = new DownloaderTrack();
-        pigeonReturn.setId(id);
-        pigeonReturn.setLabel(label);
-        pigeonReturn.setLanguage(language);
-        pigeonReturn.setFrameRate(frameRate);
-        pigeonReturn.setBitrate(bitrate);
-        pigeonReturn.setWidth(width);
-        pigeonReturn.setHeight(height);
-        pigeonReturn.setIsSelected(isSelected);
-        return pigeonReturn;
-      }
-    }
-
-    @NonNull
-    ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(8);
-      toListResult.add(id);
-      toListResult.add(label);
-      toListResult.add(language);
-      toListResult.add(frameRate);
-      toListResult.add(bitrate);
-      toListResult.add(width);
-      toListResult.add(height);
-      toListResult.add(isSelected);
-      return toListResult;
-    }
-
-    static @NonNull DownloaderTrack fromList(@NonNull ArrayList<Object> list) {
-      DownloaderTrack pigeonResult = new DownloaderTrack();
-      Object id = list.get(0);
-      pigeonResult.setId((String) id);
-      Object label = list.get(1);
-      pigeonResult.setLabel((String) label);
-      Object language = list.get(2);
-      pigeonResult.setLanguage((String) language);
-      Object frameRate = list.get(3);
-      pigeonResult.setFrameRate((Double) frameRate);
-      Object bitrate = list.get(4);
-      pigeonResult.setBitrate((bitrate == null) ? null : ((bitrate instanceof Integer) ? (Integer) bitrate : (Long) bitrate));
-      Object width = list.get(5);
-      pigeonResult.setWidth((width == null) ? null : ((width instanceof Integer) ? (Integer) width : (Long) width));
-      Object height = list.get(6);
-      pigeonResult.setHeight((height == null) ? null : ((height instanceof Integer) ? (Integer) height : (Long) height));
-      Object isSelected = list.get(7);
-      pigeonResult.setIsSelected((Boolean) isSelected);
       return pigeonResult;
     }
   }
@@ -613,8 +438,6 @@ public class DownloaderApi {
           return Download.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 130:
           return DownloadConfig.fromList((ArrayList<Object>) readValue(buffer));
-        case (byte) 131:
-          return DownloaderTrack.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
       }
@@ -631,9 +454,6 @@ public class DownloaderApi {
       } else if (value instanceof DownloadConfig) {
         stream.write(130);
         writeValue(stream, ((DownloadConfig) value).toList());
-      } else if (value instanceof DownloaderTrack) {
-        stream.write(131);
-        writeValue(stream, ((DownloaderTrack) value).toList());
       } else {
         super.writeValue(stream, value);
       }
@@ -823,8 +643,6 @@ public class DownloaderApi {
           return DownloadConfig.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 130:
           return DownloadStatusChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
-        case (byte) 131:
-          return DownloaderTrack.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
       }
@@ -841,9 +659,6 @@ public class DownloaderApi {
       } else if (value instanceof DownloadStatusChangedEvent) {
         stream.write(130);
         writeValue(stream, ((DownloadStatusChangedEvent) value).toList());
-      } else if (value instanceof DownloaderTrack) {
-        stream.write(131);
-        writeValue(stream, ((DownloaderTrack) value).toList());
       } else {
         super.writeValue(stream, value);
       }

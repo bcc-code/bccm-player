@@ -13,7 +13,8 @@ class DownloadConfig {
     required this.url,
     required this.mimeType,
     required this.title,
-    required this.tracks,
+    required this.audioTrackIds,
+    required this.videoTrackIds,
     required this.additionalData,
   });
 
@@ -23,7 +24,9 @@ class DownloadConfig {
 
   String title;
 
-  List<DownloaderTrack?> tracks;
+  List<String?> audioTrackIds;
+
+  List<String?> videoTrackIds;
 
   Map<String?, String?> additionalData;
 
@@ -32,7 +35,8 @@ class DownloadConfig {
       url,
       mimeType,
       title,
-      tracks,
+      audioTrackIds,
+      videoTrackIds,
       additionalData,
     ];
   }
@@ -43,64 +47,9 @@ class DownloadConfig {
       url: result[0]! as String,
       mimeType: result[1]! as String,
       title: result[2]! as String,
-      tracks: (result[3] as List<Object?>?)!.cast<DownloaderTrack?>(),
-      additionalData: (result[4] as Map<Object?, Object?>?)!.cast<String?, String?>(),
-    );
-  }
-}
-
-class DownloaderTrack {
-  DownloaderTrack({
-    required this.id,
-    this.label,
-    this.language,
-    this.frameRate,
-    this.bitrate,
-    this.width,
-    this.height,
-    required this.isSelected,
-  });
-
-  String id;
-
-  String? label;
-
-  String? language;
-
-  double? frameRate;
-
-  int? bitrate;
-
-  int? width;
-
-  int? height;
-
-  bool isSelected;
-
-  Object encode() {
-    return <Object?>[
-      id,
-      label,
-      language,
-      frameRate,
-      bitrate,
-      width,
-      height,
-      isSelected,
-    ];
-  }
-
-  static DownloaderTrack decode(Object result) {
-    result as List<Object?>;
-    return DownloaderTrack(
-      id: result[0]! as String,
-      label: result[1] as String?,
-      language: result[2] as String?,
-      frameRate: result[3] as double?,
-      bitrate: result[4] as int?,
-      width: result[5] as int?,
-      height: result[6] as int?,
-      isSelected: result[7]! as bool,
+      audioTrackIds: (result[3] as List<Object?>?)!.cast<String?>(),
+      videoTrackIds: (result[4] as List<Object?>?)!.cast<String?>(),
+      additionalData: (result[5] as Map<Object?, Object?>?)!.cast<String?, String?>(),
     );
   }
 }
@@ -180,9 +129,6 @@ class _DownloaderPigeonCodec extends StandardMessageCodec {
     } else if (value is DownloadConfig) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is DownloaderTrack) {
-      buffer.putUint8(131);
-      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -197,8 +143,6 @@ class _DownloaderPigeonCodec extends StandardMessageCodec {
         return Download.decode(readValue(buffer)!);
       case 130: 
         return DownloadConfig.decode(readValue(buffer)!);
-      case 131: 
-        return DownloaderTrack.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -355,9 +299,6 @@ class _DownloaderListenerPigeonCodec extends StandardMessageCodec {
     } else if (value is DownloadStatusChangedEvent) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    } else if (value is DownloaderTrack) {
-      buffer.putUint8(131);
-      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -372,8 +313,6 @@ class _DownloaderListenerPigeonCodec extends StandardMessageCodec {
         return DownloadConfig.decode(readValue(buffer)!);
       case 130: 
         return DownloadStatusChangedEvent.decode(readValue(buffer)!);
-      case 131: 
-        return DownloaderTrack.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }

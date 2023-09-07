@@ -48,20 +48,10 @@ class DownloadConfig {
   late String url;
   late String mimeType;
   late String title;
-  late List<DownloaderTrack?> tracks;
+  late List<String?> audioTrackIds;
+  late List<String?> videoTrackIds;
   // We store the metadata as string (json), so that we don't have to implement serialization and deserialization on both Android and iOS.
   late Map<String?, String?> additionalData;
-}
-
-class DownloaderTrack {
-  late String id;
-  late String? label;
-  late String? language;
-  late double? frameRate;
-  late int? bitrate;
-  late int? width;
-  late int? height;
-  late bool isSelected;
 }
 
 class Download {

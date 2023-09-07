@@ -57,12 +57,12 @@ public class Downloader {
         let preferredMediaSelection = asset.preferredMediaSelection
 
         guard let downloadTask = session.aggregateAssetDownloadTask(with: asset,
-                                                            mediaSelections: [preferredMediaSelection],
-                                                            assetTitle: config.title,
-                                                            assetArtworkData: nil,
-                                                            options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: 0]) else {
+                                                                    mediaSelections: [preferredMediaSelection],
+                                                                    assetTitle: config.title,
+                                                                    assetArtworkData: nil,
+                                                                    options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: 0])
+        else {
             throw DownloaderError.unknownDownloadKey(key: "") // TODO: right error
-            
         }
         
         downloadTask.taskDescription = taskState.key.uuidString
@@ -104,7 +104,7 @@ public class Downloader {
         UserDefaults.standard.downloaderState = state
     }
 
-    public class Delegate : NSObject, AVAssetDownloadDelegate {
+    public class Delegate: NSObject, AVAssetDownloadDelegate {
         public let statusChanged = PassthroughSubject<DownloadStatusChangedEvent, Never>()
 
         public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, willDownloadTo location: URL) {
@@ -172,7 +172,7 @@ public class Downloader {
 }
 
 extension UserDefaults {
-    func codable<T>(forKey key: String) -> T? where T : Decodable {
+    func codable<T>(forKey key: String) -> T? where T: Decodable {
         guard let data = data(forKey: key) else {
             return nil
         }
@@ -181,7 +181,7 @@ extension UserDefaults {
         return try? decoder.decode(T.self, from: data)
     }
     
-    func set<T>(encodable value: T?, forKey key: String) where T : Encodable {
+    func set<T>(encodable value: T?, forKey key: String) where T: Encodable {
         guard let value else {
             return removeObject(forKey: key)
         }

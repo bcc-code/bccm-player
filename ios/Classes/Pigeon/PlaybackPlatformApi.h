@@ -37,6 +37,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class PlayerStateSnapshot;
 @class VideoSize;
 @class ChromecastState;
+@class MediaInfo;
 @class PlayerTracksSnapshot;
 @class Track;
 @class PrimaryPlayerChangedEvent;
@@ -138,6 +139,17 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     mediaItem:(nullable MediaItem *)mediaItem;
 @property(nonatomic, assign) CastConnectionState connectionState;
 @property(nonatomic, strong, nullable) MediaItem * mediaItem;
+@end
+
+@interface MediaInfo : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithAudioTracks:(NSArray<Track *> *)audioTracks
+    textTracks:(NSArray<Track *> *)textTracks
+    videoTracks:(NSArray<Track *> *)videoTracks;
+@property(nonatomic, strong) NSArray<Track *> * audioTracks;
+@property(nonatomic, strong) NSArray<Track *> * textTracks;
+@property(nonatomic, strong) NSArray<Track *> * videoTracks;
 @end
 
 @interface PlayerTracksSnapshot : NSObject
@@ -264,6 +276,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)getChromecastState:(void (^)(ChromecastState *_Nullable, FlutterError *_Nullable))completion;
 - (void)openExpandedCastController:(FlutterError *_Nullable *_Nonnull)error;
 - (void)openCastDialog:(FlutterError *_Nullable *_Nonnull)error;
+- (void)fetchMediaInfo:(NSString *)url completion:(void (^)(MediaInfo *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<PlaybackPlatformPigeon> *_Nullable api);
