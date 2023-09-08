@@ -52,8 +52,8 @@ extension DownloaderState.TaskInput {
         DownloadConfig.make(withUrl: url.absoluteString,
                             mimeType: mimeType,
                             title: title,
-                            audioTrackIds: [],
-                            videoTrackIds: [],
+                            audioTrackIds: audioTrackIds,
+                            videoTrackIds: videoTrackIds,
                             additionalData: additionalData)
     }
 }

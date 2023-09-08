@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:core';
+import 'dart:io';
 
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/controls.dart';
@@ -28,7 +29,6 @@ class _DownloaderState extends State<Downloader> {
   List<Track> selectedAudioTracks = [];
   List<Track> selectedVideoTracks = [];
   bool isOffline = false;
-  late BccmPlayerViewController viewController;
 
   void loadDownloads() async {
     final localDownloads = await DownloaderInterface.instance.getDownloads();
@@ -44,6 +44,9 @@ class _DownloaderState extends State<Downloader> {
   }
 
   void startStatusLoop() async {
+    if (!Platform.isAndroid) {
+      return;
+    }
     statusLoopRunning = true;
 
     while (statusLoopRunning) {
@@ -57,19 +60,15 @@ class _DownloaderState extends State<Downloader> {
       }
 
       setState(() {
-        downloads.forEach((state) {
+        for (var state in downloads) {
           state.progress = results[state.download.key]!;
-        });
+        }
       });
     }
   }
 
   @override
   void initState() {
-    viewController = BccmPlayerViewController(
-      playerController: BccmPlayerController.primary,
-      config: BccmPlayerViewConfig(isOffline: isOffline),
-    );
     startStatusLoop();
 
     _subscription = DownloaderInterface.instance.downloadStatusEvents.listen((event) async {
@@ -90,7 +89,6 @@ class _DownloaderState extends State<Downloader> {
   @override
   void dispose() {
     _subscription?.cancel();
-    viewController.dispose();
     statusLoopRunning = false;
     super.dispose();
   }
@@ -101,13 +99,12 @@ class _DownloaderState extends State<Downloader> {
       children: [
         Column(
           children: [
-            BccmPlayerView.withViewController(viewController),
+            BccmPlayerView(BccmPlayerController.primary),
             ElevatedButton(
                 onPressed: () {
                   setState(() {
                     isOffline = !isOffline;
                   });
-                  viewController.setConfig(BccmPlayerViewConfig(isOffline: isOffline));
                 },
                 child: Text('Offline player mode: $isOffline')),
             ...downloads.map((state) => Row(children: [
@@ -189,7 +186,6 @@ class _DownloaderState extends State<Downloader> {
 
 class _TrackSelection extends HookWidget {
   const _TrackSelection({
-    super.key,
     required this.info,
   });
 
@@ -238,7 +234,7 @@ class _TrackSelection extends HookWidget {
             if (!context.mounted) return;
             selectedVideoTracks.value = [selected.value];
           },
-          child: const Text('Select audio'),
+          child: const Text('Select video'),
         ),
         ElevatedButton(
           onPressed: () {

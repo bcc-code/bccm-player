@@ -8,7 +8,6 @@ class BccmPlayerViewConfig {
   final BccmPlayerControlsConfig? _controlsConfig;
   final bool useSurfaceView;
   final bool allowSystemGestures;
-  final bool isOffline;
   final FullscreenPageRouteBuilderFactory? fullscreenRouteBuilderFactory;
   final WidgetBuilder? castPlayerBuilder;
   final VoidCallback? resetSystemOverlays;
@@ -68,7 +67,6 @@ class BccmPlayerViewConfig {
     BccmPlayerControlsConfig? controlsConfig,
     this.useSurfaceView = false,
     this.allowSystemGestures = false,
-    this.isOffline = false,
     this.castPlayerBuilder,
     this.fullscreenRouteBuilderFactory,
     this.resetSystemOverlays,

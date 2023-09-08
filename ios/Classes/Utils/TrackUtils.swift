@@ -13,9 +13,13 @@ class TrackUtils {
         guard let selectionGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .legible) else {
             return []
         }
+        let audioGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible)
         var mediaSelections: [AVMediaSelection] = []
         for option in selectionGroup.options {
             let selection = asset.preferredMediaSelection.mutableCopy() as! AVMutableMediaSelection
+            if let audioGroup = audioGroup {
+                selection.select(nil, in: audioGroup)
+            }
             selection.select(option, in: selectionGroup)
             mediaSelections.append(selection)
         }
@@ -31,26 +35,6 @@ class TrackUtils {
             guard let trackIdInt = Int(trackId) else {
                 throw BccmPlayerError.runtimeError("Invalid trackId for selection: " + trackId)
             }
-            let optionToSelect = selectionGroup.options[trackIdInt]
-            let selection = asset.preferredMediaSelection.mutableCopy() as! AVMutableMediaSelection
-            selection.select(optionToSelect, in: selectionGroup)
-            mediaSelections.append(selection)
-        }
-        return mediaSelections
-    }
-
-    static func getAVMediaSelectionsForVideo(_ asset: AVAsset, ids: [String]) throws -> [AVMediaSelection] {
-        guard let selectionGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .visual) else {
-            return []
-        }
-        var mediaSelections: [AVMediaSelection] = []
-        for trackId in ids {
-            guard let trackIdInt = Int(trackId) else {
-                throw BccmPlayerError.runtimeError("Invalid trackId for selection: " + trackId)
-            }
-            
-            
-            
             let optionToSelect = selectionGroup.options[trackIdInt]
             let selection = asset.preferredMediaSelection.mutableCopy() as! AVMutableMediaSelection
             selection.select(optionToSelect, in: selectionGroup)

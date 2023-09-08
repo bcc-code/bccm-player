@@ -4,7 +4,6 @@ import 'package:state_notifier/state_notifier.dart';
 import 'package:collection/collection.dart';
 
 import '../../bccm_player.dart';
-import '../pigeon/playback_platform_pigeon.g.dart';
 
 /// The controller represents a player, and it's used to control and listen to player state.
 ///
