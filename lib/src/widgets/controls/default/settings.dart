@@ -94,15 +94,33 @@ class _SettingsBottomSheet extends HookWidget {
       return Center(child: Text(tracksSnapshot.error.toString()));
     }
 
+    final playbackSpeed = useState(playerController.value.playbackSpeed);
+    final isLive = useState(false);
+    final isOffline = useState(playerController.value.currentMediaItem?.isOffline == true);
+    final playbackState = useState(playerController.value.playbackState);
+    useEffect(() {
+      void listener() {
+        playbackSpeed.value = playerController.value.playbackSpeed;
+        isLive.value = playerController.value.currentMediaItem?.isLive == true;
+        isOffline.value = playerController.value.currentMediaItem?.isOffline == true;
+        if (playbackState.value != playerController.value.playbackState) {
+          playbackState.value = playerController.value.playbackState;
+          tracksFuture.value = playerController.getTracks();
+        }
+      }
+
+      playerController.addListener(listener);
+      return () => playerController.removeListener(listener);
+    });
+
     final tracksData = tracksSnapshot.data;
     if (tracksData == null) {}
 
-    final audioTracks = viewController.config.isOffline
+    final audioTracks = isOffline.value
         ? tracksData?.audioTracks.safe.where((element) => element.downloaded == true).toList()
         : tracksData?.audioTracks.safe.toList();
-    final textTracks = viewController.config.isOffline
-        ? tracksData?.textTracks.safe.where((element) => element.downloaded == true).toList()
-        : tracksData?.textTracks.safe.toList();
+    final textTracks =
+        isOffline.value ? tracksData?.textTracks.safe.where((element) => element.downloaded == true).toList() : tracksData?.textTracks.safe.toList();
 
     final selectedAudioTrack = tracksData?.audioTracks.safe.firstWhereOrNull((element) => element.isSelected);
     final selectedTextTrack = tracksData?.textTracks.safe.firstWhereOrNull((element) => element.isSelected);
@@ -113,23 +131,6 @@ class _SettingsBottomSheet extends HookWidget {
     if (selectedAudioTrack != null && audioTracks != null && !audioTracks.contains(selectedAudioTrack)) {
       audioTracks.add(selectedAudioTrack);
     }
-
-    final playbackSpeed = useState(playerController.value.playbackSpeed);
-    final isLive = useState(false);
-    final playbackState = useState(playerController.value.playbackState);
-    useEffect(() {
-      void listener() {
-        playbackSpeed.value = playerController.value.playbackSpeed;
-        isLive.value = playerController.value.currentMediaItem?.isLive == true;
-        if (playbackState.value != playerController.value.playbackState) {
-          playbackState.value = playerController.value.playbackState;
-          tracksFuture.value = playerController.getTracks();
-        }
-      }
-
-      playerController.addListener(listener);
-      return () => playerController.removeListener(listener);
-    });
 
     final settings = [
       if (audioTracks != null && audioTracks.length > 1)

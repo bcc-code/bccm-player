@@ -55,8 +55,11 @@ public class Downloader {
         
         let asset = AVURLAsset(url: url)
         
-        let mediaSelections = try TrackUtils.getAVMediaSelectionsForAudio(asset, ids: config.audioTrackIds)
-        if let downloadTask = session.aggregateAssetDownloadTask(with: asset, mediaSelections: mediaSelections, assetTitle: config.title, assetArtworkData: nil) {
+        let audioMediaSelections = try TrackUtils.getAVMediaSelectionsForAudio(asset, ids: config.audioTrackIds)
+        let textMediaSelections = try TrackUtils.getAVMediaSelectionsForText(asset)
+        
+        if let downloadTask = session.aggregateAssetDownloadTask(with: asset, mediaSelections: audioMediaSelections + textMediaSelections, assetTitle: config.title, assetArtworkData: nil, options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: 0])
+        {
             downloadTask.taskDescription = taskState.key.uuidString
             downloadTask.resume()
         }

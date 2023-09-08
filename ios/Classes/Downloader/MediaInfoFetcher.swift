@@ -5,7 +5,7 @@ enum MediaInfoFetcher {
         let asset = AVURLAsset(url: url)
         
         try await withCheckedThrowingContinuation { continuation in
-            asset.loadValuesAsynchronously(forKeys: ["tracks"]) {
+            asset.loadValuesAsynchronously(forKeys: ["tracks", "variants"]) {
                 var error: NSError? = nil
                 switch asset.statusOfValue(forKey: "tracks", error: &error) {
                 case .loaded:

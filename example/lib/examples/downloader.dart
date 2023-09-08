@@ -117,10 +117,12 @@ class _DownloaderState extends State<Downloader> {
                   state.download.isFinished
                       ? ElevatedButton(
                           onPressed: () {
+                            debugPrint(state.download.config.additionalData.toString());
                             debugPrint("Play ${state.download.offlineUrl}");
                             BccmPlayerController.primary.replaceCurrentMediaItem(MediaItem(
                                 url: state.download.offlineUrl,
                                 mimeType: state.download.config.mimeType,
+                                isOffline: true,
                                 metadata: MediaMetadata(title: state.download.config.title)));
                           },
                           child: const Text("Play"))
