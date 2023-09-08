@@ -370,6 +370,16 @@ public class PlaybackPlatformApi {
       this.isLive = setterArg;
     }
 
+    private @Nullable Boolean isOffline;
+
+    public @Nullable Boolean getIsOffline() {
+      return isOffline;
+    }
+
+    public void setIsOffline(@Nullable Boolean setterArg) {
+      this.isOffline = setterArg;
+    }
+
     private @Nullable Double playbackStartPositionMs;
 
     public @Nullable Double getPlaybackStartPositionMs() {
@@ -430,6 +440,13 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable Boolean isOffline;
+
+      public @NonNull Builder setIsOffline(@Nullable Boolean setterArg) {
+        this.isOffline = setterArg;
+        return this;
+      }
+
       private @Nullable Double playbackStartPositionMs;
 
       public @NonNull Builder setPlaybackStartPositionMs(@Nullable Double setterArg) {
@@ -457,6 +474,7 @@ public class PlaybackPlatformApi {
         pigeonReturn.setMimeType(mimeType);
         pigeonReturn.setMetadata(metadata);
         pigeonReturn.setIsLive(isLive);
+        pigeonReturn.setIsOffline(isOffline);
         pigeonReturn.setPlaybackStartPositionMs(playbackStartPositionMs);
         pigeonReturn.setLastKnownAudioLanguage(lastKnownAudioLanguage);
         pigeonReturn.setLastKnownSubtitleLanguage(lastKnownSubtitleLanguage);
@@ -466,11 +484,12 @@ public class PlaybackPlatformApi {
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(7);
+      ArrayList<Object> toListResult = new ArrayList<Object>(8);
       toListResult.add(url);
       toListResult.add(mimeType);
       toListResult.add((metadata == null) ? null : metadata.toList());
       toListResult.add(isLive);
+      toListResult.add(isOffline);
       toListResult.add(playbackStartPositionMs);
       toListResult.add(lastKnownAudioLanguage);
       toListResult.add(lastKnownSubtitleLanguage);
@@ -487,11 +506,13 @@ public class PlaybackPlatformApi {
       pigeonResult.setMetadata((metadata == null) ? null : MediaMetadata.fromList((ArrayList<Object>) metadata));
       Object isLive = list.get(3);
       pigeonResult.setIsLive((Boolean) isLive);
-      Object playbackStartPositionMs = list.get(4);
+      Object isOffline = list.get(4);
+      pigeonResult.setIsOffline((Boolean) isOffline);
+      Object playbackStartPositionMs = list.get(5);
       pigeonResult.setPlaybackStartPositionMs((Double) playbackStartPositionMs);
-      Object lastKnownAudioLanguage = list.get(5);
+      Object lastKnownAudioLanguage = list.get(6);
       pigeonResult.setLastKnownAudioLanguage((String) lastKnownAudioLanguage);
-      Object lastKnownSubtitleLanguage = list.get(6);
+      Object lastKnownSubtitleLanguage = list.get(7);
       pigeonResult.setLastKnownSubtitleLanguage((String) lastKnownSubtitleLanguage);
       return pigeonResult;
     }
@@ -1268,6 +1289,16 @@ public class PlaybackPlatformApi {
       this.height = setterArg;
     }
 
+    private @Nullable Boolean downloaded;
+
+    public @Nullable Boolean getDownloaded() {
+      return downloaded;
+    }
+
+    public void setDownloaded(@Nullable Boolean setterArg) {
+      this.downloaded = setterArg;
+    }
+
     private @NonNull Boolean isSelected;
 
     public @NonNull Boolean getIsSelected() {
@@ -1335,6 +1366,13 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable Boolean downloaded;
+
+      public @NonNull Builder setDownloaded(@Nullable Boolean setterArg) {
+        this.downloaded = setterArg;
+        return this;
+      }
+
       private @Nullable Boolean isSelected;
 
       public @NonNull Builder setIsSelected(@NonNull Boolean setterArg) {
@@ -1351,6 +1389,7 @@ public class PlaybackPlatformApi {
         pigeonReturn.setBitrate(bitrate);
         pigeonReturn.setWidth(width);
         pigeonReturn.setHeight(height);
+        pigeonReturn.setDownloaded(downloaded);
         pigeonReturn.setIsSelected(isSelected);
         return pigeonReturn;
       }
@@ -1358,7 +1397,7 @@ public class PlaybackPlatformApi {
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(8);
+      ArrayList<Object> toListResult = new ArrayList<Object>(9);
       toListResult.add(id);
       toListResult.add(label);
       toListResult.add(language);
@@ -1366,6 +1405,7 @@ public class PlaybackPlatformApi {
       toListResult.add(bitrate);
       toListResult.add(width);
       toListResult.add(height);
+      toListResult.add(downloaded);
       toListResult.add(isSelected);
       return toListResult;
     }
@@ -1386,7 +1426,9 @@ public class PlaybackPlatformApi {
       pigeonResult.setWidth((width == null) ? null : ((width instanceof Integer) ? (Integer) width : (Long) width));
       Object height = list.get(6);
       pigeonResult.setHeight((height == null) ? null : ((height instanceof Integer) ? (Integer) height : (Long) height));
-      Object isSelected = list.get(7);
+      Object downloaded = list.get(7);
+      pigeonResult.setDownloaded((Boolean) downloaded);
+      Object isSelected = list.get(8);
       pigeonResult.setIsSelected((Boolean) isSelected);
       return pigeonResult;
     }

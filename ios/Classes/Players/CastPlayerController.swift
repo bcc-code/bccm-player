@@ -71,6 +71,7 @@ class CastPlayerController: NSObject, PlayerController {
                                             bitrate: nil,
                                             width: nil,
                                             height: nil,
+                                            downloaded: false,
                                             isSelected: NSNumber(booleanLiteral: isSelected))
              
             switch track.type {
@@ -255,6 +256,9 @@ class CastPlayerController: NSObject, PlayerController {
             mediaInfoBuilder.streamType = .live
             playerData[PlayerMetadataConstants.IsLive] = "true"
         }
+        if mediaItem.isOffline?.boolValue == true {
+            playerData[PlayerMetadataConstants.IsOffline] = "true"
+        }
         
         if let mimeType = mediaItem.mimeType {
             mediaInfoBuilder.contentType = mimeType
@@ -400,6 +404,7 @@ class CastPlayerController: NSObject, PlayerController {
             mimeType: mimeType,
             metadata: mappedMetadata,
             isLive: isLive as NSNumber,
+            isOffline: false,
             playbackStartPositionMs: nil,
             lastKnownAudioLanguage: nil,
             lastKnownSubtitleLanguage: nil

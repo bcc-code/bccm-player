@@ -77,6 +77,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     mimeType:(nullable NSString *)mimeType
     metadata:(nullable MediaMetadata *)metadata
     isLive:(nullable NSNumber *)isLive
+    isOffline:(nullable NSNumber *)isOffline
     playbackStartPositionMs:(nullable NSNumber *)playbackStartPositionMs
     lastKnownAudioLanguage:(nullable NSString *)lastKnownAudioLanguage
     lastKnownSubtitleLanguage:(nullable NSString *)lastKnownSubtitleLanguage;
@@ -84,6 +85,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, copy, nullable) NSString * mimeType;
 @property(nonatomic, strong, nullable) MediaMetadata * metadata;
 @property(nonatomic, strong, nullable) NSNumber * isLive;
+@property(nonatomic, strong, nullable) NSNumber * isOffline;
 @property(nonatomic, strong, nullable) NSNumber * playbackStartPositionMs;
 @property(nonatomic, copy, nullable) NSString * lastKnownAudioLanguage;
 @property(nonatomic, copy, nullable) NSString * lastKnownSubtitleLanguage;
@@ -175,6 +177,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     bitrate:(nullable NSNumber *)bitrate
     width:(nullable NSNumber *)width
     height:(nullable NSNumber *)height
+    downloaded:(nullable NSNumber *)downloaded
     isSelected:(NSNumber *)isSelected;
 @property(nonatomic, copy) NSString * id;
 @property(nonatomic, copy, nullable) NSString * label;
@@ -183,6 +186,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) NSNumber * bitrate;
 @property(nonatomic, strong, nullable) NSNumber * width;
 @property(nonatomic, strong, nullable) NSNumber * height;
+@property(nonatomic, strong, nullable) NSNumber * downloaded;
 @property(nonatomic, strong) NSNumber * isSelected;
 @end
 

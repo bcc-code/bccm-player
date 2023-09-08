@@ -39,12 +39,13 @@ public class Downloader {
         guard let url = URL(string: config.url) else {
             throw DownloaderError.invalidUrl(url: config.url)
         }
-
+        
         let taskInput = DownloaderState.TaskInput(
             url: url,
             mimeType: config.mimeType,
             title: config.title,
-            tracks: [],
+            audioTrackIds: config.audioTrackIds,
+            videoTrackIds: config.videoTrackIds,
             additionalData: config.additionalData
         )
         
@@ -53,20 +54,12 @@ public class Downloader {
         UserDefaults.standard.downloaderState = state
         
         let asset = AVURLAsset(url: url)
-
-        let preferredMediaSelection = asset.preferredMediaSelection
-
-        guard let downloadTask = session.aggregateAssetDownloadTask(with: asset,
-                                                                    mediaSelections: [preferredMediaSelection],
-                                                                    assetTitle: config.title,
-                                                                    assetArtworkData: nil,
-                                                                    options: [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: 0])
-        else {
-            throw DownloaderError.unknownDownloadKey(key: "") // TODO: right error
-        }
         
-        downloadTask.taskDescription = taskState.key.uuidString
-        downloadTask.resume()
+        let mediaSelections = try TrackUtils.getAVMediaSelectionsForAudio(asset, ids: config.audioTrackIds)
+        if let downloadTask = session.aggregateAssetDownloadTask(with: asset, mediaSelections: mediaSelections, assetTitle: config.title, assetArtworkData: nil) {
+            downloadTask.taskDescription = taskState.key.uuidString
+            downloadTask.resume()
+        }
 
         return taskState.download
     }

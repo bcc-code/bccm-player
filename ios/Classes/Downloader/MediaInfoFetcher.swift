@@ -21,9 +21,9 @@ enum MediaInfoFetcher {
             }
         }
         
-        var audioTracks: [Track] = TrackUtils.getAudioTracksForAsset(asset, playerItem: nil)
-        var textTracks: [Track] = TrackUtils.getTextTracksForAsset(asset, playerItem: nil)
-        var videoTracks: [Track] = TrackUtils.getVideoTracksForAsset(asset, playerItem: nil)
+        let audioTracks: [Track] = TrackUtils.getAudioTracksForAsset(asset, playerItem: nil)
+        let textTracks: [Track] = TrackUtils.getTextTracksForAsset(asset, playerItem: nil)
+        let videoTracks: [Track] = TrackUtils.getVideoTracksForAsset(asset, playerItem: nil)
         
         return MediaInfo.make(withAudioTracks: audioTracks, textTracks: textTracks, videoTracks: videoTracks)
     }

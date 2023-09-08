@@ -9,10 +9,30 @@ import AVFoundation
 import Foundation
 
 class TrackUtils {
+    static func getAVMediaSelectionsForAudio(_ asset: AVAsset, ids: [String]) throws -> [AVMediaSelection] {
+        guard let audioGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible) else {
+            return []
+        }
+        var mediaSelections: [AVMediaSelection] = []
+        for trackId in ids {
+            guard let trackIdInt = Int(trackId) else {
+                throw BccmPlayerError.runtimeError("Invalid trackId for audio selection: " + trackId)
+            }
+            let optionToSelect = audioGroup.options[trackIdInt]
+            let selection = asset.preferredMediaSelection.mutableCopy() as! AVMutableMediaSelection
+            selection.select(optionToSelect, in: audioGroup)
+            mediaSelections.append(selection)
+        }
+        return mediaSelections
+    }
+
     static func getAudioTracksForAsset(_ asset: AVAsset, playerItem: AVPlayerItem?) -> [Track] {
+        let urlAsset = asset as? AVURLAsset
         var audioTracks: [Track] = []
         if let audioGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
+            let offlineOptions = urlAsset?.assetCache?.mediaSelectionOptions(in: audioGroup)
             for (index, option) in audioGroup.options.enumerated() {
+                let isDownloaded = offlineOptions?.contains(option) as? NSNumber ?? false
                 let track = Track.make(withId: "\(index)",
                                        label: option.displayName,
                                        language: option.locale?.identifier,
@@ -20,6 +40,7 @@ class TrackUtils {
                                        bitrate: nil,
                                        width: nil,
                                        height: nil,
+                                       downloaded: isDownloaded,
                                        isSelected: playerItem == nil ? false : NSNumber(value: playerItem!.currentMediaSelection.selectedMediaOption(in: audioGroup) == option))
                 audioTracks.append(track)
             }
@@ -28,9 +49,12 @@ class TrackUtils {
     }
 
     static func getTextTracksForAsset(_ asset: AVAsset, playerItem: AVPlayerItem?) -> [Track] {
+        let urlAsset = asset as? AVURLAsset
         var textTracks: [Track] = []
         if let subtitleGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .legible) {
+            let offlineOptions = urlAsset?.assetCache?.mediaSelectionOptions(in: subtitleGroup)
             for (index, option) in subtitleGroup.options.enumerated() {
+                let isDownloaded = offlineOptions?.contains(option) as? NSNumber ?? false
                 let track = Track.make(withId: "\(index)",
                                        label: option.displayName,
                                        language: option.locale?.identifier,
@@ -38,6 +62,7 @@ class TrackUtils {
                                        bitrate: nil,
                                        width: nil,
                                        height: nil,
+                                       downloaded: isDownloaded,
                                        isSelected: NSNumber(value: playerItem == nil ? false : playerItem!.currentMediaSelection.selectedMediaOption(in: subtitleGroup) == option))
                 textTracks.append(track)
             }
@@ -46,8 +71,8 @@ class TrackUtils {
     }
 
     static func getVideoTracksForAsset(_ asset: AVAsset, playerItem: AVPlayerItem?) -> [Track] {
-        var videoTracks: [Track] = []
         let urlAsset = asset as? AVURLAsset
+        var videoTracks: [Track] = []
         if #available(iOS 15, *), let urlAsset = urlAsset {
             let variants = urlAsset.variants
             for variant in variants {
@@ -66,6 +91,7 @@ class TrackUtils {
                                        bitrate: Int(bitrate) as NSNumber,
                                        width: Int(width) as NSNumber,
                                        height: Int(height) as NSNumber,
+                                       downloaded: false,
                                        isSelected: (currentPreferredBitrate != nil && Int(currentPreferredBitrate!) == Int(bitrate)) as NSNumber)
                 videoTracks.append(track)
             }

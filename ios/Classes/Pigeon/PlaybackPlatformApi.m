@@ -203,6 +203,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     mimeType:(nullable NSString *)mimeType
     metadata:(nullable MediaMetadata *)metadata
     isLive:(nullable NSNumber *)isLive
+    isOffline:(nullable NSNumber *)isOffline
     playbackStartPositionMs:(nullable NSNumber *)playbackStartPositionMs
     lastKnownAudioLanguage:(nullable NSString *)lastKnownAudioLanguage
     lastKnownSubtitleLanguage:(nullable NSString *)lastKnownSubtitleLanguage {
@@ -211,6 +212,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.mimeType = mimeType;
   pigeonResult.metadata = metadata;
   pigeonResult.isLive = isLive;
+  pigeonResult.isOffline = isOffline;
   pigeonResult.playbackStartPositionMs = playbackStartPositionMs;
   pigeonResult.lastKnownAudioLanguage = lastKnownAudioLanguage;
   pigeonResult.lastKnownSubtitleLanguage = lastKnownSubtitleLanguage;
@@ -222,9 +224,10 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.mimeType = GetNullableObjectAtIndex(list, 1);
   pigeonResult.metadata = [MediaMetadata nullableFromList:(GetNullableObjectAtIndex(list, 2))];
   pigeonResult.isLive = GetNullableObjectAtIndex(list, 3);
-  pigeonResult.playbackStartPositionMs = GetNullableObjectAtIndex(list, 4);
-  pigeonResult.lastKnownAudioLanguage = GetNullableObjectAtIndex(list, 5);
-  pigeonResult.lastKnownSubtitleLanguage = GetNullableObjectAtIndex(list, 6);
+  pigeonResult.isOffline = GetNullableObjectAtIndex(list, 4);
+  pigeonResult.playbackStartPositionMs = GetNullableObjectAtIndex(list, 5);
+  pigeonResult.lastKnownAudioLanguage = GetNullableObjectAtIndex(list, 6);
+  pigeonResult.lastKnownSubtitleLanguage = GetNullableObjectAtIndex(list, 7);
   return pigeonResult;
 }
 + (nullable MediaItem *)nullableFromList:(NSArray *)list {
@@ -236,6 +239,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.mimeType ?: [NSNull null]),
     (self.metadata ? [self.metadata toList] : [NSNull null]),
     (self.isLive ?: [NSNull null]),
+    (self.isOffline ?: [NSNull null]),
     (self.playbackStartPositionMs ?: [NSNull null]),
     (self.lastKnownAudioLanguage ?: [NSNull null]),
     (self.lastKnownSubtitleLanguage ?: [NSNull null]),
@@ -462,6 +466,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     bitrate:(nullable NSNumber *)bitrate
     width:(nullable NSNumber *)width
     height:(nullable NSNumber *)height
+    downloaded:(nullable NSNumber *)downloaded
     isSelected:(NSNumber *)isSelected {
   Track* pigeonResult = [[Track alloc] init];
   pigeonResult.id = id;
@@ -471,6 +476,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.bitrate = bitrate;
   pigeonResult.width = width;
   pigeonResult.height = height;
+  pigeonResult.downloaded = downloaded;
   pigeonResult.isSelected = isSelected;
   return pigeonResult;
 }
@@ -484,7 +490,8 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.bitrate = GetNullableObjectAtIndex(list, 4);
   pigeonResult.width = GetNullableObjectAtIndex(list, 5);
   pigeonResult.height = GetNullableObjectAtIndex(list, 6);
-  pigeonResult.isSelected = GetNullableObjectAtIndex(list, 7);
+  pigeonResult.downloaded = GetNullableObjectAtIndex(list, 7);
+  pigeonResult.isSelected = GetNullableObjectAtIndex(list, 8);
   NSAssert(pigeonResult.isSelected != nil, @"");
   return pigeonResult;
 }
@@ -500,6 +507,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.bitrate ?: [NSNull null]),
     (self.width ?: [NSNull null]),
     (self.height ?: [NSNull null]),
+    (self.downloaded ?: [NSNull null]),
     (self.isSelected ?: [NSNull null]),
   ];
 }

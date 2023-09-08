@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:core';
 
 import 'package:bccm_player/bccm_player.dart';
+import 'package:bccm_player/controls.dart';
 import 'package:bccm_player_example/example_videos.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class Downloader extends StatefulWidget {
   const Downloader({super.key});
@@ -19,16 +22,13 @@ class DownloadState {
 }
 
 class _DownloaderState extends State<Downloader> {
-  late BccmPlayerController controller;
   List<DownloadState> downloads = [];
   StreamSubscription<DownloadStatusChangedEvent>? _subscription;
   bool statusLoopRunning = false;
-
-  void initializeController() async {
-    controller = BccmPlayerController.empty();
-    await controller.initialize();
-    controller.setMixWithOthers(true);
-  }
+  List<Track> selectedAudioTracks = [];
+  List<Track> selectedVideoTracks = [];
+  bool isOffline = false;
+  late BccmPlayerViewController viewController;
 
   void loadDownloads() async {
     final localDownloads = await DownloaderInterface.instance.getDownloads();
@@ -66,7 +66,10 @@ class _DownloaderState extends State<Downloader> {
 
   @override
   void initState() {
-    initializeController();
+    viewController = BccmPlayerViewController(
+      playerController: BccmPlayerController.primary,
+      config: BccmPlayerViewConfig(isOffline: isOffline),
+    );
     startStatusLoop();
 
     _subscription = DownloaderInterface.instance.downloadStatusEvents.listen((event) async {
@@ -87,7 +90,7 @@ class _DownloaderState extends State<Downloader> {
   @override
   void dispose() {
     _subscription?.cancel();
-    controller.dispose();
+    viewController.dispose();
     statusLoopRunning = false;
     super.dispose();
   }
@@ -98,7 +101,15 @@ class _DownloaderState extends State<Downloader> {
       children: [
         Column(
           children: [
-            BccmPlayerView(controller),
+            BccmPlayerView.withViewController(viewController),
+            ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isOffline = !isOffline;
+                  });
+                  viewController.setConfig(BccmPlayerViewConfig(isOffline: isOffline));
+                },
+                child: Text('Offline player mode: $isOffline')),
             ...downloads.map((state) => Row(children: [
                   Column(children: [
                     Text(state.download.config.title, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -107,7 +118,7 @@ class _DownloaderState extends State<Downloader> {
                       ? ElevatedButton(
                           onPressed: () {
                             debugPrint("Play ${state.download.offlineUrl}");
-                            controller.replaceCurrentMediaItem(MediaItem(
+                            BccmPlayerController.primary.replaceCurrentMediaItem(MediaItem(
                                 url: state.download.offlineUrl,
                                 mimeType: state.download.config.mimeType,
                                 metadata: MediaMetadata(title: state.download.config.title)));
@@ -121,6 +132,8 @@ class _DownloaderState extends State<Downloader> {
                       },
                       child: const Text("Remove"))
                 ])),
+            Text(
+                'Selected tracks: ${selectedAudioTracks.map((e) => e.labelWithFallback).join(", ")} - ${selectedVideoTracks.map((e) => e.labelWithFallback).join(", ")}'),
             ...exampleVideos.map(
               (mediaItem) => Column(
                 children: [
@@ -129,26 +142,19 @@ class _DownloaderState extends State<Downloader> {
                     onPressed: () async {
                       final info = await BccmPlayerInterface.instance.fetchMediaInfo(url: mediaItem.url!);
                       if (!context.mounted) return;
-                      showModalBottomSheet(
+                      final selection = await showModalBottomSheet<({List<Track> audioTracks, List<Track> videoTracks})>(
                         useRootNavigator: true,
                         enableDrag: true,
                         context: context,
-                        builder: (ctx) => ListView(
-                          cacheExtent: 10000,
-                          shrinkWrap: true,
-                          children: [
-                            const Text("Media info"),
-                            Text("Audio tracks", style: const TextStyle(fontWeight: FontWeight.bold)),
-                            ...info.audioTracks.safe.map((e) => Text("${e.id} - ${e.labelWithFallback}")),
-                            Text("Text tracks", style: const TextStyle(fontWeight: FontWeight.bold)),
-                            ...info.textTracks.safe.map((e) => Text("${e.id} - ${e.labelWithFallback}")),
-                            Text("Video tracks", style: const TextStyle(fontWeight: FontWeight.bold)),
-                            ...info.videoTracks.safe.map((e) => Text("${e.id} - ${e.labelWithFallback}")),
-                          ],
-                        ),
+                        builder: (ctx) => _TrackSelection(info: info),
                       );
+                      if (selection == null) return;
+                      setState(() {
+                        selectedAudioTracks = selection.audioTracks;
+                        selectedVideoTracks = selection.videoTracks;
+                      });
                     },
-                    child: Text('Fetch info'),
+                    child: const Text('Select tracks'),
                   ),
                   ElevatedButton(
                     onPressed: () async {
@@ -157,8 +163,8 @@ class _DownloaderState extends State<Downloader> {
                           url: mediaItem.url!,
                           mimeType: mediaItem.mimeType!,
                           title: mediaItem.metadata?.title ?? "Unknown title",
-                          audioTrackIds: [],
-                          videoTrackIds: [],
+                          audioTrackIds: selectedAudioTracks.map((e) => e.id).toList(),
+                          videoTrackIds: selectedVideoTracks.map((e) => e.id).toList(),
                           additionalData: {"test": "Coen"});
                       final download = await DownloaderInterface.instance.startDownload(config);
                       setState(() {
@@ -167,13 +173,77 @@ class _DownloaderState extends State<Downloader> {
                       });
                       startStatusLoop();
                     },
-                    child: Text('Download'),
+                    child: const Text('Download'),
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class _TrackSelection extends HookWidget {
+  const _TrackSelection({
+    super.key,
+    required this.info,
+  });
+
+  final MediaInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedAudioTracks = useState<List<Track>>([]);
+    final selectedVideoTracks = useState<List<Track>>([]);
+    return ListView(
+      cacheExtent: 10000,
+      shrinkWrap: true,
+      children: [
+        const Text("Media info"),
+        Text("Audio tracks (${info.audioTracks.length})", style: const TextStyle(fontWeight: FontWeight.bold)),
+        ElevatedButton(
+          onPressed: () async {
+            final selected = await showModalOptionList(
+              context: context,
+              options: [
+                ...info.audioTracks.safe.map(
+                  (track) => SettingsOption(value: track, label: track.labelWithFallback, isSelected: track.isSelected),
+                )
+              ],
+            );
+            if (selected == null) return;
+            if (!context.mounted) return;
+            selectedAudioTracks.value = [selected.value];
+          },
+          child: const Text('Select audio'),
+        ),
+        Text("Text tracks (${info.textTracks.length})", style: const TextStyle(fontWeight: FontWeight.bold)),
+        ...info.textTracks.safe.map((e) => Text("${e.id} - ${e.labelWithFallback}")),
+        Text("Video tracks (${info.videoTracks.length})", style: const TextStyle(fontWeight: FontWeight.bold)),
+        ElevatedButton(
+          onPressed: () async {
+            final selected = await showModalOptionList(
+              context: context,
+              options: [
+                ...info.videoTracks.safe.map(
+                  (track) => SettingsOption(value: track, label: track.labelWithFallback, isSelected: track.isSelected),
+                )
+              ],
+            );
+            if (selected == null) return;
+            if (!context.mounted) return;
+            selectedVideoTracks.value = [selected.value];
+          },
+          child: const Text('Select audio'),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pop((audioTracks: selectedAudioTracks.value, videoTracks: selectedVideoTracks.value));
+          },
+          child: const Text('Save'),
+        )
       ],
     );
   }

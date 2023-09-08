@@ -111,6 +111,7 @@ class MediaItem {
     this.mimeType,
     this.metadata,
     this.isLive,
+    this.isOffline,
     this.playbackStartPositionMs,
     this.lastKnownAudioLanguage,
     this.lastKnownSubtitleLanguage,
@@ -124,6 +125,8 @@ class MediaItem {
 
   bool? isLive;
 
+  bool? isOffline;
+
   double? playbackStartPositionMs;
 
   String? lastKnownAudioLanguage;
@@ -136,6 +139,7 @@ class MediaItem {
       mimeType,
       metadata?.encode(),
       isLive,
+      isOffline,
       playbackStartPositionMs,
       lastKnownAudioLanguage,
       lastKnownSubtitleLanguage,
@@ -151,9 +155,10 @@ class MediaItem {
           ? MediaMetadata.decode(result[2]! as List<Object?>)
           : null,
       isLive: result[3] as bool?,
-      playbackStartPositionMs: result[4] as double?,
-      lastKnownAudioLanguage: result[5] as String?,
-      lastKnownSubtitleLanguage: result[6] as String?,
+      isOffline: result[4] as bool?,
+      playbackStartPositionMs: result[5] as double?,
+      lastKnownAudioLanguage: result[6] as String?,
+      lastKnownSubtitleLanguage: result[7] as String?,
     );
   }
 }
@@ -389,6 +394,7 @@ class Track {
     this.bitrate,
     this.width,
     this.height,
+    this.downloaded,
     required this.isSelected,
   });
 
@@ -406,6 +412,8 @@ class Track {
 
   int? height;
 
+  bool? downloaded;
+
   bool isSelected;
 
   Object encode() {
@@ -417,6 +425,7 @@ class Track {
       bitrate,
       width,
       height,
+      downloaded,
       isSelected,
     ];
   }
@@ -431,7 +440,8 @@ class Track {
       bitrate: result[4] as int?,
       width: result[5] as int?,
       height: result[6] as int?,
-      isSelected: result[7]! as bool,
+      downloaded: result[7] as bool?,
+      isSelected: result[8]! as bool,
     );
   }
 }

@@ -69,7 +69,7 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         let player = AVQueuePlayerController(playbackListener: playbackListener, npawConfig: npawConfig, appConfig: appConfig)
         players.append(player)
         if url != nil {
-            let mediaItem = MediaItem.make(withUrl: url!, mimeType: "application/x-mpegURL", metadata: nil, isLive: false, playbackStartPositionMs: nil, lastKnownAudioLanguage: nil, lastKnownSubtitleLanguage: nil)
+            let mediaItem = MediaItem.make(withUrl: url!, mimeType: "application/x-mpegURL", metadata: nil, isLive: false, isOffline: false, playbackStartPositionMs: nil, lastKnownAudioLanguage: nil, lastKnownSubtitleLanguage: nil)
             player.replaceCurrentMediaItem(mediaItem, autoplay: false, completion: {
                 err in
                 let playerId = err == nil ? player.id : nil

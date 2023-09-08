@@ -472,6 +472,16 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                     allItems.append(metadataItem)
                 }
             }
+            if let isLive = mediaItem.isLive {
+                if let metadataItem = MetadataUtils.metadataItem(identifier: PlayerMetadataConstants.IsLive, value: isLive as (NSCopying & NSObjectProtocol)?, namespace: .BccmPlayer) {
+                    allItems.append(metadataItem)
+                }
+            }
+            if let isOffline = mediaItem.isOffline {
+                if let metadataItem = MetadataUtils.metadataItem(identifier: PlayerMetadataConstants.IsOffline, value: isOffline as (NSCopying & NSObjectProtocol)?, namespace: .BccmPlayer) {
+                    allItems.append(metadataItem)
+                }
+            }
             
             playerItem.externalMetadata.append(contentsOf: allItems)
         }

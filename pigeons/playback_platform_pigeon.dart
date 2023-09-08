@@ -143,6 +143,7 @@ class MediaItem {
   String? mimeType;
   MediaMetadata? metadata;
   bool? isLive;
+  bool? isOffline;
   double? playbackStartPositionMs;
   String? lastKnownAudioLanguage;
   String? lastKnownSubtitleLanguage;
@@ -212,6 +213,7 @@ class Track {
   late int? bitrate;
   late int? width;
   late int? height;
+  late bool? downloaded;
   late bool isSelected;
 }
 

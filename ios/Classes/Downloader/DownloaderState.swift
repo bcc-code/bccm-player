@@ -21,7 +21,8 @@ public struct DownloaderState: Codable {
         public let url: URL
         public let mimeType: String
         public let title: String
-        public let tracks: [Track]
+        public let audioTrackIds: [String]
+        public let videoTrackIds: [String]
         public let additionalData: [String: String]
     }
 

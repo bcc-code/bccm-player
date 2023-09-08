@@ -9,5 +9,6 @@ enum PlayerMetadataConstants {
     // TODO: refactor to use a PlayerData class instead of serializing into string dicts [String: String]
     static let MimeType = "mime_type"
     static let IsLive = "is_live"
+    static let IsOffline = "is_offline"
     static let ArtworkUri = "artwork_uri"
 }
