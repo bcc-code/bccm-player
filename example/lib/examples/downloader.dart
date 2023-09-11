@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:core';
-import 'dart:io';
 
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/controls.dart';
@@ -25,7 +24,6 @@ class DownloadState {
 class _DownloaderState extends State<Downloader> {
   List<DownloadState> downloads = [];
   StreamSubscription<DownloadStatusChangedEvent>? _subscription;
-  bool statusLoopRunning = false;
   List<Track> selectedAudioTracks = [];
   List<Track> selectedVideoTracks = [];
   bool isOffline = false;
@@ -43,34 +41,8 @@ class _DownloaderState extends State<Downloader> {
     });
   }
 
-  void startStatusLoop() async {
-    if (!Platform.isAndroid) {
-      return;
-    }
-    statusLoopRunning = true;
-
-    while (statusLoopRunning) {
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      final Map<String, double> results = {};
-      for (var state in downloads) {
-        final progress = await DownloaderInterface.instance.getDownloadStatus(state.download.key);
-        results[state.download.key] = progress;
-        debugPrint("P ${state.download.config.title}: ${state.progress}");
-      }
-
-      setState(() {
-        for (var state in downloads) {
-          state.progress = results[state.download.key]!;
-        }
-      });
-    }
-  }
-
   @override
   void initState() {
-    startStatusLoop();
-
     _subscription = DownloaderInterface.instance.downloadStatusEvents.listen((event) async {
       setState(() {
         final state = downloads.firstWhere((element) => element.download.key == event.download.key);
@@ -89,7 +61,6 @@ class _DownloaderState extends State<Downloader> {
   @override
   void dispose() {
     _subscription?.cancel();
-    statusLoopRunning = false;
     super.dispose();
   }
 
@@ -157,7 +128,6 @@ class _DownloaderState extends State<Downloader> {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      statusLoopRunning = false;
                       final config = DownloadConfig(
                           url: mediaItem.url!,
                           mimeType: mediaItem.mimeType!,
@@ -170,7 +140,6 @@ class _DownloaderState extends State<Downloader> {
                         downloads.add(DownloadState(download: download, progress: 0.0));
                         downloads.sort((a, b) => a.download.key.compareTo(b.download.key));
                       });
-                      startStatusLoop();
                     },
                     child: const Text('Download'),
                   ),

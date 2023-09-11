@@ -24,6 +24,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -83,6 +84,8 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         private set
     var chromecastPigeon: ChromecastControllerPigeon.ChromecastPigeon? = null
         private set
+    var downloaderPigeon: DownloaderApi.DownloaderListenerPigeon? = null
+        private set
 
     /***
      * Should be called only by the main flutter isolate. Complete quickly, because this is awaited.
@@ -134,6 +137,8 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
             PlaybackPlatformApi.PlaybackListenerPigeon(flutterPluginBinding.binaryMessenger)
         chromecastPigeon =
             ChromecastControllerPigeon.ChromecastPigeon(flutterPluginBinding.binaryMessenger)
+        downloaderPigeon =
+            DownloaderApi.DownloaderListenerPigeon(flutterPluginBinding.binaryMessenger)
 
         if (!mBound) {
             Intent(pluginBinding?.applicationContext, PlaybackService::class.java).also { intent ->
@@ -175,8 +180,9 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         activityBinding = binding
         activityBinding?.addOnUserLeaveHintListener(this)
 
+        val downloader = Downloader(binding.activity)
         PlaybackPlatformPigeon.setup(pluginBinding!!.binaryMessenger, PlaybackApiImpl(this))
-        DownloaderPigeon.setup(pluginBinding!!.binaryMessenger, DownloaderApiImpl(Downloader(binding.activity)))
+        DownloaderPigeon.setup(pluginBinding!!.binaryMessenger, DownloaderApiImpl(downloader))
 
         val sessionToken = SessionToken(
             binding.activity, ComponentName(binding.activity, PlaybackService::class.java)
@@ -199,6 +205,11 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
                         playbackPigeon?.onPictureInPictureModeChanged(builder.build()) {}
                     }
                 }
+        }
+        mainScope.launch {
+            downloader.statusChanged.collect {
+                downloaderPigeon?.onDownloadStatusChanged(it) {}
+            }
         }
     }
 

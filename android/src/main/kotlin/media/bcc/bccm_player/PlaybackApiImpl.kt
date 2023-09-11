@@ -305,4 +305,11 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
     override fun openCastDialog() {
 
     }
+
+    override fun fetchMediaInfo(
+        url: String,
+        result: PlaybackPlatformApi.Result<PlaybackPlatformApi.MediaInfo>
+    ) {
+        TODO("Not yet implemented")
+    }
 }

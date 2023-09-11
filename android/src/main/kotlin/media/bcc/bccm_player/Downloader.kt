@@ -1,7 +1,6 @@
 package media.bcc.bccm_player
 
 import android.content.Context
-import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.media3.common.MediaItem
@@ -14,16 +13,21 @@ import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadHelper
 import androidx.media3.exoplayer.offline.DownloadManager
-import androidx.media3.exoplayer.offline.DownloadRequest
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.parcelableCreator
 import media.bcc.bccm_player.pigeon.DownloaderApi
-import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
+import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadStatusChangedEvent
 import java.io.File
 import java.io.IOException
 import java.util.LinkedList
 import java.util.UUID
 import java.util.concurrent.Executor
+import kotlin.coroutines.suspendCoroutine
 
 
 private const val DOWNLOAD_FOLDER_NAME = "downloads"
@@ -44,6 +48,8 @@ fun createDownloadManager(context: Context): DownloadManager {
 @Parcelize
 data class DownloadInfo(
     val title: String,
+    val audioTrackIds: List<String>,
+    val videoTrackIds: List<String>,
     val additionalData: Map<String, String>
 ) : Parcelable
 
@@ -66,10 +72,73 @@ object ParcelMarshall {
     }
 }
 
+suspend fun DownloadHelper.prepare() {
+    suspendCoroutine { cont ->
+        prepare(object : DownloadHelper.Callback {
+            override fun onPrepared(helper: DownloadHelper) {
+                cont.resumeWith(Result.success(Unit))
+            }
+
+            override fun onPrepareError(helper: DownloadHelper, e: IOException) {
+                cont.resumeWith(Result.failure(e))
+            }
+        })
+    }
+}
+
+class DownloadProgress(
+    private val downloads: MutableMap<String, DownloaderApi.Download> = mutableMapOf(),
+    private val progress: MutableMap<String, Double> = mutableMapOf()
+) {
+    fun add(download: DownloaderApi.Download, initialProgress: Double) {
+        downloads[download.key] = download
+        progress[download.key] = initialProgress
+    }
+
+    fun set(id: String, newProgress: Double): DownloadStatusChangedEvent? {
+        val download = downloads[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
+        val currentProgress = progress[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
+
+        if (newProgress >= 1.0) {
+            download.isFinished = true
+        }
+
+        if (currentProgress != newProgress) {
+            return null
+        }
+
+        progress[id] = newProgress
+
+        return DownloadStatusChangedEvent.Builder()
+            .setDownload(download)
+            .setProgress(newProgress)
+            .build()
+    }
+}
+
 class Downloader(private val context: Context) {
     private val downloadManager: DownloadManager = createDownloadManager(context)
+    private val progress = DownloadProgress()
 
-    fun startDownload(config: DownloaderApi.DownloadConfig): DownloaderApi.Download {
+    init {
+        downloads().forEach {
+            progress.add(it.toDownloaderApiModel(), it.percentDownloaded.toDouble() / 100)
+        }
+    }
+
+    val statusChanged: Flow<DownloadStatusChangedEvent>
+        get() = flow {
+            while (currentCoroutineContext().isActive) {
+                val downloads = downloadManager.currentDownloads.mapNotNull {
+                    progress.set(it.request.id, it.percentDownloaded.toDouble() / 100)
+                }
+                downloadManager.resumeDownloads()
+                downloads.forEach { emit(it) }
+                delay(300)
+            }
+        }
+
+    suspend fun startDownload(config: DownloaderApi.DownloadConfig): DownloaderApi.Download {
         val key = UUID.randomUUID().toString()
 
         val mediaItem = MediaItem.Builder()
@@ -84,27 +153,26 @@ class Downloader(private val context: Context) {
             DefaultDataSourceFactory(context)
         )
 
-        downloadHelper.prepare(object : DownloadHelper.Callback {
-            override fun onPrepared(helper: DownloadHelper) {
-                val request = helper.getDownloadRequest(
-                    key,
-                    ParcelMarshall.pack(
-                        DownloadInfo(title = config.title, additionalData = config.additionalData)
-                    )
-                )
+        downloadHelper.prepare()
 
-                androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
-                    context,
-                    DownloadService::class.java,
-                    request,
-                    false
+        val request = downloadHelper.getDownloadRequest(
+            key,
+            ParcelMarshall.pack(
+                DownloadInfo(
+                    title = config.title,
+                    audioTrackIds = config.audioTrackIds,
+                    videoTrackIds = config.videoTrackIds,
+                    additionalData = config.additionalData
                 )
-            }
+            )
+        )
 
-            override fun onPrepareError(helper: DownloadHelper, e: IOException) {
-                TODO("Not yet implemented")
-            }
-        })
+        androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
+            context,
+            DownloadService::class.java,
+            request,
+            false
+        )
 
         return DownloaderApi.Download.Builder()
             .setKey(key)
@@ -113,29 +181,33 @@ class Downloader(private val context: Context) {
             .build()
     }
 
-    fun getDownloads(): List<DownloaderApi.Download> {
-        val downloads: MutableList<DownloaderApi.Download> = LinkedList<DownloaderApi.Download>()
+    private fun downloads(): List<Download> {
+        val result = emptyList<Download>().toMutableList()
 
         val downloadCursor = downloadManager.downloadIndex.getDownloads()
 
         if (downloadCursor.moveToFirst()) {
             do {
-                downloads.add(downloadCursor.download.toDownloaderApiModel())
+                result.add(downloadCursor.download)
             } while (downloadCursor.moveToNext())
         }
 
         downloadManager.resumeDownloads()
 
-        return downloads
+        return result
     }
 
+    fun getDownloads() = downloads().map { it.toDownloaderApiModel() }
+
     fun getDownloadStatus(downloadKey: String): Double {
-        val download = downloadManager.currentDownloads
-            .firstOrNull { it.request.id == downloadKey }
-            ?: return 0.0
+        val download = downloadManager.currentDownloads.firstOrNull { it.request.id == downloadKey }
         downloadManager.resumeDownloads()
-        val progress = download.percentDownloaded.toDouble() / 100
-        return progress
+        if (download != null) {
+            val progress = download.percentDownloaded.toDouble() / 100
+            return progress
+        } else {
+            return 0.0
+        }
     }
 
     fun removeDownload(key: String) {
@@ -162,8 +234,11 @@ fun Download.toDownloaderApiModel(): DownloaderApi.Download {
                 .setUrl(request.uri.toString())
                 .setMimeType(request.mimeType!!)
                 .setTitle(downloadInfo?.title ?: "-")
-                .setTracks(emptyList<DownloaderApi.DownloaderTrack?>().toMutableList())
-                .setAdditionalData(emptyMap<String?, String?>().toMutableMap())
+                .setAudioTrackIds(downloadInfo?.audioTrackIds ?: emptyList<String>())
+                .setVideoTrackIds(downloadInfo?.videoTrackIds ?: emptyList<String>())
+                .setAdditionalData(
+                    downloadInfo?.additionalData ?: emptyMap<String?, String?>().toMutableMap()
+                )
                 .build()
         )
         .setIsFinished(state == Download.STATE_COMPLETED)
