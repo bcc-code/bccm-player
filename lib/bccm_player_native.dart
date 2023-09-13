@@ -194,7 +194,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
-  Future<MediaInfo> fetchMediaInfo({required String url}) {
-    return _pigeon.fetchMediaInfo(url);
+  Future<MediaInfo> fetchMediaInfo({required String url, String? mimeType}) {
+    return _pigeon.fetchMediaInfo(url, mimeType);
   }
 }

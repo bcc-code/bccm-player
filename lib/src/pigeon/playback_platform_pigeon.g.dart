@@ -180,7 +180,7 @@ class MediaMetadata {
 
   double? durationMs;
 
-  Map<String?, Object?>? extras;
+  Map<String?, String?>? extras;
 
   Object encode() {
     return <Object?>[
@@ -199,7 +199,7 @@ class MediaMetadata {
       title: result[1] as String?,
       artist: result[2] as String?,
       durationMs: result[3] as double?,
-      extras: (result[4] as Map<Object?, Object?>?)?.cast<String?, Object?>(),
+      extras: (result[4] as Map<Object?, Object?>?)?.cast<String?, String?>(),
     );
   }
 }
@@ -1249,12 +1249,12 @@ class PlaybackPlatformPigeon {
     }
   }
 
-  Future<MediaInfo> fetchMediaInfo(String arg_url) async {
+  Future<MediaInfo> fetchMediaInfo(String arg_url, String? arg_mimeType) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.fetchMediaInfo', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_url]) as List<Object?>?;
+        await channel.send(<Object?>[arg_url, arg_mimeType]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',

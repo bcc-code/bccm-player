@@ -252,7 +252,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     title:(nullable NSString *)title
     artist:(nullable NSString *)artist
     durationMs:(nullable NSNumber *)durationMs
-    extras:(nullable NSDictionary<NSString *, id> *)extras {
+    extras:(nullable NSDictionary<NSString *, NSString *> *)extras {
   MediaMetadata* pigeonResult = [[MediaMetadata alloc] init];
   pigeonResult.artworkUri = artworkUri;
   pigeonResult.title = title;
@@ -1257,11 +1257,12 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
         binaryMessenger:binaryMessenger
         codec:PlaybackPlatformPigeonGetCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(fetchMediaInfo:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(fetchMediaInfo:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(fetchMediaInfo:mimeType:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(fetchMediaInfo:mimeType:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
         NSString *arg_url = GetNullableObjectAtIndex(args, 0);
-        [api fetchMediaInfo:arg_url completion:^(MediaInfo *_Nullable output, FlutterError *_Nullable error) {
+        NSString *arg_mimeType = GetNullableObjectAtIndex(args, 1);
+        [api fetchMediaInfo:arg_url mimeType:arg_mimeType completion:^(MediaInfo *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];

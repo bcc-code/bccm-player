@@ -18,6 +18,7 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
+import media.bcc.bccm_player.utils.TrackUtils
 import kotlin.math.max
 
 
@@ -193,74 +194,15 @@ abstract class PlayerController : Player.Listener {
 
     fun getTracksSnapshot(): PlaybackPlatformApi.PlayerTracksSnapshot {
         // get tracks from player
-        val currentTracks = player.currentTracks;
-        val currentAudioTrack =
-            currentTracks.groups.firstOrNull { it.isSelected && it.type == C.TRACK_TYPE_AUDIO }
-                ?.getTrackFormat(0)
-        val currentTextTrack =
-            currentTracks.groups.firstOrNull { it.isSelected && it.type == C.TRACK_TYPE_TEXT }
-                ?.getTrackFormat(0)
-        val videoOverride =
-            player.trackSelectionParameters.overrides.filter { i -> i.value.type == C.TRACK_TYPE_VIDEO }.values.firstOrNull()
-        val currentExplicitlySelectedVideoTrackFormat =
-            videoOverride?.mediaTrackGroup?.getFormat(videoOverride.trackIndices.first())
-
-        val audioTracks = mutableListOf<PlaybackPlatformApi.Track>()
-        val textTracks = mutableListOf<PlaybackPlatformApi.Track>()
-        val videoTracks = mutableListOf<PlaybackPlatformApi.Track>()
-        for (trackGroup in currentTracks.groups) {
-            if (trackGroup.type == C.TRACK_TYPE_AUDIO) {
-                val track = trackGroup.getTrackFormat(0)
-                val id = track.id ?: track.language ?: continue;
-                audioTracks.add(
-                    PlaybackPlatformApi.Track.Builder()
-                        .setId(id)
-                        .setLanguage(track.language)
-                        .setLabel(track.label)
-                        .setBitrate(track.averageBitrate.toLong())
-                        .setIsSelected(track == currentAudioTrack)
-                        .build()
-                )
-            } else if (trackGroup.type == C.TRACK_TYPE_TEXT) {
-                val track = trackGroup.getTrackFormat(0)
-                val id = track.id ?: track.language ?: continue;
-                textTracks.add(
-                    PlaybackPlatformApi.Track.Builder()
-                        .setId(id)
-                        .setLanguage(track.language)
-                        .setLabel(track.label)
-                        .setBitrate(track.averageBitrate.toLong())
-                        .setIsSelected(track == currentTextTrack)
-                        .build()
-                )
-            } else if (trackGroup.type == C.TRACK_TYPE_VIDEO) {
-                for (trackIndex in 0 until trackGroup.length) {
-                    val trackFormat = trackGroup.getTrackFormat(trackIndex)
-                    if (trackGroup.isTrackSupported(trackIndex)) {
-                        val trackId = trackFormat.id ?: continue;
-                        videoTracks.add(
-                            PlaybackPlatformApi.Track.Builder()
-                                .setId(trackId)
-                                .setLanguage(null)
-                                .setLabel("${trackFormat.width} x ${trackFormat.height}")
-                                .setWidth(trackFormat.width.toLong())
-                                .setHeight(trackFormat.height.toLong())
-                                .setFrameRate(if (trackFormat.frameRate.toInt() == Format.NO_VALUE) null else trackFormat.frameRate.toDouble())
-                                .setBitrate(trackFormat.averageBitrate.toLong())
-                                .setIsSelected(trackFormat == currentExplicitlySelectedVideoTrackFormat)
-                                .build()
-                        )
-
-                    }
-                }
-            }
-        }
+        val audioTracks = TrackUtils.getAudioTracksForPlayer(player)
+        val videoTracks = TrackUtils.getVideoTracksForPlayer(player)
+        val textTracks = TrackUtils.getTextTracksForPlayer(player)
 
         return PlaybackPlatformApi.PlayerTracksSnapshot.Builder()
             .setPlayerId(id)
             .setAudioTracks(audioTracks)
             .setTextTracks(textTracks)
-            .setVideoTracks(videoTracks.apply { this.sortByDescending { t -> t.height } })
+            .setVideoTracks(videoTracks)
             .build()
     }
 

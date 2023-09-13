@@ -131,5 +131,5 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   }
 
   /// Gets information about tracks (minimum), potentionally drm stuff later, etc.
-  Future<MediaInfo> fetchMediaInfo({required String url});
+  Future<MediaInfo> fetchMediaInfo({required String url, String? mimeType});
 }

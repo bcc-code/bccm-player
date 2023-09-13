@@ -560,13 +560,13 @@ public class PlaybackPlatformApi {
       this.durationMs = setterArg;
     }
 
-    private @Nullable Map<String, Object> extras;
+    private @Nullable Map<String, String> extras;
 
-    public @Nullable Map<String, Object> getExtras() {
+    public @Nullable Map<String, String> getExtras() {
       return extras;
     }
 
-    public void setExtras(@Nullable Map<String, Object> setterArg) {
+    public void setExtras(@Nullable Map<String, String> setterArg) {
       this.extras = setterArg;
     }
 
@@ -600,9 +600,9 @@ public class PlaybackPlatformApi {
         return this;
       }
 
-      private @Nullable Map<String, Object> extras;
+      private @Nullable Map<String, String> extras;
 
-      public @NonNull Builder setExtras(@Nullable Map<String, Object> setterArg) {
+      public @NonNull Builder setExtras(@Nullable Map<String, String> setterArg) {
         this.extras = setterArg;
         return this;
       }
@@ -640,7 +640,7 @@ public class PlaybackPlatformApi {
       Object durationMs = list.get(3);
       pigeonResult.setDurationMs((Double) durationMs);
       Object extras = list.get(4);
-      pigeonResult.setExtras((Map<String, Object>) extras);
+      pigeonResult.setExtras((Map<String, String>) extras);
       return pigeonResult;
     }
   }
@@ -2063,7 +2063,7 @@ public class PlaybackPlatformApi {
 
     void openCastDialog();
 
-    void fetchMediaInfo(@NonNull String url, @NonNull Result<MediaInfo> result);
+    void fetchMediaInfo(@NonNull String url, @Nullable String mimeType, @NonNull Result<MediaInfo> result);
 
     /** The codec used by PlaybackPlatformPigeon. */
     static @NonNull MessageCodec<Object> getCodec() {
@@ -2731,6 +2731,7 @@ public class PlaybackPlatformApi {
                 ArrayList<Object> wrapped = new ArrayList<Object>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 String urlArg = (String) args.get(0);
+                String mimeTypeArg = (String) args.get(1);
                 Result<MediaInfo> resultCallback =
                     new Result<MediaInfo>() {
                       public void success(MediaInfo result) {
@@ -2744,7 +2745,7 @@ public class PlaybackPlatformApi {
                       }
                     };
 
-                api.fetchMediaInfo(urlArg, resultCallback);
+                api.fetchMediaInfo(urlArg, mimeTypeArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

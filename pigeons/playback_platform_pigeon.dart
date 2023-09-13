@@ -109,8 +109,8 @@ abstract class PlaybackPlatformPigeon {
   void openCastDialog();
 
   @async
-  @ObjCSelector("fetchMediaInfo:")
-  MediaInfo fetchMediaInfo(String url);
+  @ObjCSelector("fetchMediaInfo:mimeType:")
+  MediaInfo fetchMediaInfo(String url, String? mimeType);
 }
 
 class NpawConfig {
@@ -154,7 +154,7 @@ class MediaMetadata {
   String? title;
   String? artist;
   double? durationMs;
-  Map<String?, Object?>? extras;
+  Map<String?, String?>? extras;
 }
 
 class PlayerStateSnapshot {

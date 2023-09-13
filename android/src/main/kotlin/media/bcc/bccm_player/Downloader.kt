@@ -96,8 +96,10 @@ class DownloadProgress(
     }
 
     fun set(id: String, newProgress: Double): DownloadStatusChangedEvent? {
-        val download = downloads[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
-        val currentProgress = progress[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
+        val download =
+            downloads[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
+        val currentProgress =
+            progress[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
 
         if (newProgress >= 1.0) {
             download.isFinished = true
@@ -206,7 +208,7 @@ class Downloader(private val context: Context) {
             val progress = download.percentDownloaded.toDouble() / 100
             return progress
         } else {
-            return 0.0
+            return 1.0
         }
     }
 

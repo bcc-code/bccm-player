@@ -96,12 +96,12 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     title:(nullable NSString *)title
     artist:(nullable NSString *)artist
     durationMs:(nullable NSNumber *)durationMs
-    extras:(nullable NSDictionary<NSString *, id> *)extras;
+    extras:(nullable NSDictionary<NSString *, NSString *> *)extras;
 @property(nonatomic, copy, nullable) NSString * artworkUri;
 @property(nonatomic, copy, nullable) NSString * title;
 @property(nonatomic, copy, nullable) NSString * artist;
 @property(nonatomic, strong, nullable) NSNumber * durationMs;
-@property(nonatomic, strong, nullable) NSDictionary<NSString *, id> * extras;
+@property(nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> * extras;
 @end
 
 @interface PlayerStateSnapshot : NSObject
@@ -280,7 +280,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)getChromecastState:(void (^)(ChromecastState *_Nullable, FlutterError *_Nullable))completion;
 - (void)openExpandedCastController:(FlutterError *_Nullable *_Nonnull)error;
 - (void)openCastDialog:(FlutterError *_Nullable *_Nonnull)error;
-- (void)fetchMediaInfo:(NSString *)url completion:(void (^)(MediaInfo *_Nullable, FlutterError *_Nullable))completion;
+- (void)fetchMediaInfo:(NSString *)url mimeType:(nullable NSString *)mimeType completion:(void (^)(MediaInfo *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<PlaybackPlatformPigeon> *_Nullable api);
