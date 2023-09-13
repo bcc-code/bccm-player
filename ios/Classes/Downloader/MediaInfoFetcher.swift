@@ -1,8 +1,9 @@
 import AVFoundation
 
 enum MediaInfoFetcher {
-    static func fetchInfo(for url: URL) async throws -> MediaInfo {
-        let asset = AVURLAsset(url: url)
+    static func fetchInfo(for url: URL, mimeType: String?) async throws -> MediaInfo {
+        let asset = AVURLAsset(url: url,
+                               options: mimeType != nil ? ["AVURLAssetOutOfBandMIMETypeKey": mimeType!] : nil)
         
         try await withCheckedThrowingContinuation { continuation in
             asset.loadValuesAsynchronously(forKeys: ["tracks", "variants"]) {

@@ -440,7 +440,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             guard let urlString = mediaItem.url, let url = URL(string: urlString) else {
                 return completion(nil)
             }
-            let asset = AVURLAsset(url: url)
+            let asset = AVURLAsset(url: url, options: mediaItem.mimeType != nil ? ["AVURLAssetOutOfBandMIMETypeKey": mediaItem.mimeType!] : nil)
             
             asset.resourceLoader.setDelegate(DebugResourceLoaderDelegate(), queue: DispatchQueue.main)
             

@@ -192,12 +192,12 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         }
     }
 
-    public func fetchMediaInfo(_ urlString: String) async -> (MediaInfo?, FlutterError?) {
+    public func fetchMediaInfo(_ urlString: String, mimeType: String?) async -> (MediaInfo?, FlutterError?) {
         return await returnFlutterResult {
             guard let url = URL(string: urlString) else {
                 throw BccmPlayerError.runtimeError("Invalid url")
             }
-            let tracks = try await MediaInfoFetcher.fetchInfo(for: url)
+            let tracks = try await MediaInfoFetcher.fetchInfo(for: url, mimeType: mimeType)
             return tracks
         }
     }
