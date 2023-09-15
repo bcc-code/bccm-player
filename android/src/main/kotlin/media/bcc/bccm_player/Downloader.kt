@@ -1,8 +1,6 @@
 package media.bcc.bccm_player
 
 import android.content.Context
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.media3.common.C.TRACK_TYPE_TEXT
 import androidx.media3.common.MediaItem
 import androidx.media3.common.TrackSelectionOverride
@@ -21,8 +19,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
-import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.parcelableCreator
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import media.bcc.bccm_player.pigeon.DownloaderApi
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadStatusChangedEvent
 import java.io.File
@@ -47,32 +47,13 @@ fun createDownloadManager(context: Context): DownloadManager {
     return DownloadManager(context, databaseProvider, cache!!, dataSourceFactory, downloadExecutor)
 }
 
-@Parcelize
+@Serializable
 data class DownloadInfo(
     val title: String,
     val audioTrackIds: List<String>,
     val videoTrackIds: List<String>,
     val additionalData: Map<String, String>
-) : Parcelable
-
-object ParcelMarshall {
-    fun <T> pack(input: T): ByteArray where T : Parcelable {
-        val dataParcel = Parcel.obtain()
-        input.writeToParcel(dataParcel, 0)
-        val data = dataParcel.marshall()
-        dataParcel.recycle()
-        return data
-    }
-
-    fun <T> unpack(byteArray: ByteArray, creator: Parcelable.Creator<T>): T where T : Parcelable {
-        val dataParcel = Parcel.obtain()
-        dataParcel.unmarshall(byteArray, 0, byteArray.size)
-        dataParcel.setDataPosition(0)
-        val result = creator.createFromParcel(dataParcel)
-        dataParcel.recycle()
-        return result
-    }
-}
+)
 
 suspend fun DownloadHelper.prepare() {
     suspendCoroutine { cont ->
@@ -185,14 +166,14 @@ class Downloader(private val context: Context) {
 
         val request = downloadHelper.getDownloadRequest(
             key,
-            ParcelMarshall.pack(
+            Json.encodeToString(
                 DownloadInfo(
                     title = config.title,
                     audioTrackIds = config.audioTrackIds,
                     videoTrackIds = config.videoTrackIds,
                     additionalData = config.additionalData
                 )
-            )
+            ).toByteArray()
         )
 
         androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
@@ -232,7 +213,7 @@ class Downloader(private val context: Context) {
         var download =
             downloadManager!!.currentDownloads.firstOrNull { it.request.id == downloadKey }
         if (download == null) {
-            downloadManager!!.downloadIndex.getDownload(downloadKey)
+            download = downloadManager!!.downloadIndex.getDownload(downloadKey)
         }
         downloadManager!!.resumeDownloads()
 
@@ -248,14 +229,14 @@ class Downloader(private val context: Context) {
             context,
             DownloadService::class.java,
             key,
-            false
+            true
         )
     }
 }
 
 fun Download.toDownloaderApiModel(): DownloaderApi.Download {
     val downloadInfo = try {
-        ParcelMarshall.unpack<DownloadInfo>(request.data, parcelableCreator())
+        Json.decodeFromString<DownloadInfo>(String(request.data))
     } catch (e: Exception) {
         null
     }
