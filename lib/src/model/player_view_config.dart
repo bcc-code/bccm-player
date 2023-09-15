@@ -118,6 +118,24 @@ class BccmPlayerControlsConfig {
   final bool? hidePlaybackSpeed;
   final bool? hideQualitySelector;
   final AdditionalControlsBuilder? additionalActionsBuilder;
+
+  BccmPlayerControlsConfig copyWith({
+    ControlsBuilder? customBuilder,
+    WidgetBuilder? playNextButton,
+    List<double>? playbackSpeeds,
+    bool? hidePlaybackSpeed,
+    bool? hideQualitySelector,
+    AdditionalControlsBuilder? additionalActionsBuilder,
+  }) {
+    return BccmPlayerControlsConfig(
+      customBuilder: customBuilder ?? this.customBuilder,
+      playNextButton: playNextButton ?? this.playNextButton,
+      playbackSpeeds: playbackSpeeds ?? this.playbackSpeeds,
+      hidePlaybackSpeed: hidePlaybackSpeed ?? this.hidePlaybackSpeed,
+      hideQualitySelector: hideQualitySelector ?? this.hideQualitySelector,
+      additionalActionsBuilder: additionalActionsBuilder ?? this.additionalActionsBuilder,
+    );
+  }
 }
 
 typedef ControlsBuilder = Widget Function(BuildContext context);
