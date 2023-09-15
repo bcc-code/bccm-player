@@ -11,7 +11,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.TrackGroup
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
 import com.npaw.youbora.lib6.media3.Media3Adapter
@@ -24,6 +27,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
+import media.bcc.bccm_player.cache
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.NpawConfig
 import media.bcc.bccm_player.players.PlayerController
@@ -39,6 +43,14 @@ class ExoPlayerController(private val context: Context) :
         .setTrackSelector(trackSelector)
         .setAudioAttributes(AudioAttributes.DEFAULT, true)
         .setVideoScalingMode(VIDEO_SCALING_MODE_SCALE_TO_FIT)
+        .setMediaSourceFactory(
+            if (cache != null) DefaultMediaSourceFactory(context).setDataSourceFactory(
+                CacheDataSource.Factory()
+                    .setCache(cache!!) // TODO: move cache initialization logic
+                    .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
+                    .setCacheWriteDataSinkFactory(null)
+            ) else DefaultMediaSourceFactory(context)
+        )
         .build()
     override val player: ForwardingPlayer
     override var currentPlayerViewController: BccmPlayerViewController? = null

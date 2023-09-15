@@ -3,7 +3,10 @@ package media.bcc.bccm_player
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.media3.common.C.TRACK_TYPE_TEXT
 import androidx.media3.common.MediaItem
+import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.DefaultDataSourceFactory
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -24,7 +27,6 @@ import media.bcc.bccm_player.pigeon.DownloaderApi
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadStatusChangedEvent
 import java.io.File
 import java.io.IOException
-import java.util.LinkedList
 import java.util.UUID
 import java.util.concurrent.Executor
 import kotlin.coroutines.suspendCoroutine
@@ -119,10 +121,14 @@ class DownloadProgress(
 }
 
 class Downloader(private val context: Context) {
-    private val downloadManager: DownloadManager = createDownloadManager(context)
+    companion object {
+        var downloadManager: DownloadManager? = null
+    }
+
     private val progress = DownloadProgress()
 
     init {
+        downloadManager = createDownloadManager(context)
         downloads().forEach {
             progress.add(it.toDownloaderApiModel(), it.percentDownloaded.toDouble() / 100)
         }
@@ -131,10 +137,10 @@ class Downloader(private val context: Context) {
     val statusChanged: Flow<DownloadStatusChangedEvent>
         get() = flow {
             while (currentCoroutineContext().isActive) {
-                val downloads = downloadManager.currentDownloads.mapNotNull {
+                val downloads = downloadManager!!.currentDownloads.mapNotNull {
                     progress.set(it.request.id, it.percentDownloaded.toDouble() / 100)
                 }
-                downloadManager.resumeDownloads()
+                downloadManager!!.resumeDownloads()
                 downloads.forEach { emit(it) }
                 delay(300)
             }
@@ -156,6 +162,26 @@ class Downloader(private val context: Context) {
         )
 
         downloadHelper.prepare()
+        downloadHelper.clearTrackSelections(0)
+
+        val tracks = downloadHelper.getTracks(0)
+        for (group in tracks.groups.filter { it.length > 0 }) {
+            for (i in 0 until group.length) {
+                val format = group.getTrackFormat(i);
+                if (group.type == TRACK_TYPE_TEXT
+                    || config.audioTrackIds.contains(format.id)
+                    || config.videoTrackIds.contains(format.id)
+                ) {
+                    downloadHelper.addTrackSelection(
+                        0,
+                        TrackSelectionParameters.Builder(context)
+                            .addOverride(TrackSelectionOverride(group.mediaTrackGroup, i))
+                            .build()
+                    )
+                }
+            }
+        }
+
 
         val request = downloadHelper.getDownloadRequest(
             key,
@@ -186,7 +212,7 @@ class Downloader(private val context: Context) {
     private fun downloads(): List<Download> {
         val result = emptyList<Download>().toMutableList()
 
-        val downloadCursor = downloadManager.downloadIndex.getDownloads()
+        val downloadCursor = downloadManager!!.downloadIndex.getDownloads()
 
         if (downloadCursor.moveToFirst()) {
             do {
@@ -194,21 +220,26 @@ class Downloader(private val context: Context) {
             } while (downloadCursor.moveToNext())
         }
 
-        downloadManager.resumeDownloads()
+        downloadManager!!.resumeDownloads()
 
         return result
     }
 
     fun getDownloads() = downloads().map { it.toDownloaderApiModel() }
 
+
     fun getDownloadStatus(downloadKey: String): Double {
-        val download = downloadManager.currentDownloads.firstOrNull { it.request.id == downloadKey }
-        downloadManager.resumeDownloads()
+        var download =
+            downloadManager!!.currentDownloads.firstOrNull { it.request.id == downloadKey }
+        if (download == null) {
+            downloadManager!!.downloadIndex.getDownload(downloadKey)
+        }
+        downloadManager!!.resumeDownloads()
+
         if (download != null) {
-            val progress = download.percentDownloaded.toDouble() / 100
-            return progress
+            return download.percentDownloaded.toDouble() / 100
         } else {
-            return 1.0
+            return 0.0
         }
     }
 
@@ -229,6 +260,8 @@ fun Download.toDownloaderApiModel(): DownloaderApi.Download {
         null
     }
 
+    val mediaItem = request.toMediaItem();
+
     return DownloaderApi.Download.Builder()
         .setKey(request.id)
         .setConfig(
@@ -243,6 +276,7 @@ fun Download.toDownloaderApiModel(): DownloaderApi.Download {
                 )
                 .build()
         )
+        .setOfflineUrl("downloaded://" + request.id)
         .setIsFinished(state == Download.STATE_COMPLETED)
         .build()
 }

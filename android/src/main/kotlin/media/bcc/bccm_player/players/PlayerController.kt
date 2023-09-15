@@ -5,13 +5,18 @@ import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.core.math.MathUtils.clamp
 import androidx.media3.common.C
-import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.exoplayer.ExoPlayer
 import media.bcc.bccm_player.BccmPlayerPlugin
+import media.bcc.bccm_player.Downloader
+import media.bcc.bccm_player.cache
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.VideoSize
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.BCCM_META_EXTRAS
@@ -19,7 +24,6 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.utils.TrackUtils
-import kotlin.math.max
 
 
 abstract class PlayerController : Player.Listener {
@@ -72,10 +76,34 @@ abstract class PlayerController : Player.Listener {
 
     fun replaceCurrentMediaItem(mediaItem: PlaybackPlatformApi.MediaItem, autoplay: Boolean?) {
         this.isLive = mediaItem.isLive ?: false
-        val androidMi = mapMediaItem(mediaItem)
+        var androidMi = mapMediaItem(mediaItem)
         var playbackStartPositionMs: Double? = null
         if (!this.isLive && mediaItem.playbackStartPositionMs != null) {
             playbackStartPositionMs = mediaItem.playbackStartPositionMs
+        }
+
+        if (mediaItem.url?.startsWith("downloaded://") == true) {
+            // Create a read-only cache data source factory using the download cache.
+
+            val id = mediaItem.url!!.substring("downloaded://".length);
+            val download = Downloader.downloadManager?.downloadIndex?.getDownload(id);
+            val downloadRequest = download?.request;
+            if (downloadRequest != null) {
+                val cacheDataSourceFactory: DataSource.Factory = CacheDataSource.Factory()
+                    .setCache(cache!!)
+                    .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
+                    .setCacheWriteDataSinkFactory(null) // Disable writing.
+
+                androidMi = androidMi.buildUpon()
+                    .setMediaId(id)
+                    .setUri(downloadRequest.uri)
+                    .setCustomCacheKey(downloadRequest.customCacheKey)
+                    .setMimeType(downloadRequest.mimeType)
+                    .setStreamKeys(downloadRequest.streamKeys)
+                    .build()
+            } else {
+                throw Error("Tried to play non-existent download")
+            }
         }
         player.setMediaItem(androidMi, playbackStartPositionMs?.toLong() ?: 0)
         player.playWhenReady = autoplay == true
