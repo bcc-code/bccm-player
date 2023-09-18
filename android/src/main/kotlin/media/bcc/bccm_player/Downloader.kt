@@ -14,38 +14,32 @@ import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadHelper
 import androidx.media3.exoplayer.offline.DownloadManager
+import androidx.media3.exoplayer.scheduler.Requirements
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import media.bcc.bccm_player.pigeon.DownloaderApi
-import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadStatusChangedEvent
+import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadFailedEvent
+import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadRemovedEvent
+import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadStatus
+import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadChangedEvent
 import java.io.File
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.Executor
 import kotlin.coroutines.suspendCoroutine
 
-
-private const val DOWNLOAD_FOLDER_NAME = "downloads"
-
-var cache: SimpleCache? = null
-
-fun createDownloadManager(context: Context): DownloadManager {
-    val databaseProvider = StandaloneDatabaseProvider(context)
-    val cacheDir = File(context.filesDir, DOWNLOAD_FOLDER_NAME)
-    if (cache == null) {
-        cache = SimpleCache(cacheDir, NoOpCacheEvictor(), databaseProvider)
-    }
-    val dataSourceFactory = DefaultHttpDataSource.Factory()
-    val downloadExecutor = Executor(Runnable::run)
-    return DownloadManager(context, databaseProvider, cache!!, dataSourceFactory, downloadExecutor)
-}
+const val DOWNLOADED_URL_SCHEME = "downloaded://";
 
 @Serializable
 data class DownloadInfo(
@@ -69,61 +63,99 @@ suspend fun DownloadHelper.prepare() {
     }
 }
 
-class DownloadProgress(
-    private val downloads: MutableMap<String, DownloaderApi.Download> = mutableMapOf(),
-    private val progress: MutableMap<String, Double> = mutableMapOf()
-) {
-    fun add(download: DownloaderApi.Download, initialProgress: Double) {
-        downloads[download.key] = download
-        progress[download.key] = initialProgress
-    }
+class Downloader(
+    private val context: Context,
+    private val pigeon: DownloaderApi.DownloaderListenerPigeon
+) : DownloadManager.Listener {
 
-    fun set(id: String, newProgress: Double): DownloadStatusChangedEvent? {
-        val download =
-            downloads[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
-        val currentProgress =
-            progress[id] ?: throw Exception("Unknown download key $id") // TODO: Better exception
-
-        if (newProgress >= 1.0) {
-            download.isFinished = true
-        }
-
-        if (currentProgress != newProgress) {
-            return null
-        }
-
-        progress[id] = newProgress
-
-        return DownloadStatusChangedEvent.Builder()
-            .setDownload(download)
-            .setProgress(newProgress)
-            .build()
-    }
-}
-
-class Downloader(private val context: Context) {
     companion object {
-        var downloadManager: DownloadManager? = null
+        private const val DOWNLOAD_FOLDER_NAME = "downloads"
+        private var cache: SimpleCache? = null
+        private var downloadManager: DownloadManager? = null
+
+        fun getOrCreateDownloadManager(context: Context): DownloadManager {
+            downloadManager = downloadManager ?: createDownloadManager(context)
+            return downloadManager!!
+        }
+
+        fun getDownloadManager(): DownloadManager {
+            return downloadManager!!;
+        }
+
+        fun getCache(): SimpleCache {
+            return cache!!;
+        }
+
+        private fun createDownloadManager(context: Context): DownloadManager {
+            val databaseProvider = StandaloneDatabaseProvider(context)
+            val cacheDir = File(context.filesDir, DOWNLOAD_FOLDER_NAME)
+            if (cache == null) {
+                cache = SimpleCache(cacheDir, NoOpCacheEvictor(), databaseProvider)
+            }
+            val dataSourceFactory = DefaultHttpDataSource.Factory()
+            val downloadExecutor = Executor(Runnable::run)
+            return DownloadManager(
+                context,
+                databaseProvider,
+                cache!!,
+                dataSourceFactory,
+                downloadExecutor
+            )
+        }
     }
 
-    private val progress = DownloadProgress()
+    private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     init {
-        downloadManager = createDownloadManager(context)
-        downloads().forEach {
-            progress.add(it.toDownloaderApiModel(), it.percentDownloaded.toDouble() / 100)
+        getOrCreateDownloadManager(context).addListener(this)
+
+        mainScope.launch {
+            statusChanged.collect {
+                pigeon.onDownloadStatusChanged(it) {}
+            }
         }
     }
 
-    val statusChanged: Flow<DownloadStatusChangedEvent>
+    override fun onDownloadRemoved(downloadManager: DownloadManager, download: Download) {
+        pigeon.onDownloadRemoved(
+            DownloadRemovedEvent.Builder()
+                .setKey(download.request.id)
+                .build()
+        ) {}
+    }
+
+    override fun onDownloadChanged(
+        downloadManager: DownloadManager,
+        download: Download,
+        finalException: java.lang.Exception?
+    ) {
+        if (finalException != null) {
+            pigeon.onDownloadFailed(
+                DownloadFailedEvent.Builder()
+                    .setKey(download.request.id)
+                    .setError(finalException.message + ", " + finalException.stackTraceToString())
+                    .build()
+            ) {}
+            return
+        }
+        pigeon.onDownloadStatusChanged(
+            DownloadChangedEvent.Builder()
+                .setDownload(download.toDownloaderApiModel())
+                .build()
+        ) {}
+    }
+
+    val statusChanged: Flow<DownloadChangedEvent>
         get() = flow {
             while (currentCoroutineContext().isActive) {
-                val downloads = downloadManager!!.currentDownloads.mapNotNull {
-                    progress.set(it.request.id, it.percentDownloaded.toDouble() / 100)
+                val downloads = getDownloadManager().currentDownloads.map {
+                    DownloadChangedEvent.Builder()
+                        .setDownload(it.toDownloaderApiModel())
+                        .build()
                 }
-                downloadManager!!.resumeDownloads()
+                getDownloadManager().resumeDownloads()
                 downloads.forEach { emit(it) }
-                delay(300)
+                delay(1000)
             }
         }
 
@@ -175,7 +207,6 @@ class Downloader(private val context: Context) {
                 )
             ).toByteArray()
         )
-
         androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
             context,
             DownloadService::class.java,
@@ -186,14 +217,17 @@ class Downloader(private val context: Context) {
         return DownloaderApi.Download.Builder()
             .setKey(key)
             .setConfig(config)
-            .setIsFinished(false)
+            .setFractionDownloaded(0.0)
+            .setOfflineUrl(DOWNLOADED_URL_SCHEME + request.id)
+            .setStatus(DownloadStatus.QUEUED)
             .build()
     }
 
     private fun downloads(): List<Download> {
         val result = emptyList<Download>().toMutableList()
 
-        val downloadCursor = downloadManager!!.downloadIndex.getDownloads()
+        val downloadCursor =
+            getDownloadManager().downloadIndex.getDownloads()
 
         if (downloadCursor.moveToFirst()) {
             do {
@@ -201,7 +235,7 @@ class Downloader(private val context: Context) {
             } while (downloadCursor.moveToNext())
         }
 
-        downloadManager!!.resumeDownloads()
+        getDownloadManager().resumeDownloads()
 
         return result
     }
@@ -211,17 +245,25 @@ class Downloader(private val context: Context) {
 
     fun getDownloadStatus(downloadKey: String): Double {
         var download =
-            downloadManager!!.currentDownloads.firstOrNull { it.request.id == downloadKey }
+            getDownloadManager().currentDownloads.firstOrNull { it.request.id == downloadKey }
         if (download == null) {
-            download = downloadManager!!.downloadIndex.getDownload(downloadKey)
+            download = getDownloadManager().downloadIndex.getDownload(downloadKey)
         }
-        downloadManager!!.resumeDownloads()
+        getDownloadManager().resumeDownloads()
 
         if (download != null) {
             return download.percentDownloaded.toDouble() / 100
         } else {
             return 0.0
         }
+    }
+
+    override fun onRequirementsStateChanged(
+        downloadManager: DownloadManager,
+        requirements: Requirements,
+        notMetRequirements: Int
+    ) {
+        super.onRequirementsStateChanged(downloadManager, requirements, notMetRequirements)
     }
 
     fun removeDownload(key: String) {
@@ -241,8 +283,6 @@ fun Download.toDownloaderApiModel(): DownloaderApi.Download {
         null
     }
 
-    val mediaItem = request.toMediaItem();
-
     return DownloaderApi.Download.Builder()
         .setKey(request.id)
         .setConfig(
@@ -257,7 +297,20 @@ fun Download.toDownloaderApiModel(): DownloaderApi.Download {
                 )
                 .build()
         )
-        .setOfflineUrl("downloaded://" + request.id)
-        .setIsFinished(state == Download.STATE_COMPLETED)
+        .setFractionDownloaded(percentDownloaded.toDouble() / 100)
+        .setOfflineUrl(DOWNLOADED_URL_SCHEME + request.id)
+        .setStatus(toApiDownloadStatus(state))
         .build()
+}
+
+// map between DownloadStatus and Download.STATE_*
+fun toApiDownloadStatus(state: Int): DownloadStatus {
+    return when (state) {
+        Download.STATE_DOWNLOADING -> DownloadStatus.DOWNLOADING
+        Download.STATE_STOPPED -> DownloadStatus.PAUSED
+        Download.STATE_REMOVING -> DownloadStatus.REMOVING
+        Download.STATE_COMPLETED -> DownloadStatus.FINISHED
+        Download.STATE_FAILED -> DownloadStatus.FAILED
+        else -> DownloadStatus.PAUSED
+    }
 }

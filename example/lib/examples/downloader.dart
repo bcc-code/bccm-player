@@ -23,7 +23,7 @@ class DownloadState {
 
 class _DownloaderState extends State<Downloader> {
   List<DownloadState> downloads = [];
-  StreamSubscription<DownloadStatusChangedEvent>? _subscription;
+  StreamSubscription<DownloadChangedEvent>? _subscription;
   List<Track> selectedAudioTracks = [];
   List<Track> selectedVideoTracks = [];
   bool isOffline = false;
@@ -43,13 +43,12 @@ class _DownloaderState extends State<Downloader> {
 
   @override
   void initState() {
-    _subscription = DownloaderInterface.instance.downloadStatusEvents.listen((event) async {
+    _subscription = DownloaderInterface.instance.events.statusChanged.listen((event) async {
       setState(() {
         final state = downloads.firstWhere((element) => element.download.key == event.download.key);
         state.download = event.download;
-        state.progress = event.progress;
 
-        debugPrint("Progress: ${state.progress} - ${state.download.isFinished}");
+        debugPrint("Progress: ${state.progress} - ${state.download.status.name}");
       });
     });
 
@@ -82,11 +81,9 @@ class _DownloaderState extends State<Downloader> {
                   Column(children: [
                     Text(state.download.config.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                   ]),
-                  state.download.isFinished
+                  state.download.status == DownloadStatus.finished
                       ? ElevatedButton(
                           onPressed: () {
-                            debugPrint(state.download.config.additionalData.toString());
-                            debugPrint("Play ${state.download.offlineUrl}");
                             BccmPlayerController.primary.replaceCurrentMediaItem(MediaItem(
                                 url: state.download.offlineUrl,
                                 mimeType: state.download.config.mimeType,

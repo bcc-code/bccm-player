@@ -4,13 +4,30 @@ import 'package:collection/collection.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class DownloaderListener implements DownloaderListenerPigeon {
-  final StreamController<DownloadStatusChangedEvent> _streamController = StreamController.broadcast();
+  final StreamController<DownloadChangedEvent> _statusChangedStreamController = StreamController.broadcast();
+  final StreamController<DownloadFailedEvent> _downloadFailedStreamController = StreamController.broadcast();
+  final StreamController<DownloadRemovedEvent> _downloadRemovedStreamController = StreamController.broadcast();
 
-  Stream<DownloadStatusChangedEvent> get stream => _streamController.stream;
+  Stream<DownloadChangedEvent> get statusChanged => _statusChangedStreamController.stream;
+  Stream<DownloadFailedEvent> get downloadFailed => _downloadFailedStreamController.stream;
+  Stream<DownloadRemovedEvent> get downloadRemoved => _downloadRemovedStreamController.stream;
 
   @override
-  void onDownloadStatusChanged(DownloadStatusChangedEvent event) {
-    _streamController.add(event);
+  void onDownloadStatusChanged(DownloadChangedEvent event) {
+    print("onDownloadStatusChanged, ${event.encode()}");
+    _statusChangedStreamController.add(event);
+  }
+
+  @override
+  void onDownloadFailed(DownloadFailedEvent event) {
+    print("onDownloadFailed, ${event.encode()}");
+    _downloadFailedStreamController.add(event);
+  }
+
+  @override
+  void onDownloadRemoved(DownloadRemovedEvent event) {
+    print("onDownloadRemoved, ${event.encode()}");
+    _downloadRemovedStreamController.add(event);
   }
 }
 
@@ -23,7 +40,7 @@ class DownloaderNative extends DownloaderInterface {
   }
 
   @override
-  Stream<DownloadStatusChangedEvent> get downloadStatusEvents => _listener.stream;
+  DownloaderListener get events => _listener;
 
   @override
   Future<Download> startDownload(DownloadConfig config) async {
@@ -64,7 +81,7 @@ abstract class DownloaderInterface extends PlatformInterface {
     _instance = instance;
   }
 
-  Stream<DownloadStatusChangedEvent> get downloadStatusEvents;
+  DownloaderListener get events;
 
   /// Starts the download, returns a key to check status.
   Future<Download> startDownload(DownloadConfig config);

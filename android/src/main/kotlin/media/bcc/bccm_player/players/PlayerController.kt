@@ -10,17 +10,14 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
-import androidx.media3.datasource.DataSource
-import androidx.media3.datasource.DefaultHttpDataSource
-import androidx.media3.datasource.cache.CacheDataSource
-import androidx.media3.exoplayer.ExoPlayer
 import media.bcc.bccm_player.BccmPlayerPlugin
+import media.bcc.bccm_player.DOWNLOADED_URL_SCHEME
 import media.bcc.bccm_player.Downloader
-import media.bcc.bccm_player.cache
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.VideoSize
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.BCCM_META_EXTRAS
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.utils.TrackUtils
@@ -82,18 +79,15 @@ abstract class PlayerController : Player.Listener {
             playbackStartPositionMs = mediaItem.playbackStartPositionMs
         }
 
-        if (mediaItem.url?.startsWith("downloaded://") == true) {
+        if (mediaItem.url?.startsWith(DOWNLOADED_URL_SCHEME) == true) {
             // Create a read-only cache data source factory using the download cache.
 
-            val id = mediaItem.url!!.substring("downloaded://".length);
-            val download = Downloader.downloadManager?.downloadIndex?.getDownload(id);
+            val id = mediaItem.url!!.substring(DOWNLOADED_URL_SCHEME.length);
+            val downloadManager = Downloader.getDownloadManager();
+            val download = downloadManager.downloadIndex.getDownload(id);
             val downloadRequest = download?.request;
+            downloadManager.resumeDownloads()
             if (downloadRequest != null) {
-                val cacheDataSourceFactory: DataSource.Factory = CacheDataSource.Factory()
-                    .setCache(cache!!)
-                    .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
-                    .setCacheWriteDataSinkFactory(null) // Disable writing.
-
                 androidMi = androidMi.buildUpon()
                     .setMediaId(id)
                     .setUri(downloadRequest.uri)
@@ -143,6 +137,9 @@ abstract class PlayerController : Player.Listener {
         if (mediaItem.isLive == true) {
             exoExtras.putString(PLAYER_DATA_IS_LIVE, "true")
         }
+        if (mediaItem.isOffline == true) {
+            exoExtras.putString(PLAYER_DATA_IS_OFFLINE, "true")
+        }
 
         val sourceExtra = mediaItem.metadata?.extras
         if (sourceExtra != null) {
@@ -182,6 +179,7 @@ abstract class PlayerController : Player.Listener {
         val miBuilder = PlaybackPlatformApi.MediaItem.Builder()
             .setUrl(mediaItem.localConfiguration?.uri?.toString())
             .setIsLive(sourceExtras?.getString(PLAYER_DATA_IS_LIVE) == "true")
+            .setIsOffline(sourceExtras?.getString(PLAYER_DATA_IS_OFFLINE) == "true")
             .setMetadata(metaBuilder.build())
         val mimeType = sourceExtras?.getString(PLAYER_DATA_MIME_TYPE);
         if (mimeType != null) {

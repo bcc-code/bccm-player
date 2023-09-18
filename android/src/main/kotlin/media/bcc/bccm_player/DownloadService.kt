@@ -19,10 +19,8 @@ class DownloadService : DownloadService(
     R.string.exo_download_notification_channel_name,
     0
 ) {
-    private val _downloadManager by lazy { createDownloadManager(this) }
-
     override fun getDownloadManager(): DownloadManager {
-        return _downloadManager
+        return Downloader.getOrCreateDownloadManager(applicationContext)
     }
 
     override fun getScheduler(): Scheduler? {
@@ -33,7 +31,10 @@ class DownloadService : DownloadService(
         downloads: MutableList<Download>,
         notMetRequirements: Int
     ): Notification {
-        return DownloadNotificationHelper(this, DOWNLOAD_NOTIFICATION_CHANNEL_ID).buildProgressNotification(
+        return DownloadNotificationHelper(
+            this,
+            DOWNLOAD_NOTIFICATION_CHANNEL_ID
+        ).buildProgressNotification(
             this,
             android.R.drawable.stat_sys_download_done,
             null,  //                TODO: accept custom message?

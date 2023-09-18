@@ -8,6 +8,15 @@ import 'dart:typed_data' show Float64List, Int32List, Int64List, Uint8List;
 import 'package:flutter/foundation.dart' show ReadBuffer, WriteBuffer;
 import 'package:flutter/services.dart';
 
+enum DownloadStatus {
+  downloading,
+  paused,
+  finished,
+  failed,
+  queued,
+  removing,
+}
+
 class DownloadConfig {
   DownloadConfig({
     required this.url,
@@ -59,7 +68,8 @@ class Download {
     required this.key,
     required this.config,
     this.offlineUrl,
-    required this.isFinished,
+    required this.fractionDownloaded,
+    required this.status,
   });
 
   String key;
@@ -68,14 +78,17 @@ class Download {
 
   String? offlineUrl;
 
-  bool isFinished;
+  double fractionDownloaded;
+
+  DownloadStatus status;
 
   Object encode() {
     return <Object?>[
       key,
       config.encode(),
       offlineUrl,
-      isFinished,
+      fractionDownloaded,
+      status.index,
     ];
   }
 
@@ -85,33 +98,76 @@ class Download {
       key: result[0]! as String,
       config: DownloadConfig.decode(result[1]! as List<Object?>),
       offlineUrl: result[2] as String?,
-      isFinished: result[3]! as bool,
+      fractionDownloaded: result[3]! as double,
+      status: DownloadStatus.values[result[4]! as int],
     );
   }
 }
 
-class DownloadStatusChangedEvent {
-  DownloadStatusChangedEvent({
+class DownloadFailedEvent {
+  DownloadFailedEvent({
+    required this.key,
+    this.error,
+  });
+
+  String key;
+
+  String? error;
+
+  Object encode() {
+    return <Object?>[
+      key,
+      error,
+    ];
+  }
+
+  static DownloadFailedEvent decode(Object result) {
+    result as List<Object?>;
+    return DownloadFailedEvent(
+      key: result[0]! as String,
+      error: result[1] as String?,
+    );
+  }
+}
+
+class DownloadRemovedEvent {
+  DownloadRemovedEvent({
+    required this.key,
+  });
+
+  String key;
+
+  Object encode() {
+    return <Object?>[
+      key,
+    ];
+  }
+
+  static DownloadRemovedEvent decode(Object result) {
+    result as List<Object?>;
+    return DownloadRemovedEvent(
+      key: result[0]! as String,
+    );
+  }
+}
+
+class DownloadChangedEvent {
+  DownloadChangedEvent({
     required this.download,
-    required this.progress,
   });
 
   Download download;
 
-  double progress;
-
   Object encode() {
     return <Object?>[
       download.encode(),
-      progress,
     ];
   }
 
-  static DownloadStatusChangedEvent decode(Object result) {
+  static DownloadChangedEvent decode(Object result) {
     result as List<Object?>;
-    return DownloadStatusChangedEvent(
+    return DownloadChangedEvent(
       download: Download.decode(result[0]! as List<Object?>),
-      progress: result[1]! as double,
     );
   }
 }
@@ -293,11 +349,17 @@ class _DownloaderListenerPigeonCodec extends StandardMessageCodec {
     if (value is Download) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is DownloadConfig) {
+    } else if (value is DownloadChangedEvent) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is DownloadStatusChangedEvent) {
+    } else if (value is DownloadConfig) {
       buffer.putUint8(130);
+      writeValue(buffer, value.encode());
+    } else if (value is DownloadFailedEvent) {
+      buffer.putUint8(131);
+      writeValue(buffer, value.encode());
+    } else if (value is DownloadRemovedEvent) {
+      buffer.putUint8(132);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -310,9 +372,13 @@ class _DownloaderListenerPigeonCodec extends StandardMessageCodec {
       case 128: 
         return Download.decode(readValue(buffer)!);
       case 129: 
-        return DownloadConfig.decode(readValue(buffer)!);
+        return DownloadChangedEvent.decode(readValue(buffer)!);
       case 130: 
-        return DownloadStatusChangedEvent.decode(readValue(buffer)!);
+        return DownloadConfig.decode(readValue(buffer)!);
+      case 131: 
+        return DownloadFailedEvent.decode(readValue(buffer)!);
+      case 132: 
+        return DownloadRemovedEvent.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -322,7 +388,11 @@ class _DownloaderListenerPigeonCodec extends StandardMessageCodec {
 abstract class DownloaderListenerPigeon {
   static const MessageCodec<Object?> codec = _DownloaderListenerPigeonCodec();
 
-  void onDownloadStatusChanged(DownloadStatusChangedEvent event);
+  void onDownloadStatusChanged(DownloadChangedEvent event);
+
+  void onDownloadRemoved(DownloadRemovedEvent event);
+
+  void onDownloadFailed(DownloadFailedEvent event);
 
   static void setup(DownloaderListenerPigeon? api, {BinaryMessenger? binaryMessenger}) {
     {
@@ -336,10 +406,48 @@ abstract class DownloaderListenerPigeon {
           assert(message != null,
           'Argument for dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadStatusChanged was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final DownloadStatusChangedEvent? arg_event = (args[0] as DownloadStatusChangedEvent?);
+          final DownloadChangedEvent? arg_event = (args[0] as DownloadChangedEvent?);
           assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadStatusChanged was null, expected non-null DownloadStatusChangedEvent.');
+              'Argument for dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadStatusChanged was null, expected non-null DownloadChangedEvent.');
           api.onDownloadStatusChanged(arg_event!);
+          return;
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadRemoved', codec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadRemoved was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final DownloadRemovedEvent? arg_event = (args[0] as DownloadRemovedEvent?);
+          assert(arg_event != null,
+              'Argument for dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadRemoved was null, expected non-null DownloadRemovedEvent.');
+          api.onDownloadRemoved(arg_event!);
+          return;
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadFailed', codec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        channel.setMessageHandler(null);
+      } else {
+        channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadFailed was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final DownloadFailedEvent? arg_event = (args[0] as DownloadFailedEvent?);
+          assert(arg_event != null,
+              'Argument for dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadFailed was null, expected non-null DownloadFailedEvent.');
+          api.onDownloadFailed(arg_event!);
           return;
         });
       }

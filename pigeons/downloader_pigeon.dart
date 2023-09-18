@@ -54,20 +54,42 @@ class DownloadConfig {
   late Map<String?, String?> additionalData;
 }
 
+enum DownloadStatus {
+  downloading,
+  paused,
+  finished,
+  failed,
+  queued,
+  removing,
+}
+
 class Download {
   late String key;
   late DownloadConfig config;
   late String? offlineUrl;
-  late bool isFinished;
+  late double fractionDownloaded;
+  late DownloadStatus status;
 }
 
 @FlutterApi()
 abstract class DownloaderListenerPigeon {
   @ObjCSelector("onDownloadStatusChanged:")
-  void onDownloadStatusChanged(DownloadStatusChangedEvent event);
+  void onDownloadStatusChanged(DownloadChangedEvent event);
+  @ObjCSelector("onDownloadRemoved:")
+  void onDownloadRemoved(DownloadRemovedEvent event);
+  @ObjCSelector("onDownloadFailed:")
+  void onDownloadFailed(DownloadFailedEvent event);
 }
 
-class DownloadStatusChangedEvent {
+class DownloadFailedEvent {
+  late String key;
+  late String? error;
+}
+
+class DownloadRemovedEvent {
+  late String key;
+}
+
+class DownloadChangedEvent {
   late Download download;
-  late double progress;
 }

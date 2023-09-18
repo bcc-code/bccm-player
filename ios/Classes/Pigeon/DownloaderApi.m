@@ -38,9 +38,21 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList;
 @end
 
-@interface DownloadStatusChangedEvent ()
-+ (DownloadStatusChangedEvent *)fromList:(NSArray *)list;
-+ (nullable DownloadStatusChangedEvent *)nullableFromList:(NSArray *)list;
+@interface DownloadFailedEvent ()
++ (DownloadFailedEvent *)fromList:(NSArray *)list;
++ (nullable DownloadFailedEvent *)nullableFromList:(NSArray *)list;
+- (NSArray *)toList;
+@end
+
+@interface DownloadRemovedEvent ()
++ (DownloadRemovedEvent *)fromList:(NSArray *)list;
++ (nullable DownloadRemovedEvent *)nullableFromList:(NSArray *)list;
+- (NSArray *)toList;
+@end
+
+@interface DownloadChangedEvent ()
++ (DownloadChangedEvent *)fromList:(NSArray *)list;
++ (nullable DownloadChangedEvent *)nullableFromList:(NSArray *)list;
 - (NSArray *)toList;
 @end
 
@@ -95,12 +107,14 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 + (instancetype)makeWithKey:(NSString *)key
     config:(DownloadConfig *)config
     offlineUrl:(nullable NSString *)offlineUrl
-    isFinished:(NSNumber *)isFinished {
+    fractionDownloaded:(NSNumber *)fractionDownloaded
+    status:(DownloadStatus)status {
   Download* pigeonResult = [[Download alloc] init];
   pigeonResult.key = key;
   pigeonResult.config = config;
   pigeonResult.offlineUrl = offlineUrl;
-  pigeonResult.isFinished = isFinished;
+  pigeonResult.fractionDownloaded = fractionDownloaded;
+  pigeonResult.status = status;
   return pigeonResult;
 }
 + (Download *)fromList:(NSArray *)list {
@@ -110,8 +124,9 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.config = [DownloadConfig nullableFromList:(GetNullableObjectAtIndex(list, 1))];
   NSAssert(pigeonResult.config != nil, @"");
   pigeonResult.offlineUrl = GetNullableObjectAtIndex(list, 2);
-  pigeonResult.isFinished = GetNullableObjectAtIndex(list, 3);
-  NSAssert(pigeonResult.isFinished != nil, @"");
+  pigeonResult.fractionDownloaded = GetNullableObjectAtIndex(list, 3);
+  NSAssert(pigeonResult.fractionDownloaded != nil, @"");
+  pigeonResult.status = [GetNullableObjectAtIndex(list, 4) integerValue];
   return pigeonResult;
 }
 + (nullable Download *)nullableFromList:(NSArray *)list {
@@ -122,34 +137,78 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.key ?: [NSNull null]),
     (self.config ? [self.config toList] : [NSNull null]),
     (self.offlineUrl ?: [NSNull null]),
-    (self.isFinished ?: [NSNull null]),
+    (self.fractionDownloaded ?: [NSNull null]),
+    @(self.status),
   ];
 }
 @end
 
-@implementation DownloadStatusChangedEvent
-+ (instancetype)makeWithDownload:(Download *)download
-    progress:(NSNumber *)progress {
-  DownloadStatusChangedEvent* pigeonResult = [[DownloadStatusChangedEvent alloc] init];
-  pigeonResult.download = download;
-  pigeonResult.progress = progress;
+@implementation DownloadFailedEvent
++ (instancetype)makeWithKey:(NSString *)key
+    error:(nullable NSString *)error {
+  DownloadFailedEvent* pigeonResult = [[DownloadFailedEvent alloc] init];
+  pigeonResult.key = key;
+  pigeonResult.error = error;
   return pigeonResult;
 }
-+ (DownloadStatusChangedEvent *)fromList:(NSArray *)list {
-  DownloadStatusChangedEvent *pigeonResult = [[DownloadStatusChangedEvent alloc] init];
++ (DownloadFailedEvent *)fromList:(NSArray *)list {
+  DownloadFailedEvent *pigeonResult = [[DownloadFailedEvent alloc] init];
+  pigeonResult.key = GetNullableObjectAtIndex(list, 0);
+  NSAssert(pigeonResult.key != nil, @"");
+  pigeonResult.error = GetNullableObjectAtIndex(list, 1);
+  return pigeonResult;
+}
++ (nullable DownloadFailedEvent *)nullableFromList:(NSArray *)list {
+  return (list) ? [DownloadFailedEvent fromList:list] : nil;
+}
+- (NSArray *)toList {
+  return @[
+    (self.key ?: [NSNull null]),
+    (self.error ?: [NSNull null]),
+  ];
+}
+@end
+
+@implementation DownloadRemovedEvent
++ (instancetype)makeWithKey:(NSString *)key {
+  DownloadRemovedEvent* pigeonResult = [[DownloadRemovedEvent alloc] init];
+  pigeonResult.key = key;
+  return pigeonResult;
+}
++ (DownloadRemovedEvent *)fromList:(NSArray *)list {
+  DownloadRemovedEvent *pigeonResult = [[DownloadRemovedEvent alloc] init];
+  pigeonResult.key = GetNullableObjectAtIndex(list, 0);
+  NSAssert(pigeonResult.key != nil, @"");
+  return pigeonResult;
+}
++ (nullable DownloadRemovedEvent *)nullableFromList:(NSArray *)list {
+  return (list) ? [DownloadRemovedEvent fromList:list] : nil;
+}
+- (NSArray *)toList {
+  return @[
+    (self.key ?: [NSNull null]),
+  ];
+}
+@end
+
+@implementation DownloadChangedEvent
++ (instancetype)makeWithDownload:(Download *)download {
+  DownloadChangedEvent* pigeonResult = [[DownloadChangedEvent alloc] init];
+  pigeonResult.download = download;
+  return pigeonResult;
+}
++ (DownloadChangedEvent *)fromList:(NSArray *)list {
+  DownloadChangedEvent *pigeonResult = [[DownloadChangedEvent alloc] init];
   pigeonResult.download = [Download nullableFromList:(GetNullableObjectAtIndex(list, 0))];
   NSAssert(pigeonResult.download != nil, @"");
-  pigeonResult.progress = GetNullableObjectAtIndex(list, 1);
-  NSAssert(pigeonResult.progress != nil, @"");
   return pigeonResult;
 }
-+ (nullable DownloadStatusChangedEvent *)nullableFromList:(NSArray *)list {
-  return (list) ? [DownloadStatusChangedEvent fromList:list] : nil;
++ (nullable DownloadChangedEvent *)nullableFromList:(NSArray *)list {
+  return (list) ? [DownloadChangedEvent fromList:list] : nil;
 }
 - (NSArray *)toList {
   return @[
     (self.download ? [self.download toList] : [NSNull null]),
-    (self.progress ?: [NSNull null]),
   ];
 }
 @end
@@ -314,9 +373,13 @@ void DownloaderPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<
     case 128: 
       return [Download fromList:[self readValue]];
     case 129: 
-      return [DownloadConfig fromList:[self readValue]];
+      return [DownloadChangedEvent fromList:[self readValue]];
     case 130: 
-      return [DownloadStatusChangedEvent fromList:[self readValue]];
+      return [DownloadConfig fromList:[self readValue]];
+    case 131: 
+      return [DownloadFailedEvent fromList:[self readValue]];
+    case 132: 
+      return [DownloadRemovedEvent fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -330,11 +393,17 @@ void DownloaderPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<
   if ([value isKindOfClass:[Download class]]) {
     [self writeByte:128];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[DownloadConfig class]]) {
+  } else if ([value isKindOfClass:[DownloadChangedEvent class]]) {
     [self writeByte:129];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[DownloadStatusChangedEvent class]]) {
+  } else if ([value isKindOfClass:[DownloadConfig class]]) {
     [self writeByte:130];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[DownloadFailedEvent class]]) {
+    [self writeByte:131];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[DownloadRemovedEvent class]]) {
+    [self writeByte:132];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -376,10 +445,30 @@ NSObject<FlutterMessageCodec> *DownloaderListenerPigeonGetCodec(void) {
   }
   return self;
 }
-- (void)onDownloadStatusChanged:(DownloadStatusChangedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+- (void)onDownloadStatusChanged:(DownloadChangedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
       messageChannelWithName:@"dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadStatusChanged"
+      binaryMessenger:self.binaryMessenger
+      codec:DownloaderListenerPigeonGetCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(id reply) {
+    completion(nil);
+  }];
+}
+- (void)onDownloadRemoved:(DownloadRemovedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:@"dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadRemoved"
+      binaryMessenger:self.binaryMessenger
+      codec:DownloaderListenerPigeonGetCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(id reply) {
+    completion(nil);
+  }];
+}
+- (void)onDownloadFailed:(DownloadFailedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:@"dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadFailed"
       binaryMessenger:self.binaryMessenger
       codec:DownloaderListenerPigeonGetCodec()];
   [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(id reply) {

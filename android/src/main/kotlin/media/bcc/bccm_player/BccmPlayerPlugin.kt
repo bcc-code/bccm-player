@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
+import androidx.media3.exoplayer.offline.DownloadManager
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.android.gms.cast.framework.CastContext
@@ -180,7 +181,10 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         activityBinding = binding
         activityBinding?.addOnUserLeaveHintListener(this)
 
-        val downloader = Downloader(binding.activity)
+        val downloader = Downloader(
+            binding.activity,
+            downloaderPigeon!!
+        ) // onAttachedToActivity always runs after onAttachedToEngine
         PlaybackPlatformPigeon.setup(pluginBinding!!.binaryMessenger, PlaybackApiImpl(this))
         DownloaderPigeon.setup(pluginBinding!!.binaryMessenger, DownloaderApiImpl(downloader))
 

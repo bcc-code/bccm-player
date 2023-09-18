@@ -10,9 +10,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, DownloadStatus) {
+  DownloadStatusDownloading = 0,
+  DownloadStatusPaused = 1,
+  DownloadStatusFinished = 2,
+  DownloadStatusFailed = 3,
+  DownloadStatusQueued = 4,
+  DownloadStatusRemoving = 5,
+};
+
 @class DownloadConfig;
 @class Download;
-@class DownloadStatusChangedEvent;
+@class DownloadFailedEvent;
+@class DownloadRemovedEvent;
+@class DownloadChangedEvent;
 
 @interface DownloadConfig : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
@@ -37,20 +48,36 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)makeWithKey:(NSString *)key
     config:(DownloadConfig *)config
     offlineUrl:(nullable NSString *)offlineUrl
-    isFinished:(NSNumber *)isFinished;
+    fractionDownloaded:(NSNumber *)fractionDownloaded
+    status:(DownloadStatus)status;
 @property(nonatomic, copy) NSString * key;
 @property(nonatomic, strong) DownloadConfig * config;
 @property(nonatomic, copy, nullable) NSString * offlineUrl;
-@property(nonatomic, strong) NSNumber * isFinished;
+@property(nonatomic, strong) NSNumber * fractionDownloaded;
+@property(nonatomic, assign) DownloadStatus status;
 @end
 
-@interface DownloadStatusChangedEvent : NSObject
+@interface DownloadFailedEvent : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
 - (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithDownload:(Download *)download
-    progress:(NSNumber *)progress;
++ (instancetype)makeWithKey:(NSString *)key
+    error:(nullable NSString *)error;
+@property(nonatomic, copy) NSString * key;
+@property(nonatomic, copy, nullable) NSString * error;
+@end
+
+@interface DownloadRemovedEvent : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithKey:(NSString *)key;
+@property(nonatomic, copy) NSString * key;
+@end
+
+@interface DownloadChangedEvent : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithDownload:(Download *)download;
 @property(nonatomic, strong) Download * download;
-@property(nonatomic, strong) NSNumber * progress;
 @end
 
 /// The codec used by DownloaderPigeon.
@@ -72,7 +99,9 @@ NSObject<FlutterMessageCodec> *DownloaderListenerPigeonGetCodec(void);
 
 @interface DownloaderListenerPigeon : NSObject
 - (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger;
-- (void)onDownloadStatusChanged:(DownloadStatusChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)onDownloadStatusChanged:(DownloadChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)onDownloadRemoved:(DownloadRemovedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)onDownloadFailed:(DownloadFailedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 @end
 
 NS_ASSUME_NONNULL_END

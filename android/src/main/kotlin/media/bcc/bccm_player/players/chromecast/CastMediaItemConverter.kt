@@ -198,6 +198,7 @@ class CastMediaItemConverter : MediaItemConverter {
         const val BCCM_PLAYER_DATA = "media.bcc.player"
         const val BCCM_META_EXTRAS = "media.bcc.extras"
         const val PLAYER_DATA_IS_LIVE = "$BCCM_PLAYER_DATA.is_live"
+        const val PLAYER_DATA_IS_OFFLINE = "$BCCM_PLAYER_DATA.is_offline"
         const val PLAYER_DATA_MIME_TYPE = "$BCCM_PLAYER_DATA.mime_type"
         const val PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE =
             "$BCCM_PLAYER_DATA.last_known_audio_language"

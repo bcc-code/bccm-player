@@ -21,7 +21,7 @@ public class Downloader {
                                             delegateQueue: OperationQueue.main)
     }
     
-    public var statusChanged: any Subject<DownloadStatusChangedEvent, Never> {
+    public var statusChanged: any Subject<DownloadChangedEvent, Never> {
         delegate.statusChanged
     }
     
@@ -108,7 +108,7 @@ public class Downloader {
     }
 
     public class Delegate: NSObject, AVAssetDownloadDelegate {
-        public let statusChanged = PassthroughSubject<DownloadStatusChangedEvent, Never>()
+        public let statusChanged = PassthroughSubject<DownloadChangedEvent, Never>()
 
         public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, willDownloadTo location: URL) {
             var state = UserDefaults.standard.downloaderState
@@ -122,7 +122,7 @@ public class Downloader {
             UserDefaults.standard.downloaderState = state
             
             statusChanged.send(
-                DownloadStatusChangedEvent.make(
+                DownloadChangedEvent.make(
                     with: taskState.download,
                     progress: NSNumber(value: 0.0)
                 )
@@ -139,7 +139,7 @@ public class Downloader {
             }
             
             statusChanged.send(
-                DownloadStatusChangedEvent.make(
+                DownloadChangedEvent.make(
                     with: taskState.download,
                     progress: NSNumber(value: progress)
                 )
@@ -169,7 +169,7 @@ public class Downloader {
             
             UserDefaults.standard.downloaderState = state
             
-            statusChanged.send(DownloadStatusChangedEvent.make(with: taskState.download, progress: NSNumber(value: 1.0)))
+            statusChanged.send(DownloadChangedEvent.make(with: taskState.download, progress: NSNumber(value: 1.0)))
         }
     }
 }

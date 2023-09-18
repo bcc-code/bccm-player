@@ -57,6 +57,21 @@ public class DownloaderApi {
     return errorList;
   }
 
+  public enum DownloadStatus {
+    DOWNLOADING(0),
+    PAUSED(1),
+    FINISHED(2),
+    FAILED(3),
+    QUEUED(4),
+    REMOVING(5);
+
+    final int index;
+
+    private DownloadStatus(final int index) {
+      this.index = index;
+    }
+  }
+
   /** Generated class from Pigeon that represents data sent in messages. */
   public static final class DownloadConfig {
     private @NonNull String url;
@@ -264,17 +279,30 @@ public class DownloaderApi {
       this.offlineUrl = setterArg;
     }
 
-    private @NonNull Boolean isFinished;
+    private @NonNull Double fractionDownloaded;
 
-    public @NonNull Boolean getIsFinished() {
-      return isFinished;
+    public @NonNull Double getFractionDownloaded() {
+      return fractionDownloaded;
     }
 
-    public void setIsFinished(@NonNull Boolean setterArg) {
+    public void setFractionDownloaded(@NonNull Double setterArg) {
       if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"isFinished\" is null.");
+        throw new IllegalStateException("Nonnull field \"fractionDownloaded\" is null.");
       }
-      this.isFinished = setterArg;
+      this.fractionDownloaded = setterArg;
+    }
+
+    private @NonNull DownloadStatus status;
+
+    public @NonNull DownloadStatus getStatus() {
+      return status;
+    }
+
+    public void setStatus(@NonNull DownloadStatus setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"status\" is null.");
+      }
+      this.status = setterArg;
     }
 
     /** Constructor is non-public to enforce null safety; use Builder. */
@@ -303,10 +331,17 @@ public class DownloaderApi {
         return this;
       }
 
-      private @Nullable Boolean isFinished;
+      private @Nullable Double fractionDownloaded;
 
-      public @NonNull Builder setIsFinished(@NonNull Boolean setterArg) {
-        this.isFinished = setterArg;
+      public @NonNull Builder setFractionDownloaded(@NonNull Double setterArg) {
+        this.fractionDownloaded = setterArg;
+        return this;
+      }
+
+      private @Nullable DownloadStatus status;
+
+      public @NonNull Builder setStatus(@NonNull DownloadStatus setterArg) {
+        this.status = setterArg;
         return this;
       }
 
@@ -315,18 +350,20 @@ public class DownloaderApi {
         pigeonReturn.setKey(key);
         pigeonReturn.setConfig(config);
         pigeonReturn.setOfflineUrl(offlineUrl);
-        pigeonReturn.setIsFinished(isFinished);
+        pigeonReturn.setFractionDownloaded(fractionDownloaded);
+        pigeonReturn.setStatus(status);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(4);
+      ArrayList<Object> toListResult = new ArrayList<Object>(5);
       toListResult.add(key);
       toListResult.add((config == null) ? null : config.toList());
       toListResult.add(offlineUrl);
-      toListResult.add(isFinished);
+      toListResult.add(fractionDownloaded);
+      toListResult.add(status == null ? null : status.index);
       return toListResult;
     }
 
@@ -338,14 +375,135 @@ public class DownloaderApi {
       pigeonResult.setConfig((config == null) ? null : DownloadConfig.fromList((ArrayList<Object>) config));
       Object offlineUrl = list.get(2);
       pigeonResult.setOfflineUrl((String) offlineUrl);
-      Object isFinished = list.get(3);
-      pigeonResult.setIsFinished((Boolean) isFinished);
+      Object fractionDownloaded = list.get(3);
+      pigeonResult.setFractionDownloaded((Double) fractionDownloaded);
+      Object status = list.get(4);
+      pigeonResult.setStatus(status == null ? null : DownloadStatus.values()[(int) status]);
       return pigeonResult;
     }
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
-  public static final class DownloadStatusChangedEvent {
+  public static final class DownloadFailedEvent {
+    private @NonNull String key;
+
+    public @NonNull String getKey() {
+      return key;
+    }
+
+    public void setKey(@NonNull String setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"key\" is null.");
+      }
+      this.key = setterArg;
+    }
+
+    private @Nullable String error;
+
+    public @Nullable String getError() {
+      return error;
+    }
+
+    public void setError(@Nullable String setterArg) {
+      this.error = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    DownloadFailedEvent() {}
+
+    public static final class Builder {
+
+      private @Nullable String key;
+
+      public @NonNull Builder setKey(@NonNull String setterArg) {
+        this.key = setterArg;
+        return this;
+      }
+
+      private @Nullable String error;
+
+      public @NonNull Builder setError(@Nullable String setterArg) {
+        this.error = setterArg;
+        return this;
+      }
+
+      public @NonNull DownloadFailedEvent build() {
+        DownloadFailedEvent pigeonReturn = new DownloadFailedEvent();
+        pigeonReturn.setKey(key);
+        pigeonReturn.setError(error);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(2);
+      toListResult.add(key);
+      toListResult.add(error);
+      return toListResult;
+    }
+
+    static @NonNull DownloadFailedEvent fromList(@NonNull ArrayList<Object> list) {
+      DownloadFailedEvent pigeonResult = new DownloadFailedEvent();
+      Object key = list.get(0);
+      pigeonResult.setKey((String) key);
+      Object error = list.get(1);
+      pigeonResult.setError((String) error);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class DownloadRemovedEvent {
+    private @NonNull String key;
+
+    public @NonNull String getKey() {
+      return key;
+    }
+
+    public void setKey(@NonNull String setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"key\" is null.");
+      }
+      this.key = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    DownloadRemovedEvent() {}
+
+    public static final class Builder {
+
+      private @Nullable String key;
+
+      public @NonNull Builder setKey(@NonNull String setterArg) {
+        this.key = setterArg;
+        return this;
+      }
+
+      public @NonNull DownloadRemovedEvent build() {
+        DownloadRemovedEvent pigeonReturn = new DownloadRemovedEvent();
+        pigeonReturn.setKey(key);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(1);
+      toListResult.add(key);
+      return toListResult;
+    }
+
+    static @NonNull DownloadRemovedEvent fromList(@NonNull ArrayList<Object> list) {
+      DownloadRemovedEvent pigeonResult = new DownloadRemovedEvent();
+      Object key = list.get(0);
+      pigeonResult.setKey((String) key);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class DownloadChangedEvent {
     private @NonNull Download download;
 
     public @NonNull Download getDownload() {
@@ -359,21 +517,8 @@ public class DownloaderApi {
       this.download = setterArg;
     }
 
-    private @NonNull Double progress;
-
-    public @NonNull Double getProgress() {
-      return progress;
-    }
-
-    public void setProgress(@NonNull Double setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"progress\" is null.");
-      }
-      this.progress = setterArg;
-    }
-
     /** Constructor is non-public to enforce null safety; use Builder. */
-    DownloadStatusChangedEvent() {}
+    DownloadChangedEvent() {}
 
     public static final class Builder {
 
@@ -384,35 +529,24 @@ public class DownloaderApi {
         return this;
       }
 
-      private @Nullable Double progress;
-
-      public @NonNull Builder setProgress(@NonNull Double setterArg) {
-        this.progress = setterArg;
-        return this;
-      }
-
-      public @NonNull DownloadStatusChangedEvent build() {
-        DownloadStatusChangedEvent pigeonReturn = new DownloadStatusChangedEvent();
+      public @NonNull DownloadChangedEvent build() {
+        DownloadChangedEvent pigeonReturn = new DownloadChangedEvent();
         pigeonReturn.setDownload(download);
-        pigeonReturn.setProgress(progress);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(2);
+      ArrayList<Object> toListResult = new ArrayList<Object>(1);
       toListResult.add((download == null) ? null : download.toList());
-      toListResult.add(progress);
       return toListResult;
     }
 
-    static @NonNull DownloadStatusChangedEvent fromList(@NonNull ArrayList<Object> list) {
-      DownloadStatusChangedEvent pigeonResult = new DownloadStatusChangedEvent();
+    static @NonNull DownloadChangedEvent fromList(@NonNull ArrayList<Object> list) {
+      DownloadChangedEvent pigeonResult = new DownloadChangedEvent();
       Object download = list.get(0);
       pigeonResult.setDownload((download == null) ? null : Download.fromList((ArrayList<Object>) download));
-      Object progress = list.get(1);
-      pigeonResult.setProgress((Double) progress);
       return pigeonResult;
     }
   }
@@ -640,9 +774,13 @@ public class DownloaderApi {
         case (byte) 128:
           return Download.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 129:
-          return DownloadConfig.fromList((ArrayList<Object>) readValue(buffer));
+          return DownloadChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 130:
-          return DownloadStatusChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return DownloadConfig.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 131:
+          return DownloadFailedEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 132:
+          return DownloadRemovedEvent.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
       }
@@ -653,12 +791,18 @@ public class DownloaderApi {
       if (value instanceof Download) {
         stream.write(128);
         writeValue(stream, ((Download) value).toList());
-      } else if (value instanceof DownloadConfig) {
+      } else if (value instanceof DownloadChangedEvent) {
         stream.write(129);
-        writeValue(stream, ((DownloadConfig) value).toList());
-      } else if (value instanceof DownloadStatusChangedEvent) {
+        writeValue(stream, ((DownloadChangedEvent) value).toList());
+      } else if (value instanceof DownloadConfig) {
         stream.write(130);
-        writeValue(stream, ((DownloadStatusChangedEvent) value).toList());
+        writeValue(stream, ((DownloadConfig) value).toList());
+      } else if (value instanceof DownloadFailedEvent) {
+        stream.write(131);
+        writeValue(stream, ((DownloadFailedEvent) value).toList());
+      } else if (value instanceof DownloadRemovedEvent) {
+        stream.write(132);
+        writeValue(stream, ((DownloadRemovedEvent) value).toList());
       } else {
         super.writeValue(stream, value);
       }
@@ -682,10 +826,26 @@ public class DownloaderApi {
     static @NonNull MessageCodec<Object> getCodec() {
       return DownloaderListenerPigeonCodec.INSTANCE;
     }
-    public void onDownloadStatusChanged(@NonNull DownloadStatusChangedEvent eventArg, @NonNull Reply<Void> callback) {
+    public void onDownloadStatusChanged(@NonNull DownloadChangedEvent eventArg, @NonNull Reply<Void> callback) {
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(
               binaryMessenger, "dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadStatusChanged", getCodec());
+      channel.send(
+          new ArrayList<Object>(Collections.singletonList(eventArg)),
+          channelReply -> callback.reply(null));
+    }
+    public void onDownloadRemoved(@NonNull DownloadRemovedEvent eventArg, @NonNull Reply<Void> callback) {
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, "dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadRemoved", getCodec());
+      channel.send(
+          new ArrayList<Object>(Collections.singletonList(eventArg)),
+          channelReply -> callback.reply(null));
+    }
+    public void onDownloadFailed(@NonNull DownloadFailedEvent eventArg, @NonNull Reply<Void> callback) {
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, "dev.flutter.pigeon.bccm_player.DownloaderListenerPigeon.onDownloadFailed", getCodec());
       channel.send(
           new ArrayList<Object>(Collections.singletonList(eventArg)),
           channelReply -> callback.reply(null));
