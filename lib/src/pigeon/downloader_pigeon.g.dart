@@ -70,6 +70,7 @@ class Download {
     this.offlineUrl,
     required this.fractionDownloaded,
     required this.status,
+    this.error,
   });
 
   String key;
@@ -82,6 +83,8 @@ class Download {
 
   DownloadStatus status;
 
+  String? error;
+
   Object encode() {
     return <Object?>[
       key,
@@ -89,6 +92,7 @@ class Download {
       offlineUrl,
       fractionDownloaded,
       status.index,
+      error,
     ];
   }
 
@@ -100,6 +104,7 @@ class Download {
       offlineUrl: result[2] as String?,
       fractionDownloaded: result[3]! as double,
       status: DownloadStatus.values[result[4]! as int],
+      error: result[5] as String?,
     );
   }
 }

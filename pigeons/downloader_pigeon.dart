@@ -69,6 +69,7 @@ class Download {
   late String? offlineUrl;
   late double fractionDownloaded;
   late DownloadStatus status;
+  late String? error;
 }
 
 @FlutterApi()

@@ -49,12 +49,14 @@ typedef NS_ENUM(NSUInteger, DownloadStatus) {
     config:(DownloadConfig *)config
     offlineUrl:(nullable NSString *)offlineUrl
     fractionDownloaded:(NSNumber *)fractionDownloaded
-    status:(DownloadStatus)status;
+    status:(DownloadStatus)status
+    error:(nullable NSString *)error;
 @property(nonatomic, copy) NSString * key;
 @property(nonatomic, strong) DownloadConfig * config;
 @property(nonatomic, copy, nullable) NSString * offlineUrl;
 @property(nonatomic, strong) NSNumber * fractionDownloaded;
 @property(nonatomic, assign) DownloadStatus status;
+@property(nonatomic, copy, nullable) NSString * error;
 @end
 
 @interface DownloadFailedEvent : NSObject

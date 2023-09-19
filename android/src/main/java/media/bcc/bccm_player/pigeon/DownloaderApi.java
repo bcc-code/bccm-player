@@ -305,6 +305,16 @@ public class DownloaderApi {
       this.status = setterArg;
     }
 
+    private @Nullable String error;
+
+    public @Nullable String getError() {
+      return error;
+    }
+
+    public void setError(@Nullable String setterArg) {
+      this.error = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     Download() {}
 
@@ -345,6 +355,13 @@ public class DownloaderApi {
         return this;
       }
 
+      private @Nullable String error;
+
+      public @NonNull Builder setError(@Nullable String setterArg) {
+        this.error = setterArg;
+        return this;
+      }
+
       public @NonNull Download build() {
         Download pigeonReturn = new Download();
         pigeonReturn.setKey(key);
@@ -352,18 +369,20 @@ public class DownloaderApi {
         pigeonReturn.setOfflineUrl(offlineUrl);
         pigeonReturn.setFractionDownloaded(fractionDownloaded);
         pigeonReturn.setStatus(status);
+        pigeonReturn.setError(error);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(5);
+      ArrayList<Object> toListResult = new ArrayList<Object>(6);
       toListResult.add(key);
       toListResult.add((config == null) ? null : config.toList());
       toListResult.add(offlineUrl);
       toListResult.add(fractionDownloaded);
       toListResult.add(status == null ? null : status.index);
+      toListResult.add(error);
       return toListResult;
     }
 
@@ -379,6 +398,8 @@ public class DownloaderApi {
       pigeonResult.setFractionDownloaded((Double) fractionDownloaded);
       Object status = list.get(4);
       pigeonResult.setStatus(status == null ? null : DownloadStatus.values()[(int) status]);
+      Object error = list.get(5);
+      pigeonResult.setError((String) error);
       return pigeonResult;
     }
   }

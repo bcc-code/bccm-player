@@ -31,17 +31,12 @@ public struct DownloaderState: Codable {
         public let input: TaskInput
         public var offlineUrl: URL? = nil
         public var bookmark: Data? = nil
-        public var finished: Bool = false
+        public var statusCode: UInt = DownloadStatus.paused.rawValue
+        public var error: String? = nil
         public var progress: Double = 0.0
     }
 
     var tasks: [String: TaskState]
-
-    mutating func add(input: TaskInput) -> TaskState {
-        let task = TaskState(key: UUID(), input: input)
-        updateTask(task: task)
-        return task
-    }
 
     mutating func updateTask(task: TaskState) -> DownloaderState {
         tasks[task.key.uuidString] = task
@@ -67,14 +62,13 @@ extension DownloaderState.TaskState {
             let url = try? URL(resolvingBookmarkData: $0, bookmarkDataIsStale: &staleBookmark)
             return url?.absoluteString
         }
-        var status: DownloadStatus = .downloading
-        if progress == 1.0 {
-            status = .finished
-        }
+        let status = DownloadStatus(rawValue: statusCode) ?? .failed
+
         return Download.make(withKey: key.uuidString,
                              config: input.downloadConfig,
                              offlineUrl: url,
                              fractionDownloaded: progress as NSNumber,
-                             status: .downloading)
+                             status: status,
+                             error: error)
     }
 }

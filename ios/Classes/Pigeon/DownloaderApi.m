@@ -108,13 +108,15 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     config:(DownloadConfig *)config
     offlineUrl:(nullable NSString *)offlineUrl
     fractionDownloaded:(NSNumber *)fractionDownloaded
-    status:(DownloadStatus)status {
+    status:(DownloadStatus)status
+    error:(nullable NSString *)error {
   Download* pigeonResult = [[Download alloc] init];
   pigeonResult.key = key;
   pigeonResult.config = config;
   pigeonResult.offlineUrl = offlineUrl;
   pigeonResult.fractionDownloaded = fractionDownloaded;
   pigeonResult.status = status;
+  pigeonResult.error = error;
   return pigeonResult;
 }
 + (Download *)fromList:(NSArray *)list {
@@ -127,6 +129,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.fractionDownloaded = GetNullableObjectAtIndex(list, 3);
   NSAssert(pigeonResult.fractionDownloaded != nil, @"");
   pigeonResult.status = [GetNullableObjectAtIndex(list, 4) integerValue];
+  pigeonResult.error = GetNullableObjectAtIndex(list, 5);
   return pigeonResult;
 }
 + (nullable Download *)nullableFromList:(NSArray *)list {
@@ -139,6 +142,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.offlineUrl ?: [NSNull null]),
     (self.fractionDownloaded ?: [NSNull null]),
     @(self.status),
+    (self.error ?: [NSNull null]),
   ];
 }
 @end

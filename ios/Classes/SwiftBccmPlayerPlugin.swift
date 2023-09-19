@@ -1,12 +1,12 @@
 import AVKit
+import Combine
 import Flutter
 import GoogleCast
 import UIKit
-import Combine
 
 public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
-    static var cancellable: AnyCancellable? = nil
-    
+    static var cancellables: [AnyCancellable] = []
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         setupCast()
         let messenger = registrar.messenger()
@@ -19,14 +19,20 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
 
         let chromecastPigeon = ChromecastPigeon(binaryMessenger: messenger)
         let playbackApi = PlaybackApiImpl(chromecastPigeon: chromecastPigeon, playbackListener: playbackListener)
-        
+
         let downloaderListener = DownloaderListenerPigeon(binaryMessenger: messenger)
         let downloader = Downloader()
-        cancellable = downloader.statusChanged.sink { event in
-            downloaderListener.onDownloadStatusChanged(event) { _ in
-                // Do nothing
+        cancellables.append(contentsOf: [
+            downloader.changeEvents.sink { event in
+                downloaderListener.onDownloadStatusChanged(event) { _ in }
+            },
+            downloader.removeEvents.sink { event in
+                downloaderListener.onDownloadRemoved(event) { _ in }
+            },
+            downloader.failEvents.sink { event in
+                downloaderListener.onDownloadFailed(event) { _ in }
             }
-        }
+        ])
 
         registrar.register(
             BccmPlayerFactory(messenger: messenger, playbackApi: playbackApi),

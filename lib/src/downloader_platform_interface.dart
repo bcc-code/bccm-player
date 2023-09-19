@@ -14,19 +14,16 @@ class DownloaderListener implements DownloaderListenerPigeon {
 
   @override
   void onDownloadStatusChanged(DownloadChangedEvent event) {
-    print("onDownloadStatusChanged, ${event.encode()}");
     _statusChangedStreamController.add(event);
   }
 
   @override
   void onDownloadFailed(DownloadFailedEvent event) {
-    print("onDownloadFailed, ${event.encode()}");
     _downloadFailedStreamController.add(event);
   }
 
   @override
   void onDownloadRemoved(DownloadRemovedEvent event) {
-    print("onDownloadRemoved, ${event.encode()}");
     _downloadRemovedStreamController.add(event);
   }
 }

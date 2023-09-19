@@ -300,6 +300,7 @@ fun Download.toDownloaderApiModel(): DownloaderApi.Download {
         .setFractionDownloaded(percentDownloaded.toDouble() / 100)
         .setOfflineUrl(DOWNLOADED_URL_SCHEME + request.id)
         .setStatus(toApiDownloadStatus(state))
+        .setError(if (state == Download.STATE_FAILED) "Unknown error" else null)
         .build()
 }
 

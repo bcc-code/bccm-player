@@ -14,7 +14,7 @@ public class DownloaderApiImpl: NSObject, DownloaderPigeon {
 
     public func downloadStatus(_ downloadKey: String) async -> (NSNumber?, FlutterError?) {
         await returnFlutterResult {
-            try await downloader.status(forKey: downloadKey)
+            try await downloader.progress(forKey: downloadKey)
         }
     }
     

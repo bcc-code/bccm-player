@@ -21,8 +21,16 @@ public class Downloader {
                                             delegateQueue: OperationQueue.main)
     }
     
-    public var statusChanged: any Subject<DownloadChangedEvent, Never> {
-        delegate.statusChanged
+    public var changeEvents: any Subject<DownloadChangedEvent, Never> {
+        delegate.changeEvents
+    }
+
+    public var removeEvents: any Subject<DownloadRemovedEvent, Never> {
+        delegate.removeEvents
+    }
+    
+    public var failEvents: any Subject<DownloadFailedEvent, Never> {
+        delegate.failEvents
     }
     
     public func getAll() -> [Download] {
@@ -49,9 +57,8 @@ public class Downloader {
             additionalData: config.additionalData
         )
         
-        var state = UserDefaults.standard.downloaderState
-        let taskState = state.add(input: taskInput)
-        UserDefaults.standard.downloaderState = state
+        let taskState = DownloaderState.TaskState(key: UUID(), input: taskInput, statusCode: DownloadStatus.queued.rawValue)
+        UserDefaults.standard.downloaderState = UserDefaults.standard.downloaderState.updateTask(task: taskState)
         
         let asset = AVURLAsset(url: url)
         
@@ -74,12 +81,12 @@ public class Downloader {
         return taskState.toDownloadModel()
     }
     
-    public func status(forKey key: String) async throws -> Double {
+    public func progress(forKey key: String) async throws -> Double {
         guard let task = UserDefaults.standard.downloaderState.tasks[key] else {
             throw DownloaderError.unknownDownloadKey(key: key)
         }
         
-        if task.finished {
+        if task.statusCode == DownloadStatus.finished.rawValue {
             return 1
         }
         
@@ -105,10 +112,15 @@ public class Downloader {
         
         state.tasks.removeValue(forKey: key)
         UserDefaults.standard.downloaderState = state
+        delegate.removeEvents.send(
+            DownloadRemovedEvent.make(withKey: key)
+        )
     }
 
     public class Delegate: NSObject, AVAssetDownloadDelegate {
-        public let statusChanged = PassthroughSubject<DownloadChangedEvent, Never>()
+        public let changeEvents = PassthroughSubject<DownloadChangedEvent, Never>()
+        public let removeEvents = PassthroughSubject<DownloadRemovedEvent, Never>()
+        public let failEvents = PassthroughSubject<DownloadFailedEvent, Never>()
 
         public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, willDownloadTo location: URL) {
             var state = UserDefaults.standard.downloaderState
@@ -121,7 +133,7 @@ public class Downloader {
             state.updateTask(task: taskState)
             UserDefaults.standard.downloaderState = state
             
-            statusChanged.send(
+            changeEvents.send(
                 DownloadChangedEvent.make(with: taskState.toDownloadModel())
             )
         }
@@ -134,11 +146,17 @@ public class Downloader {
             let progress = loadedTimeRanges.reduce(0.0) { result, value in
                 result + (value.timeRangeValue.duration.seconds / timeRangeExpectedToLoad.duration.seconds)
             }
-            
-            taskState.progress = progress
+            if aggregateAssetDownloadTask.state == .running {
+                taskState.statusCode = DownloadStatus.downloading.rawValue
+                taskState.progress = min(max(progress, 0), 1)
+            } else if progress >= 1.0 || aggregateAssetDownloadTask.state == .completed {
+                taskState.statusCode = DownloadStatus.finished.rawValue
+                taskState.progress = 1.0
+            }
+            debugPrint("taskState.progress \(taskState.progress)")
             UserDefaults.standard.downloaderState = UserDefaults.standard.downloaderState.updateTask(task: taskState)
             
-            statusChanged.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
+            changeEvents.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
         }
         
         public func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didFinishDownloadingTo location: URL) {
@@ -152,8 +170,12 @@ public class Downloader {
                 return
             }
 
-            if error == nil {
-                taskState.finished = true
+            if let error = error {
+                taskState.statusCode = DownloadStatus.failed.rawValue
+                taskState.error = error.localizedDescription
+                failEvents.send(DownloadFailedEvent.make(withKey: taskState.key.uuidString, error: error.localizedDescription))
+            } else {
+                taskState.statusCode = DownloadStatus.finished.rawValue
                 do {
                     taskState.bookmark = try taskState.offlineUrl?.bookmarkData()
                 } catch {
@@ -161,8 +183,8 @@ public class Downloader {
                 }
                 UserDefaults.standard.downloaderState = state.updateTask(task: taskState)
             }
-            
-            statusChanged.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
+    
+            changeEvents.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
         }
     }
 }
