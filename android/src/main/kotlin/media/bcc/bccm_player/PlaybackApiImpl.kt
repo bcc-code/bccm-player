@@ -313,13 +313,13 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
     ) {
         val context = BccmPlayerPluginSingleton.activityState.value;
         if (context != null) {
-            try {
-                mainScope.launch {
+            mainScope.launch {
+                try {
                     val mediaInfo = MediaInfoFetcher.fetchMediaInfo(context, url, mimeType)
                     result.success(mediaInfo)
+                } catch (e: Exception) {
+                    result.error(e)
                 }
-            } catch (e: Exception) {
-                result.error(e)
             }
         } else {
             result.error(Error("Not attached to activity"))

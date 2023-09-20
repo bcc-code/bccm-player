@@ -1,6 +1,12 @@
 package media.bcc.bccm_player
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.media3.common.C.TRACK_TYPE_TEXT
 import androidx.media3.common.MediaItem
 import androidx.media3.common.TrackSelectionOverride
@@ -29,15 +35,16 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import media.bcc.bccm_player.pigeon.DownloaderApi
+import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadChangedEvent
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadFailedEvent
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadRemovedEvent
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadStatus
-import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadChangedEvent
 import java.io.File
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.Executor
 import kotlin.coroutines.suspendCoroutine
+
 
 const val DOWNLOADED_URL_SCHEME = "downloaded://";
 
@@ -46,7 +53,7 @@ data class DownloadInfo(
     val title: String,
     val audioTrackIds: List<String>,
     val videoTrackIds: List<String>,
-    val additionalData: Map<String, String>
+    val additionalData: Map<String, String?>
 )
 
 suspend fun DownloadHelper.prepare() {
@@ -64,7 +71,7 @@ suspend fun DownloadHelper.prepare() {
 }
 
 class Downloader(
-    private val context: Context,
+    private val context: Activity,
     private val pigeon: DownloaderApi.DownloaderListenerPigeon
 ) : DownloadManager.Listener {
 
@@ -108,6 +115,7 @@ class Downloader(
 
     init {
         getOrCreateDownloadManager(context).addListener(this)
+
 
         mainScope.launch {
             statusChanged.collect {
@@ -160,6 +168,19 @@ class Downloader(
         }
 
     suspend fun startDownload(config: DownloaderApi.DownloadConfig): DownloaderApi.Download {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permissionState =
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            // If the permission is not granted, request it.
+            if (permissionState == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(
+                    context,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1
+                )
+            }
+        }
+
         val key = UUID.randomUUID().toString()
 
         val mediaItem = MediaItem.Builder()
