@@ -63,6 +63,11 @@ class DownloaderNative extends DownloaderInterface {
   Future<void> removeDownload(String downloadKey) async {
     await _pigeon.removeDownload(downloadKey);
   }
+
+  @override
+  Future<double> getFreeDiskSpace() async {
+    return await _pigeon.getFreeDiskSpace();
+  }
 }
 
 abstract class DownloaderInterface extends PlatformInterface {
@@ -94,4 +99,7 @@ abstract class DownloaderInterface extends PlatformInterface {
 
   /// removes
   Future<void> removeDownload(String downloadKey);
+
+  /// Gets free disk space in bytes
+  Future<double> getFreeDiskSpace();
 }

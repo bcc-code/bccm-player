@@ -92,6 +92,8 @@ NSObject<FlutterMessageCodec> *DownloaderPigeonGetCodec(void);
 - (void)getDownloads:(void (^)(NSArray<Download *> *_Nullable, FlutterError *_Nullable))completion;
 - (void)getDownload:(NSString *)downloadKey completion:(void (^)(Download *_Nullable, FlutterError *_Nullable))completion;
 - (void)removeDownload:(NSString *)downloadKey completion:(void (^)(FlutterError *_Nullable))completion;
+/// Returns free space in bytes
+- (void)getFreeDiskSpace:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void DownloaderPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<DownloaderPigeon> *_Nullable api);

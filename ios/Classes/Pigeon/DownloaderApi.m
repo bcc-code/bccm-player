@@ -368,6 +368,24 @@ void DownloaderPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<
       [channel setMessageHandler:nil];
     }
   }
+  /// Returns free space in bytes
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.bccm_player.DownloaderPigeon.getFreeDiskSpace"
+        binaryMessenger:binaryMessenger
+        codec:DownloaderPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(getFreeDiskSpace:)], @"DownloaderPigeon api (%@) doesn't respond to @selector(getFreeDiskSpace:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        [api getFreeDiskSpace:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
 }
 @interface DownloaderListenerPigeonCodecReader : FlutterStandardReader
 @end

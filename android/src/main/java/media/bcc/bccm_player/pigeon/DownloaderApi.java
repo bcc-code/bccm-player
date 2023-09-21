@@ -631,6 +631,8 @@ public class DownloaderApi {
     void getDownload(@NonNull String downloadKey, @NonNull Result<Download> result);
 
     void removeDownload(@NonNull String downloadKey, @NonNull Result<Void> result);
+    /** Returns free space in bytes */
+    void getFreeDiskSpace(@NonNull Result<Double> result);
 
     /** The codec used by DownloaderPigeon. */
     static @NonNull MessageCodec<Object> getCodec() {
@@ -776,6 +778,33 @@ public class DownloaderApi {
                     };
 
                 api.removeDownload(downloadKeyArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.DownloaderPigeon.getFreeDiskSpace", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                Result<Double> resultCallback =
+                    new Result<Double>() {
+                      public void success(Double result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.getFreeDiskSpace(resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

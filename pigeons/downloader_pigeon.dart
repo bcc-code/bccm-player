@@ -42,6 +42,11 @@ abstract class DownloaderPigeon {
   @async
   @ObjCSelector("removeDownload:")
   void removeDownload(String downloadKey);
+
+  /// Returns free space in bytes
+  @async
+  @ObjCSelector("getFreeDiskSpace")
+  double getFreeDiskSpace();
 }
 
 class DownloadConfig {
