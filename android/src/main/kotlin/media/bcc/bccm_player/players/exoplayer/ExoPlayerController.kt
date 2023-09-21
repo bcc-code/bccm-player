@@ -31,6 +31,7 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.NpawConfig
 import media.bcc.bccm_player.players.PlayerController
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import java.util.UUID
 
 
@@ -166,9 +167,11 @@ class ExoPlayerController(private val context: Context) :
         // Metadata options
         val mediaMetadata = player.mediaMetadata
         val extras = mediaMetadata.extras?.let { extractExtrasFromAndroid(it) }
-        youboraPlugin.options.contentIsLive = extras?.get("npaw.content.isLive")?.toBoolean()
-            ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_LIVE)?.toBoolean()
-                    ?: player.isCurrentMediaItemLive
+        youboraPlugin.options.contentIsLive =
+            extras?.get("npaw.content.isLive")?.toBooleanStrictOrNull()
+                ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_LIVE)
+                    ?.toBooleanStrictOrNull()
+                        ?: player.isCurrentMediaItemLive
         youboraPlugin.options.contentId = extras?.get("npaw.content.id")
             ?: mediaMetadata.extras?.getString("id")
         youboraPlugin.options.contentTitle = extras?.get("npaw.content.title")
@@ -176,7 +179,10 @@ class ExoPlayerController(private val context: Context) :
         youboraPlugin.options.contentTvShow = extras?.get("npaw.content.tvShow")
         youboraPlugin.options.contentSeason = extras?.get("npaw.content.season")
         youboraPlugin.options.contentEpisodeTitle = extras?.get("npaw.content.episodeTitle")
-        youboraPlugin.options.contentTransactionCode
+        youboraPlugin.options.isOffline =
+            extras?.get("npaw.isOffline")?.toBooleanStrictOrNull()
+                ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_OFFLINE)
+                    ?.toBooleanStrictOrNull() ?: false
 
         for (t in player.currentTracks.groups) {
             if (!t.isSelected) continue

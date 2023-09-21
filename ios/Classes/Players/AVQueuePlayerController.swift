@@ -339,13 +339,14 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
         youboraPlugin.options.username = appConfig?.analyticsId
         youboraPlugin.options.contentCustomDimension1 = appConfig?.sessionId != nil ? appConfig?.sessionId?.stringValue : nil
-        guard var mediaItem = mediaItemOverride ?? getCurrentItem() else {
+        guard let mediaItem = mediaItemOverride ?? getCurrentItem() else {
             youboraPlugin.options.contentIsLive = nil
             youboraPlugin.options.contentId = nil
             youboraPlugin.options.contentTitle = nil
             youboraPlugin.options.contentTvShow = nil
             youboraPlugin.options.contentSeason = nil
             youboraPlugin.options.contentEpisodeTitle = nil
+            youboraPlugin.options.offline = false
             return
         }
         let extras = mediaItem.metadata?.extras
@@ -356,6 +357,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.contentTvShow = extras?["npaw.content.tvShow"] as? String
         youboraPlugin.options.contentSeason = extras?["npaw.content.season"] as? String
         youboraPlugin.options.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
+        youboraPlugin.options.offline = extras?["npaw.isOffline"] == "true" || (mediaItem.isOffline?.boolValue) == true
     }
 
     public func setNpawConfig(npawConfig: NpawConfig?) {
