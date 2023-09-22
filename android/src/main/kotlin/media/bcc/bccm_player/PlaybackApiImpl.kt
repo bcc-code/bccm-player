@@ -305,4 +305,24 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
     override fun openCastDialog() {
 
     }
+
+    override fun fetchMediaInfo(
+        url: String,
+        mimeType: String?,
+        result: PlaybackPlatformApi.Result<PlaybackPlatformApi.MediaInfo>
+    ) {
+        val context = BccmPlayerPluginSingleton.activityState.value;
+        if (context != null) {
+            mainScope.launch {
+                try {
+                    val mediaInfo = MediaInfoFetcher.fetchMediaInfo(context, url, mimeType)
+                    result.success(mediaInfo)
+                } catch (e: Exception) {
+                    result.error(e)
+                }
+            }
+        } else {
+            result.error(Error("Not attached to activity"))
+        }
+    }
 }

@@ -2,6 +2,7 @@ package media.bcc.bccm_player.players.chromecast
 
 class CastPlayerData {
     var isLive: Boolean? = null
+    var isOffline: Boolean? = null
     var mimeType: String? = null
     var lastKnownAudioLanguage: String? = null
     var lastKnownSubtitleLanguage: String? = null
@@ -15,6 +16,9 @@ class CastPlayerData {
                 if (playerData == null) playerData = CastPlayerData()
                 if (kv.key == CastMediaItemConverter.PLAYER_DATA_IS_LIVE) {
                     playerData.isLive = extras[kv.key] == "true"
+                }
+                if (kv.key == CastMediaItemConverter.PLAYER_DATA_IS_OFFLINE) {
+                    playerData.isOffline = extras[kv.key] == "true"
                 }
                 if (kv.key == CastMediaItemConverter.PLAYER_DATA_MIME_TYPE) {
                     playerData.mimeType = extras[kv.key] as? String

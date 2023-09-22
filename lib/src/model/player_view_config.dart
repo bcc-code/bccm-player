@@ -57,6 +57,7 @@ class BccmPlayerViewConfig {
   /// * [controlsConfig] configuration for the controls.
   /// * [useSurfaceView] (android-only) will use a SurfaceView instead of a TextureView on Android. Fixes HDR but flutter has a bug with SurfaceViews. See [the docs](https://bcc-code.github.io/bccm-player/advanced-usage/hdr-content/)
   /// * [allowSystemGestures] (android-only) will allow system gestures (e.g. swipe to go back) on top of the native video. Default is `false` to prevent conflicts with the seekbar and such.
+  /// * [isOffline] use this handle offline playback. E.g. to hide tracks that havent been downloaded.
   /// * [fullscreenRouteBuilderFactory] is a factory that creates a [PageRouteBuilder] that will be used to build the fullscreen route.
   /// * [resetSystemOverlays] is a callback that will be called when the player exits fullscreen. Defaults to using [SystemUiMode.edgeToEdge].
   /// * [deviceOrientationsNormal] is a callback used upon exiting fullscreen to get the orientations to set. Return null for defaults.
@@ -117,6 +118,24 @@ class BccmPlayerControlsConfig {
   final bool? hidePlaybackSpeed;
   final bool? hideQualitySelector;
   final AdditionalControlsBuilder? additionalActionsBuilder;
+
+  BccmPlayerControlsConfig copyWith({
+    ControlsBuilder? customBuilder,
+    WidgetBuilder? playNextButton,
+    List<double>? playbackSpeeds,
+    bool? hidePlaybackSpeed,
+    bool? hideQualitySelector,
+    AdditionalControlsBuilder? additionalActionsBuilder,
+  }) {
+    return BccmPlayerControlsConfig(
+      customBuilder: customBuilder ?? this.customBuilder,
+      playNextButton: playNextButton ?? this.playNextButton,
+      playbackSpeeds: playbackSpeeds ?? this.playbackSpeeds,
+      hidePlaybackSpeed: hidePlaybackSpeed ?? this.hidePlaybackSpeed,
+      hideQualitySelector: hideQualitySelector ?? this.hideQualitySelector,
+      additionalActionsBuilder: additionalActionsBuilder ?? this.additionalActionsBuilder,
+    );
+  }
 }
 
 typedef ControlsBuilder = Widget Function(BuildContext context);

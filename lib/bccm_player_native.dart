@@ -192,4 +192,9 @@ class BccmPlayerNative extends BccmPlayerInterface {
   Future<void> setMixWithOthers(String playerId, bool mixWithOthers) {
     return _pigeon.setMixWithOthers(playerId, mixWithOthers);
   }
+
+  @override
+  Future<MediaInfo> fetchMediaInfo({required String url, String? mimeType}) {
+    return _pigeon.fetchMediaInfo(url, mimeType);
+  }
 }

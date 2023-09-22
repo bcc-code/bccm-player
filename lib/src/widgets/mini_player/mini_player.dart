@@ -13,6 +13,7 @@ class MiniPlayer extends HookWidget {
   final String? secondaryTitle;
   final String title;
   final String? artworkUri;
+  final ImageProvider? artwork;
   final bool isPlaying;
   final bool? loading;
   final VoidCallback? onPauseTap;
@@ -30,8 +31,9 @@ class MiniPlayer extends HookWidget {
     Key? key,
     required this.secondaryTitle,
     required this.title,
-    required this.artworkUri,
     required this.isPlaying,
+    this.artworkUri,
+    this.artwork,
     this.onPauseTap,
     this.onPlayTap,
     this.onCloseTap,
@@ -42,7 +44,8 @@ class MiniPlayer extends HookWidget {
     this.loadingIndicator,
     this.playSemanticLabel,
     this.pauseSemanticLabel,
-  }) : super(key: key);
+  })  : assert(artworkUri != null || artwork != null, "Artwork must be set"),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,16 +79,14 @@ class MiniPlayer extends HookWidget {
                 ? null
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(4),
-                    child: FadeInImage.memoryNetwork(
+                    child: FadeInImage(
                       fadeInDuration: const Duration(milliseconds: 200),
-                      placeholder: kTransparentImage,
+                      placeholder: MemoryImage(kTransparentImage),
                       fit: BoxFit.cover,
-                      image: artworkUri!,
-                      imageCacheHeight: 64,
+                      image: artwork ?? ResizeImage.resizeIfNeeded(null, 64, NetworkImage(artworkUri!)),
                       width: 64,
                       height: 36,
-                    ),
-                  ),
+                    )),
           ),
           Expanded(
             child: Column(

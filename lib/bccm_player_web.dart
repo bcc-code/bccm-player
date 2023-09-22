@@ -99,4 +99,10 @@ class BccmPlayerWeb extends BccmPlayerInterface {
 
   @override
   void setPlayerViewVisibility(int viewId, bool visible) {}
+
+  @override
+  Future<pigeon.MediaInfo> fetchMediaInfo({required String url, String? mimeType}) {
+    // TODO: implement fetchMediaInfo
+    throw UnimplementedError();
+  }
 }

@@ -5,11 +5,15 @@ PODS:
     - Protobuf (~> 3.13)
     - YouboraAVPlayerAdapter (= 6.6.8)
     - YouboraLib (= 6.6.22)
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - ReachabilitySwift
   - Flutter (1.0.0)
   - google-cast-sdk-dynamic-xcframework-no-bluetooth (4.7.1)
   - package_info_plus (0.4.5):
     - Flutter
   - Protobuf (3.22.3)
+  - ReachabilitySwift (5.0.0)
   - wakelock_plus (0.0.1):
     - Flutter
   - YouboraAVPlayerAdapter (6.6.8):
@@ -21,6 +25,7 @@ PODS:
 
 DEPENDENCIES:
   - bccm_player (from `.symlinks/plugins/bccm_player/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - Flutter (from `Flutter`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
@@ -29,12 +34,15 @@ SPEC REPOS:
   trunk:
     - google-cast-sdk-dynamic-xcframework-no-bluetooth
     - Protobuf
+    - ReachabilitySwift
     - YouboraAVPlayerAdapter
     - YouboraLib
 
 EXTERNAL SOURCES:
   bccm_player:
     :path: ".symlinks/plugins/bccm_player/ios"
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
   Flutter:
     :path: Flutter
   package_info_plus:
@@ -44,10 +52,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bccm_player: cdd4162150f1f33a039232b9f6ce89dc42fbe2f5
+  connectivity_plus: 07c49e96d7fc92bc9920617b83238c4d178b446a
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   google-cast-sdk-dynamic-xcframework-no-bluetooth: 1fa9e267df3fd6f8a1c6e3345142ca5286297968
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
   Protobuf: d03938d5f7e974a97964fb0567771e36fbe9ecce
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
   YouboraAVPlayerAdapter: bc898a61e09c667202a77491b677a42dfa0adc04
   YouboraLib: fc65b030ac93499f8beb3f5daa10deb3879fb2d2

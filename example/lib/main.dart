@@ -3,18 +3,18 @@ import 'dart:async';
 import 'package:bccm_player/bccm_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:focus_debugger/focus_debugger.dart';
 
 import 'examples/list_of_players.dart';
 import 'examples/playground.dart';
 import 'examples/native_controls.dart';
 import 'examples/custom_controls.dart';
 import 'examples/simple_player.dart';
+import 'examples/downloader.dart';
 
 Future main() async {
   await BccmPlayerInterface.instance.setup();
 
-  FocusDebugger.instance.activate();
+  // FocusDebugger.instance.activate();
 
   runApp(const MyApp());
 }
@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
           LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
         },
         child: DefaultTabController(
-          length: 5,
+          length: 6,
           child: MaterialApp(
             home: Scaffold(
               appBar: AppBar(
@@ -53,6 +53,7 @@ class _MyAppState extends State<MyApp> {
                   Tab(text: 'Simple player'),
                   Tab(text: 'Custom controls'),
                   Tab(text: 'Native controls'),
+                  Tab(text: 'Downloader')
                 ]),
               ),
               // tabs with Playground #1 then a new "ListOfPlayers" tab at #2 and controls to navigate between the tabs
@@ -63,6 +64,7 @@ class _MyAppState extends State<MyApp> {
                   SimplePlayer(),
                   CustomControls(),
                   NativeControls(),
+                  Downloader(),
                 ],
               ),
             ),

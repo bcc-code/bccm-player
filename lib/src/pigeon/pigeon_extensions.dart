@@ -10,7 +10,7 @@ extension TrackX on Track {
 
       return "${height}p$conditionalFrameRate";
     }
-    return label ?? language ?? id;
+    return (label ?? language ?? id); //  + (downloaded == true ? " (downloaded)" : "")
   }
 }
 

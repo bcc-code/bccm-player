@@ -1,4 +1,3 @@
-import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:universal_io/io.dart';
 
 import 'package:flutter/foundation.dart';

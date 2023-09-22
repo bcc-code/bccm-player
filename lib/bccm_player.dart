@@ -9,6 +9,11 @@ export 'src/pigeon/playback_platform_pigeon.g.dart'
         PlaybackEndedEvent,
         MediaItemTransitionEvent,
         PlaybackStateChangedEvent,
+        MediaInfo,
+        Track,
+        VideoSize,
+        TrackType,
+        PlayerTracksSnapshot,
         PositionDiscontinuityEvent,
         PictureInPictureModeChangedEvent;
 export 'src/state/player_state_notifier.dart';
@@ -31,3 +36,7 @@ export 'src/theme/player_theme.dart';
 export 'src/theme/mini_player_theme_data.dart';
 export 'src/pigeon/pigeon_extensions.dart';
 export 'src/utils/time.dart' show calcTimeLeftMs;
+
+export 'src/pigeon/downloader_pigeon.g.dart'
+    show DownloadConfig, Download, DownloadChangedEvent, DownloadRemovedEvent, DownloadFailedEvent, DownloadStatus;
+export 'src/downloader_platform_interface.dart';

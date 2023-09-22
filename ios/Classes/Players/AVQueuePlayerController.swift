@@ -71,65 +71,15 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             return PlayerTracksSnapshot.make(withPlayerId: id, audioTracks: [], textTracks: [], videoTracks: [])
         }
             
-        // Get the asset
-        let asset = currentItem.asset
-
-        // Get the audio selection group
-        var audioTracks: [Track] = []
-        if let audioGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
-            for (index, option) in audioGroup.options.enumerated() {
-                let track = Track.make(withId: "\(index)",
-                                       label: option.displayName,
-                                       language: option.locale?.identifier,
-                                       frameRate: nil,
-                                       bitrate: nil,
-                                       width: nil,
-                                       height: nil,
-                                       isSelected: NSNumber(value: currentItem.currentMediaSelection.selectedMediaOption(in: audioGroup) == option))
-                audioTracks.append(track)
-            }
-        }
-
-        // Get the subtitle selection group
-        var textTracks: [Track] = []
-        if let subtitleGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .legible) {
-            for (index, option) in subtitleGroup.options.enumerated() {
-                let track = Track.make(withId: "\(index)",
-                                       label: option.displayName,
-                                       language: option.locale?.identifier,
-                                       frameRate: nil,
-                                       bitrate: nil,
-                                       width: nil,
-                                       height: nil,
-                                       isSelected: NSNumber(value: currentItem.currentMediaSelection.selectedMediaOption(in: subtitleGroup) == option))
-                textTracks.append(track)
-            }
-        }
+        var audioTracks: [Track] = TrackUtils.getAudioTracksForAsset(currentItem.asset, playerItem: currentItem)
+        var textTracks: [Track] = TrackUtils.getTextTracksForAsset(currentItem.asset, playerItem: currentItem)
+        var videoTracks: [Track] = TrackUtils.getVideoTracksForAsset(currentItem.asset, playerItem: currentItem)
         
-        // Get the video selection group
-        var videoTracks: [Track] = []
-        let urlAsset = asset as? AVURLAsset
-        if #available(iOS 15, *), let urlAsset = urlAsset {
-            let variants = urlAsset.variants
-            for variant in variants {
-                guard let bitrate = variant.averageBitRate,
-                      let width = variant.videoAttributes?.presentationSize.width,
-                      let height = variant.videoAttributes?.presentationSize.height,
-                      let frameRate = variant.videoAttributes?.nominalFrameRate
-                else {
-                    continue
-                }
-                let currentlySelected = player.currentItem?.preferredPeakBitRate
-                let track = Track.make(withId: "\(Int(bitrate))",
-                                       label: "\(Int(width)) x \(Int(height))",
-                                       language: nil,
-                                       frameRate: frameRate as NSNumber,
-                                       bitrate: Int(bitrate) as NSNumber,
-                                       width: Int(width) as NSNumber,
-                                       height: Int(height) as NSNumber,
-                                       isSelected: (currentlySelected != nil && Int(currentlySelected!) == Int(bitrate)) as NSNumber)
-                videoTracks.append(track)
-            }
+        let playerData = MetadataUtils.getNamespacedMetadata(currentItem.externalMetadata, namespace: .BccmPlayer)
+        if playerData[PlayerMetadataConstants.IsOffline] == "true" {
+            audioTracks = audioTracks.filter { el in el.downloaded == true }
+            textTracks = textTracks.filter { el in el.downloaded == true }
+            videoTracks = videoTracks.filter { el in el.downloaded == true }
         }
 
         return PlayerTracksSnapshot.make(
@@ -146,12 +96,16 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             return
         }
         
+        let urlAsset = currentItem.asset as? AVURLAsset
+        let playerData = MetadataUtils.getNamespacedMetadata(currentItem.externalMetadata, namespace: .BccmPlayer)
+        let isOffline = urlAsset != nil && playerData[PlayerMetadataConstants.IsOffline] == "true"
+        
         if type == .video {
             if trackId == "auto" {
                 currentItem.preferredPeakBitRate = 0
             }
             guard let trackId = trackId, let bitrate = Int(trackId) else {
-                debugPrint("Tried to setSelectedTrack for video, but trackId (bitrate): \(trackId?.debugDescription) is not an int")
+                debugPrint("Tried to setSelectedTrack for video, but trackId (bitrate): \(trackId?.debugDescription ?? "null") is not an int")
                 return
             }
             currentItem.preferredPeakBitRate = Double(bitrate)
@@ -178,7 +132,15 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
         if trackIdInt < selectionGroup.options.count {
             let optionToSelect = selectionGroup.options[trackIdInt]
-            currentItem.select(optionToSelect, in: selectionGroup)
+            
+            let offlineOptions = urlAsset?.assetCache?.mediaSelectionOptions(in: selectionGroup)
+            let isDownloaded = offlineOptions?.contains(optionToSelect) ?? false
+            if isOffline && !isDownloaded {
+                debugPrint("Tried to setSelectedTrack offline, but trackId is not downloaded: " + trackId)
+                return
+            } else {
+                currentItem.select(optionToSelect, in: selectionGroup)
+            }
         } else {
             print("trackId is out of bounds: " + trackId + " of " + selectionGroup.options.count.description)
         }
@@ -377,13 +339,14 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
         youboraPlugin.options.username = appConfig?.analyticsId
         youboraPlugin.options.contentCustomDimension1 = appConfig?.sessionId != nil ? appConfig?.sessionId?.stringValue : nil
-        guard var mediaItem = mediaItemOverride ?? getCurrentItem() else {
+        guard let mediaItem = mediaItemOverride ?? getCurrentItem() else {
             youboraPlugin.options.contentIsLive = nil
             youboraPlugin.options.contentId = nil
             youboraPlugin.options.contentTitle = nil
             youboraPlugin.options.contentTvShow = nil
             youboraPlugin.options.contentSeason = nil
             youboraPlugin.options.contentEpisodeTitle = nil
+            youboraPlugin.options.offline = false
             return
         }
         let extras = mediaItem.metadata?.extras
@@ -394,6 +357,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.contentTvShow = extras?["npaw.content.tvShow"] as? String
         youboraPlugin.options.contentSeason = extras?["npaw.content.season"] as? String
         youboraPlugin.options.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
+        youboraPlugin.options.offline = extras?["npaw.isOffline"] == "true" || (mediaItem.isOffline?.boolValue) == true
     }
 
     public func setNpawConfig(npawConfig: NpawConfig?) {
@@ -478,17 +442,34 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             guard let urlString = mediaItem.url, let url = URL(string: urlString) else {
                 return completion(nil)
             }
-            let asset = AVURLAsset(url: url)
+            let asset = AVURLAsset(url: url, options: mediaItem.mimeType != nil ? ["AVURLAssetOutOfBandMIMETypeKey": mediaItem.mimeType!] : nil)
             
-            asset.loadValuesAsynchronously(forKeys: ["playable", "duration", "tracks"]) {
+            asset.resourceLoader.setDelegate(DebugResourceLoaderDelegate(), queue: DispatchQueue.main)
+            
+            asset.loadValuesAsynchronously(forKeys: ["playable", "duration", "tracks", "availableMediaCharacteristicsWithMediaSelectionOptions"]) {
                 let playerItem = self._createPlayerItem(mediaItem, asset)
                 completion(playerItem)
             }
         }
     }
     
+    private func _setDefaultAudioForOfflinePlayback(_ playerItem: AVPlayerItem, _ asset: AVURLAsset) {
+        if let audioLang = appConfig?.audioLanguage, playerItem.setAudioLanguage(audioLang) {
+            return
+        }
+        if let selectionGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
+            let offlineOptions = asset.assetCache?.mediaSelectionOptions(in: selectionGroup)
+            if offlineOptions?.isEmpty == false {
+                playerItem.select(offlineOptions!.first, in: selectionGroup)
+            } else {
+                debugPrint("No audio track playable offline")
+            }
+        }
+    }
+    
     private func _createPlayerItem(_ mediaItem: MediaItem, _ asset: AVAsset) -> AVPlayerItem? {
         let playerItem = AVPlayerItem(asset: asset)
+        
         if #available(iOS 12.2, *) {
             var allItems: [AVMetadataItem] = []
             if let metadataItem = MetadataUtils.metadataItem(identifier: AVMetadataIdentifier.commonIdentifierTitle.rawValue, value: mediaItem.metadata?.title as (NSCopying & NSObjectProtocol)?) {
@@ -529,9 +510,25 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                     allItems.append(metadataItem)
                 }
             }
+            if let isLive = mediaItem.isLive {
+                if let metadataItem = MetadataUtils.metadataItem(identifier: PlayerMetadataConstants.IsLive, value: (isLive.boolValue ? "true" : "false") as (NSCopying & NSObjectProtocol), namespace: .BccmPlayer) {
+                    allItems.append(metadataItem)
+                }
+            }
+            if let isOffline = mediaItem.isOffline {
+                if let metadataItem = MetadataUtils.metadataItem(identifier: PlayerMetadataConstants.IsOffline, value: (isOffline.boolValue ? "true" : "false") as (NSCopying & NSObjectProtocol), namespace: .BccmPlayer) {
+                    allItems.append(metadataItem)
+                }
+            }
             
             playerItem.externalMetadata.append(contentsOf: allItems)
         }
+        
+        if mediaItem.isOffline == true, let asset = (asset as? AVURLAsset) {
+            _setDefaultAudioForOfflinePlayback(playerItem, asset)
+            playerItem.preferredPeakBitRate = 0
+        }
+        
         return playerItem
     }
 
@@ -610,50 +607,27 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
 }
 
-extension AVPlayerItem {
-    func setAudioLanguage(_ audioLanguage: String) -> Bool {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: AVMediaCharacteristic.audible) {
-            let locale = Locale(identifier: audioLanguage)
-            let options = AVMediaSelectionGroup.mediaSelectionOptions(from: group.options, with: locale)
-            if let option = options.first {
-                select(option, in: group)
-                return true
-            }
-        }
+class DebugResourceLoaderDelegate: NSObject, AVAssetResourceLoaderDelegate {
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, didCancel authenticationChallenge: URLAuthenticationChallenge) {
+        print("bccm: authenticationChallenge")
+    }
+
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
+        print("bccm: loadingRequest")
+    }
+
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForRenewalOfRequestedResource renewalRequest: AVAssetResourceRenewalRequest) -> Bool {
+        print("bccm: renewalRequest")
         return false
     }
 
-    func setSubtitleLanguage(_ subtitleLanguage: String) -> Bool {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: AVMediaCharacteristic.legible) {
-            let locale = Locale(identifier: subtitleLanguage)
-            let options = AVMediaSelectionGroup.mediaSelectionOptions(from: group.options, with: locale)
-            if let option = options.first {
-                select(option, in: group)
-                return true
-            }
-        }
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForResponseTo authenticationChallenge: URLAuthenticationChallenge) -> Bool {
+        print("bccm: authenticationChallenge")
         return false
     }
-    
-    func getSelectedAudioLanguage() -> String? {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: .audible),
-           let selectedOption = currentMediaSelection.selectedMediaOption(in: group),
-           let languageCode = selectedOption.extendedLanguageTag
-        {
-            return languageCode
-        }
-        
-        return nil
-    }
-    
-    func getSelectedSubtitleLanguage() -> String? {
-        if let group = asset.mediaSelectionGroup(forMediaCharacteristic: .legible),
-           let selectedOption = currentMediaSelection.selectedMediaOption(in: group),
-           let languageCode = selectedOption.extendedLanguageTag
-        {
-            return languageCode
-        }
-        
-        return nil
+
+    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+        print("bccm: shouldWaitForLoadingOfRequestedResource")
+        return false
     }
 }

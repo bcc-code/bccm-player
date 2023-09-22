@@ -37,6 +37,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class PlayerStateSnapshot;
 @class VideoSize;
 @class ChromecastState;
+@class MediaInfo;
 @class PlayerTracksSnapshot;
 @class Track;
 @class PrimaryPlayerChangedEvent;
@@ -76,6 +77,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     mimeType:(nullable NSString *)mimeType
     metadata:(nullable MediaMetadata *)metadata
     isLive:(nullable NSNumber *)isLive
+    isOffline:(nullable NSNumber *)isOffline
     playbackStartPositionMs:(nullable NSNumber *)playbackStartPositionMs
     lastKnownAudioLanguage:(nullable NSString *)lastKnownAudioLanguage
     lastKnownSubtitleLanguage:(nullable NSString *)lastKnownSubtitleLanguage;
@@ -83,6 +85,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, copy, nullable) NSString * mimeType;
 @property(nonatomic, strong, nullable) MediaMetadata * metadata;
 @property(nonatomic, strong, nullable) NSNumber * isLive;
+@property(nonatomic, strong, nullable) NSNumber * isOffline;
 @property(nonatomic, strong, nullable) NSNumber * playbackStartPositionMs;
 @property(nonatomic, copy, nullable) NSString * lastKnownAudioLanguage;
 @property(nonatomic, copy, nullable) NSString * lastKnownSubtitleLanguage;
@@ -93,12 +96,12 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     title:(nullable NSString *)title
     artist:(nullable NSString *)artist
     durationMs:(nullable NSNumber *)durationMs
-    extras:(nullable NSDictionary<NSString *, id> *)extras;
+    extras:(nullable NSDictionary<NSString *, NSString *> *)extras;
 @property(nonatomic, copy, nullable) NSString * artworkUri;
 @property(nonatomic, copy, nullable) NSString * title;
 @property(nonatomic, copy, nullable) NSString * artist;
 @property(nonatomic, strong, nullable) NSNumber * durationMs;
-@property(nonatomic, strong, nullable) NSDictionary<NSString *, id> * extras;
+@property(nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> * extras;
 @end
 
 @interface PlayerStateSnapshot : NSObject
@@ -140,6 +143,17 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) MediaItem * mediaItem;
 @end
 
+@interface MediaInfo : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithAudioTracks:(NSArray<Track *> *)audioTracks
+    textTracks:(NSArray<Track *> *)textTracks
+    videoTracks:(NSArray<Track *> *)videoTracks;
+@property(nonatomic, strong) NSArray<Track *> * audioTracks;
+@property(nonatomic, strong) NSArray<Track *> * textTracks;
+@property(nonatomic, strong) NSArray<Track *> * videoTracks;
+@end
+
 @interface PlayerTracksSnapshot : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
 - (instancetype)init NS_UNAVAILABLE;
@@ -163,6 +177,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     bitrate:(nullable NSNumber *)bitrate
     width:(nullable NSNumber *)width
     height:(nullable NSNumber *)height
+    downloaded:(nullable NSNumber *)downloaded
     isSelected:(NSNumber *)isSelected;
 @property(nonatomic, copy) NSString * id;
 @property(nonatomic, copy, nullable) NSString * label;
@@ -171,6 +186,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) NSNumber * bitrate;
 @property(nonatomic, strong, nullable) NSNumber * width;
 @property(nonatomic, strong, nullable) NSNumber * height;
+@property(nonatomic, strong, nullable) NSNumber * downloaded;
 @property(nonatomic, strong) NSNumber * isSelected;
 @end
 
@@ -264,6 +280,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)getChromecastState:(void (^)(ChromecastState *_Nullable, FlutterError *_Nullable))completion;
 - (void)openExpandedCastController:(FlutterError *_Nullable *_Nonnull)error;
 - (void)openCastDialog:(FlutterError *_Nullable *_Nonnull)error;
+- (void)fetchMediaInfo:(NSString *)url mimeType:(nullable NSString *)mimeType completion:(void (^)(MediaInfo *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<PlaybackPlatformPigeon> *_Nullable api);

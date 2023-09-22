@@ -38,17 +38,21 @@ class MediaItemMapper {
                 }
             }
         }
-        var isLive = CMTIME_IS_INDEFINITE(playerItem.duration)
         let mimeType: String? = playerData?[PlayerMetadataConstants.MimeType]
+
+        var isLive = CMTIME_IS_INDEFINITE(playerItem.duration)
         if let isLiveMeta = playerData?[PlayerMetadataConstants.IsLive] {
             isLive = isLiveMeta == "true"
         }
+
+        var isOffline: Bool? = playerData?[PlayerMetadataConstants.IsOffline] == "true"
 
         let mediaItem = MediaItem.make(
             withUrl: asset.url.absoluteString,
             mimeType: mimeType,
             metadata: metadata,
             isLive: isLive as NSNumber,
+            isOffline: isOffline as NSNumber?,
             playbackStartPositionMs: nil,
             lastKnownAudioLanguage: playerItem.getSelectedAudioLanguage(),
             lastKnownSubtitleLanguage: playerItem.getSelectedSubtitleLanguage()

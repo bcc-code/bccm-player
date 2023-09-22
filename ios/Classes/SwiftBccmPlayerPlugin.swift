@@ -1,19 +1,38 @@
 import AVKit
+import Combine
 import Flutter
 import GoogleCast
 import UIKit
 
 public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
+    static var cancellables: [AnyCancellable] = []
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         setupCast()
         let messenger = registrar.messenger()
         let channel = FlutterMethodChannel(name: "bccm_player", binaryMessenger: messenger)
         let instance = SwiftBccmPlayerPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
+        registrar.addApplicationDelegate(instance)
+
         let playbackListener = PlaybackListenerPigeon(binaryMessenger: messenger)
 
         let chromecastPigeon = ChromecastPigeon(binaryMessenger: messenger)
         let playbackApi = PlaybackApiImpl(chromecastPigeon: chromecastPigeon, playbackListener: playbackListener)
+
+        let downloaderListener = DownloaderListenerPigeon(binaryMessenger: messenger)
+        let downloader = Downloader()
+        cancellables.append(contentsOf: [
+            downloader.changeEvents.sink { event in
+                downloaderListener.onDownloadStatusChanged(event) { _ in }
+            },
+            downloader.removeEvents.sink { event in
+                downloaderListener.onDownloadRemoved(event) { _ in }
+            },
+            downloader.failEvents.sink { event in
+                downloaderListener.onDownloadFailed(event) { _ in }
+            }
+        ])
 
         registrar.register(
             BccmPlayerFactory(messenger: messenger, playbackApi: playbackApi),
@@ -26,6 +45,7 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
             withId: "bccm_player/cast_button")
 
         PlaybackPlatformPigeonSetup(registrar.messenger(), playbackApi)
+        DownloaderPigeonSetup(registrar.messenger(), DownloaderApiImpl(downloader: downloader))
 
         let audioSession = AVAudioSession.sharedInstance()
         do {

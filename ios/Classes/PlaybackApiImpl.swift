@@ -69,7 +69,7 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         let player = AVQueuePlayerController(playbackListener: playbackListener, npawConfig: npawConfig, appConfig: appConfig)
         players.append(player)
         if url != nil {
-            let mediaItem = MediaItem.make(withUrl: url!, mimeType: "application/x-mpegURL", metadata: nil, isLive: false, playbackStartPositionMs: nil, lastKnownAudioLanguage: nil, lastKnownSubtitleLanguage: nil)
+            let mediaItem = MediaItem.make(withUrl: url!, mimeType: "application/x-mpegURL", metadata: nil, isLive: false, isOffline: false, playbackStartPositionMs: nil, lastKnownAudioLanguage: nil, lastKnownSubtitleLanguage: nil)
             player.replaceCurrentMediaItem(mediaItem, autoplay: false, completion: {
                 err in
                 let playerId = err == nil ? player.id : nil
@@ -189,6 +189,16 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
             try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
         } else {
             try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        }
+    }
+
+    public func fetchMediaInfo(_ urlString: String, mimeType: String?) async -> (MediaInfo?, FlutterError?) {
+        return await returnFlutterResult {
+            guard let url = URL(string: urlString) else {
+                throw BccmPlayerError.runtimeError("Invalid url")
+            }
+            let tracks = try await MediaInfoFetcher.fetchInfo(for: url, mimeType: mimeType)
+            return tracks
         }
     }
 }

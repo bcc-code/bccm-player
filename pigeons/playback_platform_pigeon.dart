@@ -107,6 +107,10 @@ abstract class PlaybackPlatformPigeon {
 
   @ObjCSelector("openCastDialog")
   void openCastDialog();
+
+  @async
+  @ObjCSelector("fetchMediaInfo:mimeType:")
+  MediaInfo fetchMediaInfo(String url, String? mimeType);
 }
 
 class NpawConfig {
@@ -139,6 +143,7 @@ class MediaItem {
   String? mimeType;
   MediaMetadata? metadata;
   bool? isLive;
+  bool? isOffline;
   double? playbackStartPositionMs;
   String? lastKnownAudioLanguage;
   String? lastKnownSubtitleLanguage;
@@ -149,7 +154,7 @@ class MediaMetadata {
   String? title;
   String? artist;
   double? durationMs;
-  Map<String?, Object?>? extras;
+  Map<String?, String?>? extras;
 }
 
 class PlayerStateSnapshot {
@@ -187,6 +192,12 @@ enum CastConnectionState {
 
 enum TrackType { audio, text, video }
 
+class MediaInfo {
+  late List<Track?> audioTracks;
+  late List<Track?> textTracks;
+  late List<Track?> videoTracks;
+}
+
 class PlayerTracksSnapshot {
   late String playerId;
   late List<Track?> audioTracks;
@@ -202,6 +213,7 @@ class Track {
   late int? bitrate;
   late int? width;
   late int? height;
+  late bool? downloaded;
   late bool isSelected;
 }
 
