@@ -199,6 +199,9 @@ class Downloader(
         downloadHelper.clearTrackSelections(0)
 
         val tracks = downloadHelper.getTracks(0)
+        val selection =
+            TrackSelectionParameters.Builder(context)
+                .clearOverrides()
         for (group in tracks.groups.filter { it.length > 0 }) {
             for (i in 0 until group.length) {
                 val format = group.getTrackFormat(i);
@@ -206,15 +209,15 @@ class Downloader(
                     || config.audioTrackIds.contains(format.id)
                     || config.videoTrackIds.contains(format.id)
                 ) {
-                    downloadHelper.addTrackSelection(
-                        0,
-                        TrackSelectionParameters.Builder(context)
-                            .addOverride(TrackSelectionOverride(group.mediaTrackGroup, i))
-                            .build()
-                    )
+                    selection.addOverride(TrackSelectionOverride(group.mediaTrackGroup, i))
+                        .build()
                 }
             }
         }
+        downloadHelper.replaceTrackSelections(
+            0,
+            selection.build()
+        )
 
 
         val request = downloadHelper.getDownloadRequest(
