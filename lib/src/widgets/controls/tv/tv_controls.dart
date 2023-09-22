@@ -90,6 +90,7 @@ class TvControls extends HookWidget {
               )
             else
               IconButton(
+                autofocus: true,
                 constraints: const BoxConstraints.tightFor(width: 68, height: 68),
                 icon: player.value.isBuffering == true
                     ? LoadingIndicator(

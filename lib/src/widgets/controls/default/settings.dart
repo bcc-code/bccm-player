@@ -95,7 +95,7 @@ class _SettingsBottomSheet extends HookWidget {
     }
 
     final playbackSpeed = useState(playerController.value.playbackSpeed);
-    final isLive = useState(false);
+    final isLive = useState(playerController.value.currentMediaItem?.isLive == true);
     final isOffline = useState(playerController.value.currentMediaItem?.isOffline == true);
     final playbackState = useState(playerController.value.playbackState);
     useEffect(() {
