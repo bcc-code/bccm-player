@@ -29,7 +29,7 @@ public struct DownloaderState: Codable {
     public struct TaskState: Codable {
         public let key: UUID
         public let input: TaskInput
-        public var offlineUrl: URL? = nil
+        public var tempOfflineUrl: URL? = nil
         public var bookmark: Data? = nil
         public var statusCode: UInt = DownloadStatus.paused.rawValue
         public var error: String? = nil
@@ -56,17 +56,20 @@ extension DownloaderState.TaskInput {
 }
 
 extension DownloaderState.TaskState {
-    func toDownloadModel() -> Download {
-        let url = bookmark.flatMap {
+    func getUrlFromBookmark() -> URL? {
+        return bookmark.flatMap {
             var staleBookmark = false
             let url = try? URL(resolvingBookmarkData: $0, bookmarkDataIsStale: &staleBookmark)
-            return url?.absoluteString
+            return url
         }
+    }
+
+    func toDownloadModel() -> Download {
         let status = DownloadStatus(rawValue: statusCode) ?? .failed
 
         return Download.make(withKey: key.uuidString,
                              config: input.downloadConfig,
-                             offlineUrl: url,
+                             offlineUrl: getUrlFromBookmark()?.absoluteString,
                              fractionDownloaded: progress as NSNumber,
                              status: status,
                              error: error)

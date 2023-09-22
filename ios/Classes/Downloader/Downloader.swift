@@ -34,7 +34,18 @@ public class Downloader {
     }
     
     public func getAll() -> [Download] {
-        UserDefaults.standard.downloaderState.tasks.values.map { taskState in
+        for taskKV in UserDefaults.standard.downloaderState.tasks {
+            if let path = taskKV.value.getUrlFromBookmark()?.path {
+                if !FileManager.default.fileExists(atPath: path) {
+                    do {
+                        try remove(download: taskKV.key)
+                    } catch {
+                        debugPrint("Tried to remove nonexistent download, but failed. Key is: \(taskKV.key)")
+                    }
+                }
+            }
+        }
+        return UserDefaults.standard.downloaderState.tasks.values.map { taskState in
             taskState.toDownloadModel()
         }
     }
@@ -45,7 +56,7 @@ public class Downloader {
     
     public func startDownload(config: DownloadConfig) throws -> Download {
         guard let url = URL(string: config.url) else {
-            throw DownloaderError.invalidUrl(url: config.url)
+            throw FlutterError(code: "invalid_url", message: "Passed url is invalid", details: "The passed url was \(config.url)")
         }
         
         let taskInput = DownloaderState.TaskInput(
@@ -72,18 +83,32 @@ public class Downloader {
             options[AVAssetDownloadTaskMinimumRequiredMediaBitrateKey] = videoTrack?.bitrate
         }
         
-        if let downloadTask = session.aggregateAssetDownloadTask(with: asset, mediaSelections: audioMediaSelections + textMediaSelections, assetTitle: config.title, assetArtworkData: nil, options: options)
-        {
-            downloadTask.taskDescription = taskState.key.uuidString
-            downloadTask.resume()
+        var assetArtworkData: Data? = nil
+        if let artworkUri = config.additionalData["artwork_uri"] {
+            if let url = URL(string: artworkUri) {
+                assetArtworkData = try? Data(contentsOf: url)
+            }
         }
-
+        
+        guard let downloadTask = session.aggregateAssetDownloadTask(
+            with: asset,
+            mediaSelections: audioMediaSelections + textMediaSelections,
+            assetTitle: config.title,
+            assetArtworkData: assetArtworkData,
+            options: options
+        ) else {
+            throw FlutterError(code: "download_task_null", message: "Failed to create download task", details: nil)
+        }
+        
+        downloadTask.taskDescription = taskState.key.uuidString
+        downloadTask.resume()
+        
         return taskState.toDownloadModel()
     }
     
     public func progress(forKey key: String) async throws -> Double {
         guard let task = UserDefaults.standard.downloaderState.tasks[key] else {
-            throw DownloaderError.unknownDownloadKey(key: key)
+            throw FlutterError(code: "unknown_key", message: "Unknown download key/id: \(key)", details: nil)
         }
         
         if task.statusCode == DownloadStatus.finished.rawValue {
@@ -101,12 +126,12 @@ public class Downloader {
         var state = UserDefaults.standard.downloaderState
         
         guard let taskState = state.tasks[key] else {
-            throw DownloaderError.unknownDownloadKey(key: key)
+            throw FlutterError(code: "unknown_key", message: "Unknown download key/id: \(key)", details: nil)
         }
 
-        if let url = taskState.offlineUrl {
-            if FileManager.default.fileExists(atPath: url.absoluteString) {
-                try FileManager.default.removeItem(at: url)
+        if let path = taskState.getUrlFromBookmark()?.path {
+            if FileManager.default.fileExists(atPath: path) {
+                try FileManager.default.removeItem(atPath: path)
             }
         }
         
@@ -129,9 +154,8 @@ public class Downloader {
                 return
             }
 
-            taskState.offlineUrl = location
-            state.updateTask(task: taskState)
-            UserDefaults.standard.downloaderState = state
+            taskState.tempOfflineUrl = location
+            UserDefaults.standard.downloaderState = state.updateTask(task: taskState)
             
             changeEvents.send(
                 DownloadChangedEvent.make(with: taskState.toDownloadModel())
@@ -149,11 +173,20 @@ public class Downloader {
             if aggregateAssetDownloadTask.state == .running {
                 taskState.statusCode = DownloadStatus.downloading.rawValue
                 taskState.progress = min(max(progress, 0), 1)
-            } else if progress >= 1.0 || aggregateAssetDownloadTask.state == .completed {
+            }
+            if progress >= 1.0 || aggregateAssetDownloadTask.state == .completed {
                 taskState.statusCode = DownloadStatus.finished.rawValue
                 taskState.progress = 1.0
             }
-            debugPrint("taskState.progress \(taskState.progress)")
+            
+            if taskState.bookmark == nil {
+                do {
+                    taskState.bookmark = try taskState.tempOfflineUrl?.bookmarkData()
+                } catch {
+                    print("Failed to save bookmark: \(error)")
+                }
+            }
+            
             UserDefaults.standard.downloaderState = UserDefaults.standard.downloaderState.updateTask(task: taskState)
             
             changeEvents.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
@@ -169,21 +202,33 @@ public class Downloader {
             guard let downloadKey = task.taskDescription, var taskState = state.tasks[downloadKey] else {
                 return
             }
-
+            
             if let error = error {
+                if let path = taskState.getUrlFromBookmark()?.path {
+                    if FileManager.default.fileExists(atPath: path) {
+                        do {
+                            try FileManager.default.removeItem(atPath: path)
+                        } catch {}
+                    }
+                }
                 taskState.statusCode = DownloadStatus.failed.rawValue
                 taskState.error = error.localizedDescription
                 failEvents.send(DownloadFailedEvent.make(withKey: taskState.key.uuidString, error: error.localizedDescription))
             } else {
-                taskState.statusCode = DownloadStatus.finished.rawValue
-                do {
-                    taskState.bookmark = try taskState.offlineUrl?.bookmarkData()
-                } catch {
-                    print("Some error \(error)")
+                if taskState.bookmark == nil {
+                    do {
+                        taskState.bookmark = try taskState.tempOfflineUrl?.bookmarkData()
+                    } catch let e {
+                        taskState.error = e.localizedDescription
+                    }
                 }
-                UserDefaults.standard.downloaderState = state.updateTask(task: taskState)
+                if taskState.bookmark != nil {
+                    taskState.statusCode = DownloadStatus.finished.rawValue
+                } else {
+                    taskState.statusCode = DownloadStatus.failed.rawValue
+                }
             }
-    
+            UserDefaults.standard.downloaderState = state.updateTask(task: taskState)
             changeEvents.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
         }
     }

@@ -22,54 +22,50 @@ extension TrackType {
     }
 }
 
+extension FlutterError: Error {}
+
 /**
         Helper function for catching Swift errors and returing the tuple format, Flutter pigeon requires.
- 
-        When a error is catched that implements the protocol `FlutterErrorConvertible`,
-        The error will be converted using `flutterError`
 
         For all other errors, it will generate a default FlutterError, based on the description of the error.
  */
 public func returnFlutterResult<T>(_ exec: () async throws -> T?) async -> (T?, FlutterError?) {
     do {
-        return await (try exec(), nil)
-    } catch let error as FlutterErrorConvertible {
-        return (nil, error.flutterError)
+        return try await (exec(), nil)
+    } catch let error as FlutterError {
+        return (nil, error)
     } catch {
-        return (nil, FlutterError()) // TODO: Error message
+        return (nil, FlutterError(code: "unknown", message: error.localizedDescription, details: nil))
     }
 }
 
 public func returnFlutterResult(_ exec: () async throws -> ()) async -> FlutterError? {
     do {
         try await exec()
-    } catch let error as FlutterErrorConvertible {
-        return error.flutterError
+    } catch let error as FlutterError {
+        return error
     } catch {
-        return FlutterError() // TODO: Error message
+        return FlutterError(code: "unknown", message: error.localizedDescription, details: nil)
     }
-    
+
     return nil
 }
 
 public func returnFlutterResult<InputValue>(_ exec: () async throws -> InputValue) async -> (InputValue.Value?, FlutterError?)
-    where InputValue : FlutterValueConvertible {
-        await returnFlutterResult<InputValue.Value> { try await exec().flutterValue }
-}
-
-public protocol FlutterErrorConvertible {
-    var flutterError: FlutterError { get }
+    where InputValue: FlutterValueConvertible
+{
+    await returnFlutterResult<InputValue.Value> { try await exec().flutterValue }
 }
 
 public protocol FlutterValueConvertible {
     associatedtype Value
-    
+
     var flutterValue: Value { get }
 }
 
-extension Double : FlutterValueConvertible {
+extension Double: FlutterValueConvertible {
     public typealias Value = NSNumber
-    
+
     public var flutterValue: NSNumber {
         NSNumber(value: self)
     }
