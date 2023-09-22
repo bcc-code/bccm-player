@@ -470,10 +470,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     private func _createPlayerItem(_ mediaItem: MediaItem, _ asset: AVAsset) -> AVPlayerItem? {
         let playerItem = AVPlayerItem(asset: asset)
         
-        if mediaItem.isOffline == true, let asset = (asset as? AVURLAsset) {
-            _setDefaultAudioForOfflinePlayback(playerItem, asset)
-        }
-        
         if #available(iOS 12.2, *) {
             var allItems: [AVMetadataItem] = []
             if let metadataItem = MetadataUtils.metadataItem(identifier: AVMetadataIdentifier.commonIdentifierTitle.rawValue, value: mediaItem.metadata?.title as (NSCopying & NSObjectProtocol)?) {
@@ -527,6 +523,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             
             playerItem.externalMetadata.append(contentsOf: allItems)
         }
+        
+        if mediaItem.isOffline == true, let asset = (asset as? AVURLAsset) {
+            _setDefaultAudioForOfflinePlayback(playerItem, asset)
+            playerItem.preferredPeakBitRate = 0
+        }
+        
         return playerItem
     }
 

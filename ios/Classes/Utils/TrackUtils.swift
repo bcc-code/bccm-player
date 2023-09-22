@@ -131,8 +131,8 @@ extension AVPlayerItem {
             for option in options {
                 if !isOffline() || offlineOptions?.contains(option) == true {
                     select(option, in: group)
+                    return true
                 }
-                return true
             }
         }
         return false
