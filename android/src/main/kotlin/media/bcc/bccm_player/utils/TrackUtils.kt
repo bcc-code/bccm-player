@@ -7,7 +7,6 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 
 object TrackUtils {
     fun getAudioTracksForPlayer(player: Player): MutableList<PlaybackPlatformApi.Track> {
-        // get tracks from player
         val currentTracks = player.currentTracks;
         val currentAudioTrack =
             currentTracks.groups.firstOrNull { it.isSelected && it.type == C.TRACK_TYPE_AUDIO }
@@ -24,6 +23,7 @@ object TrackUtils {
                     .setLabel(track.label)
                     .setBitrate(track.averageBitrate.toLong())
                     .setIsSelected(track == currentAudioTrack)
+                    .setDownloaded(null)
                     .build()
             )
         }
@@ -32,7 +32,6 @@ object TrackUtils {
     }
 
     fun getVideoTracksForPlayer(player: Player): MutableList<PlaybackPlatformApi.Track> {
-        // get tracks from player
         val currentTracks = player.currentTracks;
 
         val videoOverride =
@@ -56,6 +55,7 @@ object TrackUtils {
                             .setFrameRate(if (trackFormat.frameRate.toInt() == Format.NO_VALUE) null else trackFormat.frameRate.toDouble())
                             .setBitrate(trackFormat.averageBitrate.toLong())
                             .setIsSelected(trackFormat == currentExplicitlySelectedVideoTrackFormat)
+                            .setDownloaded(null)
                             .build()
                     )
 
@@ -67,17 +67,13 @@ object TrackUtils {
     }
 
     fun getTextTracksForPlayer(player: Player): MutableList<PlaybackPlatformApi.Track> {
-        // get tracks from player
         val currentTracks = player.currentTracks;
-
-
         val currentTextTrack =
             currentTracks.groups.firstOrNull { it.isSelected && it.type == C.TRACK_TYPE_TEXT }
                 ?.getTrackFormat(0)
 
         val textTracks = mutableListOf<PlaybackPlatformApi.Track>()
         for (trackGroup in currentTracks.groups.filter { it.type == C.TRACK_TYPE_TEXT }) {
-
             val track = trackGroup.getTrackFormat(0)
             val id = track.id ?: track.language ?: continue;
             textTracks.add(
@@ -87,6 +83,7 @@ object TrackUtils {
                     .setLabel(track.label)
                     .setBitrate(track.averageBitrate.toLong())
                     .setIsSelected(track == currentTextTrack)
+                    .setDownloaded(null)
                     .build()
             )
         }

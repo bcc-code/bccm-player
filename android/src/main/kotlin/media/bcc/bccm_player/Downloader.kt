@@ -196,28 +196,26 @@ class Downloader(
         )
 
         downloadHelper.prepare()
-        downloadHelper.clearTrackSelections(0)
 
         val tracks = downloadHelper.getTracks(0)
         val selection =
             TrackSelectionParameters.Builder(context)
                 .clearOverrides()
         for (group in tracks.groups.filter { it.length > 0 }) {
+            if (group.type == TRACK_TYPE_TEXT) {
+                val allIndices = (0 until group.length).toList()
+                selection.addOverride(TrackSelectionOverride(group.mediaTrackGroup, allIndices))
+                continue
+            }
             for (i in 0 until group.length) {
                 val format = group.getTrackFormat(i);
-                if (group.type == TRACK_TYPE_TEXT
-                    || config.audioTrackIds.contains(format.id)
-                    || config.videoTrackIds.contains(format.id)
-                ) {
+                if (config.audioTrackIds.contains(format.id) || config.videoTrackIds.contains(format.id)) {
                     selection.addOverride(TrackSelectionOverride(group.mediaTrackGroup, i))
-                        .build()
                 }
             }
         }
-        downloadHelper.replaceTrackSelections(
-            0,
-            selection.build()
-        )
+        downloadHelper.clearTrackSelections(0)
+        downloadHelper.addTrackSelection(0, selection.build())
 
 
         val request = downloadHelper.getDownloadRequest(

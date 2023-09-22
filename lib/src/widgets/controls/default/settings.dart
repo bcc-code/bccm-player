@@ -117,10 +117,11 @@ class _SettingsBottomSheet extends HookWidget {
     if (tracksData == null) {}
 
     final audioTracks = isOffline.value
-        ? tracksData?.audioTracks.safe.where((element) => element.downloaded == true).toList()
+        ? tracksData?.audioTracks.safe.where((element) => element.downloaded == null || element.downloaded == true).toList()
         : tracksData?.audioTracks.safe.toList();
-    final textTracks =
-        isOffline.value ? tracksData?.textTracks.safe.where((element) => element.downloaded == true).toList() : tracksData?.textTracks.safe.toList();
+    final textTracks = isOffline.value
+        ? tracksData?.textTracks.safe.where((element) => element.downloaded == null || element.downloaded == true).toList()
+        : tracksData?.textTracks.safe.toList();
 
     final selectedAudioTrack = tracksData?.audioTracks.safe.firstWhereOrNull((element) => element.isSelected);
     final selectedTextTrack = tracksData?.textTracks.safe.firstWhereOrNull((element) => element.isSelected);
