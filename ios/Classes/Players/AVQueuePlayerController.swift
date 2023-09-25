@@ -349,7 +349,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             youboraPlugin.options.offline = false
             return
         }
-        let extras = mediaItem.metadata?.extras
+        let extras = mediaItem.metadata?.safeExtras()
         let isLive = ((extras?["npaw.content.isLive"] as? String) == "true") || (mediaItem.isLive?.boolValue) == true
         youboraPlugin.options.contentIsLive = isLive as NSValue?
         youboraPlugin.options.contentId = extras?["npaw.content.id"] as? String ?? extras?["id"] as? String
@@ -357,7 +357,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.contentTvShow = extras?["npaw.content.tvShow"] as? String
         youboraPlugin.options.contentSeason = extras?["npaw.content.season"] as? String
         youboraPlugin.options.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
-        youboraPlugin.options.offline = extras?["npaw.isOffline"] == "true" || (mediaItem.isOffline?.boolValue) == true
+        youboraPlugin.options.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
     }
 
     public func setNpawConfig(npawConfig: NpawConfig?) {
@@ -496,7 +496,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                     }
                 }
             }
-            if let extras = mediaItem.metadata?.extras {
+            if let extras = mediaItem.metadata?.safeExtras() {
                 for item in extras {
                     if let value = item.value as? (NSCopying & NSObjectProtocol)?,
                        let metadataItem = MetadataUtils.metadataItem(identifier: item.key, value: value, namespace: .BccmExtras)

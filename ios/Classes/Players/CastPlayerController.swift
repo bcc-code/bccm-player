@@ -278,7 +278,7 @@ class CastPlayerController: NSObject, PlayerController {
                     metadata.addImage(image)
                 }
             }
-            if let extras = originalMeta.extras {
+            if let extras = originalMeta.safeExtras() {
                 for kv in extras {
                     if let value = kv.value as? String {
                         metadata.setString(value, forKey: MetadataNamespace.BccmExtras.rawValue + "." + kv.key)
@@ -397,8 +397,7 @@ class CastPlayerController: NSObject, PlayerController {
         
         let mimeType = playerData[PlayerMetadataConstants.MimeType]
         let isLive = playerData[PlayerMetadataConstants.IsLive] == "true"
-        debugPrint(mappedMetadata.extras as Any)
-        debugPrint(playerData)
+        
         let mediaItem = MediaItem.make(
             withUrl: "",
             mimeType: mimeType,

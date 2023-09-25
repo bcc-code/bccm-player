@@ -22,6 +22,13 @@ extension TrackType {
     }
 }
 
+extension MediaMetadata {
+    /// Because swift crashes when reading a NSDictionary<String *, String *> with null values
+    func safeExtras() -> [String: Any]? {
+        value(forKey: "extras") as? [String: Any]
+    }
+}
+
 extension FlutterError: Error {}
 
 /**
