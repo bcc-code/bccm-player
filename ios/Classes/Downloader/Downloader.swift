@@ -170,11 +170,12 @@ public class Downloader {
             let progress = loadedTimeRanges.reduce(0.0) { result, value in
                 result + (value.timeRangeValue.duration.seconds / timeRangeExpectedToLoad.duration.seconds)
             }
+            taskState.progress = min(max(progress, 0), 1)
+            
             if aggregateAssetDownloadTask.state == .running {
                 taskState.statusCode = DownloadStatus.downloading.rawValue
-                taskState.progress = min(max(progress, 0), 1)
             }
-            if progress >= 1.0 || aggregateAssetDownloadTask.state == .completed {
+            if aggregateAssetDownloadTask.state == .completed {
                 taskState.statusCode = DownloadStatus.finished.rawValue
                 taskState.progress = 1.0
             }
