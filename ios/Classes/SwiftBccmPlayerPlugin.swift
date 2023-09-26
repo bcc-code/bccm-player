@@ -24,13 +24,13 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
         let downloader = Downloader()
         cancellables.append(contentsOf: [
             downloader.changeEvents.sink { event in
-                downloaderListener.onDownloadStatusChanged(event) { _ in }
+                downloaderListener.onDownloadStatusChanged(event: event) {}
             },
             downloader.removeEvents.sink { event in
-                downloaderListener.onDownloadRemoved(event) { _ in }
+                downloaderListener.onDownloadRemoved(event: event) {}
             },
             downloader.failEvents.sink { event in
-                downloaderListener.onDownloadFailed(event) { _ in }
+                downloaderListener.onDownloadFailed(event: event) {}
             }
         ])
 
@@ -45,7 +45,7 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
             withId: "bccm_player/cast_button")
 
         PlaybackPlatformPigeonSetup(registrar.messenger(), playbackApi)
-        DownloaderPigeonSetup(registrar.messenger(), DownloaderApiImpl(downloader: downloader))
+        DownloaderPigeonSetup.setUp(binaryMessenger: registrar.messenger(), api: DownloaderApiImpl(downloader: downloader))
 
         let audioSession = AVAudioSession.sharedInstance()
         do {

@@ -15,9 +15,7 @@ import 'package:pigeon/pigeon.dart';
   dartOptions: DartOptions(),
   javaOut: 'android/src/main/java/media/bcc/bccm_player/pigeon/DownloaderApi.java',
   javaOptions: JavaOptions(package: 'media.bcc.bccm_player.pigeon'),
-  objcHeaderOut: 'ios/Classes/Pigeon/DownloaderApi.h',
-  objcSourceOut: 'ios/Classes/Pigeon/DownloaderApi.m',
-  objcOptions: ObjcOptions(),
+  swiftOut: 'ios/Classes/Pigeon/DownloaderApi.swift',
 ))
 
 /// An API called by the native side to notify about chromecast changes

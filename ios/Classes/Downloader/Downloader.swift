@@ -21,19 +21,19 @@ public class Downloader {
                                             delegateQueue: OperationQueue.main)
     }
     
-    public var changeEvents: any Subject<DownloadChangedEvent, Never> {
+    var changeEvents: any Subject<DownloadChangedEvent, Never> {
         delegate.changeEvents
     }
 
-    public var removeEvents: any Subject<DownloadRemovedEvent, Never> {
+    var removeEvents: any Subject<DownloadRemovedEvent, Never> {
         delegate.removeEvents
     }
     
-    public var failEvents: any Subject<DownloadFailedEvent, Never> {
+    var failEvents: any Subject<DownloadFailedEvent, Never> {
         delegate.failEvents
     }
     
-    public func getAll() -> [Download] {
+    func getAll() -> [Download] {
         for taskKV in UserDefaults.standard.downloaderState.tasks {
             if let path = taskKV.value.getUrlFromBookmark()?.path {
                 if !FileManager.default.fileExists(atPath: path) {
@@ -50,11 +50,11 @@ public class Downloader {
         }
     }
 
-    public func get(forKey key: String) -> Download? {
+    func get(forKey key: String) -> Download? {
         UserDefaults.standard.downloaderState.tasks.values.first { $0.key.uuidString == key }?.toDownloadModel()
     }
     
-    public func startDownload(config: DownloadConfig) throws -> Download {
+    func startDownload(config: DownloadConfig) throws -> Download {
         guard let url = URL(string: config.url) else {
             throw FlutterError(code: "invalid_url", message: "Passed url is invalid", details: "The passed url was \(config.url)")
         }
@@ -63,9 +63,9 @@ public class Downloader {
             url: url,
             mimeType: config.mimeType,
             title: config.title,
-            audioTrackIds: config.audioTrackIds,
-            videoTrackIds: config.videoTrackIds,
-            additionalData: config.additionalData
+            audioTrackIds: config.audioTrackIds.compactMap { $0 },
+            videoTrackIds: config.videoTrackIds.compactMap { $0 },
+            additionalData: config.additionalData.removeNil()
         )
         
         let taskState = DownloaderState.TaskState(key: UUID(), input: taskInput, statusCode: DownloadStatus.queued.rawValue)
@@ -73,7 +73,7 @@ public class Downloader {
         
         let asset = AVURLAsset(url: url)
         
-        let audioMediaSelections = try TrackUtils.getAVMediaSelectionsForAudio(asset, ids: config.audioTrackIds)
+        let audioMediaSelections = try TrackUtils.getAVMediaSelectionsForAudio(asset, ids: config.audioTrackIds.compactMap { $0 })
         let textMediaSelections = try TrackUtils.getAVMediaSelectionsForText(asset)
         let videoTracks = TrackUtils.getVideoTracksForAsset(asset, playerItem: nil)
         let videoTrack = videoTracks.first(where: { $0.id == config.videoTrackIds.first })
@@ -84,7 +84,7 @@ public class Downloader {
         }
         
         var assetArtworkData: Data? = nil
-        if let artworkUri = config.additionalData["artwork_uri"] {
+        if let artworkUri = config.additionalData.removeNil()["artwork_uri"] {
             if let url = URL(string: artworkUri) {
                 assetArtworkData = try? Data(contentsOf: url)
             }
@@ -138,14 +138,14 @@ public class Downloader {
         state.tasks.removeValue(forKey: key)
         UserDefaults.standard.downloaderState = state
         delegate.removeEvents.send(
-            DownloadRemovedEvent.make(withKey: key)
+            DownloadRemovedEvent(key: key)
         )
     }
 
     public class Delegate: NSObject, AVAssetDownloadDelegate {
-        public let changeEvents = PassthroughSubject<DownloadChangedEvent, Never>()
-        public let removeEvents = PassthroughSubject<DownloadRemovedEvent, Never>()
-        public let failEvents = PassthroughSubject<DownloadFailedEvent, Never>()
+        let changeEvents = PassthroughSubject<DownloadChangedEvent, Never>()
+        let removeEvents = PassthroughSubject<DownloadRemovedEvent, Never>()
+        let failEvents = PassthroughSubject<DownloadFailedEvent, Never>()
 
         public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, willDownloadTo location: URL) {
             var state = UserDefaults.standard.downloaderState
@@ -158,7 +158,7 @@ public class Downloader {
             UserDefaults.standard.downloaderState = state.updateTask(task: taskState)
             
             changeEvents.send(
-                DownloadChangedEvent.make(with: taskState.toDownloadModel())
+                DownloadChangedEvent(download: taskState.toDownloadModel())
             )
         }
         
@@ -189,7 +189,7 @@ public class Downloader {
             
             UserDefaults.standard.downloaderState = UserDefaults.standard.downloaderState.updateTask(task: taskState)
             
-            changeEvents.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
+            changeEvents.send(DownloadChangedEvent(download: taskState.toDownloadModel()))
         }
         
         public func urlSession(_ session: URLSession, assetDownloadTask: AVAssetDownloadTask, didFinishDownloadingTo location: URL) {
@@ -213,7 +213,7 @@ public class Downloader {
                 }
                 taskState.statusCode = DownloadStatus.failed.rawValue
                 taskState.error = error.localizedDescription
-                failEvents.send(DownloadFailedEvent.make(withKey: taskState.key.uuidString, error: error.localizedDescription))
+                failEvents.send(DownloadFailedEvent(key: taskState.key.uuidString, error: error.localizedDescription))
             } else {
                 if taskState.bookmark == nil {
                     do {
@@ -229,7 +229,7 @@ public class Downloader {
                 }
             }
             UserDefaults.standard.downloaderState = state.updateTask(task: taskState)
-            changeEvents.send(DownloadChangedEvent.make(with: taskState.toDownloadModel()))
+            changeEvents.send(DownloadChangedEvent(download: taskState.toDownloadModel()))
         }
     }
 }

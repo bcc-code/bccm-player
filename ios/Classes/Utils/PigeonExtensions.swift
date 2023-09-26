@@ -25,7 +25,17 @@ extension TrackType {
 extension MediaMetadata {
     /// Because swift crashes when reading a NSDictionary<String *, String *> with null values
     func safeExtras() -> [String: Any]? {
-        value(forKey: "extras") as? [String: Any]
+        return value(forKey: "extras") as? [String: Any]
+    }
+}
+
+extension [String?: String?] {
+    func removeNil() -> [String: String] {
+        return reduce(into: [:]) { result, x in
+            if x.key != nil, x.value != nil {
+                result[x.key!] = x.value!
+            }
+        }
     }
 }
 

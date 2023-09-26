@@ -31,7 +31,7 @@ public struct DownloaderState: Codable {
         public let input: TaskInput
         public var tempOfflineUrl: URL? = nil
         public var bookmark: Data? = nil
-        public var statusCode: UInt = DownloadStatus.paused.rawValue
+        public var statusCode: Int = DownloadStatus.paused.rawValue
         public var error: String? = nil
         public var progress: Double = 0.0
     }
@@ -46,12 +46,12 @@ public struct DownloaderState: Codable {
 
 extension DownloaderState.TaskInput {
     var downloadConfig: DownloadConfig {
-        DownloadConfig.make(withUrl: url.absoluteString,
-                            mimeType: mimeType,
-                            title: title,
-                            audioTrackIds: audioTrackIds,
-                            videoTrackIds: videoTrackIds,
-                            additionalData: additionalData)
+        DownloadConfig(url: url.absoluteString,
+                       mimeType: mimeType,
+                       title: title,
+                       audioTrackIds: audioTrackIds,
+                       videoTrackIds: videoTrackIds,
+                       additionalData: additionalData)
     }
 }
 
@@ -67,11 +67,11 @@ extension DownloaderState.TaskState {
     func toDownloadModel() -> Download {
         let status = DownloadStatus(rawValue: statusCode) ?? .failed
 
-        return Download.make(withKey: key.uuidString,
-                             config: input.downloadConfig,
-                             offlineUrl: getUrlFromBookmark()?.absoluteString,
-                             fractionDownloaded: progress as NSNumber,
-                             status: status,
-                             error: error)
+        return Download(key: key.uuidString,
+                        config: input.downloadConfig,
+                        offlineUrl: getUrlFromBookmark()?.absoluteString,
+                        fractionDownloaded: progress,
+                        status: status,
+                        error: error)
     }
 }
