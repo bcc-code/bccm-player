@@ -12,13 +12,26 @@ public class Downloader {
     static let identifier = "\(Bundle.main.bundleIdentifier!).Downloader"
 
     private let delegate = Delegate()
-    private let session: AVAssetDownloadURLSession
+    static var session: AVAssetDownloadURLSession?
 
     init() {
+        if Downloader.session != nil {
+            debugPrint("static downloader session already exists")
+            return
+        }
         let config = URLSessionConfiguration.background(withIdentifier: Downloader.identifier)
-        session = AVAssetDownloadURLSession(configuration: config,
-                                            assetDownloadDelegate: delegate,
-                                            delegateQueue: OperationQueue.main)
+        config.networkServiceType = .video
+        config.isDiscretionary = false
+        config.allowsCellularAccess = true
+        
+        Downloader.session = AVAssetDownloadURLSession(configuration: config,
+                                                       assetDownloadDelegate: delegate,
+                                                       delegateQueue: OperationQueue.main)
+        Downloader.session!.getAllTasks(completionHandler: { tasks in
+            for task in tasks { 
+                task.cancel()
+            }
+        })
     }
     
     var changeEvents: any Subject<DownloadChangedEvent, Never> {
@@ -90,13 +103,14 @@ public class Downloader {
             }
         }
         
-        guard let downloadTask = session.aggregateAssetDownloadTask(
+        let downloadTask = Downloader.session!.aggregateAssetDownloadTask(
             with: asset,
             mediaSelections: audioMediaSelections + textMediaSelections,
             assetTitle: config.title,
             assetArtworkData: assetArtworkData,
             options: options
-        ) else {
+        )
+        guard let downloadTask = downloadTask else {
             throw FlutterError(code: "download_task_null", message: "Failed to create download task", details: nil)
         }
         
@@ -115,7 +129,7 @@ public class Downloader {
             return 1
         }
         
-        let urlSessionTask = await session.allTasks.first {
+        let urlSessionTask = await Downloader.session!.allTasks.first {
             $0.taskDescription == key
         }
         
@@ -162,6 +176,22 @@ public class Downloader {
             )
         }
         
+        public func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+            debugPrint("taskIsWaitingForConnectivity")
+        }
+        
+        public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+            debugPrint("didBecomeInvalidWithError")
+        }
+        
+        public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, didCompleteFor mediaSelection: AVMediaSelection) {
+            debugPrint("didCompleteFor \(mediaSelection.debugDescription)")
+        }
+        
+        public func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {
+            debugPrint("didCreateTask")
+        }
+        
         public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, didLoad timeRange: CMTimeRange, totalTimeRangesLoaded loadedTimeRanges: [NSValue], timeRangeExpectedToLoad: CMTimeRange, for mediaSelection: AVMediaSelection) {
             guard let downloadKey = aggregateAssetDownloadTask.taskDescription, var taskState = UserDefaults.standard.downloaderState.tasks[downloadKey] else {
                 return
@@ -178,6 +208,11 @@ public class Downloader {
             if aggregateAssetDownloadTask.state == .completed {
                 taskState.statusCode = DownloadStatus.finished.rawValue
                 taskState.progress = 1.0
+            }
+            
+            if progress == 1.0 {
+                debugPrint(taskState.progress)
+                debugPrint(aggregateAssetDownloadTask.state.rawValue)
             }
             
             if taskState.bookmark == nil {
