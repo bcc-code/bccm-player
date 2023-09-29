@@ -12,13 +12,29 @@ public class Downloader {
     static let identifier = "\(Bundle.main.bundleIdentifier!).Downloader"
 
     private let delegate = Delegate()
-    private let session: AVAssetDownloadURLSession
+    static var session: AVAssetDownloadURLSession?
 
     init() {
+        if Downloader.session != nil {
+            debugPrint("static downloader session already exists")
+            return
+        }
         let config = URLSessionConfiguration.background(withIdentifier: Downloader.identifier)
-        session = AVAssetDownloadURLSession(configuration: config,
-                                            assetDownloadDelegate: delegate,
-                                            delegateQueue: OperationQueue.main)
+        config.networkServiceType = .video
+        config.isDiscretionary = false
+        config.allowsCellularAccess = true
+        
+        Downloader.session = AVAssetDownloadURLSession(configuration: config,
+                                                       assetDownloadDelegate: delegate,
+                                                       delegateQueue: OperationQueue.main)
+
+        // We cant resume a task anyway, so lets just clean up old tasks every restart
+        // This is also to prevent a bug where new tasks can get stuck at 0% (not starting properly), reproducable when many (15 ish?) tasks are stuck in an active state.
+        Downloader.session!.getAllTasks(completionHandler: { tasks in
+            for task in tasks {
+                task.cancel()
+            }
+        })
     }
     
     var changeEvents: any Subject<DownloadChangedEvent, Never> {
@@ -90,13 +106,14 @@ public class Downloader {
             }
         }
         
-        guard let downloadTask = session.aggregateAssetDownloadTask(
+        let downloadTask = Downloader.session!.aggregateAssetDownloadTask(
             with: asset,
             mediaSelections: audioMediaSelections + textMediaSelections,
             assetTitle: config.title,
             assetArtworkData: assetArtworkData,
             options: options
-        ) else {
+        )
+        guard let downloadTask = downloadTask else {
             throw FlutterError(code: "download_task_null", message: "Failed to create download task", details: nil)
         }
         
@@ -115,7 +132,7 @@ public class Downloader {
             return 1
         }
         
-        let urlSessionTask = await session.allTasks.first {
+        let urlSessionTask = await Downloader.session!.allTasks.first {
             $0.taskDescription == key
         }
         
@@ -162,13 +179,31 @@ public class Downloader {
             )
         }
         
+        public func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+            debugPrint("taskIsWaitingForConnectivity")
+        }
+        
+        public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+            debugPrint("didBecomeInvalidWithError")
+        }
+        
+        public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, didCompleteFor mediaSelection: AVMediaSelection) {
+            debugPrint("didCompleteFor \(mediaSelection.debugDescription)")
+        }
+        
+        public func urlSession(_ session: URLSession, didCreateTask task: URLSessionTask) {
+            debugPrint("didCreateTask")
+        }
+        
         public func urlSession(_ session: URLSession, aggregateAssetDownloadTask: AVAggregateAssetDownloadTask, didLoad timeRange: CMTimeRange, totalTimeRangesLoaded loadedTimeRanges: [NSValue], timeRangeExpectedToLoad: CMTimeRange, for mediaSelection: AVMediaSelection) {
             guard let downloadKey = aggregateAssetDownloadTask.taskDescription, var taskState = UserDefaults.standard.downloaderState.tasks[downloadKey] else {
                 return
             }
             
-            let progress = loadedTimeRanges.reduce(0.0) { result, value in
-                result + (value.timeRangeValue.duration.seconds / timeRangeExpectedToLoad.duration.seconds)
+            var progress = 0.0
+            for value in loadedTimeRanges where timeRangeExpectedToLoad.duration.seconds > 0 {
+                let loadedTimeRange = value.timeRangeValue
+                progress += loadedTimeRange.duration.seconds / timeRangeExpectedToLoad.duration.seconds
             }
             taskState.progress = min(max(progress, 0), 1)
             
@@ -178,6 +213,11 @@ public class Downloader {
             if aggregateAssetDownloadTask.state == .completed {
                 taskState.statusCode = DownloadStatus.finished.rawValue
                 taskState.progress = 1.0
+            }
+            
+            if taskState.progress == 1.0 {
+                debugPrint(taskState.progress)
+                debugPrint(aggregateAssetDownloadTask.state.rawValue)
             }
             
             if taskState.bookmark == nil {
@@ -198,6 +238,7 @@ public class Downloader {
         }
         
         public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+            debugPrint("didCompleteWithError: \(task.progress.debugDescription), \(error?.localizedDescription ?? "nil")")
             var state = UserDefaults.standard.downloaderState
             
             guard let downloadKey = task.taskDescription, var taskState = state.tasks[downloadKey] else {
