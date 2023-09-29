@@ -15,7 +15,9 @@ class TrackUtils {
         }
         let audioGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible)
         var mediaSelections: [AVMediaSelection] = []
-        for option in selectionGroup.options {
+        // We want to filter out the default "Unknown CC" text track:
+        // See https://developer.apple.com/library/archive/qa/qa1801/_index.html
+        for option in selectionGroup.options.filter({ $0.extendedLanguageTag != nil || $0.mediaType != .closedCaption }) {
             let selection = asset.preferredMediaSelection.mutableCopy() as! AVMutableMediaSelection
             if let audioGroup = audioGroup {
                 selection.select(nil, in: audioGroup)

@@ -27,8 +27,11 @@ public class Downloader {
         Downloader.session = AVAssetDownloadURLSession(configuration: config,
                                                        assetDownloadDelegate: delegate,
                                                        delegateQueue: OperationQueue.main)
+
+        // We cant resume a task anyway, so lets just clean up old tasks every restart
+        // This is also to prevent a bug where new tasks can get stuck at 0% (not starting properly), reproducable when many (15 ish?) tasks are stuck in an active state.
         Downloader.session!.getAllTasks(completionHandler: { tasks in
-            for task in tasks { 
+            for task in tasks {
                 task.cancel()
             }
         })
@@ -197,8 +200,10 @@ public class Downloader {
                 return
             }
             
-            let progress = loadedTimeRanges.reduce(0.0) { result, value in
-                result + (value.timeRangeValue.duration.seconds / timeRangeExpectedToLoad.duration.seconds)
+            var progress = 0.0
+            for value in loadedTimeRanges where timeRangeExpectedToLoad.duration.seconds > 0 {
+                let loadedTimeRange = value.timeRangeValue
+                progress += loadedTimeRange.duration.seconds / timeRangeExpectedToLoad.duration.seconds
             }
             taskState.progress = min(max(progress, 0), 1)
             
@@ -210,7 +215,7 @@ public class Downloader {
                 taskState.progress = 1.0
             }
             
-            if progress == 1.0 {
+            if taskState.progress == 1.0 {
                 debugPrint(taskState.progress)
                 debugPrint(aggregateAssetDownloadTask.state.rawValue)
             }
@@ -233,6 +238,7 @@ public class Downloader {
         }
         
         public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+            debugPrint("didCompleteWithError: \(task.progress.debugDescription), \(error?.localizedDescription ?? "nil")")
             var state = UserDefaults.standard.downloaderState
             
             guard let downloadKey = task.taskDescription, var taskState = state.tasks[downloadKey] else {
