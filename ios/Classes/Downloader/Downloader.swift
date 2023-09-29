@@ -70,7 +70,7 @@ public class Downloader {
         UserDefaults.standard.downloaderState.tasks.values.first { $0.key.uuidString == key }?.toDownloadModel()
     }
     
-    func startDownload(config: DownloadConfig) throws -> Download {
+    func startDownload(config: DownloadConfig) async throws -> Download {
         guard let url = URL(string: config.url) else {
             throw FlutterError(code: "invalid_url", message: "Passed url is invalid", details: "The passed url was \(config.url)")
         }
@@ -102,7 +102,7 @@ public class Downloader {
         var assetArtworkData: Data? = nil
         if let artworkUri = config.additionalData.removeNil()["artwork_uri"] {
             if let url = URL(string: artworkUri) {
-                assetArtworkData = try? Data(contentsOf: url)
+                assetArtworkData = try await getData(from: url)
             }
         }
         

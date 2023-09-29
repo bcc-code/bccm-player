@@ -7,9 +7,14 @@ class DownloaderApiImpl: NSObject, DownloaderPigeon {
     }
 
     func startDownload(downloadConfig: DownloadConfig, completion: @escaping (Result<Download, Error>) -> Void) {
-        completion(Result(catching: {
-            try downloader.startDownload(config: downloadConfig)
-        }))
+        Task {
+            do {
+                let download = try await downloader.startDownload(config: downloadConfig)
+                completion(.success(download))
+            } catch {
+                completion(.failure(error))
+            }
+        }
     }
 
     func getDownloadStatus(downloadKey: String, completion: @escaping (Result<Double, Error>) -> Void) {
