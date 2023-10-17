@@ -213,24 +213,30 @@ public class PlaybackPlatformApi {
       this.appLanguage = setterArg;
     }
 
-    private @Nullable String audioLanguage;
+    private @NonNull List<String> audioLanguages;
 
-    public @Nullable String getAudioLanguage() {
-      return audioLanguage;
+    public @NonNull List<String> getAudioLanguages() {
+      return audioLanguages;
     }
 
-    public void setAudioLanguage(@Nullable String setterArg) {
-      this.audioLanguage = setterArg;
+    public void setAudioLanguages(@NonNull List<String> setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"audioLanguages\" is null.");
+      }
+      this.audioLanguages = setterArg;
     }
 
-    private @Nullable String subtitleLanguage;
+    private @NonNull List<String> subtitleLanguages;
 
-    public @Nullable String getSubtitleLanguage() {
-      return subtitleLanguage;
+    public @NonNull List<String> getSubtitleLanguages() {
+      return subtitleLanguages;
     }
 
-    public void setSubtitleLanguage(@Nullable String setterArg) {
-      this.subtitleLanguage = setterArg;
+    public void setSubtitleLanguages(@NonNull List<String> setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"subtitleLanguages\" is null.");
+      }
+      this.subtitleLanguages = setterArg;
     }
 
     private @Nullable String analyticsId;
@@ -253,6 +259,9 @@ public class PlaybackPlatformApi {
       this.sessionId = setterArg;
     }
 
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    AppConfig() {}
+
     public static final class Builder {
 
       private @Nullable String appLanguage;
@@ -262,17 +271,17 @@ public class PlaybackPlatformApi {
         return this;
       }
 
-      private @Nullable String audioLanguage;
+      private @Nullable List<String> audioLanguages;
 
-      public @NonNull Builder setAudioLanguage(@Nullable String setterArg) {
-        this.audioLanguage = setterArg;
+      public @NonNull Builder setAudioLanguages(@NonNull List<String> setterArg) {
+        this.audioLanguages = setterArg;
         return this;
       }
 
-      private @Nullable String subtitleLanguage;
+      private @Nullable List<String> subtitleLanguages;
 
-      public @NonNull Builder setSubtitleLanguage(@Nullable String setterArg) {
-        this.subtitleLanguage = setterArg;
+      public @NonNull Builder setSubtitleLanguages(@NonNull List<String> setterArg) {
+        this.subtitleLanguages = setterArg;
         return this;
       }
 
@@ -293,8 +302,8 @@ public class PlaybackPlatformApi {
       public @NonNull AppConfig build() {
         AppConfig pigeonReturn = new AppConfig();
         pigeonReturn.setAppLanguage(appLanguage);
-        pigeonReturn.setAudioLanguage(audioLanguage);
-        pigeonReturn.setSubtitleLanguage(subtitleLanguage);
+        pigeonReturn.setAudioLanguages(audioLanguages);
+        pigeonReturn.setSubtitleLanguages(subtitleLanguages);
         pigeonReturn.setAnalyticsId(analyticsId);
         pigeonReturn.setSessionId(sessionId);
         return pigeonReturn;
@@ -305,8 +314,8 @@ public class PlaybackPlatformApi {
     ArrayList<Object> toList() {
       ArrayList<Object> toListResult = new ArrayList<Object>(5);
       toListResult.add(appLanguage);
-      toListResult.add(audioLanguage);
-      toListResult.add(subtitleLanguage);
+      toListResult.add(audioLanguages);
+      toListResult.add(subtitleLanguages);
       toListResult.add(analyticsId);
       toListResult.add(sessionId);
       return toListResult;
@@ -316,10 +325,10 @@ public class PlaybackPlatformApi {
       AppConfig pigeonResult = new AppConfig();
       Object appLanguage = list.get(0);
       pigeonResult.setAppLanguage((String) appLanguage);
-      Object audioLanguage = list.get(1);
-      pigeonResult.setAudioLanguage((String) audioLanguage);
-      Object subtitleLanguage = list.get(2);
-      pigeonResult.setSubtitleLanguage((String) subtitleLanguage);
+      Object audioLanguages = list.get(1);
+      pigeonResult.setAudioLanguages((List<String>) audioLanguages);
+      Object subtitleLanguages = list.get(2);
+      pigeonResult.setSubtitleLanguages((List<String>) subtitleLanguages);
       Object analyticsId = list.get(3);
       pigeonResult.setAnalyticsId((String) analyticsId);
       Object sessionId = list.get(4);

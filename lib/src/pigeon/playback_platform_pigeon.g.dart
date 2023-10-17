@@ -67,17 +67,17 @@ class NpawConfig {
 class AppConfig {
   AppConfig({
     this.appLanguage,
-    this.audioLanguage,
-    this.subtitleLanguage,
+    required this.audioLanguages,
+    required this.subtitleLanguages,
     this.analyticsId,
     this.sessionId,
   });
 
   String? appLanguage;
 
-  String? audioLanguage;
+  List<String?> audioLanguages;
 
-  String? subtitleLanguage;
+  List<String?> subtitleLanguages;
 
   String? analyticsId;
 
@@ -86,8 +86,8 @@ class AppConfig {
   Object encode() {
     return <Object?>[
       appLanguage,
-      audioLanguage,
-      subtitleLanguage,
+      audioLanguages,
+      subtitleLanguages,
       analyticsId,
       sessionId,
     ];
@@ -97,8 +97,8 @@ class AppConfig {
     result as List<Object?>;
     return AppConfig(
       appLanguage: result[0] as String?,
-      audioLanguage: result[1] as String?,
-      subtitleLanguage: result[2] as String?,
+      audioLanguages: (result[1] as List<Object?>?)!.cast<String?>(),
+      subtitleLanguages: (result[2] as List<Object?>?)!.cast<String?>(),
       analyticsId: result[3] as String?,
       sessionId: result[4] as int?,
     );

@@ -54,7 +54,7 @@ class ExoPlayerController(private val context: Context) :
         .build()
     override val player: ForwardingPlayer
     override var currentPlayerViewController: BccmPlayerViewController? = null
-    private var textLanguageThatShouldBeSelected: String? = null
+    private var textLanguagesThatShouldBeSelected: Array<String>? = null
 
     private var _currentPlayerView: PlayerView? = null
     private var currentPlayerView: PlayerView?
@@ -111,14 +111,15 @@ class ExoPlayerController(private val context: Context) :
     private fun handleUpdatedAppConfig(appConfigState: PlaybackPlatformApi.AppConfig?) {
         Log.d(
             "bccm",
-            "setting preferred audio and sub lang to: ${appConfigState?.audioLanguage}, ${appConfigState?.subtitleLanguage}"
+            "setting preferred audio and sub lang to: ${appConfigState?.audioLanguages}, ${appConfigState?.subtitleLanguages}"
         )
-
+        val audioLanguages = appConfigState?.audioLanguages?.toTypedArray() ?: arrayOf();
         player.trackSelectionParameters = trackSelector.parameters.buildUpon()
-            .setPreferredAudioLanguage(appConfigState?.audioLanguage)
+            .setPreferredAudioLanguages(*(audioLanguages))
             .build()
 
-        textLanguageThatShouldBeSelected = appConfigState?.subtitleLanguage
+        textLanguagesThatShouldBeSelected =
+            appConfigState?.subtitleLanguages?.toTypedArray()
         updateYouboraOptions()
     }
 
@@ -291,10 +292,10 @@ class ExoPlayerController(private val context: Context) :
         // We use this callback to set the default language for the subtitles.
         // we only set the default text language once when there is no track selected already and
         // the language is available for the current track.
-        val textLanguage = textLanguageThatShouldBeSelected
-        if (textLanguage != null && !tracks.groups.any { it.type == C.TRACK_TYPE_TEXT && it.isSelected }) {
-            if (setSelectedTrackByLanguage(C.TRACK_TYPE_TEXT, textLanguage, tracks)) {
-                textLanguageThatShouldBeSelected = null
+        val textLanguages = textLanguagesThatShouldBeSelected
+        if (textLanguages != null && !tracks.groups.any { it.type == C.TRACK_TYPE_TEXT && it.isSelected }) {
+            if (setSelectedTrackByLanguages(C.TRACK_TYPE_TEXT, textLanguages, tracks)) {
+                textLanguagesThatShouldBeSelected = null
             }
         }
         updateYouboraOptions()

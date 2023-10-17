@@ -394,11 +394,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         if autoplay?.boolValue == true {
                             self.player.play()
                         }
-                        if let audioLanguage = self.appConfig?.audioLanguage {
-                            _ = playerItem.setAudioLanguage(audioLanguage)
+                        if let audioLanguages = self.appConfig?.audioLanguages {
+                            _ = playerItem.setAudioLanguagePrioritized(audioLanguages)
                         }
-                        if let subtitleLanguage = self.appConfig?.subtitleLanguage {
-                            _ = playerItem.setSubtitleLanguage(subtitleLanguage)
+                        if let subtitleLanguages = self.appConfig?.subtitleLanguages {
+                            _ = playerItem.setSubtitleLanguagePrioritized(subtitleLanguages)
                         }
                         
                         // This is the initial signal. If this is not set the language is generally empty in NPAW
@@ -454,7 +454,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     private func _setDefaultAudioForOfflinePlayback(_ playerItem: AVPlayerItem, _ asset: AVURLAsset) {
-        if let audioLang = appConfig?.audioLanguage, playerItem.setAudioLanguage(audioLang) {
+        if let audioLangs = appConfig?.audioLanguages, playerItem.setAudioLanguagePrioritized(audioLangs) {
             return
         }
         if let selectionGroup = asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {

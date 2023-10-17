@@ -276,6 +276,23 @@ abstract class PlayerController : Player.Listener {
     }
 
     /**
+     * Sets the language of the subtitles. Returns false if none of the languages
+     * are available for the current media item.
+     */
+    fun setSelectedTrackByLanguages(
+        type: @C.TrackType Int,
+        languages: Array<String>,
+        tracksOverride: Tracks? = null
+    ): Boolean {
+        for (language in languages) {
+            if (setSelectedTrackByLanguage(type, language, tracksOverride)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
      * Sets the language of the subtitles. Returns false if there is the language
      * is not available for the current media item.
      */

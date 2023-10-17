@@ -78,14 +78,16 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @end
 
 @interface AppConfig : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
 + (instancetype)makeWithAppLanguage:(nullable NSString *)appLanguage
-    audioLanguage:(nullable NSString *)audioLanguage
-    subtitleLanguage:(nullable NSString *)subtitleLanguage
+    audioLanguages:(NSArray<NSString *> *)audioLanguages
+    subtitleLanguages:(NSArray<NSString *> *)subtitleLanguages
     analyticsId:(nullable NSString *)analyticsId
     sessionId:(nullable NSNumber *)sessionId;
 @property(nonatomic, copy, nullable) NSString * appLanguage;
-@property(nonatomic, copy, nullable) NSString * audioLanguage;
-@property(nonatomic, copy, nullable) NSString * subtitleLanguage;
+@property(nonatomic, strong) NSArray<NSString *> * audioLanguages;
+@property(nonatomic, strong) NSArray<NSString *> * subtitleLanguages;
 @property(nonatomic, copy, nullable) NSString * analyticsId;
 @property(nonatomic, strong, nullable) NSNumber * sessionId;
 @end

@@ -159,14 +159,11 @@ class CastMediaItemConverter : MediaItemConverter {
         val subtitlesTracks = JSONArray()
         val appConfig = BccmPlayerPluginSingleton.appConfigState.value
         playerData?.lastKnownAudioLanguage?.let { audioTracks.put(it) }
-        appConfig?.audioLanguage?.let { audioTracks.put(it) }
         playerData?.lastKnownSubtitleLanguage?.let { subtitlesTracks.put(it) }
-        appConfig?.subtitleLanguage?.let { subtitlesTracks.put(it) }
+        appConfig?.audioLanguages?.let { it.forEach { lang -> audioTracks.put(lang) } }
+        appConfig?.subtitleLanguages?.let { it.forEach { lang -> subtitlesTracks.put(lang) } }
         customData.put("audioTracks", audioTracks)
         customData.put("subtitlesTracks", subtitlesTracks)
-
-        Log.d("bccm", "this is the customdata: $customData")
-
 
         val contentUrl = mediaItem.localConfiguration?.uri.toString()
         val contentId =

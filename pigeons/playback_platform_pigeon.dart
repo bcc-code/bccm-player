@@ -122,8 +122,8 @@ class NpawConfig {
 
 class AppConfig {
   late String? appLanguage;
-  late String? audioLanguage;
-  late String? subtitleLanguage;
+  late List<String?> audioLanguages;
+  late List<String?> subtitleLanguages;
   late String? analyticsId;
   late int? sessionId;
 }

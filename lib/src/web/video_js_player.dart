@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
+// ignore_for_file: avoid_web_libraries_in_flutter, sdk_version_since
 
 import 'dart:html' as html;
 import 'dart:html';
@@ -97,8 +97,8 @@ class VideoJsPlayer {
       Options(
         src: SrcOptions(src: mediaItem.url!, type: 'application/x-mpegURL'),
         languagePreferenceDefaults: LanguagePreferenceDefaults(
-          audio: lanTo3letter[plugin.appConfig?.audioLanguage],
-          subtitles: lanTo3letter[plugin.appConfig?.subtitleLanguage],
+          audio: lanTo3letter[plugin.appConfig?.audioLanguages.firstOrNull],
+          subtitles: lanTo3letter[plugin.appConfig?.subtitleLanguages.firstOrNull],
         ),
         videojs: VideoJsOptions(
           autoplay: true,

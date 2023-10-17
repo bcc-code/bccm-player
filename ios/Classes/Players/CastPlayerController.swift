@@ -301,11 +301,11 @@ class CastPlayerController: NSObject, PlayerController {
         if let lang = mediaItem.lastKnownSubtitleLanguage {
             subtitlesTracks.append(lang)
         }
-        if let lang = appConfig?.audioLanguage {
-            audioTracks.append(lang)
+        if let langs = appConfig?.audioLanguages {
+            audioTracks = langs
         }
-        if let lang = appConfig?.subtitleLanguage {
-            subtitlesTracks.append(lang)
+        if let lang = appConfig?.subtitleLanguages {
+            subtitlesTracks.append(contentsOf: lang)
         }
         customData["audioTracks"] = audioTracks
         customData["subtitlesTracks"] = subtitlesTracks

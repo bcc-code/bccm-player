@@ -140,6 +140,24 @@ extension AVPlayerItem {
         return false
     }
 
+    func setAudioLanguagePrioritized(_ audioLanguages: [String]) -> Bool {
+        for language in audioLanguages {
+            if setAudioLanguage(language) {
+                return true
+            }
+        }
+        return false
+    }
+
+    func setSubtitleLanguagePrioritized(_ subtitleLanguage: [String]) -> Bool {
+        for language in subtitleLanguage {
+            if setSubtitleLanguage(language) {
+                return true
+            }
+        }
+        return false
+    }
+
     func setSubtitleLanguage(_ subtitleLanguage: String) -> Bool {
         if let group = asset.mediaSelectionGroup(forMediaCharacteristic: AVMediaCharacteristic.legible) {
             let locale = Locale(identifier: subtitleLanguage)

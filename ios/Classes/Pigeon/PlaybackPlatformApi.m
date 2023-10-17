@@ -193,14 +193,14 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 
 @implementation AppConfig
 + (instancetype)makeWithAppLanguage:(nullable NSString *)appLanguage
-    audioLanguage:(nullable NSString *)audioLanguage
-    subtitleLanguage:(nullable NSString *)subtitleLanguage
+    audioLanguages:(NSArray<NSString *> *)audioLanguages
+    subtitleLanguages:(NSArray<NSString *> *)subtitleLanguages
     analyticsId:(nullable NSString *)analyticsId
     sessionId:(nullable NSNumber *)sessionId {
   AppConfig* pigeonResult = [[AppConfig alloc] init];
   pigeonResult.appLanguage = appLanguage;
-  pigeonResult.audioLanguage = audioLanguage;
-  pigeonResult.subtitleLanguage = subtitleLanguage;
+  pigeonResult.audioLanguages = audioLanguages;
+  pigeonResult.subtitleLanguages = subtitleLanguages;
   pigeonResult.analyticsId = analyticsId;
   pigeonResult.sessionId = sessionId;
   return pigeonResult;
@@ -208,8 +208,10 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 + (AppConfig *)fromList:(NSArray *)list {
   AppConfig *pigeonResult = [[AppConfig alloc] init];
   pigeonResult.appLanguage = GetNullableObjectAtIndex(list, 0);
-  pigeonResult.audioLanguage = GetNullableObjectAtIndex(list, 1);
-  pigeonResult.subtitleLanguage = GetNullableObjectAtIndex(list, 2);
+  pigeonResult.audioLanguages = GetNullableObjectAtIndex(list, 1);
+  NSAssert(pigeonResult.audioLanguages != nil, @"");
+  pigeonResult.subtitleLanguages = GetNullableObjectAtIndex(list, 2);
+  NSAssert(pigeonResult.subtitleLanguages != nil, @"");
   pigeonResult.analyticsId = GetNullableObjectAtIndex(list, 3);
   pigeonResult.sessionId = GetNullableObjectAtIndex(list, 4);
   return pigeonResult;
@@ -220,8 +222,8 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList {
   return @[
     (self.appLanguage ?: [NSNull null]),
-    (self.audioLanguage ?: [NSNull null]),
-    (self.subtitleLanguage ?: [NSNull null]),
+    (self.audioLanguages ?: [NSNull null]),
+    (self.subtitleLanguages ?: [NSNull null]),
     (self.analyticsId ?: [NSNull null]),
     (self.sessionId ?: [NSNull null]),
   ];
