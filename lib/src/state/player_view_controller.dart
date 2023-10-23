@@ -75,7 +75,8 @@ class BccmPlayerViewController extends ChangeNotifier {
     _fullscreenViewController!._isFullscreen = true;
     _fullscreenViewController!._currentFullscreenNavigator = _currentFullscreenNavigator;
     _fullscreenViewController!._fullscreenViewController = _fullscreenViewController;
-    await Navigator.of(context, rootNavigator: true).push(defaultFullscreenBuilder(_fullscreenViewController!));
+    final builder = (config.fullscreenRouteBuilderFactory ?? defaultFullscreenBuilder);
+    await Navigator.of(context, rootNavigator: true).push(builder(_fullscreenViewController!));
     _fullscreenViewController?.dispose();
     _fullscreenViewController = null;
     _currentFullscreenNavigator = null;

@@ -1,3 +1,5 @@
+export 'src/state/inherited_player_view_controller.dart';
+
 export 'src/pigeon/playback_platform_pigeon.g.dart'
     show
         MediaItem,
