@@ -3,11 +3,9 @@
 import 'dart:math';
 
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player/src/utils/debouncer.dart';
-import 'package:bccm_player/src/widgets/controls/controls_wrapper.dart';
+import 'package:bccm_player/controls.dart';
 import 'package:bccm_player/src/widgets/controls/default/fullscreen_button.dart';
 import 'package:bccm_player/src/widgets/mini_player/loading_indicator.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -16,10 +14,6 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../utils/svg_icons.dart';
 import '../../utils/time.dart';
-import '../../utils/num.dart';
-import 'control_fade_out.dart';
-import 'default/settings.dart';
-import 'default/time_skip_button.dart';
 
 class DefaultControls extends HookWidget {
   const DefaultControls({
@@ -35,44 +29,9 @@ class DefaultControls extends HookWidget {
     final controlsTheme = BccmPlayerTheme.safeOf(context).controls!;
     final viewController = BccmPlayerViewController.of(context);
     final player = useListenable(viewController.playerController);
-    final actualTimeMs = safeInt(player.value.playbackPositionMs ?? 0);
-    final duration = max(0.0, safeDouble(player.value.currentMediaItem?.metadata?.durationMs ?? player.value.playbackPositionMs?.toDouble() ?? 1.0));
-    final forwardRewindDurationSec = Duration(milliseconds: duration.toInt()).inMinutes > 60 ? 30 : 15;
-    final seeking = useState(false);
-    final currentScrub = useState(0.0);
-    final seekScheduler = useMemoized(() => OneAsyncAtATime());
+    final timeline = useTimeline(viewController.playerController);
 
-    // Dispose
-    useEffect(() => () => seekScheduler.reset(), []);
-
-    Future<void> seekToScrubbed() async {
-      if (!context.mounted) return;
-      final actualTargetMs = currentScrub.value;
-      await viewController.playerController.seekTo(Duration(milliseconds: (actualTargetMs).round()));
-      if (context.mounted && !seekScheduler.hasPending) {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          if (!context.mounted) return;
-          currentScrub.value = 0;
-          seeking.value = false;
-        });
-      }
-    }
-
-    void scrubTo(double targetMs) {
-      if ((currentScrub.value - targetMs).abs() < 500) {
-        return;
-      }
-      seeking.value = true;
-      currentScrub.value = clampDouble(targetMs, 0, duration);
-      seekScheduler.runWhenCurrentIsDone(seekToScrubbed);
-    }
-
-    void scrubToRelative(double milliseconds) {
-      final baseTime = seeking.value ? currentScrub.value : actualTimeMs;
-      final double targetMs = baseTime + milliseconds;
-      scrubTo(targetMs);
-    }
-
+    final forwardRewindDurationSec = Duration(milliseconds: timeline.duration.toInt()).inMinutes > 60 ? 30 : 15;
     final title = player.value.currentMediaItem?.metadata?.title;
 
     return FocusTraversalGroup(
@@ -138,7 +97,7 @@ class DefaultControls extends HookWidget {
                               padding: const EdgeInsets.only(right: 24),
                               child: TimeSkipButton(
                                 forwardRewindDurationSec: forwardRewindDurationSec,
-                                onPressed: () => scrubToRelative(-forwardRewindDurationSec * 1000),
+                                onPressed: () => timeline.scrubToRelative(-forwardRewindDurationSec * 1000),
                                 icon: const Icon(Icons.replay),
                               ),
                             ),
@@ -187,7 +146,7 @@ class DefaultControls extends HookWidget {
                               padding: const EdgeInsets.only(left: 24),
                               child: TimeSkipButton(
                                 forwardRewindDurationSec: forwardRewindDurationSec,
-                                onPressed: () => scrubToRelative(forwardRewindDurationSec * 1000),
+                                onPressed: () => timeline.scrubToRelative(forwardRewindDurationSec * 1000),
                                 icon: Transform(
                                   alignment: Alignment.center,
                                   transform: Matrix4.rotationY(pi),
@@ -229,7 +188,7 @@ class DefaultControls extends HookWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 8, left: 13),
                                       child: Text(
-                                        '${getFormattedDuration(seeking.value ? currentScrub.value : actualTimeMs)} / ${getFormattedDuration(duration)}',
+                                        '${getFormattedDuration(timeline.seeking ? timeline.currentScrub : timeline.actualTimeMs)} / ${getFormattedDuration(timeline.duration)}',
                                         style: controlsTheme.durationTextStyle,
                                       ),
                                     ),
@@ -263,13 +222,9 @@ class DefaultControls extends HookWidget {
                                         child: SizedBox(
                                           height: 16,
                                           child: Slider(
-                                            value: clampDouble(
-                                              (seeking.value ? currentScrub.value : actualTimeMs.toDouble()) / duration,
-                                              0,
-                                              1,
-                                            ),
+                                            value: timeline.timeFraction,
                                             onChanged: (double value) {
-                                              scrubTo(value * duration);
+                                              timeline.scrubTo(value * timeline.duration);
                                             },
                                             onChangeEnd: (double value) {
                                               //seekDebouncer.forceEarly();
