@@ -47,13 +47,7 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
         PlaybackPlatformPigeonSetup(registrar.messenger(), playbackApi)
         DownloaderPigeonSetup.setUp(binaryMessenger: registrar.messenger(), api: DownloaderApiImpl(downloader: downloader))
 
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(.playback)
-            UIApplication.shared.beginReceivingRemoteControlEvents()
-        } catch {
-            print("Setting category to AVAudioSessionCategoryPlayback failed.")
-        }
+        UIApplication.shared.beginReceivingRemoteControlEvents()
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
