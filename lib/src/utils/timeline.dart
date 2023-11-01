@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'package:bccm_player/src/utils/num.dart';
 
-class TimelineState {
+class TimelineHelper {
   final bool seeking;
   final double currentScrub;
   final double duration;
@@ -22,7 +22,7 @@ class TimelineState {
   final void Function(double targetMs) scrubTo;
   final void Function(double milliseconds) scrubToRelative;
 
-  TimelineState({
+  TimelineHelper({
     required this.seeking,
     required this.currentScrub,
     required this.duration,
@@ -34,7 +34,7 @@ class TimelineState {
   });
 }
 
-class _TimelineHook extends Hook<TimelineState> {
+class _TimelineHook extends Hook<TimelineHelper> {
   const _TimelineHook({
     required this.playerController,
     required this.seeking,
@@ -48,22 +48,24 @@ class _TimelineHook extends Hook<TimelineState> {
   final OneAsyncAtATime seekScheduler;
 
   @override
-  _TimeAliveState createState() => _TimeAliveState();
+  _TimelineState createState() => _TimelineState();
 }
 
-class _TimeAliveState extends HookState<TimelineState, _TimelineHook> {
+class _TimelineState extends HookState<TimelineHelper, _TimelineHook> {
   @override
   void initHook() {
     super.initHook();
   }
 
   @override
-  TimelineState build(BuildContext context) {
+  TimelineHelper build(BuildContext context) {
     final actualTimeMs = safeInt(hook.playerController.value.playbackPositionMs ?? 0);
     final duration = max(
-        0.0,
-        safeDouble(
-            hook.playerController.value.currentMediaItem?.metadata?.durationMs ?? hook.playerController.value.playbackPositionMs?.toDouble() ?? 1.0));
+      0.0,
+      safeDouble(
+        hook.playerController.value.currentMediaItem?.metadata?.durationMs ?? hook.playerController.value.playbackPositionMs?.toDouble() ?? 1.0,
+      ),
+    );
 
     Future<void> seekToScrubbed() async {
       if (!context.mounted) return;
@@ -93,7 +95,7 @@ class _TimeAliveState extends HookState<TimelineState, _TimelineHook> {
       scrubTo(targetMs);
     }
 
-    return TimelineState(
+    return TimelineHelper(
       duration: duration,
       seeking: hook.seeking.value,
       currentScrub: hook.currentScrub.value,
@@ -115,13 +117,21 @@ class _TimeAliveState extends HookState<TimelineState, _TimelineHook> {
   }
 }
 
-TimelineState useTimeline(BccmPlayerController playerController) {
+TimelineHelper useTimeline(BccmPlayerController playerController) {
   final seeking = useState(false);
   final currentScrub = useState(0.0);
   final seekScheduler = useMemoized(() => OneAsyncAtATime());
 
   // Dispose
   useEffect(() => () => seekScheduler.reset(), []);
+
+  useListenableSelector(
+    playerController,
+    () => [
+      (playerController.value.playbackPositionMs ?? 0 / 500).round(),
+      playerController.value.currentMediaItem?.metadata?.durationMs,
+    ].toString(),
+  );
 
   return use(_TimelineHook(
     playerController: playerController,
