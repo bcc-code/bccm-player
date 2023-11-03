@@ -90,6 +90,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
 
   @override
   Future<void> replaceCurrentMediaItem(String playerId, MediaItem mediaItem, {bool? playbackPositionFromPrimary, bool? autoplay = true}) async {
+    debugPrint('player replace');
     await _pigeon.replaceCurrentMediaItem(playerId, mediaItem, playbackPositionFromPrimary, autoplay);
   }
 
@@ -145,6 +146,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
 
   @override
   void stop(String playerId, bool reset) {
+    debugPrint('player stop');
     _pigeon.stop(playerId, reset);
   }
 

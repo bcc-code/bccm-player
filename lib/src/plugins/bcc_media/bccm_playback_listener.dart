@@ -3,14 +3,13 @@ import 'package:bccm_player/plugins/riverpod.dart';
 import 'package:riverpod/riverpod.dart';
 import '../../utils/debouncer.dart';
 import '../../utils/extensions.dart';
-import 'bccm_api.dart';
 
 class BccmPlaybackListener {
   Ref ref;
   final progressDebouncer = Debouncer(milliseconds: 1000);
-  final Provider<BccmApi> apiProvider;
+  final void Function(String episodeId, int progressSeconds) updateProgress;
 
-  BccmPlaybackListener({required this.ref, required this.apiProvider}) {
+  BccmPlaybackListener({required this.ref, required this.updateProgress}) {
     ref.listen(playerEventRawStreamProvider, (event, d) {
       switch (event.runtimeType) {
         case PositionDiscontinuityEvent:
@@ -41,7 +40,7 @@ class BccmPlaybackListener {
 
   void _updateProgress({required String? episodeId, required int? positionMs}) {
     if (episodeId == null || positionMs == null) return;
-    final positionSeconds = positionMs / 1000;
-    progressDebouncer.run(() => ref.read(apiProvider).updateProgress(episodeId: episodeId, progress: positionSeconds));
+    final progressSeconds = positionMs / 1000;
+    progressDebouncer.run(() => updateProgress(episodeId, progressSeconds.round()));
   }
 }
