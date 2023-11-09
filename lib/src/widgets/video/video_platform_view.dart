@@ -87,7 +87,8 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
     }
 
     if (widget.playerController.value.playerId == 'chromecast') {
-      return DefaultCastPlayer(aspectRatio: aspectRatio);
+      final builder = BccmPlayerViewController.of(context).config.castPlayerBuilder?.call(context);
+      return builder ?? DefaultCastPlayer(aspectRatio: aspectRatio);
     }
 
     Widget getPlatformSpecificPlayer() {

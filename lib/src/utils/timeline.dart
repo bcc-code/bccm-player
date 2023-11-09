@@ -66,6 +66,17 @@ class _TimelineState extends HookState<TimelineHelper, _TimelineHook> {
         hook.playerController.value.currentMediaItem?.metadata?.durationMs ?? hook.playerController.value.playbackPositionMs?.toDouble() ?? 1.0,
       ),
     );
+    final timeFraction = !duration.isFinite || duration <= 0
+        ? 0.0
+        : clampDouble(
+            (hook.seeking.value ? hook.currentScrub.value : actualTimeMs.toDouble()) / duration,
+            0,
+            1,
+          );
+
+    debugPrint("AG time ${actualTimeMs}");
+    debugPrint("AG timefrac ${timeFraction}");
+    debugPrint("AG dur ${duration}");
 
     Future<void> seekToScrubbed() async {
       if (!context.mounted) return;
@@ -100,11 +111,7 @@ class _TimelineState extends HookState<TimelineHelper, _TimelineHook> {
       seeking: hook.seeking.value,
       currentScrub: hook.currentScrub.value,
       actualTimeMs: actualTimeMs,
-      timeFraction: clampDouble(
-        (hook.seeking.value ? hook.currentScrub.value : actualTimeMs.toDouble()) / duration,
-        0,
-        1,
-      ),
+      timeFraction: timeFraction,
       scrubTo: scrubTo,
       scrubToRelative: scrubToRelative,
       seekToScrubbed: seekToScrubbed,

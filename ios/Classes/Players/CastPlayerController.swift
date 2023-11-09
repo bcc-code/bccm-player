@@ -198,7 +198,7 @@ class CastPlayerController: NSObject, PlayerController {
     var activeSeekRequestDelegate: GCKRequestDelegate? = nil
     func seekTo(_ positionMs: NSNumber, _ completion: @escaping (Bool) -> Void) {
         let options = GCKMediaSeekOptions()
-        options.interval = max(positionMs.doubleValue, 0)
+        options.interval = max(positionMs.doubleValue / 1000, 0)
         guard let request = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options) else {
             completion(false)
             return
@@ -361,6 +361,7 @@ class CastPlayerController: NSObject, PlayerController {
         guard let mediaItem = mapMediaMetadata(mediaQueueItem.mediaInformation.metadata) else {
             return nil
         }
+        mediaItem.metadata?.durationMs = mediaQueueItem.mediaInformation.streamDuration * 1000 as NSNumber
         mediaItem.url = mediaQueueItem.mediaInformation.contentURL?.absoluteString
         return mediaItem
     }
@@ -394,6 +395,7 @@ class CastPlayerController: NSObject, PlayerController {
             extras[extrasKey] = mediaMetadata.string(forKey: metadataKey)
         }
         mappedMetadata.extras = extras
+        mappedMetadata.durationMs = (mediaMetadata.double(forKey: kGCKMetadataKeySectionDuration, defaultValue: 0)) as NSNumber
         
         let mimeType = playerData[PlayerMetadataConstants.MimeType]
         let isLive = playerData[PlayerMetadataConstants.IsLive] == "true"

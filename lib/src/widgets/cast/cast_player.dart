@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class DefaultCastPlayer extends StatelessWidget {
-  const DefaultCastPlayer({super.key, required this.aspectRatio});
+  const DefaultCastPlayer({
+    super.key,
+    required this.aspectRatio,
+    this.castButton,
+  });
 
   final double aspectRatio;
+  final Widget? castButton;
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +26,12 @@ class DefaultCastPlayer extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(color: BccmPlayerTheme.safeOf(context).controls?.settingsListBackgroundColor),
             child: Center(
-              child: SvgPicture.string(
-                SvgIcons.castButton,
-                height: 100,
-                colorFilter: ColorFilter.mode(BccmPlayerTheme.safeOf(context).controls?.primaryColor ?? Colors.white, BlendMode.srcIn),
-              ),
+              child: castButton ??
+                  SvgPicture.string(
+                    SvgIcons.castButton,
+                    height: 100,
+                    colorFilter: ColorFilter.mode(BccmPlayerTheme.safeOf(context).controls?.primaryColor ?? Colors.white, BlendMode.srcIn),
+                  ),
             ),
           ),
         ),
