@@ -1,7 +1,14 @@
 package media.bcc.bccm_player
 
+import android.app.MediaRouteButton
 import android.content.Intent
 import android.util.Log
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.mediarouter.app.MediaRouteChooserDialogFragment
+import androidx.mediarouter.app.MediaRouteDialogFactory
+import com.google.android.gms.cast.framework.CastButtonFactory
+import io.flutter.embedding.android.FlutterFragmentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,7 +18,6 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.players.chromecast.CastExpandedControlsActivity
 import media.bcc.bccm_player.players.chromecast.CastPlayerController
 import media.bcc.bccm_player.utils.toMedia3Type
-import kotlin.math.roundToLong
 
 
 class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
@@ -303,7 +309,15 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
     }
 
     override fun openCastDialog() {
-
+        val activity =
+            (BccmPlayerPluginSingleton.activityState.value as? FlutterFragmentActivity) ?: return
+        val fm =
+            activity.supportFragmentManager
+                ?: return
+        val btn = androidx.mediarouter.app.MediaRouteButton(activity)
+        CastButtonFactory.setUpMediaRouteButton(activity, btn)
+        btn.onAttachedToWindow()
+        btn.showDialog()
     }
 
     override fun fetchMediaInfo(

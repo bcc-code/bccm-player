@@ -55,6 +55,8 @@ class CastMediaItemConverter : MediaItemConverter {
                 metadataBuilder.setTrackNumber(metadata.getInt(com.google.android.gms.cast.MediaMetadata.KEY_TRACK_NUMBER))
             }
 
+
+
             for (key in metadata.keySet()
                 .filter { it.contains(BCCM_META_EXTRAS) || it.contains(BCCM_PLAYER_DATA) }) {
                 try {
