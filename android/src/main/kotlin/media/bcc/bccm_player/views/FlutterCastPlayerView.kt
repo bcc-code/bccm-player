@@ -47,6 +47,6 @@ class FlutterCastPlayerView(
 
         val playerView = _v.findViewById<PlayerView>(R.id.brunstad_player).also { _playerView = it }
 
-        playerView.player = controller.player
+        playerView.player = controller.castPlayer
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.media3.cast.CastPlayer
 import androidx.media3.cast.SessionAvailabilityListener
 import androidx.media3.common.C
+import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.google.android.gms.cast.framework.CastContext
@@ -18,24 +19,24 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_LAST_KNOWN_SUBTITLE_LANGUAGE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 
-
 class CastPlayerController(
     private val castContext: CastContext,
     private val playbackService: PlaybackService
 ) : PlayerController(), SessionManagerListener<Session>, SessionAvailabilityListener {
-    override val player = CastPlayer(castContext, CastMediaItemConverter())
+    val castPlayer = CastPlayer(castContext, CastMediaItemConverter())
+    override val player: ForwardingPlayer = CastPlayerWithTrackSelection(castContext, castPlayer)
     override var currentPlayerViewController: BccmPlayerViewController? = null
 
     override val id: String = "chromecast"
 
     init {
-        player.playWhenReady = true
-        player.setSessionAvailabilityListener(this)
+        castPlayer.playWhenReady = true
+        castPlayer.setSessionAvailabilityListener(this)
         castContext.sessionManager.addSessionManagerListener(this)
     }
 
     override fun release() {
-        player.setSessionAvailabilityListener(null)
+        castPlayer.setSessionAvailabilityListener(null)
         castContext.sessionManager.removeSessionManagerListener(this)
         //player.release() - this causes the player to stop
         super.release()
@@ -43,9 +44,9 @@ class CastPlayerController(
 
     override fun stop(reset: Boolean) {
         if (reset) {
-            player.clearMediaItems()
+            castPlayer.clearMediaItems()
         } else {
-            player.pause()
+            castPlayer.pause()
         }
     }
 
@@ -55,8 +56,8 @@ class CastPlayerController(
 
     fun getState(): PlaybackPlatformApi.ChromecastState {
         val builder = PlaybackPlatformApi.ChromecastState.Builder()
-        Log.d("bccm", "getState, player currentMediaItem: " + player.currentMediaItem)
-        player.currentMediaItem?.let {
+        Log.d("bccm", "getState, player currentMediaItem: " + castPlayer.currentMediaItem)
+        castPlayer.currentMediaItem?.let {
             builder.setMediaItem(mapMediaItem(it))
         }
         builder.setConnectionState(PlaybackPlatformApi.CastConnectionState.values()[castContext.castState])
@@ -120,9 +121,12 @@ class CastPlayerController(
         val primaryPlayer =
             playbackService.getPrimaryController()?.player ?: return
 
-        Log.d("bccm", "oncastsessionavailable + " + player.mediaMetadata.extras?.getString("id"))
+        Log.d(
+            "bccm",
+            "oncastsessionavailable + " + castPlayer.mediaMetadata.extras?.getString("id")
+        )
         if (primaryPlayer.isPlaying) {
-            transferState(primaryPlayer, player)
+            transferState(primaryPlayer, castPlayer)
         } else {
             primaryPlayer.stop()
         }
@@ -131,7 +135,7 @@ class CastPlayerController(
 
     override fun onCastSessionUnavailable() {
         val event = ChromecastControllerPigeon.CastSessionUnavailableEvent.Builder()
-        val currentPosition = player.currentPosition
+        val currentPosition = castPlayer.currentPosition
         if (currentPosition > 0) {
             event.setPlaybackPositionMs(currentPosition)
         }
