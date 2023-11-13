@@ -89,22 +89,23 @@ class Downloader(
             return downloadManager!!;
         }
 
-        fun getCache(): SimpleCache {
+        fun getCache(context: Context): SimpleCache {
+            if (cache == null) {
+                val databaseProvider = StandaloneDatabaseProvider(context)
+                val cacheDir = File(context.filesDir, DOWNLOAD_FOLDER_NAME)
+                cache = SimpleCache(cacheDir, NoOpCacheEvictor(), databaseProvider)
+            }
             return cache!!;
         }
 
         private fun createDownloadManager(context: Context): DownloadManager {
             val databaseProvider = StandaloneDatabaseProvider(context)
-            val cacheDir = File(context.filesDir, DOWNLOAD_FOLDER_NAME)
-            if (cache == null) {
-                cache = SimpleCache(cacheDir, NoOpCacheEvictor(), databaseProvider)
-            }
             val dataSourceFactory = DefaultHttpDataSource.Factory()
             val downloadExecutor = Executor(Runnable::run)
             return DownloadManager(
                 context,
                 databaseProvider,
-                cache!!,
+                getCache(context),
                 dataSourceFactory,
                 downloadExecutor
             )

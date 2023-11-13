@@ -46,7 +46,7 @@ class ExoPlayerController(private val context: Context) :
         .setMediaSourceFactory(
             DefaultMediaSourceFactory(context).setDataSourceFactory(
                 CacheDataSource.Factory()
-                    .setCache(Downloader.getCache())
+                    .setCache(Downloader.getCache(context))
                     .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
                     .setCacheWriteDataSinkFactory(null)
             )
