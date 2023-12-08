@@ -57,6 +57,28 @@ public class PlaybackPlatformApi {
     return errorList;
   }
 
+  public enum BufferMode {
+    STANDARD(0),
+    FAST_START_SHORT_FORM(1);
+
+    final int index;
+
+    private BufferMode(final int index) {
+      this.index = index;
+    }
+  }
+
+  public enum RepeatMode {
+    OFF(0),
+    ONE(1);
+
+    final int index;
+
+    private RepeatMode(final int index) {
+      this.index = index;
+    }
+  }
+
   public enum PlaybackState {
     STOPPED(0),
     PAUSED(1),
@@ -751,6 +773,16 @@ public class PlaybackPlatformApi {
       this.playbackPositionMs = setterArg;
     }
 
+    private @Nullable Long textureId;
+
+    public @Nullable Long getTextureId() {
+      return textureId;
+    }
+
+    public void setTextureId(@Nullable Long setterArg) {
+      this.textureId = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     PlayerStateSnapshot() {}
 
@@ -812,6 +844,13 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable Long textureId;
+
+      public @NonNull Builder setTextureId(@Nullable Long setterArg) {
+        this.textureId = setterArg;
+        return this;
+      }
+
       public @NonNull PlayerStateSnapshot build() {
         PlayerStateSnapshot pigeonReturn = new PlayerStateSnapshot();
         pigeonReturn.setPlayerId(playerId);
@@ -822,13 +861,14 @@ public class PlaybackPlatformApi {
         pigeonReturn.setVideoSize(videoSize);
         pigeonReturn.setCurrentMediaItem(currentMediaItem);
         pigeonReturn.setPlaybackPositionMs(playbackPositionMs);
+        pigeonReturn.setTextureId(textureId);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(8);
+      ArrayList<Object> toListResult = new ArrayList<Object>(9);
       toListResult.add(playerId);
       toListResult.add(playbackState == null ? null : playbackState.index);
       toListResult.add(isBuffering);
@@ -837,6 +877,7 @@ public class PlaybackPlatformApi {
       toListResult.add((videoSize == null) ? null : videoSize.toList());
       toListResult.add((currentMediaItem == null) ? null : currentMediaItem.toList());
       toListResult.add(playbackPositionMs);
+      toListResult.add(textureId);
       return toListResult;
     }
 
@@ -858,6 +899,8 @@ public class PlaybackPlatformApi {
       pigeonResult.setCurrentMediaItem((currentMediaItem == null) ? null : MediaItem.fromList((ArrayList<Object>) currentMediaItem));
       Object playbackPositionMs = list.get(7);
       pigeonResult.setPlaybackPositionMs((Double) playbackPositionMs);
+      Object textureId = list.get(8);
+      pigeonResult.setTextureId((textureId == null) ? null : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId));
       return pigeonResult;
     }
   }
@@ -2026,7 +2069,13 @@ public class PlaybackPlatformApi {
 
     void attach(@NonNull Result<Void> result);
 
-    void newPlayer(@Nullable String url, @NonNull Result<String> result);
+    void newPlayer(@Nullable BufferMode bufferMode, @NonNull Result<String> result);
+
+    void createVideoTexture(@NonNull Result<Long> result);
+
+    void disposeVideoTexture(@NonNull Long textureId, @NonNull Result<Boolean> result);
+
+    void switchToVideoTexture(@NonNull String playerId, @NonNull Long textureId, @NonNull Result<Long> result);
 
     void disposePlayer(@NonNull String playerId, @NonNull Result<Boolean> result);
 
@@ -2047,6 +2096,8 @@ public class PlaybackPlatformApi {
     void stop(@NonNull String playerId, @NonNull Boolean reset);
 
     void setVolume(@NonNull String playerId, @NonNull Double volume, @NonNull Result<Void> result);
+
+    void setRepeatMode(@NonNull String playerId, @NonNull RepeatMode repeatMode, @NonNull Result<Void> result);
 
     void setSelectedTrack(@NonNull String playerId, @NonNull TrackType type, @Nullable String trackId, @NonNull Result<Void> result);
 
@@ -2116,7 +2167,7 @@ public class PlaybackPlatformApi {
               (message, reply) -> {
                 ArrayList<Object> wrapped = new ArrayList<Object>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
-                String urlArg = (String) args.get(0);
+                BufferMode bufferModeArg = args.get(0) == null ? null : BufferMode.values()[(int) args.get(0)];
                 Result<String> resultCallback =
                     new Result<String>() {
                       public void success(String result) {
@@ -2130,7 +2181,93 @@ public class PlaybackPlatformApi {
                       }
                     };
 
-                api.newPlayer(urlArg, resultCallback);
+                api.newPlayer(bufferModeArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.createVideoTexture", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                Result<Long> resultCallback =
+                    new Result<Long>() {
+                      public void success(Long result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.createVideoTexture(resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.disposeVideoTexture", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                Number textureIdArg = (Number) args.get(0);
+                Result<Boolean> resultCallback =
+                    new Result<Boolean>() {
+                      public void success(Boolean result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.disposeVideoTexture((textureIdArg == null) ? null : textureIdArg.longValue(), resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.switchToVideoTexture", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                Number textureIdArg = (Number) args.get(1);
+                Result<Long> resultCallback =
+                    new Result<Long>() {
+                      public void success(Long result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.switchToVideoTexture(playerIdArg, (textureIdArg == null) ? null : textureIdArg.longValue(), resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
@@ -2409,6 +2546,36 @@ public class PlaybackPlatformApi {
                     };
 
                 api.setVolume(playerIdArg, volumeArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setRepeatMode", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                RepeatMode repeatModeArg = RepeatMode.values()[(int) args.get(1)];
+                Result<Void> resultCallback =
+                    new Result<Void>() {
+                      public void success(Void result) {
+                        wrapped.add(0, null);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.setRepeatMode(playerIdArg, repeatModeArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

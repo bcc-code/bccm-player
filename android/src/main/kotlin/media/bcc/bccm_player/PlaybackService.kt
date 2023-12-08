@@ -8,6 +8,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastState
+import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.BufferMode
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlayerStateUpdateEvent
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PrimaryPlayerChangedEvent
 import media.bcc.bccm_player.players.PlayerController
@@ -75,9 +76,9 @@ class PlaybackService : MediaSessionService() {
         stopSelf()
     }
 
-    fun newPlayer(): PlayerController {
+    fun newPlayer(bufferMode: BufferMode): PlayerController {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::newPlayer called")
-        val pc = ExoPlayerController(this)
+        val pc = ExoPlayerController(this, bufferMode)
         plugin?.let {
             pc.attachPlugin(it)
         }
@@ -150,7 +151,7 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::onCreate called")
         super.onCreate()
-        newPlayer().let {
+        newPlayer(BufferMode.STANDARD).let {
             mediaSession = MediaSession.Builder(this, it.player).build()
             setPrimary(it.id)
         }

@@ -37,7 +37,8 @@ class CastPlayerController: NSObject, PlayerController {
             playbackSpeed: mediaStatus?.playbackRate as NSNumber? ?? 1.0,
             videoSize: mediaStatus != nil ? getVideoSize(mediaStatus!) : nil,
             currentMediaItem: currentItem,
-            playbackPositionMs: mediaStatus == nil ? nil : NSNumber(value: mediaStatus!.streamPosition * 1000)
+            playbackPositionMs: mediaStatus == nil ? nil : NSNumber(value: mediaStatus!.streamPosition * 1000),
+            textureId: nil
         )
     }
     
@@ -140,6 +141,13 @@ class CastPlayerController: NSObject, PlayerController {
             let event = PlayerStateUpdateEvent.make(withPlayerId: self.id, snapshot: self.getPlayerStateSnapshot())
             self.playbackApi.playbackListener.onPlayerStateUpdate(event, completion: { _ in })
         }
+    }
+    
+    public func setRepeatMode(_ repeatMode: RepeatMode) {
+        guard let remoteMediaClient = GCKCastContext.sharedInstance().sessionManager.currentSession?.remoteMediaClient else {
+            return
+        }
+        remoteMediaClient.queueSetRepeatMode(repeatMode.asMediaRepeatMode())
     }
     
     func getCurrentItem() -> MediaItem? {
@@ -519,6 +527,19 @@ extension TrackType {
             return .text
         } else {
             return nil
+        }
+    }
+}
+
+extension RepeatMode {
+    func asMediaRepeatMode() -> GCKMediaRepeatMode {
+        switch self {
+        case .off:
+            return .off
+        case .one:
+            return .single
+        @unknown default:
+            return .off
         }
     }
 }

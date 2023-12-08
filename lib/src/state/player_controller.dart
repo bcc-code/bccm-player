@@ -1,3 +1,4 @@
+import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:state_notifier/state_notifier.dart';
@@ -200,6 +201,27 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   /// ```
   Future<void> setVolume(double volume) {
     return BccmPlayerInterface.instance.setVolume(value.playerId, volume);
+  }
+
+  /// Makes this player loop or not. Default is RepeatMode.off.
+  /// The setting is kept across mediaItems.
+  ///
+  /// ```dart
+  /// controller.repeatMode(RepeatMode.one); // Will loop the current mediaItem indefinitely.
+  /// ```
+  Future<void> setRepeatMode(RepeatMode repeatMode) {
+    return BccmPlayerInterface.instance.setRepeatMode(value.playerId, repeatMode);
+  }
+
+  /// Makes this player render to a texture with the given [texture]. Leave blank to create a new texture.
+  /// You can use this e.g. if you have issues with "platform views".
+  /// This is the same method as Flutter's video_player, and does not support e.g. HDR.
+  ///
+  /// Returns the texture that was used.
+  Future<BccmTexture> switchToVideoTexture({BccmTexture? texture}) async {
+    texture ??= await BccmTexture.create();
+    await BccmPlayerInterface.instance.switchToVideoTexture(value.playerId, texture.textureId);
+    return texture;
   }
 
   /// Pauses the video.

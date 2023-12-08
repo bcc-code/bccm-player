@@ -28,9 +28,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   /// MUST be run first
   Future<void> setup();
 
-  Future<String> newPlayer({String? url}) {
-    throw UnimplementedError('newPlayer() has not been implemented.');
-  }
+  Future<String> newPlayer({BufferMode? bufferMode});
 
   Future<void> disposePlayer(String playerId) {
     throw UnimplementedError('disposePlayer() has not been implemented.');
@@ -130,6 +128,21 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('setMixWithOthers() has not been implemented.');
   }
 
+  Future<int> createVideoTexture() {
+    throw UnimplementedError('createVideoTexture() has not been implemented.');
+  }
+
+  Future<bool> disposeVideoTexture(int textureId) {
+    throw UnimplementedError('disposeVideoTexture() has not been implemented.');
+  }
+
+  Future<int> switchToVideoTexture(String playerId, int textureId) {
+    throw UnimplementedError('switchToVideoTexture() has not been implemented.');
+  }
+
   /// Gets information about tracks (minimum), potentionally drm stuff later, etc.
   Future<MediaInfo> fetchMediaInfo({required String url, String? mimeType});
+
+  /// Sets the repeat mode for the player. See [RepeatMode].
+  Future<void> setRepeatMode(String playerId, RepeatMode repeatMode);
 }

@@ -18,10 +18,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     var currentViewController: AVPlayerViewController? = nil
     var fullscreenViewController: AVPlayerViewController? = nil
     var isPrimary = false
-
-    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, npawConfig: NpawConfig?, appConfig: AppConfig?) {
+    var repeatMode = RepeatMode.off
+    let bufferMode: BufferMode
+    
+    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?) {
         self.id = id ?? UUID().uuidString
         self.playbackListener = playbackListener
+        self.bufferMode = bufferMode
         super.init()
         updateAppConfig(appConfig: appConfig)
         addObservers()
@@ -38,6 +41,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         refreshStateTimer?.invalidate()
     }
     
+    public func setRepeatMode(_ repeatMode: RepeatMode) {
+        self.repeatMode = repeatMode
+    }
+
     public func onManualPlayerStateUpdate() {
         let event = PlayerStateUpdateEvent.make(withPlayerId: id, snapshot: getPlayerStateSnapshot())
         playbackListener.onPlayerStateUpdate(event, completion: { _ in })
@@ -52,7 +59,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             playbackSpeed: getPlaybackSpeed() as NSNumber,
             videoSize: getVideoSize(),
             currentMediaItem: MediaItemMapper.mapPlayerItem(player.currentItem),
-            playbackPositionMs: NSNumber(value: player.currentTime().seconds * 1000)
+            playbackPositionMs: NSNumber(value: player.currentTime().seconds * 1000),
+            textureId: nil
         )
     }
     
@@ -347,6 +355,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             youboraPlugin.options.contentSeason = nil
             youboraPlugin.options.contentEpisodeTitle = nil
             youboraPlugin.options.offline = false
+            youboraPlugin.options.contentType = nil
             return
         }
         let extras = mediaItem.metadata?.safeExtras()
@@ -358,6 +367,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.contentSeason = extras?["npaw.content.season"] as? String
         youboraPlugin.options.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
         youboraPlugin.options.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
+        youboraPlugin.options.contentType = extras?["npaw.content.type"] as? String
     }
 
     public func setNpawConfig(npawConfig: NpawConfig?) {
@@ -588,6 +598,14 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         })
     }
     
+    func playImmediately() {
+        var rate = getPlaybackSpeed()
+        if rate == 0 {
+            rate = 1
+        }
+        player.playImmediately(atRate: rate)
+    }
+    
     func isBuffering() -> Bool {
         return player.timeControlStatus == AVPlayer.TimeControlStatus.waitingToPlayAtSpecifiedRate && player.reasonForWaitingToPlay != .noItemToPlay
     }
@@ -604,6 +622,18 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     @objc private func playerDidFinishPlaying(note: NSNotification) {
         let endedEvent = PlaybackEndedEvent.make(withPlayerId: id, mediaItem: getCurrentItem())
         playbackListener.onPlaybackEnded(endedEvent, completion: { _ in })
+        if repeatMode == RepeatMode.one {
+            player.seek(to: CMTime.zero)
+            if bufferMode == .fastStartShortForm {
+                var rate = getPlaybackSpeed()
+                if rate == 0 {
+                    rate = 1
+                }
+                playImmediately()
+            } else {
+                player.play()
+            }
+        }
     }
 }
 

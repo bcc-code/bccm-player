@@ -13,6 +13,7 @@ class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
   final BccmPlayerController playerController;
   final bool showControls;
   final bool? useSurfaceView;
+  final bool? useStandardAndroidView;
   final bool? allowSystemGestures;
 
   /// Creates a platform view for video playback.
@@ -24,6 +25,7 @@ class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
     required this.showControls,
     this.useSurfaceView,
     this.allowSystemGestures,
+    this.useStandardAndroidView,
   });
 
   @override
@@ -35,6 +37,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
   late bool isInitialized;
   late bool isCurrentPlayerView;
   late VideoSize? lastKnownSize;
+  late int? textureId;
 
   void onPlayerControllerUpdate() {
     if (!mounted) return;
@@ -42,7 +45,8 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
     final anyRelevantFieldHasChanged = playerId != widget.playerController.value.playerId ||
         isInitialized != widget.playerController.value.isInitialized ||
         isCurrentPlayerView != newIsCurrentPlayerView ||
-        widget.playerController.value.videoSize != lastKnownSize;
+        widget.playerController.value.videoSize != lastKnownSize ||
+        textureId != widget.playerController.value.textureId;
 
     if (anyRelevantFieldHasChanged) {
       setState(() {
@@ -50,6 +54,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
         playerId = widget.playerController.value.playerId;
         isInitialized = widget.playerController.value.isInitialized;
         lastKnownSize = widget.playerController.value.videoSize;
+        textureId = widget.playerController.value.textureId;
       });
     }
   }
@@ -62,6 +67,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
     isInitialized = widget.playerController.value.isInitialized;
     isCurrentPlayerView = widget.playerController.currentPlayerView == this;
     lastKnownSize = widget.playerController.value.videoSize;
+    textureId = widget.playerController.value.textureId;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       widget.playerController.attach(this);
     });
@@ -79,6 +85,14 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
   @override
   Widget build(BuildContext context) {
     final aspectRatio = lastKnownSize?.aspectRatio ?? 16 / 9;
+
+    if (textureId != null) {
+      return AspectRatio(
+        aspectRatio: aspectRatio,
+        child: Texture(textureId: textureId!),
+      );
+    }
+
     if (!isCurrentPlayerView || widget.playerController.value.isInitialized == false) {
       return AspectRatio(
         aspectRatio: aspectRatio,
@@ -168,29 +182,46 @@ class _AndroidPlayer extends StatelessWidget {
       surfaceFactory: (context, controller) {
         return AndroidViewSurface(
           controller: controller as AndroidViewController,
-          hitTestBehavior: PlatformViewHitTestBehavior.opaque,
-          gestureRecognizers: {
-            Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
-            Factory<HorizontalDragGestureRecognizer>(() => HorizontalDragGestureRecognizer()),
-          },
+          hitTestBehavior: PlatformViewHitTestBehavior.translucent,
+          gestureRecognizers: {},
         );
       },
       onCreatePlatformView: (params) {
-        var controller = PlatformViewsService.initExpensiveAndroidView(
-          id: params.id,
-          viewType: 'bccm-player',
-          layoutDirection: TextDirection.ltr,
-          creationParams: <String, dynamic>{
-            'player_id': parent.playerController.value.playerId,
-            'show_controls': parent.showControls,
-            if (parent.useSurfaceView == true) 'use_surface_view': true,
-            if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
-          },
-          creationParamsCodec: const StandardMessageCodec(),
-          onFocus: () {
-            params.onFocusChanged(true);
-          },
-        );
+        AndroidViewController controller;
+        if (parent.useStandardAndroidView == true) {
+          controller = PlatformViewsService.initAndroidView(
+            id: params.id,
+            viewType: 'bccm-player',
+            layoutDirection: TextDirection.ltr,
+            creationParams: <String, dynamic>{
+              'player_id': parent.playerController.value.playerId,
+              'show_controls': parent.showControls,
+              'use_surface_view': false,
+              if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
+            },
+            creationParamsCodec: const StandardMessageCodec(),
+            onFocus: () {
+              debugPrint("onFocus");
+              params.onFocusChanged(true);
+            },
+          );
+        } else {
+          controller = PlatformViewsService.initExpensiveAndroidView(
+            id: params.id,
+            viewType: 'bccm-player',
+            layoutDirection: TextDirection.ltr,
+            creationParams: <String, dynamic>{
+              'player_id': parent.playerController.value.playerId,
+              'show_controls': parent.showControls,
+              if (parent.useSurfaceView == true) 'use_surface_view': true,
+              if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
+            },
+            creationParamsCodec: const StandardMessageCodec(),
+            onFocus: () {
+              params.onFocusChanged(true);
+            },
+          );
+        }
         controller
           ..addOnPlatformViewCreatedListener((val) {
             params.onPlatformViewCreated(val);

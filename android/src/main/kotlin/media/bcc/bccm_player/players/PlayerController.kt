@@ -2,6 +2,7 @@ package media.bcc.bccm_player.players
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.Surface
 import androidx.annotation.CallSuper
 import androidx.core.math.MathUtils.clamp
 import androidx.media3.common.C
@@ -10,10 +11,13 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
+import io.flutter.view.TextureRegistry.SurfaceTextureEntry
+import io.flutter.view.TextureRegistry.TextureEntry
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.DOWNLOADED_URL_SCHEME
 import media.bcc.bccm_player.Downloader
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
+import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.RepeatMode
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.VideoSize
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.BCCM_META_EXTRAS
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
@@ -30,6 +34,8 @@ abstract class PlayerController : Player.Listener {
     open var plugin: BccmPlayerPlugin? = null
     var pluginPlayerListener: PlayerListener? = null
     var isLive: Boolean = false
+    var texture: SurfaceTextureEntry? = null
+    var surface: Surface? = null
 
     fun attachPlugin(newPlugin: BccmPlayerPlugin) {
         if (this.plugin != null) detachPlugin()
@@ -52,6 +58,8 @@ abstract class PlayerController : Player.Listener {
 
     @CallSuper
     open fun release() {
+        surface?.release()
+        surface = null
         detachPlugin();
     }
 
@@ -61,6 +69,27 @@ abstract class PlayerController : Player.Listener {
 
     fun pause() {
         player.pause()
+    }
+
+    fun setRepeatMode(repeatMode: RepeatMode) {
+        player.repeatMode = when (repeatMode) {
+            RepeatMode.OFF -> Player.REPEAT_MODE_OFF
+            RepeatMode.ONE -> Player.REPEAT_MODE_ONE
+        }
+    }
+
+    open fun setVideoTexture(texture: SurfaceTextureEntry?) {
+        if (texture == null) {
+            this.texture = null
+            this.surface = null
+            player.setVideoSurface(null)
+            pluginPlayerListener?.onManualPlayerStateUpdate()
+            return
+        }
+        this.texture = texture
+        this.surface = Surface(texture.surfaceTexture())
+        player.setVideoSurface(surface)
+        pluginPlayerListener?.onManualPlayerStateUpdate()
     }
 
     fun setVolume(volume: Double) {
@@ -208,6 +237,7 @@ abstract class PlayerController : Player.Listener {
             .setPlaybackSpeed(player.playbackParameters.speed.toDouble())
             .setIsBuffering(player.playbackState == Player.STATE_BUFFERING)
             .setIsFullscreen(currentPlayerViewController?.isFullscreen == true)
+            .setTextureId(texture?.id())
             .setVideoSize(
                 if (player.videoSize.height <= 0) null
                 else VideoSize.Builder()

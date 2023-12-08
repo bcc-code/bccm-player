@@ -28,7 +28,19 @@ abstract class PlaybackPlatformPigeon {
 
   @async
   @ObjCSelector("newPlayer:")
-  String newPlayer(String? url);
+  String newPlayer(BufferMode? bufferMode);
+
+  @async
+  @ObjCSelector("createVideoTexture")
+  int createVideoTexture();
+
+  @async
+  @ObjCSelector("disposeVideoTexture:")
+  bool disposeVideoTexture(int textureId);
+
+  @async
+  @ObjCSelector("switchToVideoTextureForPlayer:textureId:")
+  int switchToVideoTexture(String playerId, int textureId);
 
   @async
   @ObjCSelector("disposePlayer:")
@@ -65,6 +77,10 @@ abstract class PlaybackPlatformPigeon {
   @async
   @ObjCSelector("setVolume:volume:")
   void setVolume(String playerId, double volume);
+
+  @async
+  @ObjCSelector("setRepeatMode:repeatMode:")
+  void setRepeatMode(String playerId, RepeatMode repeatMode);
 
   @async
   @ObjCSelector("setSelectedTrack:type:trackId:")
@@ -111,6 +127,16 @@ abstract class PlaybackPlatformPigeon {
   @async
   @ObjCSelector("fetchMediaInfo:mimeType:")
   MediaInfo fetchMediaInfo(String url, String? mimeType);
+}
+
+enum BufferMode {
+  standard,
+  fastStartShortForm,
+}
+
+enum RepeatMode {
+  off,
+  one,
 }
 
 class NpawConfig {
@@ -167,6 +193,7 @@ class PlayerStateSnapshot {
   MediaItem? currentMediaItem;
   // This is double because pigeon uses NSNumber for int :(
   double? playbackPositionMs;
+  int? textureId;
 }
 
 class VideoSize {

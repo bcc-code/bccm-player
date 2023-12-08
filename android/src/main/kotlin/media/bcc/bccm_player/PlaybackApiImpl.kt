@@ -1,12 +1,8 @@
 package media.bcc.bccm_player
 
-import android.app.MediaRouteButton
 import android.content.Intent
 import android.util.Log
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
-import androidx.mediarouter.app.MediaRouteChooserDialogFragment
-import androidx.mediarouter.app.MediaRouteDialogFactory
+import android.view.Surface
 import com.google.android.gms.cast.framework.CastButtonFactory
 import io.flutter.embedding.android.FlutterFragmentActivity
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
+import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.BufferMode
 import media.bcc.bccm_player.players.chromecast.CastExpandedControlsActivity
 import media.bcc.bccm_player.players.chromecast.CastPlayerController
 import media.bcc.bccm_player.utils.toMedia3Type
@@ -121,20 +118,60 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         result.success(null)
     }
 
-    override fun newPlayer(url: String?, result: PlaybackPlatformApi.Result<String>) {
+    override fun newPlayer(bufferMode: BufferMode?, result: PlaybackPlatformApi.Result<String>) {
         Log.d("bccm", "PlaybackPigeon: newPlayer()")
         val playbackService = plugin.getPlaybackService()
         if (playbackService == null) {
             result.error(Error())
             return
         }
-        val playerController = playbackService.newPlayer()
-        if (url != null) {
-            playerController.replaceCurrentMediaItem(
-                PlaybackPlatformApi.MediaItem.Builder().setUrl(url).build(), false
-            )
-        }
+        val playerController = playbackService.newPlayer(
+            bufferMode ?: BufferMode.STANDARD
+        )
         result.success(playerController.id)
+    }
+
+    override fun createVideoTexture(result: PlaybackPlatformApi.Result<Long>) {
+        Log.d("bccm", "PlaybackPigeon: createVideoTexture()")
+        val texture = plugin.createTexture()
+        if (texture == null) {
+            result.error(Error("Could not create texture"))
+            return
+        }
+        result.success(texture.id())
+    }
+
+    override fun switchToVideoTexture(
+        playerId: String,
+        textureId: Long,
+        result: PlaybackPlatformApi.Result<Long>
+    ) {
+        Log.d("bccm", "PlaybackPigeon: switchToVideoTexture()")
+        val playbackService = plugin.getPlaybackService()
+        if (playbackService == null) {
+            result.error(Error())
+            return
+        }
+        val playerController = playbackService.getController(playerId)
+        if (playerController == null) {
+            result.error(Error("Player with id $playerId does not exist."))
+            return
+        }
+        val texture = plugin.getTexture(textureId)
+        if (texture == null) {
+            result.error(Error("Texture with id $textureId does not exist."))
+            return
+        }
+        playerController.setVideoTexture(texture)
+        result.success(texture.id())
+    }
+
+    override fun disposeVideoTexture(
+        textureId: Long,
+        result: PlaybackPlatformApi.Result<Boolean>
+    ): Unit {
+        Log.d("bccm", "PlaybackPigeon: disposeVideoTexture()")
+        result.success(plugin.releaseTexture(textureId))
     }
 
     override fun disposePlayer(playerId: String, result: PlaybackPlatformApi.Result<Boolean>) {
@@ -237,6 +274,19 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
             ?: throw Error("Player with id $playerId does not exist.")
 
         playerController.pause()
+    }
+
+    override fun setRepeatMode(
+        playerId: String,
+        repeatMode: PlaybackPlatformApi.RepeatMode,
+        result: PlaybackPlatformApi.Result<Void>
+    ) {
+        val playbackService = plugin.getPlaybackService() ?: return
+        val playerController = playbackService.getController(playerId)
+            ?: throw Error("Player with id $playerId does not exist.")
+
+        playerController.setRepeatMode(repeatMode)
+        result.success(null)
     }
 
     override fun setVolume(

@@ -92,6 +92,7 @@ class PlayerState with _$PlayerState {
     @Default(false) bool isBuffering,
     @Default(false) bool isInPipMode,
     @Default(false) bool isInitialized,
+    int? textureId,
   }) = _PlayerState;
 
   factory PlayerState.fromPlayerStateSnapshot(PlayerStateSnapshot state) {
@@ -105,6 +106,7 @@ class PlayerState with _$PlayerState {
       isBuffering: state.isBuffering,
       isNativeFullscreen: state.isFullscreen,
       isInitialized: true,
+      textureId: state.textureId,
     );
   }
 }

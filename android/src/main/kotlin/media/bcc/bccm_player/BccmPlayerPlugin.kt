@@ -11,7 +11,6 @@ import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
-import androidx.media3.exoplayer.offline.DownloadManager
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.android.gms.cast.framework.CastContext
@@ -21,15 +20,14 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter
 import io.flutter.plugin.common.PluginRegistry
+import io.flutter.view.TextureRegistry
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import media.bcc.bccm_player.pigeon.ChromecastControllerPigeon
 import media.bcc.bccm_player.pigeon.DownloaderApi
@@ -161,8 +159,33 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
             "bccm_player/cast_button",
             FlutterCastButton.Factory()
         )
+
     }
 
+    private val textures: MutableMap<Long, TextureRegistry.SurfaceTextureEntry> = mutableMapOf()
+
+    fun createTexture(): TextureRegistry.SurfaceTextureEntry? {
+        val t = pluginBinding?.textureRegistry?.createSurfaceTexture()
+        if (t != null) {
+            textures[t.id()] = t
+        }
+        return t
+    }
+
+    fun releaseTexture(id: Long): Boolean {
+        val t = textures[id]
+        if (t == null) {
+            Log.d("bccm", "Tried to release texture with id $id, but it was not found.")
+            return false
+        }
+        t.release()
+        textures.remove(id)
+        return true
+    }
+
+    fun getTexture(id: Long): TextureRegistry.SurfaceTextureEntry? {
+        return textures[id]
+    }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         Log.d("bccm", "detaching. mBound: $mBound")
@@ -173,6 +196,10 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
 
         playbackService?.stopIfAttached(this)
         pluginBinding = null
+        for (texture in textures.values) {
+            texture.release()
+        }
+        textures.clear()
         mainScope.cancel()
     }
 

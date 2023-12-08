@@ -16,7 +16,7 @@ import media.bcc.bccm_player.utils.SystemGestureExcludedLinearLayout
 class FlutterCastPlayerView(
     private val context: Context, private val controller: CastPlayerController
 ) : PlatformView {
-    private val _v: LinearLayout = SystemGestureExcludedLinearLayout(context)
+    private val _v = SystemGestureExcludedLinearLayout(context)
     private var _playerView: PlayerView? = null
 
     class Factory(private val plugin: BccmPlayerPlugin) :

@@ -13,6 +13,26 @@
 #error File requires ARC to be enabled.
 #endif
 
+@implementation BufferModeBox
+- (instancetype)initWithValue:(BufferMode)value {
+  self = [super init];
+  if (self) {
+    _value = value;
+  }
+  return self;
+}
+@end
+
+@implementation RepeatModeBox
+- (instancetype)initWithValue:(RepeatMode)value {
+  self = [super init];
+  if (self) {
+    _value = value;
+  }
+  return self;
+}
+@end
+
 @implementation PlaybackStateBox
 - (instancetype)initWithValue:(PlaybackState)value {
   self = [super init];
@@ -324,7 +344,8 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     playbackSpeed:(NSNumber *)playbackSpeed
     videoSize:(nullable VideoSize *)videoSize
     currentMediaItem:(nullable MediaItem *)currentMediaItem
-    playbackPositionMs:(nullable NSNumber *)playbackPositionMs {
+    playbackPositionMs:(nullable NSNumber *)playbackPositionMs
+    textureId:(nullable NSNumber *)textureId {
   PlayerStateSnapshot* pigeonResult = [[PlayerStateSnapshot alloc] init];
   pigeonResult.playerId = playerId;
   pigeonResult.playbackState = playbackState;
@@ -334,6 +355,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.videoSize = videoSize;
   pigeonResult.currentMediaItem = currentMediaItem;
   pigeonResult.playbackPositionMs = playbackPositionMs;
+  pigeonResult.textureId = textureId;
   return pigeonResult;
 }
 + (PlayerStateSnapshot *)fromList:(NSArray *)list {
@@ -350,6 +372,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.videoSize = [VideoSize nullableFromList:(GetNullableObjectAtIndex(list, 5))];
   pigeonResult.currentMediaItem = [MediaItem nullableFromList:(GetNullableObjectAtIndex(list, 6))];
   pigeonResult.playbackPositionMs = GetNullableObjectAtIndex(list, 7);
+  pigeonResult.textureId = GetNullableObjectAtIndex(list, 8);
   return pigeonResult;
 }
 + (nullable PlayerStateSnapshot *)nullableFromList:(NSArray *)list {
@@ -365,6 +388,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.videoSize ? [self.videoSize toList] : [NSNull null]),
     (self.currentMediaItem ? [self.currentMediaItem toList] : [NSNull null]),
     (self.playbackPositionMs ?: [NSNull null]),
+    (self.textureId ?: [NSNull null]),
   ];
 }
 @end
@@ -849,8 +873,65 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
       NSCAssert([api respondsToSelector:@selector(newPlayer:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(newPlayer:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
-        NSString *arg_url = GetNullableObjectAtIndex(args, 0);
-        [api newPlayer:arg_url completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
+        NSNumber *arg_bufferModeAsNumber = GetNullableObjectAtIndex(args, 0);
+        BufferModeBox *arg_bufferMode = arg_bufferModeAsNumber == nil ? nil : [[BufferModeBox alloc] initWithValue: [arg_bufferModeAsNumber integerValue]];
+        [api newPlayer:arg_bufferMode completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.createVideoTexture"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(createVideoTexture:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(createVideoTexture:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        [api createVideoTexture:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.disposeVideoTexture"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(disposeVideoTexture:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(disposeVideoTexture:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSNumber *arg_textureId = GetNullableObjectAtIndex(args, 0);
+        [api disposeVideoTexture:arg_textureId completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.switchToVideoTexture"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(switchToVideoTextureForPlayer:textureId:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(switchToVideoTextureForPlayer:textureId:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
+        NSNumber *arg_textureId = GetNullableObjectAtIndex(args, 1);
+        [api switchToVideoTextureForPlayer:arg_playerId textureId:arg_textureId completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
@@ -1049,6 +1130,26 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
         NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
         NSNumber *arg_volume = GetNullableObjectAtIndex(args, 1);
         [api setVolume:arg_playerId volume:arg_volume completion:^(FlutterError *_Nullable error) {
+          callback(wrapResult(nil, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setRepeatMode"
+        binaryMessenger:binaryMessenger
+        codec:PlaybackPlatformPigeonGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(setRepeatMode:repeatMode:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setRepeatMode:repeatMode:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
+        RepeatMode arg_repeatMode = [GetNullableObjectAtIndex(args, 1) integerValue];
+        [api setRepeatMode:arg_playerId repeatMode:arg_repeatMode completion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));
         }];
       }];

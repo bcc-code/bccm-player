@@ -10,6 +10,28 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, BufferMode) {
+  BufferModeStandard = 0,
+  BufferModeFastStartShortForm = 1,
+};
+
+/// Wrapper for BufferMode to allow for nullability.
+@interface BufferModeBox : NSObject
+@property(nonatomic, assign) BufferMode value;
+- (instancetype)initWithValue:(BufferMode)value;
+@end
+
+typedef NS_ENUM(NSUInteger, RepeatMode) {
+  RepeatModeOff = 0,
+  RepeatModeOne = 1,
+};
+
+/// Wrapper for RepeatMode to allow for nullability.
+@interface RepeatModeBox : NSObject
+@property(nonatomic, assign) RepeatMode value;
+- (instancetype)initWithValue:(RepeatMode)value;
+@end
+
 typedef NS_ENUM(NSUInteger, PlaybackState) {
   PlaybackStateStopped = 0,
   PlaybackStatePaused = 1,
@@ -134,7 +156,8 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     playbackSpeed:(NSNumber *)playbackSpeed
     videoSize:(nullable VideoSize *)videoSize
     currentMediaItem:(nullable MediaItem *)currentMediaItem
-    playbackPositionMs:(nullable NSNumber *)playbackPositionMs;
+    playbackPositionMs:(nullable NSNumber *)playbackPositionMs
+    textureId:(nullable NSNumber *)textureId;
 @property(nonatomic, copy) NSString * playerId;
 @property(nonatomic, assign) PlaybackState playbackState;
 @property(nonatomic, strong) NSNumber * isBuffering;
@@ -143,6 +166,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) VideoSize * videoSize;
 @property(nonatomic, strong, nullable) MediaItem * currentMediaItem;
 @property(nonatomic, strong, nullable) NSNumber * playbackPositionMs;
+@property(nonatomic, strong, nullable) NSNumber * textureId;
 @end
 
 @interface VideoSize : NSObject
@@ -277,7 +301,10 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 /// The main interface, used by the flutter side to control the player.
 @protocol PlaybackPlatformPigeon
 - (void)attachWithCompletion:(void (^)(FlutterError *_Nullable))completion;
-- (void)newPlayer:(nullable NSString *)url completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)newPlayer:(nullable BufferModeBox *)bufferModeBoxed completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)createVideoTexture:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
+- (void)disposeVideoTexture:(NSNumber *)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
+- (void)switchToVideoTextureForPlayer:(NSString *)playerId textureId:(NSNumber *)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)disposePlayer:(NSString *)playerId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)queueMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)replaceCurrentMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem playbackPositionFromPrimary:(nullable NSNumber *)playbackPositionFromPrimary autoplay:(nullable NSNumber *)autoplay completion:(void (^)(FlutterError *_Nullable))completion;
@@ -288,6 +315,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)pause:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)stop:(NSString *)playerId reset:(NSNumber *)reset error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setVolume:(NSString *)playerId volume:(NSNumber *)volume completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)setRepeatMode:(NSString *)playerId repeatMode:(RepeatMode)repeatMode completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setSelectedTrack:(NSString *)playerId type:(TrackType)type trackId:(nullable NSString *)trackId completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setPlaybackSpeed:(NSString *)playerId speed:(NSNumber *)speed completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)exitFullscreen:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;

@@ -2,6 +2,7 @@ package media.bcc.bccm_player.players.exoplayer
 
 import android.content.Context
 import android.util.Log
+import android.view.Surface
 import android.view.WindowManager
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -12,7 +13,9 @@ import androidx.media3.common.TrackGroup
 import androidx.media3.common.Tracks
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.LoadControl
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
@@ -28,14 +31,14 @@ import kotlinx.coroutines.launch
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
 import media.bcc.bccm_player.Downloader
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
+import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.BufferMode
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.NpawConfig
 import media.bcc.bccm_player.players.PlayerController
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import java.util.UUID
 
-
-class ExoPlayerController(private val context: Context) :
+class ExoPlayerController(private val context: Context, bufferMode: BufferMode) :
     PlayerController() {
     override val id: String = UUID.randomUUID().toString()
     private val trackSelector: DefaultTrackSelector = DefaultTrackSelector(context)
@@ -51,7 +54,9 @@ class ExoPlayerController(private val context: Context) :
                     .setCacheWriteDataSinkFactory(null)
             )
         )
+        .setLoadControl(getLoadControlForBufferMode(bufferMode))
         .build()
+
     override val player: ForwardingPlayer
     override var currentPlayerViewController: BccmPlayerViewController? = null
     private var textLanguagesThatShouldBeSelected: Array<String>? = null
@@ -184,6 +189,7 @@ class ExoPlayerController(private val context: Context) :
             extras?.get("npaw.isOffline")?.toBooleanStrictOrNull()
                 ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_OFFLINE)
                     ?.toBooleanStrictOrNull() ?: false
+        youboraPlugin.options.contentType = extras?.get("npaw.content.type")
 
         for (t in player.currentTracks.groups) {
             if (!t.isSelected) continue
@@ -233,43 +239,22 @@ class ExoPlayerController(private val context: Context) :
     }
 
     fun takeOwnership(playerView: PlayerView, viewController: BccmPlayerViewController) {
-        Log.d(
-            "bccm",
-            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
-        )
+        if (surface != null) {
+            Log.w(
+                "bccm",
+                "takeOwnership called but the player is rendering to a custom surface. Remove the texture first with removeTexture(). Aborting."
+            )
+            return
+        }
         if (currentPlayerView != null && currentPlayerView != playerView) {
             PlayerView.switchTargetView(player, currentPlayerView, playerView)
-            Log.d(
-                "bccm",
-                "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
-            )
             currentPlayerViewController?.onOwnershipLost();
-            Log.d(
-                "bccm",
-                "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
-            )
         } else {
             playerView.player = player
         }
-        Log.d(
-            "bccm",
-            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
-        )
         currentPlayerView = playerView
-        Log.d(
-            "bccm",
-            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
-        )
         currentPlayerViewController = viewController
-        Log.d(
-            "bccm",
-            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
-        )
         pluginPlayerListener?.onManualPlayerStateUpdate()
-        Log.d(
-            "bccm",
-            "trackSelectionParameters: " + player.trackSelectionParameters.overrides.toString()
-        )
     }
 
     fun releasePlayerView(playerView: PlayerView) {
@@ -307,5 +292,20 @@ class ExoPlayerController(private val context: Context) :
 
     override fun setMixWithOthers(mixWithOthers: Boolean) {
         exoPlayer.setAudioAttributes(AudioAttributes.DEFAULT, !mixWithOthers)
+    }
+
+    private fun getLoadControlForBufferMode(bufferMode: BufferMode): LoadControl {
+        return when (bufferMode) {
+            BufferMode.STANDARD -> DefaultLoadControl()
+            BufferMode.FAST_START_SHORT_FORM -> DefaultLoadControl.Builder()
+                .setBufferDurationsMs(
+                    5000,
+                    15000,
+                    1000,
+                    3000
+                )
+                .setPrioritizeTimeOverSizeThresholds(true)
+                .build()
+        }
     }
 }

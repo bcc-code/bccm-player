@@ -17,6 +17,7 @@ public protocol PlayerController {
     func setSelectedTrack(type: TrackType, trackId: String?)
     func setPlaybackSpeed(_ speed: Float)
     func setVolume(_ speed: Float)
+    func setRepeatMode(_ repeatMode: RepeatMode)
     func getPlayerStateSnapshot() -> PlayerStateSnapshot
     func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: @escaping (FlutterError?) -> Void)
     func queueItem(_ mediaItem: MediaItem)

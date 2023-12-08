@@ -17,6 +17,8 @@ export 'src/pigeon/playback_platform_pigeon.g.dart'
         TrackType,
         PlayerTracksSnapshot,
         PositionDiscontinuityEvent,
+        RepeatMode,
+        BufferMode,
         PictureInPictureModeChangedEvent;
 export 'src/state/player_state_notifier.dart';
 export 'src/state/plugin_state_notifier.dart';
@@ -42,3 +44,4 @@ export 'src/utils/time.dart' show calcTimeLeftMs;
 export 'src/pigeon/downloader_pigeon.g.dart'
     show DownloadConfig, Download, DownloadChangedEvent, DownloadRemovedEvent, DownloadFailedEvent, DownloadStatus;
 export 'src/downloader_platform_interface.dart';
+export 'src/state/texture.dart';

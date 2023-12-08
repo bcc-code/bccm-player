@@ -4,6 +4,7 @@
 
 import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart' as pigeon;
+import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'bccm_player.dart';
 import 'src/web/video_js_player.dart';
@@ -32,7 +33,7 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   get playerEventStream => _rootPlaybackListener.stream;
 
   @override
-  Future<String> newPlayer({String? url}) async {
+  Future<String> newPlayer({BufferMode? bufferMode}) async {
     final playerId = DateTime.now().microsecondsSinceEpoch.toString();
     final player = VideoJsPlayer(playerId, listener: _rootPlaybackListener, plugin: this);
     webVideoPlayers[playerId] = player;
@@ -103,6 +104,12 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   @override
   Future<pigeon.MediaInfo> fetchMediaInfo({required String url, String? mimeType}) {
     // TODO: implement fetchMediaInfo
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setRepeatMode(String playerId, pigeon.RepeatMode repeatMode) {
+    // TODO: implement setRepeatMode
     throw UnimplementedError();
   }
 }

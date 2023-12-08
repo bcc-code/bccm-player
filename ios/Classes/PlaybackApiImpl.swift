@@ -7,6 +7,18 @@ import GoogleCast
 // TODO: this file should be a pure api towards flutter,
 // we should move the "players" array and state into a dedicated class
 public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
+    public func switchToVideoTexture(forPlayer playerId: String, textureId: NSNumber, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+        completion(nil, FlutterError(code: "PlaybackApiImpl", message: "Textures are not implemented on iOS. Wrap with Platform.isAndroid().", details: nil))
+    }
+
+    public func createVideoTexture(_ completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+        completion(nil, FlutterError(code: "PlaybackApiImpl", message: "Textures are not implemented on iOS. Wrap with Platform.isAndroid().", details: nil))
+    }
+
+    public func disposeVideoTexture(_ textureId: NSNumber, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+        completion(nil, FlutterError(code: "PlaybackApiImpl", message: "Textures are not implemented on iOS. Wrap with Platform.isAndroid().", details: nil))
+    }
+
     var players = [PlayerController]()
     private var primaryPlayerId: String? = nil
     private var previousPrimaryPlayerId: String? = nil
@@ -65,17 +77,11 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         completion(nil)
     }
 
-    public func newPlayer(_ url: String?, completion: @escaping (String?, FlutterError?) -> Void) {
-        let player = AVQueuePlayerController(playbackListener: playbackListener, npawConfig: npawConfig, appConfig: appConfig)
+    public func newPlayer(_ bufferModeBoxed: BufferModeBox?, completion: @escaping (String?, FlutterError?) -> Void) {
+        let bufferMode = bufferModeBoxed?.value ?? BufferMode.standard
+        let player = AVQueuePlayerController(playbackListener: playbackListener, bufferMode: bufferMode, npawConfig: npawConfig, appConfig: appConfig)
         players.append(player)
-        if url != nil {
-            let mediaItem = MediaItem.make(withUrl: url!, mimeType: "application/x-mpegURL", metadata: nil, isLive: false, isOffline: false, playbackStartPositionMs: nil, lastKnownAudioLanguage: nil, lastKnownSubtitleLanguage: nil)
-            player.replaceCurrentMediaItem(mediaItem, autoplay: false, completion: {
-                err in
-                let playerId = err == nil ? player.id : nil
-                completion(playerId, err)
-            })
-        }
+
         completion(player.id, nil)
     }
 
@@ -149,6 +155,13 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     public func setVolume(_ playerId: String, volume: NSNumber, completion: @escaping (FlutterError?) -> Void) {
         let player = getPlayer(playerId)
         player?.setVolume(volume.floatValue)
+        completion(nil)
+    }
+
+    public func setRepeatMode(_ playerId: String, repeatMode: RepeatMode, completion: @escaping (FlutterError?) -> Void) {
+        let player = getPlayer(playerId)
+        let repeatMode = repeatMode
+        player?.setRepeatMode(repeatMode)
         completion(nil)
     }
 

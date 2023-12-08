@@ -26,6 +26,7 @@ mixin _$PlayerState {
   bool get isBuffering => throw _privateConstructorUsedError;
   bool get isInPipMode => throw _privateConstructorUsedError;
   bool get isInitialized => throw _privateConstructorUsedError;
+  int? get textureId => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $PlayerStateCopyWith<PlayerState> get copyWith =>
@@ -48,7 +49,8 @@ abstract class $PlayerStateCopyWith<$Res> {
       PlaybackState playbackState,
       bool isBuffering,
       bool isInPipMode,
-      bool isInitialized});
+      bool isInitialized,
+      int? textureId});
 }
 
 /// @nodoc
@@ -74,6 +76,7 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
     Object? isBuffering = null,
     Object? isInPipMode = null,
     Object? isInitialized = null,
+    Object? textureId = freezed,
   }) {
     return _then(_value.copyWith(
       playerId: null == playerId
@@ -116,6 +119,10 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
           ? _value.isInitialized
           : isInitialized // ignore: cast_nullable_to_non_nullable
               as bool,
+      textureId: freezed == textureId
+          ? _value.textureId
+          : textureId // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -138,7 +145,8 @@ abstract class _$$_PlayerStateCopyWith<$Res>
       PlaybackState playbackState,
       bool isBuffering,
       bool isInPipMode,
-      bool isInitialized});
+      bool isInitialized,
+      int? textureId});
 }
 
 /// @nodoc
@@ -162,6 +170,7 @@ class __$$_PlayerStateCopyWithImpl<$Res>
     Object? isBuffering = null,
     Object? isInPipMode = null,
     Object? isInitialized = null,
+    Object? textureId = freezed,
   }) {
     return _then(_$_PlayerState(
       playerId: null == playerId
@@ -204,6 +213,10 @@ class __$$_PlayerStateCopyWithImpl<$Res>
           ? _value.isInitialized
           : isInitialized // ignore: cast_nullable_to_non_nullable
               as bool,
+      textureId: freezed == textureId
+          ? _value.textureId
+          : textureId // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -221,7 +234,8 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       this.playbackState = PlaybackState.stopped,
       this.isBuffering = false,
       this.isInPipMode = false,
-      this.isInitialized = false})
+      this.isInitialized = false,
+      this.textureId})
       : super._();
 
   @override
@@ -250,10 +264,12 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final bool isInitialized;
+  @override
+  final int? textureId;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, videoSize: $videoSize, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized)';
+    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, videoSize: $videoSize, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized, textureId: $textureId)';
   }
 
   @override
@@ -270,7 +286,8 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('playbackState', playbackState))
       ..add(DiagnosticsProperty('isBuffering', isBuffering))
       ..add(DiagnosticsProperty('isInPipMode', isInPipMode))
-      ..add(DiagnosticsProperty('isInitialized', isInitialized));
+      ..add(DiagnosticsProperty('isInitialized', isInitialized))
+      ..add(DiagnosticsProperty('textureId', textureId));
   }
 
   @override
@@ -297,7 +314,9 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
             (identical(other.isInPipMode, isInPipMode) ||
                 other.isInPipMode == isInPipMode) &&
             (identical(other.isInitialized, isInitialized) ||
-                other.isInitialized == isInitialized));
+                other.isInitialized == isInitialized) &&
+            (identical(other.textureId, textureId) ||
+                other.textureId == textureId));
   }
 
   @override
@@ -312,7 +331,8 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
       playbackState,
       isBuffering,
       isInPipMode,
-      isInitialized);
+      isInitialized,
+      textureId);
 
   @JsonKey(ignore: true)
   @override
@@ -332,7 +352,8 @@ abstract class _PlayerState extends PlayerState {
       final PlaybackState playbackState,
       final bool isBuffering,
       final bool isInPipMode,
-      final bool isInitialized}) = _$_PlayerState;
+      final bool isInitialized,
+      final int? textureId}) = _$_PlayerState;
   const _PlayerState._() : super._();
 
   @override
@@ -355,6 +376,8 @@ abstract class _PlayerState extends PlayerState {
   bool get isInPipMode;
   @override
   bool get isInitialized;
+  @override
+  int? get textureId;
   @override
   @JsonKey(ignore: true)
   _$$_PlayerStateCopyWith<_$_PlayerState> get copyWith =>

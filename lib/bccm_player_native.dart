@@ -71,8 +71,8 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
-  Future<String> newPlayer({String? url}) async {
-    final playerId = await _pigeon.newPlayer(url);
+  Future<String> newPlayer({BufferMode? bufferMode}) async {
+    final playerId = await _pigeon.newPlayer(bufferMode);
     stateNotifier.getOrAddPlayerNotifier(playerId);
     return playerId;
   }
@@ -198,5 +198,25 @@ class BccmPlayerNative extends BccmPlayerInterface {
   @override
   Future<MediaInfo> fetchMediaInfo({required String url, String? mimeType}) {
     return _pigeon.fetchMediaInfo(url, mimeType);
+  }
+
+  @override
+  Future<int> switchToVideoTexture(String playerId, int textureId) {
+    return _pigeon.switchToVideoTexture(playerId, textureId);
+  }
+
+  @override
+  Future<int> createVideoTexture() {
+    return _pigeon.createVideoTexture();
+  }
+
+  @override
+  Future<bool> disposeVideoTexture(int textureId) {
+    return _pigeon.disposeVideoTexture(textureId);
+  }
+
+  @override
+  Future<void> setRepeatMode(String playerId, RepeatMode repeatMode) {
+    return _pigeon.setRepeatMode(playerId, repeatMode);
   }
 }
