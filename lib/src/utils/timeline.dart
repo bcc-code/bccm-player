@@ -74,10 +74,6 @@ class _TimelineState extends HookState<TimelineHelper, _TimelineHook> {
             1,
           );
 
-    debugPrint("AG time ${actualTimeMs}");
-    debugPrint("AG timefrac ${timeFraction}");
-    debugPrint("AG dur ${duration}");
-
     Future<void> seekToScrubbed() async {
       if (!context.mounted) return;
       final actualTargetMs = hook.currentScrub.value;
