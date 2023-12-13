@@ -28,6 +28,7 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   StateNotifier<PlayerState>? get stateNotifier => _stateNotifier;
   final Set<State<VideoPlatformView>> _attachedPlayerViews = {};
   bool _isDisposed = false;
+  final BufferMode? _bufferMode;
 
   static BccmPlayerController get primary => BccmPlayerInterface.instance.primaryController;
 
@@ -68,8 +69,9 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   /// See also:
   ///
   /// * [BccmPlayerController.networkUrl] for a convenience constructor to create a [BccmPlayerController] with a network url.
-  BccmPlayerController(MediaItem mediaItem)
+  BccmPlayerController(MediaItem mediaItem, {BufferMode? bufferMode})
       : _intialMediaItem = mediaItem,
+        _bufferMode = bufferMode,
         super(const PlayerState(
           playerId: 'unknown',
           isInitialized: false,
@@ -79,8 +81,9 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   ///
   /// Intended for internal use only.
   @protected
-  BccmPlayerController.empty()
+  BccmPlayerController.empty({BufferMode? bufferMode})
       : _intialMediaItem = null,
+        _bufferMode = bufferMode,
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
 
   /// Convenience constructor to create a [BccmPlayerController] with a network url.
@@ -91,10 +94,12 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   BccmPlayerController.networkUrl(
     Uri url, {
     String? mimeType,
+    BufferMode? bufferMode,
   })  : _intialMediaItem = MediaItem(
           url: url.toString(),
           mimeType: mimeType,
         ),
+        _bufferMode = bufferMode,
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
 
   /// Checks if this player is the current primary player.
@@ -141,7 +146,7 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     if (value.isInitialized || _isDisposed) {
       return;
     }
-    final playerId = await BccmPlayerInterface.instance.newPlayer();
+    final playerId = await BccmPlayerInterface.instance.newPlayer(bufferMode: _bufferMode);
     if (_intialMediaItem != null) {
       await BccmPlayerInterface.instance.replaceCurrentMediaItem(playerId, _intialMediaItem!);
     }

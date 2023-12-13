@@ -9,7 +9,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     lazy var player: AVQueuePlayer = .init()
     public final let id: String
     final let playbackListener: PlaybackListenerPigeon
+    final var currentItemObservers = [NSKeyValueObservation]()
     final var observers = [NSKeyValueObservation]()
+    final var notificationObservers = [NSObjectProtocol]()
+    
     var temporaryStatusObserver: NSKeyValueObservation? = nil
     var youboraPlugin: YBPlugin?
     var pipController: AVPlayerViewController? = nil
@@ -26,6 +29,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         self.playbackListener = playbackListener
         self.bufferMode = bufferMode
         super.init()
+        player.actionAtItemEnd = .none
+        if bufferMode == .fastStartShortForm {
+            player.automaticallyWaitsToMinimizeStalling = false
+        }
         updateAppConfig(appConfig: appConfig)
         addObservers()
         refreshStateTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
@@ -39,6 +46,15 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     
     deinit {
         refreshStateTimer?.invalidate()
+        for observer in observers {
+            observer.invalidate()
+        }
+        for observer in currentItemObservers {
+            observer.invalidate()
+        }
+        for observer in notificationObservers {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     public func setRepeatMode(_ repeatMode: RepeatMode) {
@@ -190,7 +206,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     public func play() {
-        player.play()
+        if bufferMode == .fastStartShortForm {
+            playImmediately()
+        } else {
+            player.play()
+        }
     }
     
     public func seekTo(_ positionMs: NSNumber, _ completion: @escaping (Bool) -> Void) {
@@ -204,6 +224,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     public func pause() {
+        debugPrint("\(id) pausing")
         player.pause()
     }
     
@@ -316,14 +337,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         nowPlayingInfoCenter.nowPlayingInfo = [:]
     }
     
-    @objc func playAudio() {
-        player.play()
-    }
-
-    @objc func pauseAudio() {
-        player.pause()
-    }
-    
     private func initYoubora(_ npawConfig: NpawConfig) {
         print("Initializing youbora")
         let youboraOptions = YBOptions()
@@ -394,6 +407,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             }
             self.updateYouboraOptions(mediaItemOverride: mediaItem)
             DispatchQueue.main.async {
+                self.player.removeAllItems()
                 self.player.replaceCurrentItem(with: playerItem)
                 self.temporaryStatusObserver = playerItem.observe(\.status, options: [.new, .old]) {
                     playerItem, _ in
@@ -402,6 +416,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                             playerItem.seek(to: CMTime(value: Int64(truncating: playbackStartPositionMs), timescale: 1000), completionHandler: nil)
                         }
                         if autoplay?.boolValue == true {
+                            debugPrint("\(self.id) autoplaying")
                             self.player.play()
                         }
                         if let audioLanguages = self.appConfig?.audioLanguages {
@@ -414,7 +429,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         // This is the initial signal. If this is not set the language is generally empty in NPAW
                         self.youboraPlugin?.options.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
                         self.youboraPlugin?.options.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
-                        
+                        debugPrint("\(self.id) readyToPlay")
                         completion(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")
@@ -543,6 +558,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
 
     func addObservers() {
+        notificationObservers.append(NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] notification in
+            guard let self = self else { return }
+            let playerItem = notification.object as? AVPlayerItem
+            if playerItem == self.player.currentItem {
+                self.playerItemDidPlayToEndTime()
+            }
+        })
         // listening for current item change
         observers.append(player.observe(\.currentItem, options: [.old, .new]) {
             player, _ in
@@ -551,28 +573,29 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             self.playbackListener.onMediaItemTransition(event, completion: { _ in })
             
             self.updateYouboraOptions(mediaItemOverride: mediaItem)
+
+            for observer in self.currentItemObservers {
+                observer.invalidate()
+            }
+            self.currentItemObservers.removeAll()
             
-            self.observers.append(player.observe(\.currentItem?.duration, options: [.old, .new]) {
+            self.currentItemObservers.append(player.observe(\.currentItem?.duration, options: [.old, .new]) {
                 player, _ in
                 MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] = player.currentItem?.duration.seconds
             })
             
-            self.observers.append(player.observe(\.currentItem?.currentMediaSelection, options: [.old, .new]) {
+            self.currentItemObservers.append(player.observe(\.currentItem?.currentMediaSelection, options: [.old, .new]) {
                 player, _ in
                 // Update language in NPAW
                 self.youboraPlugin?.options.contentLanguage = player.currentItem?.getSelectedAudioLanguage()
                 self.youboraPlugin?.options.contentSubtitles = player.currentItem?.getSelectedSubtitleLanguage()
             })
             
-            self.observers.append(player.observe(\.currentItem?.presentationSize, options: [.old, .new]) {
+            self.currentItemObservers.append(player.observe(\.currentItem?.presentationSize, options: [.old, .new]) {
                 _, _ in
                 self.onManualPlayerStateUpdate()
             })
-            NotificationCenter.default
-                .addObserver(self,
-                             selector: #selector(self.playerDidFinishPlaying),
-                             name: .AVPlayerItemDidPlayToEndTime,
-                             object: player.currentItem)
+            
         })
         observers.append(player.observe(\.rate, options: [.old, .new]) {
             player, change in
@@ -603,7 +626,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         if rate == 0 {
             rate = 1
         }
+        debugPrint("\(id) playImmediately(atRate:\(rate))")
         player.playImmediately(atRate: rate)
+        debugPrint("\(id) player.timeControlStatus: \(player.timeControlStatus.rawValue)")
     }
     
     func isBuffering() -> Bool {
@@ -619,21 +644,18 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         return !paused && !waitingBecauseNoItemToPlay
     }
     
-    @objc private func playerDidFinishPlaying(note: NSNotification) {
+    @objc private func playerItemDidPlayToEndTime() {
+        if repeatMode == RepeatMode.one {
+            player.seek(to: CMTime.zero,
+                        toleranceBefore: CMTime.zero,
+                        toleranceAfter: CMTime.zero,
+                        completionHandler: { _ in
+                        })
+        } else {
+            player.pause()
+        }
         let endedEvent = PlaybackEndedEvent.make(withPlayerId: id, mediaItem: getCurrentItem())
         playbackListener.onPlaybackEnded(endedEvent, completion: { _ in })
-        if repeatMode == RepeatMode.one {
-            player.seek(to: CMTime.zero)
-            if bufferMode == .fastStartShortForm {
-                var rate = getPlaybackSpeed()
-                if rate == 0 {
-                    rate = 1
-                }
-                playImmediately()
-            } else {
-                player.play()
-            }
-        }
     }
 }
 

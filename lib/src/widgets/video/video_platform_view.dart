@@ -182,8 +182,11 @@ class _AndroidPlayer extends StatelessWidget {
       surfaceFactory: (context, controller) {
         return AndroidViewSurface(
           controller: controller as AndroidViewController,
-          hitTestBehavior: PlatformViewHitTestBehavior.translucent,
-          gestureRecognizers: {},
+          hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+          gestureRecognizers: {
+            Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
+            Factory<HorizontalDragGestureRecognizer>(() => HorizontalDragGestureRecognizer()),
+          },
         );
       },
       onCreatePlatformView: (params) {
@@ -196,7 +199,7 @@ class _AndroidPlayer extends StatelessWidget {
             creationParams: <String, dynamic>{
               'player_id': parent.playerController.value.playerId,
               'show_controls': parent.showControls,
-              'use_surface_view': false,
+              if (parent.useSurfaceView == true) 'use_surface_view': true,
               if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
             },
             creationParamsCodec: const StandardMessageCodec(),
