@@ -299,10 +299,10 @@ class ExoPlayerController(private val context: Context, bufferMode: BufferMode) 
             BufferMode.STANDARD -> DefaultLoadControl()
             BufferMode.FAST_START_SHORT_FORM -> DefaultLoadControl.Builder()
                 .setBufferDurationsMs(
-                    5000,
+                    2000,
                     15000,
-                    1000,
-                    3000
+                    500,
+                    2000
                 )
                 .setPrioritizeTimeOverSizeThresholds(true)
                 .build()
