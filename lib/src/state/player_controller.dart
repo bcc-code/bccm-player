@@ -321,4 +321,13 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     });
     _stateNotifier = notifier;
   }
+
+  Stream get events => BccmPlayerInterface.instance.playerEventStream.where((event) {
+        if (_isDisposed) return false;
+        try {
+          return event.playerId == value.playerId;
+        } catch (e) {
+          return false; // hacky try-catch because pigeon doesn't support inheritance: https://github.com/flutter/flutter/issues/117819
+        }
+      });
 }
