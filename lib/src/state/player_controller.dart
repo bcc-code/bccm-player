@@ -139,13 +139,25 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     return BccmPlayerInterface.instance.disposePlayer(value.playerId);
   }
 
+  Future<void>? _initFuture;
+
   /// Creates the player on the native side and starts loading the [MediaItem] which was implicitly or explicitly specificed in the constructor.
   ///
   /// You can use [isInitialized] to check if the player is initialized.
   Future<void> initialize() async {
-    if (value.isInitialized || _isDisposed) {
+    if (_isDisposed) {
+      debugPrint("Warning: Tried to initialize a disposed player");
       return;
     }
+    if (value.isInitialized) {
+      debugPrint("Warning: Tried to initialize an initialized player");
+      return;
+    }
+    _initFuture ??= _initialize();
+    return _initFuture;
+  }
+
+  Future<void> _initialize() async {
     final playerId = await BccmPlayerInterface.instance.newPlayer(bufferMode: _bufferMode);
     if (_intialMediaItem != null) {
       await BccmPlayerInterface.instance.replaceCurrentMediaItem(playerId, _intialMediaItem!);
