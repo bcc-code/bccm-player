@@ -41,6 +41,14 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     }
 
     public func attach(completion: @escaping (FlutterError?) -> Void) {
+        // stop and remove all of type AVQueuePlayerController except primary
+        for p in players {
+            if p is AVQueuePlayerController && p.id != primaryPlayerId {
+                p.stop(reset: true)
+            }
+        }
+        players.removeAll(where: { $0 is AVQueuePlayerController && $0.id != primaryPlayerId })
+
         completion(nil)
     }
 
