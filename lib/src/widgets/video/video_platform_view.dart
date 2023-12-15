@@ -12,6 +12,7 @@ import '../cast/cast_player.dart';
 class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
   final BccmPlayerController playerController;
   final bool showControls;
+  final bool? pipOnLeave;
   final bool? useSurfaceView;
   final bool? useStandardAndroidView;
   final bool? allowSystemGestures;
@@ -23,6 +24,7 @@ class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
     super.key,
     required this.playerController,
     required this.showControls,
+    this.pipOnLeave,
     this.useSurfaceView,
     this.allowSystemGestures,
     this.useStandardAndroidView,
@@ -161,6 +163,7 @@ class _IOSPlayer extends StatelessWidget {
       creationParams: <String, dynamic>{
         'player_id': parent.playerController.value.playerId,
         'show_controls': parent.showControls,
+        if (parent.pipOnLeave != null) 'pip_on_leave': parent.pipOnLeave,
       },
       creationParamsCodec: const StandardMessageCodec(),
     );
@@ -199,6 +202,7 @@ class _AndroidPlayer extends StatelessWidget {
             creationParams: <String, dynamic>{
               'player_id': parent.playerController.value.playerId,
               'show_controls': parent.showControls,
+              if (parent.pipOnLeave != null) 'pip_on_leave': parent.pipOnLeave,
               if (parent.useSurfaceView == true) 'use_surface_view': true,
               if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
             },
@@ -216,6 +220,7 @@ class _AndroidPlayer extends StatelessWidget {
             creationParams: <String, dynamic>{
               'player_id': parent.playerController.value.playerId,
               'show_controls': parent.showControls,
+              if (parent.pipOnLeave != null) 'pip_on_leave': parent.pipOnLeave,
               if (parent.useSurfaceView == true) 'use_surface_view': true,
               if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
             },

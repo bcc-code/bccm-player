@@ -28,7 +28,8 @@ import media.bcc.bccm_player.utils.SwipeTouchListener
 class FullscreenPlayerView(
     val activity: Activity,
     val playerController: ExoPlayerController,
-    forceLandscape: Boolean = true
+    forceLandscape: Boolean = true,
+    pipOnLeave: Boolean = true,
 ) : LinearLayout(activity), BccmPlayerViewController {
     var playerView: PlayerView?
     val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -37,7 +38,7 @@ class FullscreenPlayerView(
     var onExitListener: (() -> Unit)? = null
     var exitAfterPictureInPicture: Boolean = false
     override val isFullscreen = true
-    override val shouldPipAutomatically = true
+    override val shouldPipAutomatically = pipOnLeave
 
     init {
         makeActivityFullscreen(forceLandscape)

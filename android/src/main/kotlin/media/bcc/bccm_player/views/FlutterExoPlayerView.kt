@@ -32,6 +32,7 @@ class FlutterExoPlayerView(
     private val context: Context,
     private val playerId: String,
     private val showControls: Boolean?,
+    private val pipOnLeave: Boolean,
     private val enableDebugView: Boolean?,
     private val useSurfaceView: Boolean?,
     private val allowSystemGestures: Boolean?
@@ -43,7 +44,7 @@ class FlutterExoPlayerView(
     private var setupDone = false
     override val isFullscreen = false
     override val shouldPipAutomatically
-        get() = playerController?.player?.isPlaying ?: false
+        get() = pipOnLeave && (playerController?.player?.isPlaying ?: false)
 
     class Factory(private val plugin: BccmPlayerPlugin?) :
         PlatformViewFactory(StandardMessageCodec.INSTANCE) {
@@ -62,9 +63,10 @@ class FlutterExoPlayerView(
                 context,
                 creationParams["player_id"] as String,
                 creationParams["show_controls"] as? Boolean?,
+                creationParams["pip_on_leave"] as? Boolean? ?: true,
                 creationParams["enable_debug_view"] as? Boolean?,
                 creationParams["use_surface_view"] as? Boolean?,
-                creationParams["allow_system_gestures"] as? Boolean?
+                creationParams["allow_system_gestures"] as? Boolean?,
             )
         }
     }
@@ -172,7 +174,8 @@ class FlutterExoPlayerView(
             activity.window.decorView.findViewById<View>(android.R.id.content) as FrameLayout
 
         playerController?.let { playerController ->
-            val fullScreenPlayer = FullscreenPlayerView(activity, playerController, !startInPip)
+            val fullScreenPlayer =
+                FullscreenPlayerView(activity, playerController, !startInPip, pipOnLeave)
             rootLayout.addView(fullScreenPlayer)
             fullScreenPlayer.onExitListener = {
                 setup()

@@ -26,6 +26,7 @@ class BccmPlayerFactory: NSObject, FlutterPlatformViewFactory {
         let argDictionary = args as! [String: Any]?
         let playerId = argDictionary?["player_id"] as? String
         let showControls = argDictionary?["show_controls"] as? Bool ?? true
+        let pipOnLeave = argDictionary?["pip_on_leave"] as? Bool ?? true
         guard playerId != nil else {
             fatalError("argument 'player_id' cannot be null")
         }
@@ -37,7 +38,8 @@ class BccmPlayerFactory: NSObject, FlutterPlatformViewFactory {
             return AVPlayerBccmPlayerView(
                 frame: frame,
                 playerController: pc,
-                showControls: showControls
+                showControls: showControls,
+                pipOnLeave: pipOnLeave
             )
         } else if let pc = playerController as? CastPlayerController {
             return CastPlayerView(frame: frame, playerController: pc)
@@ -52,16 +54,19 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
     private var _playerController: AVQueuePlayerController
     private var playerViewController: AVPlayerViewController? = nil
     private var _showControls: Bool
+    private var _pipOnLeave: Bool
 
     init(
         frame: CGRect,
         playerController: AVQueuePlayerController,
-        showControls: Bool
+        showControls: Bool,
+        pipOnLeave: Bool
     ) {
         debugPrint("AVPlayerBccmPlayerView init")
         _view.frame = frame
         _playerController = playerController
         _showControls = showControls
+        _pipOnLeave = pipOnLeave
         super.init()
 
         createNativeView()
@@ -139,7 +144,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
                 playerViewController.speeds = speeds
             }
             if #available(iOS 14.2, *) {
-                playerViewController.canStartPictureInPictureAutomaticallyFromInline = true
+                playerViewController.canStartPictureInPictureAutomaticallyFromInline = _pipOnLeave
             }
             _view.addSubview(playerViewController.view)
             _playerController.takeOwnership(playerViewController)
