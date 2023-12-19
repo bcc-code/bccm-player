@@ -2,7 +2,6 @@ import 'package:bccm_player/bccm_player.dart';
 import 'package:flutter/widgets.dart';
 
 import '../controls/default_controls.dart';
-import '../../state/inherited_player_view_controller.dart';
 
 /// Read comments on [BccmPlayerView.withViewController] for more details.
 class ControlledBccmPlayerView extends StatefulWidget implements BccmPlayerView {

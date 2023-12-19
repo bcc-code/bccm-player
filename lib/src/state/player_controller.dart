@@ -1,4 +1,3 @@
-import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:state_notifier/state_notifier.dart';

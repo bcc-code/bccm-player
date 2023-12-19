@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../bccm_player.dart';
-import 'inherited_player_view_controller.dart';
 
 /// This is used to configure and control a specific player view.
 ///
