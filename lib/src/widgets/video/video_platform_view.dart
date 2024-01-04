@@ -16,6 +16,7 @@ class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
   final bool? useSurfaceView;
   final bool? useStandardAndroidView;
   final bool? allowSystemGestures;
+  final double? aspectRatioOverride;
 
   /// Creates a platform view for video playback.
   ///
@@ -28,6 +29,7 @@ class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
     this.useSurfaceView,
     this.allowSystemGestures,
     this.useStandardAndroidView,
+    this.aspectRatioOverride,
   });
 
   @override
@@ -86,7 +88,7 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
 
   @override
   Widget build(BuildContext context) {
-    final aspectRatio = lastKnownSize?.aspectRatio ?? 16 / 9;
+    final aspectRatio = widget.aspectRatioOverride ?? lastKnownSize?.aspectRatio ?? 16 / 9;
 
     if (textureId != null) {
       return AspectRatio(

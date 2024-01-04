@@ -53,6 +53,8 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
                     showControls: false,
                     useSurfaceView: viewController.config.useSurfaceView,
                     allowSystemGestures: viewController.config.allowSystemGestures,
+                    aspectRatioOverride: viewController.config.aspectRatioOverride,
+                    pipOnLeave: viewController.config.pipOnLeave,
                   );
           }
 
@@ -66,6 +68,8 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
                     showControls: false,
                     useSurfaceView: viewController.config.useSurfaceView,
                     allowSystemGestures: viewController.config.allowSystemGestures,
+                    aspectRatioOverride: viewController.config.aspectRatioOverride,
+                    pipOnLeave: viewController.config.pipOnLeave,
                   ),
                 ),
               ),

@@ -136,11 +136,6 @@ class BccmPlayerViewController extends ChangeNotifier {
 
   BccmPlayerViewController copyWith({
     BccmPlayerController? playerController,
-    BccmPlayerControlsConfig? controlsConfig,
-    bool? useSurfaceView,
-    FullscreenPageRouteBuilderFactory? fullscreenRouteBuilderFactory,
-    WidgetBuilder? castPlayerBuilder,
-    VoidCallback? resetSystemOverlays,
   }) {
     return BccmPlayerViewController(
       playerController: playerController ?? this.playerController,
