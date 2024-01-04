@@ -61,16 +61,40 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
           return Stack(
             children: [
               Center(
-                child: IgnorePointer(
-                  ignoring: true,
-                  child: VideoPlatformView(
-                    playerController: viewController.playerController,
-                    showControls: false,
-                    useSurfaceView: viewController.config.useSurfaceView,
-                    allowSystemGestures: viewController.config.allowSystemGestures,
-                    aspectRatioOverride: viewController.config.aspectRatioOverride,
-                    pipOnLeave: viewController.config.pipOnLeave,
-                  ),
+                child: ListenableBuilder(
+                  listenable: viewController,
+                  builder: (context, _) => LayoutBuilder(builder: (context, constraints) {
+                    final fit = widget.viewController.config.videoFit;
+                    return IgnorePointer(
+                      ignoring: true,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                          minHeight: constraints.maxHeight,
+                          maxWidth: constraints.maxWidth,
+                          maxHeight: constraints.maxHeight,
+                        ),
+                        child: FittedBox(
+                          clipBehavior: Clip.hardEdge,
+                          fit: fit ?? BoxFit.contain,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: constraints.maxWidth,
+                              maxHeight: constraints.maxHeight,
+                            ),
+                            child: VideoPlatformView(
+                              playerController: viewController.playerController,
+                              showControls: false,
+                              useSurfaceView: viewController.config.useSurfaceView,
+                              allowSystemGestures: viewController.config.allowSystemGestures,
+                              aspectRatioOverride: viewController.config.aspectRatioOverride,
+                              pipOnLeave: viewController.config.pipOnLeave,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
                 ),
               ),
               Positioned.fill(

@@ -53,7 +53,7 @@ class _PlaygroundState extends State<Playground> {
                       ),
                     ),
                     AspectRatio(
-                      aspectRatio: 16 / 9,
+                      aspectRatio: 16 / 5,
                       child: BccmPlayerView.withViewController(
                         viewController,
                         key: ValueKey('player surface-view:$useSurfaceView'),
@@ -62,15 +62,17 @@ class _PlaygroundState extends State<Playground> {
                     const SizedBox(height: 16),
                     ValueListenableBuilder<PlayerState>(
                       valueListenable: controller,
-                      builder: (context, value, _) => MiniPlayer(
-                        title: controller.value.currentMediaItem?.metadata?.title ?? 'Not playing',
-                        secondaryTitle: null,
-                        artworkUri: controller.value.currentMediaItem?.metadata?.artworkUri,
-                        isPlaying: controller.value.playbackState == PlaybackState.playing,
-                        onPlayTap: () => controller.play(),
-                        onPauseTap: () => controller.pause(),
-                        onCloseTap: () => controller.stop(reset: true),
-                      ),
+                      builder: (context, value, _) => controller.value.currentMediaItem == null
+                          ? const SizedBox.shrink()
+                          : MiniPlayer(
+                              title: controller.value.currentMediaItem?.metadata?.title ?? 'Not playing',
+                              secondaryTitle: null,
+                              artworkUri: controller.value.currentMediaItem?.metadata?.artworkUri,
+                              isPlaying: controller.value.playbackState == PlaybackState.playing,
+                              onPlayTap: () => controller.play(),
+                              onPauseTap: () => controller.pause(),
+                              onCloseTap: () => controller.stop(reset: true),
+                            ),
                     ),
                     const SizedBox(height: 32),
                     ...exampleVideos.map(
@@ -102,6 +104,24 @@ class _PlaygroundState extends State<Playground> {
                         });
                       },
                       child: Text('useSurfaceView: $useSurfaceView'),
+                    ),
+                    ListenableBuilder(
+                      listenable: viewController,
+                      builder: (context, _) => Row(
+                        children: [
+                          Text('BoxFit: ${viewController.config.videoFit}'),
+                          Switch.adaptive(
+                            value: viewController.config.videoFit == BoxFit.cover,
+                            onChanged: (v) {
+                              viewController.setConfig(
+                                viewController.config.copyWith(
+                                  videoFit: v ? BoxFit.cover : BoxFit.contain,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () {

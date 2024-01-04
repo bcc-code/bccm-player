@@ -13,6 +13,7 @@ class BccmPlayerViewConfig {
   final VoidCallback? resetSystemOverlays;
   final double? aspectRatioOverride;
   final bool? pipOnLeave;
+  final BoxFit? videoFit;
 
   /// A callback to control device orientations upon exiting fullscreen.
   ///
@@ -76,6 +77,7 @@ class BccmPlayerViewConfig {
     this.deviceOrientationsFullscreen,
     this.aspectRatioOverride,
     this.pipOnLeave,
+    this.videoFit,
   }) : _controlsConfig = controlsConfig;
 
   BccmPlayerViewConfig copyWith({
@@ -89,6 +91,7 @@ class BccmPlayerViewConfig {
     DeviceOrientationsCallback? deviceOrientationsFullscreen,
     double? aspectRatioOverride,
     bool? pipOnLeave,
+    BoxFit? videoFit,
   }) {
     return BccmPlayerViewConfig(
       controlsConfig: controlsConfig ?? this.controlsConfig,
@@ -101,6 +104,7 @@ class BccmPlayerViewConfig {
       deviceOrientationsFullscreen: deviceOrientationsFullscreen ?? this.deviceOrientationsFullscreen,
       aspectRatioOverride: aspectRatioOverride ?? this.aspectRatioOverride,
       pipOnLeave: pipOnLeave ?? this.pipOnLeave,
+      videoFit: videoFit ?? this.videoFit,
     );
   }
 }
