@@ -69,8 +69,8 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
                       ignoring: true,
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          minWidth: constraints.maxWidth,
-                          minHeight: constraints.maxHeight,
+                          minWidth: constraints.maxWidth.isFinite ? constraints.maxWidth : 0,
+                          minHeight: constraints.maxHeight.isFinite ? constraints.maxHeight : 0,
                           maxWidth: constraints.maxWidth,
                           maxHeight: constraints.maxHeight,
                         ),
