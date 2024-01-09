@@ -16,6 +16,8 @@ class BccmPlayerViewController extends ChangeNotifier {
   final BccmPlayerController playerController;
   BccmPlayerViewConfig _config;
   BccmPlayerViewConfig get config => _config;
+  BccmPlayerViewConfig? _fullscreenConfig;
+  BccmPlayerViewConfig get fullscreenConfig => _fullscreenConfig ?? _config;
   bool _isFullscreen = false;
   bool get isFullscreen => _isFullscreen;
   bool _isDisposed = false;
@@ -26,7 +28,9 @@ class BccmPlayerViewController extends ChangeNotifier {
   BccmPlayerViewController({
     required this.playerController,
     BccmPlayerViewConfig? config,
-  }) : _config = config ?? const BccmPlayerViewConfig();
+    BccmPlayerViewConfig? fullscreenConfig,
+  })  : _config = config ?? const BccmPlayerViewConfig(),
+        _fullscreenConfig = fullscreenConfig;
 
   @override
   void dispose() {
@@ -70,11 +74,14 @@ class BccmPlayerViewController extends ChangeNotifier {
     _isFullscreen = true;
     notifyListeners();
 
-    _fullscreenViewController = copyWith(playerController: playerController);
+    _fullscreenViewController = copyWith(
+      playerController: playerController,
+      config: fullscreenConfig,
+    );
     _fullscreenViewController!._isFullscreen = true;
     _fullscreenViewController!._currentFullscreenNavigator = _currentFullscreenNavigator;
     _fullscreenViewController!._fullscreenViewController = _fullscreenViewController;
-    final builder = (config.fullscreenRouteBuilderFactory ?? defaultFullscreenBuilder);
+    final builder = (fullscreenConfig.fullscreenRouteBuilderFactory ?? config.fullscreenRouteBuilderFactory ?? defaultFullscreenBuilder);
     await Navigator.of(context, rootNavigator: true).push(builder(_fullscreenViewController!));
     _fullscreenViewController?.dispose();
     _fullscreenViewController = null;
@@ -136,15 +143,21 @@ class BccmPlayerViewController extends ChangeNotifier {
 
   BccmPlayerViewController copyWith({
     BccmPlayerController? playerController,
+    BccmPlayerViewConfig? config,
+    BccmPlayerViewConfig? fullscreenConfig,
   }) {
     return BccmPlayerViewController(
       playerController: playerController ?? this.playerController,
-      config: _config,
+      config: config ?? _config,
+      fullscreenConfig: fullscreenConfig ?? _fullscreenConfig,
     );
   }
 
-  void setConfig(BccmPlayerViewConfig config) {
+  void setConfig(BccmPlayerViewConfig config, {BccmPlayerViewConfig? fullscreenConfig}) {
     _config = config;
+    if (fullscreenConfig != null) {
+      _fullscreenConfig = fullscreenConfig;
+    }
     notifyListeners();
   }
 
