@@ -14,6 +14,7 @@ class _PlaygroundState extends State<Playground> {
   bool useSurfaceView = false;
   late BccmPlayerViewController viewController;
   double tempVolume = 1;
+  bool vertical = false;
 
   @override
   void initState() {
@@ -52,22 +53,25 @@ class _PlaygroundState extends State<Playground> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
-                    AspectRatio(
-                      aspectRatio: 16 / 5,
-                      child: BccmPlayerView.withViewController(
-                        viewController,
-                        key: ValueKey('player surface-view:$useSurfaceView'),
+                    FractionallySizedBox(
+                      widthFactor: vertical ? 0.3 : 1,
+                      child: AspectRatio(
+                        aspectRatio: vertical ? 5 / 16 : 16 / 5,
+                        child: BccmPlayerView.withViewController(
+                          viewController,
+                          key: ValueKey('player surface-view:$useSurfaceView'),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     ValueListenableBuilder<PlayerState>(
                       valueListenable: controller,
-                      builder: (context, value, _) => controller.value.currentMediaItem == null
+                      builder: (context, value, _) => controller.value.currentMediaItem?.metadata?.artworkUri == null
                           ? const SizedBox.shrink()
                           : MiniPlayer(
-                              title: controller.value.currentMediaItem?.metadata?.title ?? 'Not playing',
+                              title: controller.value.currentMediaItem!.metadata!.title!,
                               secondaryTitle: null,
-                              artworkUri: controller.value.currentMediaItem?.metadata?.artworkUri,
+                              artworkUri: controller.value.currentMediaItem!.metadata!.artworkUri,
                               isPlaying: controller.value.playbackState == PlaybackState.playing,
                               onPlayTap: () => controller.play(),
                               onPauseTap: () => controller.pause(),
@@ -122,6 +126,19 @@ class _PlaygroundState extends State<Playground> {
                           ),
                         ],
                       ),
+                    ),
+                    Row(
+                      children: [
+                        Text('Vertical: $vertical'),
+                        Switch.adaptive(
+                          value: vertical,
+                          onChanged: (v) {
+                            setState(() {
+                              vertical = v;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                     ElevatedButton(
                       onPressed: () {
