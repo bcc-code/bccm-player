@@ -7,11 +7,13 @@ class ControlsState extends InheritedWidget {
   final bool visible;
   final Animation<double> visibilityAnimation;
   final Duration animationDuration = const Duration(milliseconds: 150);
+  final VoidCallback hide;
 
   const ControlsState({
     Key? key,
     required this.visible,
     required this.visibilityAnimation,
+    required this.hide,
     required Widget child,
   }) : super(key: key, child: child);
 
@@ -90,6 +92,9 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
     return ControlsState(
       visible: _visible,
       visibilityAnimation: visibilityAnimationController,
+      hide: () {
+        _setVisible(false);
+      },
       child: Builder(builder: (context) {
         return Focus(
           debugLabel: "Controls wrapper",
