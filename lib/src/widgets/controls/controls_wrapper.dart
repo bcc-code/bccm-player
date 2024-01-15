@@ -102,10 +102,6 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
           onFocusChange: (value) {
             _setVisible(value);
           },
-          onKey: (_, __) {
-            _setVisible(true);
-            return KeyEventResult.ignored;
-          },
           child: Listener(
             onPointerMove: (_) {
               _setVisible(true);
