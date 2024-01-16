@@ -55,6 +55,7 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
                     allowSystemGestures: viewController.config.allowSystemGestures,
                     aspectRatioOverride: viewController.config.aspectRatioOverride,
                     pipOnLeave: viewController.config.pipOnLeave,
+                    allowsVideoFrameAnalysis: viewController.config.allowsVideoFrameAnalysis,
                   );
           }
 

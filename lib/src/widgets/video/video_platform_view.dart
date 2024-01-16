@@ -17,6 +17,7 @@ class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
   final bool? useStandardAndroidView;
   final bool? allowSystemGestures;
   final double? aspectRatioOverride;
+  final bool? allowsVideoFrameAnalysis;
 
   /// Creates a platform view for video playback.
   ///
@@ -30,6 +31,7 @@ class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
     this.allowSystemGestures,
     this.useStandardAndroidView,
     this.aspectRatioOverride,
+    this.allowsVideoFrameAnalysis,
   });
 
   @override
@@ -166,6 +168,7 @@ class _IOSPlayer extends StatelessWidget {
         'player_id': parent.playerController.value.playerId,
         'show_controls': parent.showControls,
         if (parent.pipOnLeave != null) 'pip_on_leave': parent.pipOnLeave,
+        if (parent.allowsVideoFrameAnalysis != null) 'allows_video_frame_analysis': parent.allowsVideoFrameAnalysis,
       },
       creationParamsCodec: const StandardMessageCodec(),
     );

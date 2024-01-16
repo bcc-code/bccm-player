@@ -27,6 +27,7 @@ class BccmPlayerFactory: NSObject, FlutterPlatformViewFactory {
         let playerId = argDictionary?["player_id"] as? String
         let showControls = argDictionary?["show_controls"] as? Bool ?? true
         let pipOnLeave = argDictionary?["pip_on_leave"] as? Bool ?? true
+        let allowsVideoFrameAnalysis = argDictionary?["allows_video_frame_analysis"] as? Bool ?? showControls
         guard playerId != nil else {
             fatalError("argument 'player_id' cannot be null")
         }
@@ -39,7 +40,8 @@ class BccmPlayerFactory: NSObject, FlutterPlatformViewFactory {
                 frame: frame,
                 playerController: pc,
                 showControls: showControls,
-                pipOnLeave: pipOnLeave
+                pipOnLeave: pipOnLeave,
+                allowsVideoFrameAnalysis: allowsVideoFrameAnalysis
             )
         } else if let pc = playerController as? CastPlayerController {
             return CastPlayerView(frame: frame, playerController: pc)
@@ -55,18 +57,21 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
     private var playerViewController: AVPlayerViewController? = nil
     private var _showControls: Bool
     private var _pipOnLeave: Bool
+    private var _allowsVideoFrameAnalysis: Bool
 
     init(
         frame: CGRect,
         playerController: AVQueuePlayerController,
         showControls: Bool,
-        pipOnLeave: Bool
+        pipOnLeave: Bool,
+        allowsVideoFrameAnalysis: Bool
     ) {
         debugPrint("AVPlayerBccmPlayerView init")
         _view.frame = frame
         _playerController = playerController
         _showControls = showControls
         _pipOnLeave = pipOnLeave
+        _allowsVideoFrameAnalysis = allowsVideoFrameAnalysis
         super.init()
 
         createNativeView()
@@ -142,6 +147,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
                 speeds.append(AVPlaybackSpeed(rate: 0.75, localizedName: "0.75x"))
                 speeds.sort { $0.rate < $1.rate }
                 playerViewController.speeds = speeds
+                playerViewController.allowsVideoFrameAnalysis = _allowsVideoFrameAnalysis
             }
             if #available(iOS 14.2, *) {
                 playerViewController.canStartPictureInPictureAutomaticallyFromInline = _pipOnLeave
