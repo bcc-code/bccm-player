@@ -36,6 +36,12 @@ class PlaybackService : MediaSessionService() {
             playerControllers.filter { it == primaryPlayerController || it == castPlayerController }
         playerControllers.clear()
         playerControllers.addAll(filteredControllers)
+        if (primaryPlayerController == null) {
+            newPlayer(BufferMode.STANDARD).let {
+                mediaSession = MediaSession.Builder(this, it.player).build()
+                setPrimary(it.id)
+            }
+        }
         if (castPlayerController == null) {
             this.setupChromecastController();
         }
@@ -71,6 +77,7 @@ class PlaybackService : MediaSessionService() {
             it.release()
         }
         playerControllers.clear()
+        primaryPlayerController = null
         this.plugin = null
         mediaSession.release()
         stopSelf()
@@ -91,6 +98,13 @@ class PlaybackService : MediaSessionService() {
         if (controller != null) {
             controller.release()
             playerControllers.remove(controller);
+            if (primaryPlayerController == controller) {
+                primaryPlayerController = null
+                val newPrimary = playerControllers.find { it is ExoPlayerController }
+                if (newPrimary != null) {
+                    setPrimary(newPrimary.id)
+                }
+            }
             return true
         }
         return false
