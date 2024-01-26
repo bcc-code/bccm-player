@@ -18,6 +18,7 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
   void onPlayerControllerUpdate() {
     if (isChromecast == widget.viewController.playerController.isChromecast) return;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (!mounted) return;
       setState(() {
         isChromecast = widget.viewController.playerController.isChromecast;
       });
