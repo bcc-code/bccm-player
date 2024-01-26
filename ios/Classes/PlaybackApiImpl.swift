@@ -46,6 +46,8 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
             if p is AVQueuePlayerController && p.id != primaryPlayerId {
                 p.stop(reset: true)
             }
+            let event = PlayerStateUpdateEvent.make(withPlayerId: p.id, snapshot: p.getPlayerStateSnapshot())
+            playbackListener.onPlayerStateUpdate(event, completion: { _ in })
         }
         players.removeAll(where: { $0 is AVQueuePlayerController && $0.id != primaryPlayerId })
 
