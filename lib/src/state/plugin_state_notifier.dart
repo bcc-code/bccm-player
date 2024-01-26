@@ -26,6 +26,9 @@ class PlayerPluginStateNotifier extends StateNotifier<PlayerPluginState> {
   }
 
   void setPrimaryPlayer(String? playerId) {
+    if (playerId != null) {
+      getOrAddPlayerNotifier(playerId);
+    }
     state = state.copyWith(primaryPlayerId: playerId);
   }
 
