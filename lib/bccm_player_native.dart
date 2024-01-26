@@ -32,7 +32,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
           final id = state.primaryPlayerId;
           if (id != null) {
             final notifier = BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(id);
-            assert(notifier != null, 'Something went wrong. Primary player should always have a notifier.');
+            assert(notifier != null, 'Something went wrong. Primary player should always have a notifier. id was $id');
             if (notifier != null) {
               // ignore: invalid_use_of_protected_member
               controller.swapPlayerNotifier(notifier);
