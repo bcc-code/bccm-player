@@ -126,6 +126,7 @@ class BccmPlayerControlsConfig {
     this.hidePlaybackSpeed,
     this.hideQualitySelector,
     this.additionalActionsBuilder,
+    this.extraSettingsBuilder,
   }) : playbackSpeeds = playbackSpeeds ?? [1.0, 1.25, 1.5, 1.75, 2.0];
 
   final ControlsBuilder? customBuilder;
@@ -134,6 +135,7 @@ class BccmPlayerControlsConfig {
   final bool? hidePlaybackSpeed;
   final bool? hideQualitySelector;
   final AdditionalControlsBuilder? additionalActionsBuilder;
+  final ExtraSettingsBuilder? extraSettingsBuilder;
 
   BccmPlayerControlsConfig copyWith({
     ControlsBuilder? customBuilder,
@@ -142,6 +144,7 @@ class BccmPlayerControlsConfig {
     bool? hidePlaybackSpeed,
     bool? hideQualitySelector,
     AdditionalControlsBuilder? additionalActionsBuilder,
+    ExtraSettingsBuilder? extraSettingsBuilder,
   }) {
     return BccmPlayerControlsConfig(
       customBuilder: customBuilder ?? this.customBuilder,
@@ -150,10 +153,12 @@ class BccmPlayerControlsConfig {
       hidePlaybackSpeed: hidePlaybackSpeed ?? this.hidePlaybackSpeed,
       hideQualitySelector: hideQualitySelector ?? this.hideQualitySelector,
       additionalActionsBuilder: additionalActionsBuilder ?? this.additionalActionsBuilder,
+      extraSettingsBuilder: extraSettingsBuilder ?? this.extraSettingsBuilder,
     );
   }
 }
 
 typedef ControlsBuilder = Widget Function(BuildContext context);
+typedef ExtraSettingsBuilder = List<Widget>? Function(BuildContext context);
 typedef AdditionalControlsBuilder = List<Widget>? Function(BuildContext context);
 typedef DeviceOrientationsCallback = List<DeviceOrientation>? Function(BccmPlayerViewController viewController);

@@ -134,6 +134,7 @@ class _SettingsBottomSheet extends HookWidget {
     }
 
     final settings = [
+      ...?controlsConfig.extraSettingsBuilder?.call(context),
       if (audioTracks != null && audioTracks.length > 1)
         ListTile(
           dense: true,
