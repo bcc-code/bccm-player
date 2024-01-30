@@ -75,6 +75,8 @@ class DefaultControls extends HookWidget {
                                   ),
                               ],
                               const Spacer(),
+                              if (viewController.config.controlsConfig.topRightNextToSettingsSlot != null)
+                                viewController.config.controlsConfig.topRightNextToSettingsSlot!(context),
                               SettingsButton(
                                 viewController: viewController,
                                 padding: const EdgeInsets.only(top: 12, bottom: 24, left: 24, right: 10),

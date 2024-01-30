@@ -127,6 +127,7 @@ class BccmPlayerControlsConfig {
     this.hideQualitySelector,
     this.additionalActionsBuilder,
     this.extraSettingsBuilder,
+    this.topRightNextToSettingsSlot,
   }) : playbackSpeeds = playbackSpeeds ?? [1.0, 1.25, 1.5, 1.75, 2.0];
 
   final ControlsBuilder? customBuilder;
@@ -136,6 +137,7 @@ class BccmPlayerControlsConfig {
   final bool? hideQualitySelector;
   final AdditionalControlsBuilder? additionalActionsBuilder;
   final ExtraSettingsBuilder? extraSettingsBuilder;
+  final WidgetBuilder? topRightNextToSettingsSlot;
 
   BccmPlayerControlsConfig copyWith({
     ControlsBuilder? customBuilder,
@@ -145,6 +147,7 @@ class BccmPlayerControlsConfig {
     bool? hideQualitySelector,
     AdditionalControlsBuilder? additionalActionsBuilder,
     ExtraSettingsBuilder? extraSettingsBuilder,
+    WidgetBuilder? topRightNextToSettingsSlot,
   }) {
     return BccmPlayerControlsConfig(
       customBuilder: customBuilder ?? this.customBuilder,
@@ -154,6 +157,7 @@ class BccmPlayerControlsConfig {
       hideQualitySelector: hideQualitySelector ?? this.hideQualitySelector,
       additionalActionsBuilder: additionalActionsBuilder ?? this.additionalActionsBuilder,
       extraSettingsBuilder: extraSettingsBuilder ?? this.extraSettingsBuilder,
+      topRightNextToSettingsSlot: topRightNextToSettingsSlot ?? this.topRightNextToSettingsSlot,
     );
   }
 }
