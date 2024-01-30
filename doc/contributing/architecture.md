@@ -42,7 +42,7 @@ On session start/resume:
 On session stop:
 
 - Currently the state is only transferred back to the primary player manually on the episode page.
-- CastPlayerController does `.unclaimPrimary()` which sets the previous primary player to be primary again. A random native PlayerController will be chosen if there was no previous primary, for example if the app was launched while a session was active.
+- CastPlayerController does `.unclaimIfPrimary()` which sets the previous primary player to be primary again. A random native PlayerController will be chosen if there was no previous primary, for example if the app was launched while a session was active.
 
 ## Data transfer between flutter, native and chromecast
 
