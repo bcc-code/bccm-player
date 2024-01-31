@@ -110,7 +110,7 @@ class FullscreenPlayerView(
                     Log.d("bccm", "PictureInPictureModeChangedEvent2, isInPiP: $isInPip")
 
                     if (event.lifecycleState == Lifecycle.State.CREATED) {
-                        playerController.player.stop()
+                        playerController.player.pause()
                     }
                     if (!event.isInPictureInPictureMode) {
                         if (exitAfterPictureInPicture) {

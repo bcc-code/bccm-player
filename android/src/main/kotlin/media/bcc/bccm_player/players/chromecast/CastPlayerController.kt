@@ -128,7 +128,7 @@ class CastPlayerController(
         if (primaryPlayer.isPlaying) {
             transferState(primaryPlayer, castPlayer)
         } else {
-            primaryPlayer.stop()
+            primaryPlayer.pause()
         }
         playbackService.setPrimary(this.id);
     }
