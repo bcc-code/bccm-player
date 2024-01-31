@@ -76,7 +76,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             videoSize: getVideoSize(),
             currentMediaItem: MediaItemMapper.mapPlayerItem(player.currentItem),
             playbackPositionMs: NSNumber(value: player.currentTime().seconds * 1000),
-            textureId: nil
+            textureId: nil,
+            volume: player.volume as NSNumber
         )
     }
     

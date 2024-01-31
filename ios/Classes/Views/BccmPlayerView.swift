@@ -88,6 +88,9 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
         // code to execute
         print("willResignActive")
         reset()
+        if _playerController.player.volume == 0 || _playerController.player.isMuted {
+            _playerController.stop(reset: true)
+        }
     }
 
     @objc func willBecomeActive(_ notification: Notification) {
@@ -174,26 +177,5 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
         }
         playerViewController?.removeFromParent()
         playerViewController = nil
-    }
-
-    var vc: UIViewController? = nil
-
-    func asdplayerViewControllerWillStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
-        let viewController = (UIApplication.shared.delegate?.window??.rootViewController)!
-        vc = UIViewController()
-        let nativeLabel = UILabel()
-        nativeLabel.text = "Showing in pip"
-        nativeLabel.textColor = UIColor.white
-        nativeLabel.textAlignment = .center
-        nativeLabel.frame = CGRect(x: 0, y: 0, width: 180, height: 48.0)
-        nativeLabel.center = CGPoint(x: viewController.view.frame.size.width / 2,
-                                     y: viewController.view.frame.size.height / 2)
-        vc?.view.addSubview(nativeLabel)
-        vc?.modalPresentationStyle = .fullScreen
-        viewController.present(vc!, animated: true, completion: nil)
-    }
-
-    func asdplayerViewControllerWillStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
-        vc?.dismiss(animated: false)
     }
 }

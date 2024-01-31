@@ -157,7 +157,8 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     videoSize:(nullable VideoSize *)videoSize
     currentMediaItem:(nullable MediaItem *)currentMediaItem
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs
-    textureId:(nullable NSNumber *)textureId;
+    textureId:(nullable NSNumber *)textureId
+    volume:(nullable NSNumber *)volume;
 @property(nonatomic, copy) NSString * playerId;
 @property(nonatomic, assign) PlaybackState playbackState;
 @property(nonatomic, strong) NSNumber * isBuffering;
@@ -167,6 +168,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) MediaItem * currentMediaItem;
 @property(nonatomic, strong, nullable) NSNumber * playbackPositionMs;
 @property(nonatomic, strong, nullable) NSNumber * textureId;
+@property(nonatomic, strong, nullable) NSNumber * volume;
 @end
 
 @interface VideoSize : NSObject

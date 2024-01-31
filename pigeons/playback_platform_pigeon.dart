@@ -194,6 +194,7 @@ class PlayerStateSnapshot {
   // This is double because pigeon uses NSNumber for int :(
   double? playbackPositionMs;
   int? textureId;
+  double? volume;
 }
 
 class VideoSize {

@@ -783,6 +783,16 @@ public class PlaybackPlatformApi {
       this.textureId = setterArg;
     }
 
+    private @Nullable Double volume;
+
+    public @Nullable Double getVolume() {
+      return volume;
+    }
+
+    public void setVolume(@Nullable Double setterArg) {
+      this.volume = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     PlayerStateSnapshot() {}
 
@@ -851,6 +861,13 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable Double volume;
+
+      public @NonNull Builder setVolume(@Nullable Double setterArg) {
+        this.volume = setterArg;
+        return this;
+      }
+
       public @NonNull PlayerStateSnapshot build() {
         PlayerStateSnapshot pigeonReturn = new PlayerStateSnapshot();
         pigeonReturn.setPlayerId(playerId);
@@ -862,13 +879,14 @@ public class PlaybackPlatformApi {
         pigeonReturn.setCurrentMediaItem(currentMediaItem);
         pigeonReturn.setPlaybackPositionMs(playbackPositionMs);
         pigeonReturn.setTextureId(textureId);
+        pigeonReturn.setVolume(volume);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(9);
+      ArrayList<Object> toListResult = new ArrayList<Object>(10);
       toListResult.add(playerId);
       toListResult.add(playbackState == null ? null : playbackState.index);
       toListResult.add(isBuffering);
@@ -878,6 +896,7 @@ public class PlaybackPlatformApi {
       toListResult.add((currentMediaItem == null) ? null : currentMediaItem.toList());
       toListResult.add(playbackPositionMs);
       toListResult.add(textureId);
+      toListResult.add(volume);
       return toListResult;
     }
 
@@ -901,6 +920,8 @@ public class PlaybackPlatformApi {
       pigeonResult.setPlaybackPositionMs((Double) playbackPositionMs);
       Object textureId = list.get(8);
       pigeonResult.setTextureId((textureId == null) ? null : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId));
+      Object volume = list.get(9);
+      pigeonResult.setVolume((Double) volume);
       return pigeonResult;
     }
   }

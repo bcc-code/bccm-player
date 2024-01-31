@@ -38,7 +38,8 @@ class CastPlayerController: NSObject, PlayerController {
             videoSize: mediaStatus != nil ? getVideoSize(mediaStatus!) : nil,
             currentMediaItem: currentItem,
             playbackPositionMs: mediaStatus == nil ? nil : NSNumber(value: mediaStatus!.streamPosition * 1000),
-            textureId: nil
+            textureId: nil,
+            volume: mediaStatus?.volume as NSNumber?
         )
     }
     
@@ -133,14 +134,21 @@ class CastPlayerController: NSObject, PlayerController {
         playbackApi.playbackListener.onPlayerStateUpdate(event, completion: { _ in })
     }
     
-    public func setVolume(_ speed: Float) {
+    public func setVolume(_ volume: Float) {
         guard let remoteMediaClient = GCKCastContext.sharedInstance().sessionManager.currentSession?.remoteMediaClient else {
             return
         }
-        remoteMediaClient.setStreamVolume(speed) {
-            let event = PlayerStateUpdateEvent.make(withPlayerId: self.id, snapshot: self.getPlayerStateSnapshot())
-            self.playbackApi.playbackListener.onPlayerStateUpdate(event, completion: { _ in })
-        }
+        
+        let request = remoteMediaClient.setStreamVolume(volume)
+        let delegate = SimpleGCKRequestDelegate(
+            didComplete: {
+                let event = PlayerStateUpdateEvent.make(withPlayerId: self.id, snapshot: self.getPlayerStateSnapshot())
+                self.playbackApi.playbackListener.onPlayerStateUpdate(event, completion: { _ in })
+            },
+            didFailWithError: { _ in debugPrint("setvolume failed") },
+            didAbort: { _ in debugPrint("setvolume aborted") }
+        )
+        request.delegate = delegate
     }
     
     public func setRepeatMode(_ repeatMode: RepeatMode) {

@@ -345,7 +345,8 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     videoSize:(nullable VideoSize *)videoSize
     currentMediaItem:(nullable MediaItem *)currentMediaItem
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs
-    textureId:(nullable NSNumber *)textureId {
+    textureId:(nullable NSNumber *)textureId
+    volume:(nullable NSNumber *)volume {
   PlayerStateSnapshot* pigeonResult = [[PlayerStateSnapshot alloc] init];
   pigeonResult.playerId = playerId;
   pigeonResult.playbackState = playbackState;
@@ -356,6 +357,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.currentMediaItem = currentMediaItem;
   pigeonResult.playbackPositionMs = playbackPositionMs;
   pigeonResult.textureId = textureId;
+  pigeonResult.volume = volume;
   return pigeonResult;
 }
 + (PlayerStateSnapshot *)fromList:(NSArray *)list {
@@ -373,6 +375,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.currentMediaItem = [MediaItem nullableFromList:(GetNullableObjectAtIndex(list, 6))];
   pigeonResult.playbackPositionMs = GetNullableObjectAtIndex(list, 7);
   pigeonResult.textureId = GetNullableObjectAtIndex(list, 8);
+  pigeonResult.volume = GetNullableObjectAtIndex(list, 9);
   return pigeonResult;
 }
 + (nullable PlayerStateSnapshot *)nullableFromList:(NSArray *)list {
@@ -389,6 +392,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.currentMediaItem ? [self.currentMediaItem toList] : [NSNull null]),
     (self.playbackPositionMs ?: [NSNull null]),
     (self.textureId ?: [NSNull null]),
+    (self.volume ?: [NSNull null]),
   ];
 }
 @end

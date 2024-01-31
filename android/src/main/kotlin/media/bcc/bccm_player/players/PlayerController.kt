@@ -245,6 +245,7 @@ abstract class PlayerController : Player.Listener {
                     .setHeight(player.videoSize.height.toLong())
                     .build()
             )
+            .setVolume(player.volume.toDouble())
             .build()
     }
 

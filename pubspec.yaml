@@ -5,7 +5,7 @@ documentation: https://bcc-code.github.io/bccm-player/
 repository: https://github.com/bcc-code/bccm-player
 
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=2.5.0"
 
 dependencies:

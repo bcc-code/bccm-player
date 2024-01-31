@@ -225,6 +225,7 @@ class PlayerStateSnapshot {
     this.currentMediaItem,
     this.playbackPositionMs,
     this.textureId,
+    this.volume,
   });
 
   String playerId;
@@ -245,6 +246,8 @@ class PlayerStateSnapshot {
 
   int? textureId;
 
+  double? volume;
+
   Object encode() {
     return <Object?>[
       playerId,
@@ -256,6 +259,7 @@ class PlayerStateSnapshot {
       currentMediaItem?.encode(),
       playbackPositionMs,
       textureId,
+      volume,
     ];
   }
 
@@ -275,6 +279,7 @@ class PlayerStateSnapshot {
           : null,
       playbackPositionMs: result[7] as double?,
       textureId: result[8] as int?,
+      volume: result[9] as double?,
     );
   }
 }
