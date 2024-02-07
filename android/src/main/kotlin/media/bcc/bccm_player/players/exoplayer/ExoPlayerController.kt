@@ -9,6 +9,7 @@ import androidx.media3.common.C
 import androidx.media3.common.C.VIDEO_SCALING_MODE_SCALE_TO_FIT
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.TrackGroup
 import androidx.media3.common.Tracks
 import androidx.media3.datasource.DefaultHttpDataSource
@@ -103,6 +104,17 @@ class ExoPlayerController(private val context: Context, bufferMode: BufferMode) 
         }
         mainScope.launch {
             BccmPlayerPluginSingleton.appConfigState.collect { handleUpdatedAppConfig(it) }
+        }
+    }
+
+    override fun onPlayerError(error: PlaybackException) {
+        if (error.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW) {
+            // Re-initialize player at the current live window default position.
+            // https://exoplayer.dev/live-streaming.html#behindlivewindowexception-and-error_code_behind_live_window
+            player.seekToDefaultPosition();
+            player.prepare();
+        } else {
+            // Handle other errors.
         }
     }
 
