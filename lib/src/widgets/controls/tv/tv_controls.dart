@@ -131,6 +131,7 @@ class TvControls extends HookWidget {
           },
           child: SizedBox.expand(
             child: ControlsWrapper(
+              isTv: true,
               autoHide: !player.value.isBuffering && player.value.playbackState == PlaybackState.playing,
               builder: (context) => SafeArea(
                 child: Stack(

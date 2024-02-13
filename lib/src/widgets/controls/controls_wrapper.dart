@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bccm_player/src/widgets/controls/control_fade_out.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ControlsState extends InheritedWidget {
   final bool visible;
@@ -33,11 +34,13 @@ class ControlsWrapper extends StatefulWidget {
     required this.builder,
     required this.autoHide,
     this.showByDefault = true,
+    this.isTv = false,
   });
 
   final WidgetBuilder builder;
   final bool autoHide;
   final bool showByDefault;
+  final bool isTv;
 
   @override
   ControlsWrapperState createState() => ControlsWrapperState();
@@ -101,6 +104,15 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
           canRequestFocus: false,
           onFocusChange: (value) {
             _setVisible(value);
+          },
+          onKey: (node, event) {
+            if (!widget.isTv) return KeyEventResult.ignored;
+            if (_visible) return KeyEventResult.ignored;
+            if (event.logicalKey != LogicalKeyboardKey.goBack) {
+              _setVisible(true);
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
           },
           child: Listener(
             onPointerMove: (_) {
