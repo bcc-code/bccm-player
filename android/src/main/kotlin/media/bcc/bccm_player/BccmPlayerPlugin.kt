@@ -1,12 +1,14 @@
 package media.bcc.bccm_player
 
 import android.app.Activity
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.Configuration
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.View
@@ -38,6 +40,7 @@ import media.bcc.bccm_player.views.FlutterCastButton
 import media.bcc.bccm_player.views.FlutterCastPlayerView
 import media.bcc.bccm_player.views.FlutterExoPlayerView
 import media.bcc.bccm_player.views.FullscreenPlayerView
+
 
 class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveHintListener {
     companion object {
@@ -208,6 +211,10 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         activityBinding = binding
         activityBinding?.addOnUserLeaveHintListener(this)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            activity?.application?.registerActivityLifecycleCallbacks(lifecycleCallbacks)
+        }
+
         val downloader = Downloader(
             binding.activity,
             downloaderPigeon!!
@@ -244,6 +251,53 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         }
     }
 
+    fun stopPrimaryIfMuted() {
+        val primaryPlayer = playbackService?.getPrimaryController();
+        Log.d(
+            "bccm",
+            "stopPrimaryIfMuted: primaryPlayer: $primaryPlayer, playbackService: $playbackService"
+        )
+        if (primaryPlayer == null) {
+            Log.d("bccm", "onActivityPaused: primaryPlayer was null")
+            return
+        }
+        if (primaryPlayer.player.volume == 0f && primaryPlayer.player.isPlaying) {
+            primaryPlayer.player.stop()
+            primaryPlayer.player.clearMediaItems()
+        }
+    }
+
+    private val lifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
+        override fun onActivityPaused(activity: Activity) {
+            Log.d("bccm", "onActivityPaused")
+        }
+
+        override fun onActivityResumed(activity: Activity) {
+            Log.d("bccm", "onActivityResumed")
+            stopPrimaryIfMuted();
+        }
+
+        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+
+        }
+
+        override fun onActivityStarted(activity: Activity) {
+
+        }
+
+        override fun onActivityStopped(activity: Activity) {
+            Log.d("bccm", "onActivityStopped")
+            stopPrimaryIfMuted()
+        }
+
+        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+        }
+
+        override fun onActivityDestroyed(activity: Activity) {
+
+        }
+    }
+
 
     /***
      * Call this from your activity's onPictureInPictureModeChanged.
@@ -273,7 +327,13 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
     }
 
     override fun onDetachedFromActivity() {
-        activityBinding?.removeOnUserLeaveHintListener(this)
+        activityBinding?.also {
+            it.removeOnUserLeaveHintListener(this)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                it.activity.application?.unregisterActivityLifecycleCallbacks(lifecycleCallbacks)
+            }
+        }
+
         mainScope.launch {
             Log.d("bccm", "OnDetachedFromActivity")
             BccmPlayerPluginSingleton.eventBus.emit(DetachedFromActivityEvent())
@@ -295,9 +355,6 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
             primaryPlayer.currentPlayerViewController
         if (currentPlayerViewController?.shouldPipAutomatically == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             currentPlayerViewController.enterPictureInPicture()
-        } else if (primaryPlayer.player.volume == 0f && primaryPlayer.player.isPlaying) {
-            primaryPlayer.player.stop()
-            primaryPlayer.player.clearMediaItems()
         }
     }
 }
