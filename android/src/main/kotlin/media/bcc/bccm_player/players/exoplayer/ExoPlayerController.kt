@@ -290,7 +290,7 @@ class ExoPlayerController(private val context: Context, bufferMode: BufferMode) 
         // we only set the default text language once when there is no track selected already and
         // the language is available for the current track.
         val textLanguages = textLanguagesThatShouldBeSelected
-        if (textLanguages != null && !tracks.groups.any { it.type == C.TRACK_TYPE_TEXT && it.isSelected }) {
+        if (textLanguages != null && tracks.groups.any { it.type == C.TRACK_TYPE_TEXT }) {
             if (setSelectedTrackByLanguages(C.TRACK_TYPE_TEXT, textLanguages, tracks)) {
                 textLanguagesThatShouldBeSelected = null
             }
