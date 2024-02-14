@@ -263,7 +263,7 @@ abstract class PlayerController : Player.Listener {
             .build()
     }
 
-    private fun setTrackTypeDisabled(type: @C.TrackType Int, state: Boolean) {
+    internal fun setTrackTypeDisabled(type: @C.TrackType Int, state: Boolean) {
         player.trackSelectionParameters = player.trackSelectionParameters
             .buildUpon()
             .setTrackTypeDisabled(type, state)
@@ -343,6 +343,7 @@ abstract class PlayerController : Player.Listener {
             player.trackSelectionParameters = player.trackSelectionParameters
                 .buildUpon()
                 .clearOverridesOfType(type)
+                .setTrackTypeDisabled(type, false)
                 .setOverrideForType(TrackSelectionOverride(trackGroup.mediaTrackGroup, 0))
                 .build()
             true
