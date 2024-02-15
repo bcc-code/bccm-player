@@ -75,6 +75,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class MediaItem;
 @class MediaMetadata;
 @class PlayerStateSnapshot;
+@class PlayerError;
 @class VideoSize;
 @class ChromecastState;
 @class MediaInfo;
@@ -158,7 +159,8 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     currentMediaItem:(nullable MediaItem *)currentMediaItem
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs
     textureId:(nullable NSNumber *)textureId
-    volume:(nullable NSNumber *)volume;
+    volume:(nullable NSNumber *)volume
+    error:(nullable PlayerError *)error;
 @property(nonatomic, copy) NSString * playerId;
 @property(nonatomic, assign) PlaybackState playbackState;
 @property(nonatomic, strong) NSNumber * isBuffering;
@@ -169,6 +171,14 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) NSNumber * playbackPositionMs;
 @property(nonatomic, strong, nullable) NSNumber * textureId;
 @property(nonatomic, strong, nullable) NSNumber * volume;
+@property(nonatomic, strong, nullable) PlayerError * error;
+@end
+
+@interface PlayerError : NSObject
++ (instancetype)makeWithCode:(nullable NSString *)code
+    message:(nullable NSString *)message;
+@property(nonatomic, copy, nullable) NSString * code;
+@property(nonatomic, copy, nullable) NSString * message;
 @end
 
 @interface VideoSize : NSObject

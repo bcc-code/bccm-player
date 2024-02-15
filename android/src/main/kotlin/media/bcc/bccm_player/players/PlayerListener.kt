@@ -3,6 +3,7 @@ package media.bcc.bccm_player.players
 import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.VideoSize
@@ -44,6 +45,10 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
             .setPlayerId(playerController.id)
             .setSnapshot(playerController.getPlayerStateSnapshot())
         plugin.playbackPigeon?.onPlayerStateUpdate(event.build()) {}
+    }
+
+    override fun onPlayerErrorChanged(error: PlaybackException?) {
+        onManualPlayerStateUpdate()
     }
 
     override fun onPlaybackStateChanged(playbackState: Int) {

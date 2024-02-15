@@ -39,7 +39,8 @@ class CastPlayerController: NSObject, PlayerController {
             currentMediaItem: currentItem,
             playbackPositionMs: mediaStatus == nil ? nil : NSNumber(value: mediaStatus!.streamPosition * 1000),
             textureId: nil,
-            volume: mediaStatus?.volume as NSNumber?
+            volume: mediaStatus?.volume as NSNumber?,
+            error: nil
         )
     }
     

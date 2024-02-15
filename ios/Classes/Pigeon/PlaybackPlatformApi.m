@@ -106,6 +106,12 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
 - (NSArray *)toList;
 @end
 
+@interface PlayerError ()
++ (PlayerError *)fromList:(NSArray *)list;
++ (nullable PlayerError *)nullableFromList:(NSArray *)list;
+- (NSArray *)toList;
+@end
+
 @interface VideoSize ()
 + (VideoSize *)fromList:(NSArray *)list;
 + (nullable VideoSize *)nullableFromList:(NSArray *)list;
@@ -346,7 +352,8 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     currentMediaItem:(nullable MediaItem *)currentMediaItem
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs
     textureId:(nullable NSNumber *)textureId
-    volume:(nullable NSNumber *)volume {
+    volume:(nullable NSNumber *)volume
+    error:(nullable PlayerError *)error {
   PlayerStateSnapshot* pigeonResult = [[PlayerStateSnapshot alloc] init];
   pigeonResult.playerId = playerId;
   pigeonResult.playbackState = playbackState;
@@ -358,6 +365,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.playbackPositionMs = playbackPositionMs;
   pigeonResult.textureId = textureId;
   pigeonResult.volume = volume;
+  pigeonResult.error = error;
   return pigeonResult;
 }
 + (PlayerStateSnapshot *)fromList:(NSArray *)list {
@@ -376,6 +384,7 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   pigeonResult.playbackPositionMs = GetNullableObjectAtIndex(list, 7);
   pigeonResult.textureId = GetNullableObjectAtIndex(list, 8);
   pigeonResult.volume = GetNullableObjectAtIndex(list, 9);
+  pigeonResult.error = [PlayerError nullableFromList:(GetNullableObjectAtIndex(list, 10))];
   return pigeonResult;
 }
 + (nullable PlayerStateSnapshot *)nullableFromList:(NSArray *)list {
@@ -393,6 +402,32 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     (self.playbackPositionMs ?: [NSNull null]),
     (self.textureId ?: [NSNull null]),
     (self.volume ?: [NSNull null]),
+    (self.error ? [self.error toList] : [NSNull null]),
+  ];
+}
+@end
+
+@implementation PlayerError
++ (instancetype)makeWithCode:(nullable NSString *)code
+    message:(nullable NSString *)message {
+  PlayerError* pigeonResult = [[PlayerError alloc] init];
+  pigeonResult.code = code;
+  pigeonResult.message = message;
+  return pigeonResult;
+}
++ (PlayerError *)fromList:(NSArray *)list {
+  PlayerError *pigeonResult = [[PlayerError alloc] init];
+  pigeonResult.code = GetNullableObjectAtIndex(list, 0);
+  pigeonResult.message = GetNullableObjectAtIndex(list, 1);
+  return pigeonResult;
+}
++ (nullable PlayerError *)nullableFromList:(NSArray *)list {
+  return (list) ? [PlayerError fromList:list] : nil;
+}
+- (NSArray *)toList {
+  return @[
+    (self.code ?: [NSNull null]),
+    (self.message ?: [NSNull null]),
   ];
 }
 @end
@@ -775,12 +810,14 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
     case 133: 
       return [NpawConfig fromList:[self readValue]];
     case 134: 
-      return [PlayerStateSnapshot fromList:[self readValue]];
+      return [PlayerError fromList:[self readValue]];
     case 135: 
-      return [PlayerTracksSnapshot fromList:[self readValue]];
+      return [PlayerStateSnapshot fromList:[self readValue]];
     case 136: 
-      return [Track fromList:[self readValue]];
+      return [PlayerTracksSnapshot fromList:[self readValue]];
     case 137: 
+      return [Track fromList:[self readValue]];
+    case 138: 
       return [VideoSize fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
@@ -810,17 +847,20 @@ static id GetNullableObjectAtIndex(NSArray *array, NSInteger key) {
   } else if ([value isKindOfClass:[NpawConfig class]]) {
     [self writeByte:133];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
+  } else if ([value isKindOfClass:[PlayerError class]]) {
     [self writeByte:134];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerTracksSnapshot class]]) {
+  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
     [self writeByte:135];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[Track class]]) {
+  } else if ([value isKindOfClass:[PlayerTracksSnapshot class]]) {
     [self writeByte:136];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[VideoSize class]]) {
+  } else if ([value isKindOfClass:[Track class]]) {
     [self writeByte:137];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[VideoSize class]]) {
+    [self writeByte:138];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -1426,14 +1466,16 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
     case 133: 
       return [PlaybackStateChangedEvent fromList:[self readValue]];
     case 134: 
-      return [PlayerStateSnapshot fromList:[self readValue]];
+      return [PlayerError fromList:[self readValue]];
     case 135: 
-      return [PlayerStateUpdateEvent fromList:[self readValue]];
+      return [PlayerStateSnapshot fromList:[self readValue]];
     case 136: 
-      return [PositionDiscontinuityEvent fromList:[self readValue]];
+      return [PlayerStateUpdateEvent fromList:[self readValue]];
     case 137: 
-      return [PrimaryPlayerChangedEvent fromList:[self readValue]];
+      return [PositionDiscontinuityEvent fromList:[self readValue]];
     case 138: 
+      return [PrimaryPlayerChangedEvent fromList:[self readValue]];
+    case 139: 
       return [VideoSize fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
@@ -1463,20 +1505,23 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
   } else if ([value isKindOfClass:[PlaybackStateChangedEvent class]]) {
     [self writeByte:133];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
+  } else if ([value isKindOfClass:[PlayerError class]]) {
     [self writeByte:134];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerStateUpdateEvent class]]) {
+  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
     [self writeByte:135];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PositionDiscontinuityEvent class]]) {
+  } else if ([value isKindOfClass:[PlayerStateUpdateEvent class]]) {
     [self writeByte:136];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PrimaryPlayerChangedEvent class]]) {
+  } else if ([value isKindOfClass:[PositionDiscontinuityEvent class]]) {
     [self writeByte:137];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[VideoSize class]]) {
+  } else if ([value isKindOfClass:[PrimaryPlayerChangedEvent class]]) {
     [self writeByte:138];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[VideoSize class]]) {
+    [self writeByte:139];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];

@@ -77,8 +77,16 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             currentMediaItem: MediaItemMapper.mapPlayerItem(player.currentItem),
             playbackPositionMs: NSNumber(value: player.currentTime().seconds * 1000),
             textureId: nil,
-            volume: player.volume as NSNumber
+            volume: player.volume as NSNumber,
+            error: getCurrentError()
         )
+    }
+    
+    public func getCurrentError() -> PlayerError? {
+        guard let error = player.currentItem?.error else {
+            return nil
+        }
+        return PlayerError.make(withCode: nil, message: error.localizedDescription)
     }
     
     public func getVideoSize() -> VideoSize? {
@@ -578,24 +586,27 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             for observer in self.currentItemObservers {
                 observer.invalidate()
             }
-            self.currentItemObservers.removeAll()
             
-            self.currentItemObservers.append(player.observe(\.currentItem?.duration, options: [.old, .new]) {
-                player, _ in
-                MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] = player.currentItem?.duration.seconds
-            })
-            
-            self.currentItemObservers.append(player.observe(\.currentItem?.currentMediaSelection, options: [.old, .new]) {
-                player, _ in
-                // Update language in NPAW
-                self.youboraPlugin?.options.contentLanguage = player.currentItem?.getSelectedAudioLanguage()
-                self.youboraPlugin?.options.contentSubtitles = player.currentItem?.getSelectedSubtitleLanguage()
-            })
-            
-            self.currentItemObservers.append(player.observe(\.currentItem?.presentationSize, options: [.old, .new]) {
-                _, _ in
-                self.onManualPlayerStateUpdate()
-            })
+            self.currentItemObservers = [
+                player.observe(\.currentItem?.duration, options: [.old, .new]) {
+                    player, _ in
+                    MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] = player.currentItem?.duration.seconds
+                },
+                player.observe(\.currentItem?.currentMediaSelection, options: [.old, .new]) {
+                    player, _ in
+                    // Update language in NPAW
+                    self.youboraPlugin?.options.contentLanguage = player.currentItem?.getSelectedAudioLanguage()
+                    self.youboraPlugin?.options.contentSubtitles = player.currentItem?.getSelectedSubtitleLanguage()
+                },
+                player.observe(\.currentItem?.presentationSize, options: [.old, .new]) {
+                    _, _ in
+                    self.onManualPlayerStateUpdate()
+                },
+                player.observe(\.currentItem?.error, options: [.new]) { _, _ in
+                    debugPrint("bccc: playeritem error")
+                    self.onManualPlayerStateUpdate()
+                },
+            ]
             
         })
         observers.append(player.observe(\.rate, options: [.old, .new]) {

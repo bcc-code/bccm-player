@@ -229,6 +229,13 @@ abstract class PlayerController : Player.Listener {
     }
 
     fun getPlayerStateSnapshot(): PlaybackPlatformApi.PlayerStateSnapshot {
+        val error =
+            player.playerError?.let {
+                PlaybackPlatformApi.PlayerError.Builder()
+                    .setCode(it.errorCodeName)
+                    .setMessage(it.message)
+                    .build()
+            }
         return PlaybackPlatformApi.PlayerStateSnapshot.Builder()
             .setPlayerId(id)
             .setCurrentMediaItem(getCurrentMediaItem())
@@ -238,6 +245,7 @@ abstract class PlayerController : Player.Listener {
             .setIsBuffering(player.playbackState == Player.STATE_BUFFERING)
             .setIsFullscreen(currentPlayerViewController?.isFullscreen == true)
             .setTextureId(texture?.id())
+            .setError(error)
             .setVideoSize(
                 if (player.videoSize.height <= 0) null
                 else VideoSize.Builder()

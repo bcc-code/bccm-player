@@ -852,6 +852,15 @@ class MockPlayerStateNotifier extends _i1.Mock
       );
 
   @override
+  void setError(_i2.PlayerError? error) => super.noSuchMethod(
+        Invocation.method(
+          #setError,
+          [error],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   void setPlaybackState(_i2.PlaybackState? playbackState) => super.noSuchMethod(
         Invocation.method(
           #setPlaybackState,

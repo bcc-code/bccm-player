@@ -793,6 +793,16 @@ public class PlaybackPlatformApi {
       this.volume = setterArg;
     }
 
+    private @Nullable PlayerError error;
+
+    public @Nullable PlayerError getError() {
+      return error;
+    }
+
+    public void setError(@Nullable PlayerError setterArg) {
+      this.error = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     PlayerStateSnapshot() {}
 
@@ -868,6 +878,13 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable PlayerError error;
+
+      public @NonNull Builder setError(@Nullable PlayerError setterArg) {
+        this.error = setterArg;
+        return this;
+      }
+
       public @NonNull PlayerStateSnapshot build() {
         PlayerStateSnapshot pigeonReturn = new PlayerStateSnapshot();
         pigeonReturn.setPlayerId(playerId);
@@ -880,13 +897,14 @@ public class PlaybackPlatformApi {
         pigeonReturn.setPlaybackPositionMs(playbackPositionMs);
         pigeonReturn.setTextureId(textureId);
         pigeonReturn.setVolume(volume);
+        pigeonReturn.setError(error);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<Object>(10);
+      ArrayList<Object> toListResult = new ArrayList<Object>(11);
       toListResult.add(playerId);
       toListResult.add(playbackState == null ? null : playbackState.index);
       toListResult.add(isBuffering);
@@ -897,6 +915,7 @@ public class PlaybackPlatformApi {
       toListResult.add(playbackPositionMs);
       toListResult.add(textureId);
       toListResult.add(volume);
+      toListResult.add((error == null) ? null : error.toList());
       return toListResult;
     }
 
@@ -922,6 +941,72 @@ public class PlaybackPlatformApi {
       pigeonResult.setTextureId((textureId == null) ? null : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId));
       Object volume = list.get(9);
       pigeonResult.setVolume((Double) volume);
+      Object error = list.get(10);
+      pigeonResult.setError((error == null) ? null : PlayerError.fromList((ArrayList<Object>) error));
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class PlayerError {
+    private @Nullable String code;
+
+    public @Nullable String getCode() {
+      return code;
+    }
+
+    public void setCode(@Nullable String setterArg) {
+      this.code = setterArg;
+    }
+
+    private @Nullable String message;
+
+    public @Nullable String getMessage() {
+      return message;
+    }
+
+    public void setMessage(@Nullable String setterArg) {
+      this.message = setterArg;
+    }
+
+    public static final class Builder {
+
+      private @Nullable String code;
+
+      public @NonNull Builder setCode(@Nullable String setterArg) {
+        this.code = setterArg;
+        return this;
+      }
+
+      private @Nullable String message;
+
+      public @NonNull Builder setMessage(@Nullable String setterArg) {
+        this.message = setterArg;
+        return this;
+      }
+
+      public @NonNull PlayerError build() {
+        PlayerError pigeonReturn = new PlayerError();
+        pigeonReturn.setCode(code);
+        pigeonReturn.setMessage(message);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<Object>(2);
+      toListResult.add(code);
+      toListResult.add(message);
+      return toListResult;
+    }
+
+    static @NonNull PlayerError fromList(@NonNull ArrayList<Object> list) {
+      PlayerError pigeonResult = new PlayerError();
+      Object code = list.get(0);
+      pigeonResult.setCode((String) code);
+      Object message = list.get(1);
+      pigeonResult.setMessage((String) message);
       return pigeonResult;
     }
   }
@@ -2031,12 +2116,14 @@ public class PlaybackPlatformApi {
         case (byte) 133:
           return NpawConfig.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 134:
-          return PlayerStateSnapshot.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerError.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 135:
-          return PlayerTracksSnapshot.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerStateSnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 136:
-          return Track.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerTracksSnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 137:
+          return Track.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 138:
           return VideoSize.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -2063,17 +2150,20 @@ public class PlaybackPlatformApi {
       } else if (value instanceof NpawConfig) {
         stream.write(133);
         writeValue(stream, ((NpawConfig) value).toList());
-      } else if (value instanceof PlayerStateSnapshot) {
+      } else if (value instanceof PlayerError) {
         stream.write(134);
+        writeValue(stream, ((PlayerError) value).toList());
+      } else if (value instanceof PlayerStateSnapshot) {
+        stream.write(135);
         writeValue(stream, ((PlayerStateSnapshot) value).toList());
       } else if (value instanceof PlayerTracksSnapshot) {
-        stream.write(135);
+        stream.write(136);
         writeValue(stream, ((PlayerTracksSnapshot) value).toList());
       } else if (value instanceof Track) {
-        stream.write(136);
+        stream.write(137);
         writeValue(stream, ((Track) value).toList());
       } else if (value instanceof VideoSize) {
-        stream.write(137);
+        stream.write(138);
         writeValue(stream, ((VideoSize) value).toList());
       } else {
         super.writeValue(stream, value);
@@ -2972,14 +3062,16 @@ public class PlaybackPlatformApi {
         case (byte) 133:
           return PlaybackStateChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 134:
-          return PlayerStateSnapshot.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerError.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 135:
-          return PlayerStateUpdateEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerStateSnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 136:
-          return PositionDiscontinuityEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerStateUpdateEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 137:
-          return PrimaryPlayerChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PositionDiscontinuityEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 138:
+          return PrimaryPlayerChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 139:
           return VideoSize.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -3006,20 +3098,23 @@ public class PlaybackPlatformApi {
       } else if (value instanceof PlaybackStateChangedEvent) {
         stream.write(133);
         writeValue(stream, ((PlaybackStateChangedEvent) value).toList());
-      } else if (value instanceof PlayerStateSnapshot) {
+      } else if (value instanceof PlayerError) {
         stream.write(134);
+        writeValue(stream, ((PlayerError) value).toList());
+      } else if (value instanceof PlayerStateSnapshot) {
+        stream.write(135);
         writeValue(stream, ((PlayerStateSnapshot) value).toList());
       } else if (value instanceof PlayerStateUpdateEvent) {
-        stream.write(135);
+        stream.write(136);
         writeValue(stream, ((PlayerStateUpdateEvent) value).toList());
       } else if (value instanceof PositionDiscontinuityEvent) {
-        stream.write(136);
+        stream.write(137);
         writeValue(stream, ((PositionDiscontinuityEvent) value).toList());
       } else if (value instanceof PrimaryPlayerChangedEvent) {
-        stream.write(137);
+        stream.write(138);
         writeValue(stream, ((PrimaryPlayerChangedEvent) value).toList());
       } else if (value instanceof VideoSize) {
-        stream.write(138);
+        stream.write(139);
         writeValue(stream, ((VideoSize) value).toList());
       } else {
         super.writeValue(stream, value);

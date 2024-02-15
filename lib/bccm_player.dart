@@ -18,6 +18,7 @@ export 'src/pigeon/playback_platform_pigeon.g.dart'
         PlayerTracksSnapshot,
         PositionDiscontinuityEvent,
         RepeatMode,
+        PlayerError,
         BufferMode,
         PictureInPictureModeChangedEvent;
 export 'src/state/player_state_notifier.dart';

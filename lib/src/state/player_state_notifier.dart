@@ -57,6 +57,10 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(currentMediaItem: mediaItem);
   }
 
+  void setError(PlayerError? error) {
+    state = state.copyWith(error: error);
+  }
+
   void setPlaybackState(PlaybackState playbackState) {
     state = state.copyWith(playbackState: playbackState);
   }
@@ -94,6 +98,7 @@ class PlayerState with _$PlayerState {
     @Default(false) bool isInitialized,
     int? textureId,
     double? volume,
+    PlayerError? error,
   }) = _PlayerState;
 
   factory PlayerState.fromPlayerStateSnapshot(PlayerStateSnapshot state) {
@@ -109,6 +114,7 @@ class PlayerState with _$PlayerState {
       isInitialized: true,
       textureId: state.textureId,
       volume: state.volume,
+      error: state.error,
     );
   }
 }
