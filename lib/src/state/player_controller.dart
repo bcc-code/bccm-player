@@ -28,6 +28,7 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   final Set<State<VideoPlatformView>> _attachedPlayerViews = {};
   bool _isDisposed = false;
   final BufferMode? _bufferMode;
+  final bool? _disableNpaw;
 
   static BccmPlayerController get primary => BccmPlayerInterface.instance.primaryController;
 
@@ -68,9 +69,10 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   /// See also:
   ///
   /// * [BccmPlayerController.networkUrl] for a convenience constructor to create a [BccmPlayerController] with a network url.
-  BccmPlayerController(MediaItem mediaItem, {BufferMode? bufferMode})
+  BccmPlayerController(MediaItem mediaItem, {BufferMode? bufferMode, bool? disableNpaw})
       : _intialMediaItem = mediaItem,
         _bufferMode = bufferMode,
+        _disableNpaw = disableNpaw,
         super(const PlayerState(
           playerId: 'unknown',
           isInitialized: false,
@@ -80,9 +82,10 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   ///
   /// Intended for internal use only.
   @protected
-  BccmPlayerController.empty({BufferMode? bufferMode})
+  BccmPlayerController.empty({BufferMode? bufferMode, bool? disableNpaw})
       : _intialMediaItem = null,
         _bufferMode = bufferMode,
+        _disableNpaw = disableNpaw,
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
 
   /// Convenience constructor to create a [BccmPlayerController] with a network url.
@@ -94,11 +97,13 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     Uri url, {
     String? mimeType,
     BufferMode? bufferMode,
+    bool? disableNpaw,
   })  : _intialMediaItem = MediaItem(
           url: url.toString(),
           mimeType: mimeType,
         ),
         _bufferMode = bufferMode,
+        _disableNpaw = disableNpaw,
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
 
   /// Checks if this player is the current primary player.
@@ -157,7 +162,7 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   }
 
   Future<void> _initialize() async {
-    final playerId = await BccmPlayerInterface.instance.newPlayer(bufferMode: _bufferMode);
+    final playerId = await BccmPlayerInterface.instance.newPlayer(bufferMode: _bufferMode, disableNpaw: _disableNpaw);
     if (_intialMediaItem != null) {
       await BccmPlayerInterface.instance.replaceCurrentMediaItem(playerId, _intialMediaItem!);
     }

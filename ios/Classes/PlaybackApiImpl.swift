@@ -33,7 +33,7 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         super.init()
         let castPlayerController = CastPlayerController(playbackApi: self)
         players.append(castPlayerController)
-        newPlayer(nil, completion: { playerId, _ in
+        newPlayer(nil, disableNpaw: false, completion: { playerId, _ in
             if playerId != nil {
                 self.setPrimary(playerId!, completion: { _ in })
             }
@@ -87,9 +87,9 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         completion(nil)
     }
 
-    public func newPlayer(_ bufferModeBoxed: BufferModeBox?, completion: @escaping (String?, FlutterError?) -> Void) {
+    public func newPlayer(_ bufferModeBoxed: BufferModeBox?, disableNpaw: NSNumber?, completion: @escaping (String?, FlutterError?) -> Void) {
         let bufferMode = bufferModeBoxed?.value ?? BufferMode.standard
-        let player = AVQueuePlayerController(playbackListener: playbackListener, bufferMode: bufferMode, npawConfig: npawConfig, appConfig: appConfig)
+        let player = AVQueuePlayerController(playbackListener: playbackListener, bufferMode: bufferMode, npawConfig: npawConfig, appConfig: appConfig, disableNpaw: disableNpaw?.boolValue)
         players.append(player)
 
         completion(player.id, nil)

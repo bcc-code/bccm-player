@@ -37,7 +37,7 @@ class PlaybackService : MediaSessionService() {
         playerControllers.clear()
         playerControllers.addAll(filteredControllers)
         if (primaryPlayerController == null) {
-            newPlayer(BufferMode.STANDARD).let {
+            newPlayer(BufferMode.STANDARD, false).let {
                 mediaSession = MediaSession.Builder(this, it.player).build()
                 setPrimary(it.id)
             }
@@ -83,9 +83,9 @@ class PlaybackService : MediaSessionService() {
         stopSelf()
     }
 
-    fun newPlayer(bufferMode: BufferMode): PlayerController {
+    fun newPlayer(bufferMode: BufferMode, disableNpaw: Boolean): PlayerController {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::newPlayer called")
-        val pc = ExoPlayerController(this, bufferMode)
+        val pc = ExoPlayerController(this, bufferMode, disableNpaw)
         plugin?.let {
             pc.attachPlugin(it)
         }
@@ -165,7 +165,7 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::onCreate called")
         super.onCreate()
-        newPlayer(BufferMode.STANDARD).let {
+        newPlayer(BufferMode.STANDARD, false).let {
             mediaSession = MediaSession.Builder(this, it.player).build()
             setPrimary(it.id)
         }

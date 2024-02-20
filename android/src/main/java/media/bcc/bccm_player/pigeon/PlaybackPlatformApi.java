@@ -2180,7 +2180,7 @@ public class PlaybackPlatformApi {
 
     void attach(@NonNull Result<Void> result);
 
-    void newPlayer(@Nullable BufferMode bufferMode, @NonNull Result<String> result);
+    void newPlayer(@Nullable BufferMode bufferMode, @Nullable Boolean disableNpaw, @NonNull Result<String> result);
 
     void createVideoTexture(@NonNull Result<Long> result);
 
@@ -2279,6 +2279,7 @@ public class PlaybackPlatformApi {
                 ArrayList<Object> wrapped = new ArrayList<Object>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 BufferMode bufferModeArg = args.get(0) == null ? null : BufferMode.values()[(int) args.get(0)];
+                Boolean disableNpawArg = (Boolean) args.get(1);
                 Result<String> resultCallback =
                     new Result<String>() {
                       public void success(String result) {
@@ -2292,7 +2293,7 @@ public class PlaybackPlatformApi {
                       }
                     };
 
-                api.newPlayer(bufferModeArg, resultCallback);
+                api.newPlayer(bufferModeArg, disableNpawArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

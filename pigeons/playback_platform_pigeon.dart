@@ -27,8 +27,8 @@ abstract class PlaybackPlatformPigeon {
   void attach();
 
   @async
-  @ObjCSelector("newPlayer:")
-  String newPlayer(BufferMode? bufferMode);
+  @ObjCSelector("newPlayer:disableNpaw:")
+  String newPlayer(BufferMode? bufferMode, bool? disableNpaw);
 
   @async
   @ObjCSelector("createVideoTexture")

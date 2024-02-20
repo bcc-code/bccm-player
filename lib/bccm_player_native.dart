@@ -71,8 +71,8 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
-  Future<String> newPlayer({BufferMode? bufferMode}) async {
-    final playerId = await _pigeon.newPlayer(bufferMode);
+  Future<String> newPlayer({BufferMode? bufferMode, bool? disableNpaw}) async {
+    final playerId = await _pigeon.newPlayer(bufferMode, disableNpaw);
     stateNotifier.getOrAddPlayerNotifier(playerId);
     return playerId;
   }

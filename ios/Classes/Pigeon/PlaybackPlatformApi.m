@@ -914,12 +914,13 @@ void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSO
         binaryMessenger:binaryMessenger
         codec:PlaybackPlatformPigeonGetCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(newPlayer:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(newPlayer:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(newPlayer:disableNpaw:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(newPlayer:disableNpaw:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
         NSNumber *arg_bufferModeAsNumber = GetNullableObjectAtIndex(args, 0);
         BufferModeBox *arg_bufferMode = arg_bufferModeAsNumber == nil ? nil : [[BufferModeBox alloc] initWithValue: [arg_bufferModeAsNumber integerValue]];
-        [api newPlayer:arg_bufferMode completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
+        NSNumber *arg_disableNpaw = GetNullableObjectAtIndex(args, 1);
+        [api newPlayer:arg_bufferMode disableNpaw:arg_disableNpaw completion:^(NSString *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];

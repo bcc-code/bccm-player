@@ -791,12 +791,12 @@ class PlaybackPlatformPigeon {
     }
   }
 
-  Future<String> newPlayer(BufferMode? arg_bufferMode) async {
+  Future<String> newPlayer(BufferMode? arg_bufferMode, bool? arg_disableNpaw) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.newPlayer', codec,
         binaryMessenger: _binaryMessenger);
     final List<Object?>? replyList =
-        await channel.send(<Object?>[arg_bufferMode?.index]) as List<Object?>?;
+        await channel.send(<Object?>[arg_bufferMode?.index, arg_disableNpaw]) as List<Object?>?;
     if (replyList == null) {
       throw PlatformException(
         code: 'channel-error',

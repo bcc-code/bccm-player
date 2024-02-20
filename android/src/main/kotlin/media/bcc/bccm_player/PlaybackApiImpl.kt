@@ -118,7 +118,11 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         result.success(null)
     }
 
-    override fun newPlayer(bufferMode: BufferMode?, result: PlaybackPlatformApi.Result<String>) {
+    override fun newPlayer(
+        bufferMode: BufferMode?,
+        disableNpaw: Boolean?,
+        result: PlaybackPlatformApi.Result<String>
+    ) {
         Log.d("bccm", "PlaybackPigeon: newPlayer()")
         val playbackService = plugin.getPlaybackService()
         if (playbackService == null) {
@@ -126,7 +130,8 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
             return
         }
         val playerController = playbackService.newPlayer(
-            bufferMode ?: BufferMode.STANDARD
+            bufferMode ?: BufferMode.STANDARD,
+            disableNpaw ?: false
         )
         result.success(playerController.id)
     }

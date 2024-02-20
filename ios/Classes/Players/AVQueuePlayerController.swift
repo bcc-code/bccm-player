@@ -23,11 +23,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     var isPrimary = false
     var repeatMode = RepeatMode.off
     let bufferMode: BufferMode
+    let disableNpaw: Bool
     
-    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?) {
+    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?, disableNpaw: Bool?) {
         self.id = id ?? UUID().uuidString
         self.playbackListener = playbackListener
         self.bufferMode = bufferMode
+        self.disableNpaw = disableNpaw ?? false
         super.init()
         player.actionAtItemEnd = .none
         if bufferMode == .fastStartShortForm {
@@ -347,6 +349,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     private func initYoubora(_ npawConfig: NpawConfig) {
+        if disableNpaw {
+            print("Not initializing npaw, disableNpaw is true.")
+            return
+        }
         print("Initializing youbora")
         let youboraOptions = YBOptions()
         youboraOptions.enabled = true

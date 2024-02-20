@@ -39,7 +39,11 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import java.util.UUID
 
-class ExoPlayerController(private val context: Context, bufferMode: BufferMode) :
+class ExoPlayerController(
+    private val context: Context,
+    bufferMode: BufferMode,
+    private val disableNpaw: Boolean = false
+) :
     PlayerController() {
     override val id: String = UUID.randomUUID().toString()
     private val trackSelector: DefaultTrackSelector = DefaultTrackSelector(context)
@@ -153,6 +157,10 @@ class ExoPlayerController(private val context: Context, bufferMode: BufferMode) 
     }
 
     private fun initYoubora(config: NpawConfig) {
+        if (disableNpaw) {
+            Log.d("bccm", "ExoPlayerController: Youbora is disabled")
+            return
+        }
         Log.d("bccm", "ExoPlayerController: Initializing youbora")
         val options = Options()
         options.isAutoDetectBackground = false

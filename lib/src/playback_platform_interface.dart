@@ -28,7 +28,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   /// MUST be run first
   Future<void> setup();
 
-  Future<String> newPlayer({BufferMode? bufferMode});
+  Future<String> newPlayer({BufferMode? bufferMode, bool? disableNpaw});
 
   Future<void> disposePlayer(String playerId) {
     throw UnimplementedError('disposePlayer() has not been implemented.');

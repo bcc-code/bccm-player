@@ -33,7 +33,7 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   get playerEventStream => _rootPlaybackListener.stream;
 
   @override
-  Future<String> newPlayer({BufferMode? bufferMode}) async {
+  Future<String> newPlayer({BufferMode? bufferMode, bool? disableNpaw}) async {
     final playerId = DateTime.now().microsecondsSinceEpoch.toString();
     final player = VideoJsPlayer(playerId, listener: _rootPlaybackListener, plugin: this);
     webVideoPlayers[playerId] = player;

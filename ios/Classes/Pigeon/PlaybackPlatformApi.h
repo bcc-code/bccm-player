@@ -313,7 +313,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 /// The main interface, used by the flutter side to control the player.
 @protocol PlaybackPlatformPigeon
 - (void)attachWithCompletion:(void (^)(FlutterError *_Nullable))completion;
-- (void)newPlayer:(nullable BufferModeBox *)bufferModeBoxed completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
+- (void)newPlayer:(nullable BufferModeBox *)bufferModeBoxed disableNpaw:(nullable NSNumber *)disableNpaw completion:(void (^)(NSString *_Nullable, FlutterError *_Nullable))completion;
 - (void)createVideoTexture:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)disposeVideoTexture:(NSNumber *)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)switchToVideoTextureForPlayer:(NSString *)playerId textureId:(NSNumber *)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
