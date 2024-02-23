@@ -323,8 +323,8 @@ class ExoPlayerController(
             BufferMode.STANDARD -> DefaultLoadControl()
             BufferMode.FAST_START_SHORT_FORM -> DefaultLoadControl.Builder()
                 .setBufferDurationsMs(
-                    2000,
-                    15000,
+                    5000,
+                    40000,
                     500,
                     2000
                 )
