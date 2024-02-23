@@ -112,4 +112,10 @@ class BccmPlayerWeb extends BccmPlayerInterface {
     // TODO: implement setRepeatMode
     throw UnimplementedError();
   }
+
+  @override
+  Future<int> getAndroidPerformanceClass() {
+    // TODO: implement getAndroidPerformanceClass
+    throw UnimplementedError();
+  }
 }

@@ -13,6 +13,8 @@ import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
+import androidx.core.performance.DevicePerformance
+import androidx.core.performance.play.services.PlayServicesDevicePerformance
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.android.gms.cast.framework.CastContext
@@ -77,6 +79,8 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         }
     }
 
+    var devicePerformance: DevicePerformance? = null
+
     private var pluginBinding: FlutterPlugin.FlutterPluginBinding? = null
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private var activity: Activity? = null
@@ -93,6 +97,13 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
      * Should be called only by the main flutter isolate. Complete quickly, because this is awaited.
      */
     fun attach(onComplete: () -> Unit) {
+        pluginBinding?.let {
+            try {
+                devicePerformance = PlayServicesDevicePerformance(it.applicationContext)
+            } catch (e: Exception) {
+                Log.d("bccm", "PlayServicesDevicePerformance failed to initialize.")
+            }
+        }
         if (playbackService != null) {
             playbackService!!.attachPlugin(this@BccmPlayerPlugin);
             onComplete()

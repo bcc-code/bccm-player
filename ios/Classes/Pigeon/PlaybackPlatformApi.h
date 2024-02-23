@@ -341,6 +341,7 @@ NSObject<FlutterMessageCodec> *PlaybackPlatformPigeonGetCodec(void);
 - (void)openExpandedCastController:(FlutterError *_Nullable *_Nonnull)error;
 - (void)openCastDialog:(FlutterError *_Nullable *_Nonnull)error;
 - (void)fetchMediaInfo:(NSString *)url mimeType:(nullable NSString *)mimeType completion:(void (^)(MediaInfo *_Nullable, FlutterError *_Nullable))completion;
+- (void)getAndroidPerformanceClassWithCompletion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 @end
 
 extern void PlaybackPlatformPigeonSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<PlaybackPlatformPigeon> *_Nullable api);

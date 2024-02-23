@@ -145,4 +145,7 @@ abstract class BccmPlayerInterface extends PlatformInterface {
 
   /// Sets the repeat mode for the player. See [RepeatMode].
   Future<void> setRepeatMode(String playerId, RepeatMode repeatMode);
+
+  /// Gets the performance class of the device. See https://developer.android.com/topic/performance/performance-class
+  Future<int> getAndroidPerformanceClass();
 }

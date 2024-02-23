@@ -394,4 +394,16 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
             result.error(Error("Not attached to activity"))
         }
     }
+
+    override fun getAndroidPerformanceClass(result: PlaybackPlatformApi.Result<Long>) {
+        var performanceClass = plugin.devicePerformance?.mediaPerformanceClass?.toLong()
+        if (performanceClass == 0L) {
+            performanceClass = null
+        }
+        if (performanceClass != null) {
+            result.success(performanceClass)
+        } else {
+            result.error(Error("Could not get performance class"))
+        }
+    }
 }

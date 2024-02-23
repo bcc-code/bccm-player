@@ -2236,6 +2236,8 @@ public class PlaybackPlatformApi {
 
     void fetchMediaInfo(@NonNull String url, @Nullable String mimeType, @NonNull Result<MediaInfo> result);
 
+    void getAndroidPerformanceClass(@NonNull Result<Long> result);
+
     /** The codec used by PlaybackPlatformPigeon. */
     static @NonNull MessageCodec<Object> getCodec() {
       return PlaybackPlatformPigeonCodec.INSTANCE;
@@ -3034,6 +3036,33 @@ public class PlaybackPlatformApi {
                     };
 
                 api.fetchMediaInfo(urlArg, mimeTypeArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.getAndroidPerformanceClass", getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<Object>();
+                Result<Long> resultCallback =
+                    new Result<Long>() {
+                      public void success(Long result) {
+                        wrapped.add(0, result);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.getAndroidPerformanceClass(resultCallback);
               });
         } else {
           channel.setMessageHandler(null);

@@ -127,6 +127,9 @@ abstract class PlaybackPlatformPigeon {
   @async
   @ObjCSelector("fetchMediaInfo:mimeType:")
   MediaInfo fetchMediaInfo(String url, String? mimeType);
+
+  @async
+  int getAndroidPerformanceClass();
 }
 
 enum BufferMode {

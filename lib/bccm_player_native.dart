@@ -219,4 +219,9 @@ class BccmPlayerNative extends BccmPlayerInterface {
   Future<void> setRepeatMode(String playerId, RepeatMode repeatMode) {
     return _pigeon.setRepeatMode(playerId, repeatMode);
   }
+
+  @override
+  Future<int> getAndroidPerformanceClass() {
+    return _pigeon.getAndroidPerformanceClass();
+  }
 }
