@@ -7,6 +7,10 @@ import GoogleCast
 // TODO: this file should be a pure api towards flutter,
 // we should move the "players" array and state into a dedicated class
 public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
+    public func getAndroidPerformanceClass(completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+        completion(nil, nil)
+    }
+
     public func switchToVideoTexture(forPlayer playerId: String, textureId: NSNumber, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
         completion(nil, FlutterError(code: "PlaybackApiImpl", message: "Textures are not implemented on iOS. Wrap with Platform.isAndroid().", details: nil))
     }
