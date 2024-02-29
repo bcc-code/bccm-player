@@ -155,12 +155,18 @@ class MockBccmPlayerInterface extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<String> newPlayer({_i2.BufferMode? bufferMode}) =>
+  _i3.Future<String> newPlayer({
+    _i2.BufferMode? bufferMode,
+    bool? disableNpaw,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #newPlayer,
           [],
-          {#bufferMode: bufferMode},
+          {
+            #bufferMode: bufferMode,
+            #disableNpaw: disableNpaw,
+          },
         ),
         returnValue: _i3.Future<String>.value(''),
         returnValueForMissingStub: _i3.Future<String>.value(''),
@@ -559,6 +565,16 @@ class MockBccmPlayerInterface extends _i1.Mock
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<int> getAndroidPerformanceClass() => (super.noSuchMethod(
+        Invocation.method(
+          #getAndroidPerformanceClass,
+          [],
+        ),
+        returnValue: _i3.Future<int>.value(0),
+        returnValueForMissingStub: _i3.Future<int>.value(0),
+      ) as _i3.Future<int>);
 }
 
 /// A class which mocks [PlayerPluginStateNotifier].
