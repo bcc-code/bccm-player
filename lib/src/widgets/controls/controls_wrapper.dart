@@ -35,12 +35,16 @@ class ControlsWrapper extends StatefulWidget {
     required this.autoHide,
     this.showByDefault = true,
     this.isTv = false,
+    this.pure = false,
   });
 
   final WidgetBuilder builder;
   final bool autoHide;
   final bool showByDefault;
   final bool isTv;
+
+  /// If true, there won't be any UI changes (e.g. no backdrop).
+  final bool pure;
 
   @override
   ControlsWrapperState createState() => ControlsWrapperState();
@@ -131,11 +135,12 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
               },
               child: Stack(
                 children: [
-                  ControlFadeOut(
-                    child: Container(
-                      color: Colors.black38,
+                  if (!widget.pure)
+                    ControlFadeOut(
+                      child: Container(
+                        color: Colors.black38,
+                      ),
                     ),
-                  ),
                   widget.builder(context),
                 ],
               ),
