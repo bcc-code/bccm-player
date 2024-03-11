@@ -10,7 +10,7 @@ import 'bccm_player.dart';
 /// An implementation of [BccmPlayerPlatform] that uses pigeon.
 class BccmPlayerNative extends BccmPlayerInterface {
   final PlaybackPlatformPigeon _pigeon = PlaybackPlatformPigeon();
-  late final RootPigeonPlaybackListener _rootPlaybackListener;
+  late final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener();
   final ChromecastPigeonListener _chromecastListener = ChromecastPigeonListener();
   BccmPlayerController? _primaryController;
   void Function()? _removePrimaryPlayerListener;
@@ -58,7 +58,6 @@ class BccmPlayerNative extends BccmPlayerInterface {
   Future<void> _setup() async {
     WidgetsFlutterBinding.ensureInitialized();
     await _pigeon.attach();
-    _rootPlaybackListener = RootPigeonPlaybackListener(this);
     _rootPlaybackListener.addListener(StatePlaybackListener(stateNotifier));
     ChromecastPigeon.setup(_chromecastListener);
     PlaybackListenerPigeon.setup(_rootPlaybackListener);

@@ -14,7 +14,7 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   AppConfig? appConfig;
   NpawConfig? npawConfig;
   Map<String, VideoJsPlayer> webVideoPlayers = {};
-  late final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener(this);
+  final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener();
 
   @override
   BccmPlayerController get primaryController => throw UnimplementedError('primaryController has not been implemented for web.');

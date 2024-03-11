@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import '../../bccm_player.dart';
 import '../pigeon/playback_platform_pigeon.g.dart';
 
 /// The primary listener that just forwards the events to the other listeners
 class RootPigeonPlaybackListener implements PlaybackListenerPigeon {
-  RootPigeonPlaybackListener(this.parent);
-  BccmPlayerInterface parent;
+  RootPigeonPlaybackListener();
   final List<PlaybackListenerPigeon> _listeners = [];
   final StreamController<Object?> _streamController = StreamController.broadcast();
 
