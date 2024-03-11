@@ -46,6 +46,8 @@ import media.bcc.bccm_player.views.FullscreenPlayerView
 
 class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveHintListener {
     companion object {
+
+        var devicePerformance: DevicePerformance? = null
         private var mBound = false
         private var playbackServiceCompleter = CompletableDeferred<PlaybackService>()
         private val playbackServiceConnection = object : ServiceConnection {
@@ -79,8 +81,6 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         }
     }
 
-    var devicePerformance: DevicePerformance? = null
-
     private var pluginBinding: FlutterPlugin.FlutterPluginBinding? = null
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private var activity: Activity? = null
@@ -97,9 +97,11 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
      * Should be called only by the main flutter isolate. Complete quickly, because this is awaited.
      */
     fun attach(onComplete: () -> Unit) {
-        pluginBinding?.let {
+        pluginBinding?.also {
             try {
-                devicePerformance = PlayServicesDevicePerformance(it.applicationContext)
+                if (devicePerformance == null) {
+                    devicePerformance = PlayServicesDevicePerformance(it.applicationContext)
+                }
             } catch (e: Exception) {
                 Log.d("bccm", "PlayServicesDevicePerformance failed to initialize.")
             }

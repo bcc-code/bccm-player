@@ -396,7 +396,7 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
     }
 
     override fun getAndroidPerformanceClass(result: PlaybackPlatformApi.Result<Long>) {
-        var performanceClass = plugin.devicePerformance?.mediaPerformanceClass?.toLong()
+        var performanceClass = BccmPlayerPlugin.devicePerformance?.mediaPerformanceClass?.toLong()
         if (performanceClass == 0L) {
             performanceClass = null
         }
