@@ -1,3 +1,4 @@
+import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:bccm_player/plugins/riverpod.dart';
 import 'package:riverpod/riverpod.dart';
@@ -10,7 +11,8 @@ class BccmPlaybackListener {
   final void Function(String episodeId, int progressSeconds) updateProgress;
 
   BccmPlaybackListener({required this.ref, required this.updateProgress}) {
-    ref.listen(playerEventRawStreamProvider, (event, d) {
+    final stream = BccmPlayerInterface.instance.playerEventStream;
+    final listener = stream.listen((event) {
       switch (event.runtimeType) {
         case PositionDiscontinuityEvent:
           onPositionDiscontinuity(event as PositionDiscontinuityEvent);
@@ -19,6 +21,9 @@ class BccmPlaybackListener {
           onPlayerStateUpdate(event as PlayerStateUpdateEvent);
           break;
       }
+    });
+    ref.onDispose(() {
+      listener.cancel();
     });
   }
 
