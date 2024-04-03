@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.TrackGroup
 import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
@@ -39,6 +40,7 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import java.util.UUID
 
+@UnstableApi
 class ExoPlayerController(
     private val context: Context,
     bufferMode: BufferMode,
@@ -184,12 +186,6 @@ class ExoPlayerController(
             "ExoPlayerController: Updating youbora options: ${player.mediaMetadata.title}"
         )
 
-        // App config based options
-        val appConfig = BccmPlayerPluginSingleton.appConfigState.value
-        youboraPlugin.options.username = appConfig?.analyticsId
-        youboraPlugin.options.contentCustomDimension1 =
-            if (appConfig?.sessionId != null) appConfig.sessionId.toString() else null
-
         // Metadata options
         val mediaMetadata = player.mediaMetadata
         val extras = mediaMetadata.extras?.let { extractExtrasFromAndroid(it) }
@@ -210,6 +206,13 @@ class ExoPlayerController(
                 ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_OFFLINE)
                     ?.toBooleanStrictOrNull() ?: false
         youboraPlugin.options.contentType = extras?.get("npaw.content.type")
+
+        // App config based options
+        val appConfig = BccmPlayerPluginSingleton.appConfigState.value
+        youboraPlugin.options.username = appConfig?.analyticsId
+        youboraPlugin.options.contentCustomDimension1 = extras?.get("npaw.content.customDimension1")
+            ?: if (appConfig?.sessionId != null) appConfig.sessionId.toString() else null
+        youboraPlugin.options.contentCustomDimension2 = extras?.get("npaw.content.customDimension2")
 
         for (t in player.currentTracks.groups) {
             if (!t.isSelected) continue
