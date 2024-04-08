@@ -21,7 +21,7 @@ class BccmMiniPlayerThemeData {
     final theme = Theme.of(context);
     return BccmMiniPlayerThemeData(
       iconColor: theme.colorScheme.onSurface,
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       thumbnailBorderColor: Colors.white.withOpacity(0.01),
       topBorderColor: theme.colorScheme.onSurface.withOpacity(0.1),
       titleStyle: theme.textTheme.labelMedium!.copyWith(color: theme.colorScheme.onSurface),
