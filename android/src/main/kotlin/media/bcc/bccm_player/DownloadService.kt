@@ -1,6 +1,8 @@
 package media.bcc.bccm_player
 
 import android.app.Notification
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.offline.DownloadManager
 import androidx.media3.exoplayer.offline.DownloadNotificationHelper
@@ -12,6 +14,7 @@ private const val JOB_ID = 1
 private const val FOREGROUND_NOTIFICATION_ID = 1
 const val DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel"
 
+@OptIn(UnstableApi::class)
 class DownloadService : DownloadService(
     FOREGROUND_NOTIFICATION_ID,
     DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,
@@ -39,7 +42,8 @@ class DownloadService : DownloadService(
             android.R.drawable.stat_sys_download_done,
             null,  //                TODO: accept custom message?
             null,
-            downloads
+            downloads,
+            notMetRequirements,
         )
     }
 }
