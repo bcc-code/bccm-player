@@ -19,4 +19,5 @@ func setupCast() {
     styler.castViews.mediaControl.expandedController.backgroundImageContentMode = UIImageView.ContentMode.scaleAspectFit.rawValue as NSNumber
     styler.castViews.mediaControl.expandedController.backgroundColor = UIColor(red: CGFloat(13/255.0), green: CGFloat(22/255.0), blue: CGFloat(55/255.0), alpha: CGFloat(1.0))
     GCKCastContext.sharedInstance().useDefaultExpandedMediaControls = false
+    GCKCastContext.sharedInstance().discoveryManager.startDiscovery()
 }
