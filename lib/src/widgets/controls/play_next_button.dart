@@ -70,7 +70,7 @@ class PlayNextButton extends HookWidget {
               behavior: HitTestBehavior.opaque,
               onTap: onTap,
               child: FocusableActionDetector(
-                mouseCursor: MaterialStateMouseCursor.clickable,
+                mouseCursor: WidgetStateMouseCursor.clickable,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Stack(
