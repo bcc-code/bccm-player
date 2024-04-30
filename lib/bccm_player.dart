@@ -41,6 +41,7 @@ export 'src/theme/player_theme.dart';
 export 'src/theme/mini_player_theme_data.dart';
 export 'src/pigeon/pigeon_extensions.dart';
 export 'src/utils/time.dart' show calcTimeLeftMs;
+export 'src/utils/use_wakelock_while_palying.dart';
 
 export 'src/pigeon/downloader_pigeon.g.dart'
     show DownloadConfig, Download, DownloadChangedEvent, DownloadRemovedEvent, DownloadFailedEvent, DownloadStatus;
