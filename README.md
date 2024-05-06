@@ -12,10 +12,7 @@ Used by the apps [Bible Kids](https://play.google.com/store/apps/details?id=medi
 ## Documentation
 
 For all the features to work correctly, it's vital that you read the docs.
-
 Documentation: https://bcc-code.github.io/bccm-player/
-
-**Create an issue on github if you need help.**
 
 ## Difference from video_player/chewie/betterplayer, etc.
 
