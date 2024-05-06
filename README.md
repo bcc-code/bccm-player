@@ -2,9 +2,7 @@
 
 This is a video player primarily designed for video-heavy apps that need features like background playback, PiP, casting, analytics, etc.
 
-Used by the open source apps [Bible Kids](https://play.google.com/store/apps/details?id=media.bcc.kids) and [BCC Media](https://apps.apple.com/no/app/brunstadtv/id913268220). ([source code here](https://github.com/bcc-code/bcc-media-app)).
-
-[![pub package](https://img.shields.io/pub/v/bccm_player.svg)](https://pub.dev/packages/bccm_player)
+Used by the apps [Bible Kids](https://play.google.com/store/apps/details?id=media.bcc.kids) and [BCC Media](https://apps.apple.com/no/app/brunstadtv/id913268220).
 
 ![Controls screenshot](https://github.com/bcc-code/bccm-player/blob/main/doc/demo/controls.jpg?raw=true)
 
@@ -120,11 +118,3 @@ class _SimplePlayerState extends State<SimplePlayer> {
 
 
 ```
-
-# Contributing
-
-Thank you for the interest in contributing!
-We want to improve the codebase so that it's usable for others too, so we are very open for PRs and issues.
-The docs has a page about architecture details to help you understand the codebase.
-
-Before starting on a bigger change it might be a good idea to create an issue about your ideas so that we can help you out and become aligned.
