@@ -39,7 +39,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             }
             peakBitRateController.setAudioOnlyMode(false)
         } else {
-            audioOnlyTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+            audioOnlyTimer = Timer.scheduledTimer(withTimeInterval: 6, repeats: false) { _ in
                 self.peakBitRateController.setAudioOnlyMode(true)
             }
         }
