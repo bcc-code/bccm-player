@@ -12,25 +12,46 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     final var currentItemObservers = [NSKeyValueObservation]()
     final var observers = [NSKeyValueObservation]()
     final var notificationObservers = [NSObjectProtocol]()
+    final lazy var peakBitRateController = PeakBitrateController(player: player)
     
     var temporaryStatusObserver: NSKeyValueObservation? = nil
     var youboraPlugin: YBPlugin?
     var pipController: AVPlayerViewController? = nil
     var appConfig: AppConfig? = nil
     var refreshStateTimer: Timer? = nil
-    var currentViewController: AVPlayerViewController? = nil
     var fullscreenViewController: AVPlayerViewController? = nil
     var isPrimary = false
     var repeatMode = RepeatMode.off
     let bufferMode: BufferMode
     let disableNpaw: Bool
+
+    var audioOnlyTimer: Timer?
+    var currentViewController: AVPlayerViewController? {
+        didSet {
+            updateAutomaticAudioOnlyTimer()
+        }
+    }
     
+    private func updateAutomaticAudioOnlyTimer() {
+        if currentViewController != nil {
+            if let timer = audioOnlyTimer {
+                timer.invalidate()
+            }
+            peakBitRateController.setAudioOnlyMode(false)
+        } else {
+            audioOnlyTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false) { _ in
+                self.peakBitRateController.setAudioOnlyMode(true)
+            }
+        }
+    }
+
     init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?, disableNpaw: Bool?) {
         self.id = id ?? UUID().uuidString
         self.playbackListener = playbackListener
         self.bufferMode = bufferMode
         self.disableNpaw = disableNpaw ?? false
         super.init()
+        updateAutomaticAudioOnlyTimer()
         player.actionAtItemEnd = .none
         if bufferMode == .fastStartShortForm {
             player.automaticallyWaitsToMinimizeStalling = false
@@ -137,13 +158,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         
         if type == .video {
             if trackId == "auto" {
-                currentItem.preferredPeakBitRate = 0
+                peakBitRateController.setPeakBitrate(0)
             }
             guard let trackId = trackId, let bitrate = Int(trackId) else {
                 debugPrint("Tried to setSelectedTrack for video, but trackId (bitrate): \(trackId?.debugDescription ?? "null") is not an int")
                 return
             }
-            currentItem.preferredPeakBitRate = Double(bitrate)
+            peakBitRateController.setPeakBitrate(Double(bitrate))
             return
         }
         
@@ -294,7 +315,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
 
     public func playerViewControllerWillStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
         print("bccm: audiosession category willstart: " + AVAudioSession.sharedInstance().category.rawValue)
-        registerPipController(playerViewController)
+        updatePipController(playerViewController)
     }
     
     public func playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart(_ playerViewController: AVPlayerViewController) -> Bool {
@@ -304,7 +325,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     
     public func playerViewControllerWillStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
         print("bccm: audiosession category willstop: " + AVAudioSession.sharedInstance().category.rawValue)
-        registerPipController(nil)
+        updatePipController(nil)
         let audioSession = AVAudioSession.sharedInstance()
         print("bccm: audiosession category before: " + audioSession.category.rawValue)
         do {
@@ -315,8 +336,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
     
-    func registerPipController(_ playerView: AVPlayerViewController?) {
+    func updatePipController(_ playerView: AVPlayerViewController?) {
+        let shouldReleaseCurrent = playerView == nil && currentViewController == pipController
         pipController = playerView
+        if shouldReleaseCurrent {
+            releasePlayerView(currentViewController!)
+        }
         let event = PictureInPictureModeChangedEvent.make(withPlayerId: id, isInPipMode: (playerView != nil) as NSNumber)
         playbackListener.onPicture(inPictureModeChanged: event, completion: { _ in })
     }
@@ -567,7 +592,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         
         if mediaItem.isOffline == true, let asset = (asset as? AVURLAsset) {
             _setDefaultAudioForOfflinePlayback(playerItem, asset)
-            playerItem.preferredPeakBitRate = 0
+            peakBitRateController.setPeakBitrate(0)
         }
         
         return playerItem
@@ -609,8 +634,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                     _, _ in
                     self.onManualPlayerStateUpdate()
                 },
-                player.observe(\.currentItem?.error, options: [.new]) { _, _ in
-                    debugPrint("bccc: playeritem error")
+                player.observe(\.currentItem?.error, options: [.new]) { _, change in
+                    debugPrint("bccc: playeritem error \(change)")
                     self.onManualPlayerStateUpdate()
                 },
             ]
