@@ -43,6 +43,10 @@ MediaMetadata(
         'npaw.content.season': 'Season',
         'npaw.content.episodeTitle': 'Livestream',
         'npaw.content.isLive': 'true',
+        'npaw.isOffline': 'true',
+        'npaw.content.type': 'video',
+        'npaw.content.customDimension1': 'customDimension1',
+        'npaw.content.customDimension2': 'customDimension2',
     },
 );
 ```

@@ -103,19 +103,16 @@ class BccmPlayerWeb extends BccmPlayerInterface {
 
   @override
   Future<pigeon.MediaInfo> fetchMediaInfo({required String url, String? mimeType}) {
-    // TODO: implement fetchMediaInfo
     throw UnimplementedError();
   }
 
   @override
   Future<void> setRepeatMode(String playerId, pigeon.RepeatMode repeatMode) {
-    // TODO: implement setRepeatMode
     throw UnimplementedError();
   }
 
   @override
   Future<int> getAndroidPerformanceClass() {
-    // TODO: implement getAndroidPerformanceClass
     throw UnimplementedError();
   }
 }
