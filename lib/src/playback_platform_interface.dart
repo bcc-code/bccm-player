@@ -26,6 +26,8 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   }
 
   /// MUST be run first
+  ///
+  /// Safe to call multiple times, as the previous future is cached.
   Future<void> setup();
 
   Future<String> newPlayer({BufferMode? bufferMode, bool? disableNpaw});
