@@ -36,6 +36,8 @@ dependencies:
   focus_debugger: ^0.0.1
   connectivity_plus: ^4.0.2
 
+  flutter_web_plugins:
+    sdk: flutter
 dev_dependencies:
   flutter_test:
     sdk: flutter
