@@ -12,7 +12,7 @@ part of 'player_state_notifier.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$PlayerState {
@@ -142,11 +142,11 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
 }
 
 /// @nodoc
-abstract class _$$_PlayerStateCopyWith<$Res>
+abstract class _$$PlayerStateImplCopyWith<$Res>
     implements $PlayerStateCopyWith<$Res> {
-  factory _$$_PlayerStateCopyWith(
-          _$_PlayerState value, $Res Function(_$_PlayerState) then) =
-      __$$_PlayerStateCopyWithImpl<$Res>;
+  factory _$$PlayerStateImplCopyWith(
+          _$PlayerStateImpl value, $Res Function(_$PlayerStateImpl) then) =
+      __$$PlayerStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -166,11 +166,11 @@ abstract class _$$_PlayerStateCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$_PlayerStateCopyWithImpl<$Res>
-    extends _$PlayerStateCopyWithImpl<$Res, _$_PlayerState>
-    implements _$$_PlayerStateCopyWith<$Res> {
-  __$$_PlayerStateCopyWithImpl(
-      _$_PlayerState _value, $Res Function(_$_PlayerState) _then)
+class __$$PlayerStateImplCopyWithImpl<$Res>
+    extends _$PlayerStateCopyWithImpl<$Res, _$PlayerStateImpl>
+    implements _$$PlayerStateImplCopyWith<$Res> {
+  __$$PlayerStateImplCopyWithImpl(
+      _$PlayerStateImpl _value, $Res Function(_$PlayerStateImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -190,7 +190,7 @@ class __$$_PlayerStateCopyWithImpl<$Res>
     Object? volume = freezed,
     Object? error = freezed,
   }) {
-    return _then(_$_PlayerState(
+    return _then(_$PlayerStateImpl(
       playerId: null == playerId
           ? _value.playerId
           : playerId // ignore: cast_nullable_to_non_nullable
@@ -249,8 +249,8 @@ class __$$_PlayerStateCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
-  const _$_PlayerState(
+class _$PlayerStateImpl extends _PlayerState with DiagnosticableTreeMixin {
+  const _$PlayerStateImpl(
       {required this.playerId,
       this.currentMediaItem,
       this.videoSize,
@@ -325,10 +325,10 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$_PlayerState &&
+            other is _$PlayerStateImpl &&
             (identical(other.playerId, playerId) ||
                 other.playerId == playerId) &&
             (identical(other.currentMediaItem, currentMediaItem) ||
@@ -375,8 +375,8 @@ class _$_PlayerState extends _PlayerState with DiagnosticableTreeMixin {
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$_PlayerStateCopyWith<_$_PlayerState> get copyWith =>
-      __$$_PlayerStateCopyWithImpl<_$_PlayerState>(this, _$identity);
+  _$$PlayerStateImplCopyWith<_$PlayerStateImpl> get copyWith =>
+      __$$PlayerStateImplCopyWithImpl<_$PlayerStateImpl>(this, _$identity);
 }
 
 abstract class _PlayerState extends PlayerState {
@@ -393,7 +393,7 @@ abstract class _PlayerState extends PlayerState {
       final bool isInitialized,
       final int? textureId,
       final double? volume,
-      final PlayerError? error}) = _$_PlayerState;
+      final PlayerError? error}) = _$PlayerStateImpl;
   const _PlayerState._() : super._();
 
   @override
@@ -424,6 +424,6 @@ abstract class _PlayerState extends PlayerState {
   PlayerError? get error;
   @override
   @JsonKey(ignore: true)
-  _$$_PlayerStateCopyWith<_$_PlayerState> get copyWith =>
+  _$$PlayerStateImplCopyWith<_$PlayerStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
