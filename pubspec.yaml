@@ -12,27 +12,27 @@ dependencies:
   collection: ^1.17.1
   flutter:
     sdk: flutter
-  flutter_hooks: ^0.18.6
+  flutter_hooks: ^0.20.5
   flutter_plugin_android_lifecycle: ^2.0.9
-  flutter_state_notifier: ^0.7.3
+  flutter_state_notifier: ^1.0.0
   flutter_svg: ^2.0.2
   flutter_web_plugins:
     sdk: flutter
   freezed: ^2.3.2
   freezed_annotation: ^2.2.0
-  js: ^0.6.5
+  js: ^0.7.1
   meta: ^1.9.1
   plugin_platform_interface: ^2.0.2
   riverpod: ^2.2.0
-  state_notifier: ^0.7.2+1
+  state_notifier: ^1.0.0
   universal_io: ^2.0.4
   wakelock_plus: ^1.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
-  pigeon: ^11.0.0
+  flutter_lints: ^4.0.0
+  pigeon: ^20.0.1
   build_runner: ^2.3.3
   mockito: ^5.4.2
 
