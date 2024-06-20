@@ -8,17 +8,21 @@ import androidx.media3.common.C
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.Session
 import com.google.android.gms.cast.framework.SessionManagerListener
 import media.bcc.bccm_player.PlaybackService
 import media.bcc.bccm_player.pigeon.ChromecastControllerPigeon
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
+import media.bcc.bccm_player.pigeon.playback.CastConnectionState
+import media.bcc.bccm_player.pigeon.playback.ChromecastState
 import media.bcc.bccm_player.players.PlayerController
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_LAST_KNOWN_SUBTITLE_LANGUAGE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 
+@UnstableApi
 class CastPlayerController(
     private val castContext: CastContext,
     private val playbackService: PlaybackService
@@ -54,13 +58,12 @@ class CastPlayerController(
         // no-op for chromecast
     }
 
-    fun getState(): PlaybackPlatformApi.ChromecastState {
-        val builder = PlaybackPlatformApi.ChromecastState.Builder()
+    fun getState(): ChromecastState {
+        var state = ChromecastState(
+            connectionState = CastConnectionState.values()[castContext.castState],
+            mediaItem = castPlayer.currentMediaItem?.let { mapMediaItem(it) }
+        )
         Log.d("bccm", "getState, player currentMediaItem: " + castPlayer.currentMediaItem)
-        castPlayer.currentMediaItem?.let {
-            builder.setMediaItem(mapMediaItem(it))
-        }
-        builder.setConnectionState(PlaybackPlatformApi.CastConnectionState.values()[castContext.castState])
         return builder.build()
     }
 

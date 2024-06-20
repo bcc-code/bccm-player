@@ -8,15 +8,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
+import media.bcc.bccm_player.pigeon.playback.AppConfig
+import media.bcc.bccm_player.pigeon.playback.NpawConfig
 
 object BccmPlayerPluginSingleton {
 
     val activityState = MutableStateFlow<Activity?>(null)
-    val npawConfigState = MutableStateFlow<PlaybackPlatformApi.NpawConfig?>(null)
-    val appConfigState = MutableStateFlow<PlaybackPlatformApi.AppConfig?>(null)
+    val npawConfigState = MutableStateFlow<NpawConfig?>(null)
+    val appConfigState = MutableStateFlow<AppConfig?>(null)
     val eventBus = MutableSharedFlow<BccmPlayerPluginEvent>()
     private val mainScope = CoroutineScope(Dispatchers.Main + Job())
 
@@ -26,8 +29,8 @@ object BccmPlayerPluginSingleton {
     }
 
     private suspend fun keepTrackOfActivity() {
-        eventBus.filter { event -> event is AttachedToActivityEvent }.collect { event ->
-            activityState.update { (event as AttachedToActivityEvent).activity }
+        eventBus.filterIsInstance<BccmPlayerPluginEvent.AttachedToActivityEvent>().collect { event ->
+            activityState.update { event.activity }
         }
     }
 }

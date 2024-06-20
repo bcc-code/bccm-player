@@ -13,8 +13,8 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(PigeonOptions(
   dartOut: 'lib/src/pigeon/chromecast_pigeon.g.dart',
   dartOptions: DartOptions(),
-  javaOut: 'android/src/main/java/media/bcc/bccm_player/pigeon/ChromecastControllerPigeon.java',
-  javaOptions: JavaOptions(package: 'media.bcc.bccm_player.pigeon'),
+  kotlinOut: 'android/src/main/kotlin/media/bcc/bccm_player/pigeon/ChromecastControllerPigeon.kt',
+  kotlinOptions: KotlinOptions(package: 'media.bcc.bccm_player.pigeon.chromecast'),
   objcHeaderOut: 'ios/Classes/Pigeon/ChromecastPigeon.h',
   objcSourceOut: 'ios/Classes/Pigeon/ChromecastPigeon.m',
   objcOptions: ObjcOptions(),

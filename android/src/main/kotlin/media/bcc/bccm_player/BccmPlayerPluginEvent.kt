@@ -2,16 +2,14 @@ package media.bcc.bccm_player
 
 import android.app.Activity
 import androidx.lifecycle.Lifecycle
+import media.bcc.bccm_player.pigeon.playback.PictureInPictureModeChangedEvent
 
-interface BccmPlayerPluginEvent
+sealed class BccmPlayerPluginEvent {
+    data class PictureInPictureModeChangedEvent(
+        val isInPictureInPictureMode: Boolean,
+        val lifecycleState: Lifecycle.State
+    ) : BccmPlayerPluginEvent()
 
-class AttachedToActivityEvent(val activity: Activity) : BccmPlayerPluginEvent
-class DetachedFromActivityEvent : BccmPlayerPluginEvent
-class SetPlayerViewVisibilityEvent(val viewId: Long, val visible: Boolean) :
-    BccmPlayerPluginEvent
+    data class AttachedToActivityEvent(val activity: Activity) : BccmPlayerPluginEvent()
 
-class PictureInPictureModeChangedEvent(
-    val isInPictureInPictureMode: Boolean,
-    val lifecycleState: Lifecycle.State
-) :
-    BccmPlayerPluginEvent
+}

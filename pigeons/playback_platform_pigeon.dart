@@ -13,8 +13,8 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(PigeonOptions(
   dartOut: 'lib/src/pigeon/playback_platform_pigeon.g.dart',
   dartOptions: DartOptions(),
-  javaOut: 'android/src/main/java/media/bcc/bccm_player/pigeon/PlaybackPlatformApi.java',
-  javaOptions: JavaOptions(package: 'media.bcc.bccm_player.pigeon'),
+  kotlinOptions: KotlinOptions(package: 'media.bcc.bccm_player.pigeon.playback'),
+  kotlinOut: 'android/src/main/kotlin/media/bcc/bccm_player/pigeon/PlaybackPlatformApi.kt',
   objcHeaderOut: 'ios/Classes/Pigeon/PlaybackPlatformApi.h',
   objcSourceOut: 'ios/Classes/Pigeon/PlaybackPlatformApi.m',
   objcOptions: ObjcOptions(),

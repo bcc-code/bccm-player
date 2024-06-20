@@ -6,8 +6,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import media.bcc.bccm_player.pigeon.DownloaderApi
+import media.bcc.bccm_player.pigeon.downloader.DownloaderPigeon
 
-class DownloaderApiImpl(private val downloader: Downloader) : DownloaderApi.DownloaderPigeon {
+class DownloaderApiImpl(private val downloader: Downloader) : DownloaderPigeon {
     private val scope = CoroutineScope(Dispatchers.Main)
 
     override fun startDownload(

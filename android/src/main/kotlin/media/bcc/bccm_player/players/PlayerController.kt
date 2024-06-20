@@ -6,19 +6,20 @@ import android.view.Surface
 import androidx.annotation.CallSuper
 import androidx.core.math.MathUtils.clamp
 import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
+import androidx.media3.common.MediaItem as ExoMediaItem
+import androidx.media3.common.MediaMetadata as ExoMediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
 import io.flutter.view.TextureRegistry.SurfaceTextureEntry
 import io.flutter.view.TextureRegistry.TextureEntry
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.DOWNLOADED_URL_SCHEME
 import media.bcc.bccm_player.Downloader
-import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
-import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.RepeatMode
-import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.VideoSize
+import media.bcc.bccm_player.pigeon.playback.MediaItem
+import media.bcc.bccm_player.pigeon.playback.MediaMetadata
+import media.bcc.bccm_player.pigeon.playback.RepeatMode
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.BCCM_META_EXTRAS
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
@@ -27,6 +28,7 @@ import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.utils.TrackUtils
 
 
+@UnstableApi
 abstract class PlayerController : Player.Listener {
     abstract val id: String
     abstract val player: Player
@@ -100,7 +102,7 @@ abstract class PlayerController : Player.Listener {
 
     abstract fun stop(reset: Boolean)
 
-    fun replaceCurrentMediaItem(mediaItem: PlaybackPlatformApi.MediaItem, autoplay: Boolean?) {
+    fun replaceCurrentMediaItem(mediaItem: MediaItem, autoplay: Boolean?) {
         this.isLive = mediaItem.isLive ?: false
         var androidMi = mapMediaItem(mediaItem)
         var playbackStartPositionMs: Double? = null
@@ -133,7 +135,7 @@ abstract class PlayerController : Player.Listener {
         player.prepare()
     }
 
-    fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
+    fun queueMediaItem(mediaItem: MediaItem) {
         val androidMi = mapMediaItem(mediaItem)
         player.addMediaItem(androidMi)
     }
@@ -152,7 +154,7 @@ abstract class PlayerController : Player.Listener {
         return extraMeta
     }
 
-    fun mapMediaItem(mediaItem: PlaybackPlatformApi.MediaItem): MediaItem {
+    fun mapMediaItem(mediaItem: MediaItem): ExoMediaItem {
         val metaBuilder = MediaMetadata.Builder()
         val exoExtras = Bundle()
 
@@ -183,14 +185,14 @@ abstract class PlayerController : Player.Listener {
             .setTitle(mediaItem.metadata?.title)
             .setArtist(mediaItem.metadata?.artist)
             .setExtras(exoExtras).build()
-        return MediaItem.Builder()
+        return ExoMediaItem.Builder()
             .setUri(mediaItem.url)
             .setMimeType(mimeType)
             .setMediaMetadata(metaBuilder.build()).build()
     }
 
-    fun mapMediaItem(mediaItem: MediaItem): PlaybackPlatformApi.MediaItem {
-        val metaBuilder = PlaybackPlatformApi.MediaMetadata.Builder()
+    fun mapMediaItem(mediaItem: ExoMediaItem): MediaItem {
+        val metaBuilder = MediaMetadata.Builder()
         if (mediaItem.mediaMetadata.artworkUri != null) {
             metaBuilder.setArtworkUri(mediaItem.mediaMetadata.artworkUri?.toString())
         }
@@ -205,7 +207,7 @@ abstract class PlayerController : Player.Listener {
             metaBuilder.setDurationMs(player.duration.toDouble());
         }
         metaBuilder.setExtras(extraMeta)
-        val miBuilder = PlaybackPlatformApi.MediaItem.Builder()
+        val miBuilder = MediaItem.Builder()
             .setUrl(mediaItem.localConfiguration?.uri?.toString())
             .setIsLive(sourceExtras?.getString(PLAYER_DATA_IS_LIVE) == "true")
             .setIsOffline(sourceExtras?.getString(PLAYER_DATA_IS_OFFLINE) == "true")
@@ -360,7 +362,7 @@ abstract class PlayerController : Player.Listener {
         }
     }
 
-    private fun getCurrentMediaItem(): PlaybackPlatformApi.MediaItem? {
+    private fun getCurrentMediaItem(): MediaItem? {
         val current = player.currentMediaItem;
         if (current != null) {
             return mapMediaItem(current)
@@ -368,7 +370,7 @@ abstract class PlayerController : Player.Listener {
         return null
     }
 
-    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+    override fun onMediaItemTransition(mediaItem: ExoMediaItem?, reason: Int) {
         mediaItem?.let {
             val bccmMediaItem = mapMediaItem(mediaItem)
             isLive = bccmMediaItem.isLive ?: false

@@ -33,7 +33,7 @@ class DownloaderNative extends DownloaderInterface {
   final DownloaderListener _listener = DownloaderListener();
 
   DownloaderNative() {
-    DownloaderListenerPigeon.setup(_listener);
+    DownloaderListenerPigeon.setUp(_listener);
   }
 
   @override

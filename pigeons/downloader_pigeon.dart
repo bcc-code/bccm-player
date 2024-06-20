@@ -13,8 +13,8 @@ import 'package:pigeon/pigeon.dart';
 @ConfigurePigeon(PigeonOptions(
   dartOut: 'lib/src/pigeon/downloader_pigeon.g.dart',
   dartOptions: DartOptions(),
-  javaOut: 'android/src/main/java/media/bcc/bccm_player/pigeon/DownloaderApi.java',
-  javaOptions: JavaOptions(package: 'media.bcc.bccm_player.pigeon'),
+  kotlinOptions: KotlinOptions(package: 'media.bcc.bccm_player.pigeon.downloader'),
+  kotlinOut: 'android/src/main/kotlin/media/bcc/bccm_player/pigeon/DownloaderApi.kt',
   swiftOut: 'ios/Classes/Pigeon/DownloaderApi.swift',
 ))
 
