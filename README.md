@@ -1,5 +1,7 @@
 # BccmPlayer - a flutter video player package
 
+Note: this is no longer properly open source. See [./LICENSE.md]
+
 This is a video player primarily designed for video-heavy apps that need features like background playback, PiP, casting, analytics, etc.
 
 Used by the apps [Bible Kids](https://play.google.com/store/apps/details?id=media.bcc.kids) and [BCC Media](https://apps.apple.com/no/app/brunstadtv/id913268220).
