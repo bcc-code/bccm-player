@@ -1,6 +1,6 @@
 # BccmPlayer - a flutter video player package
 
-Note: this is no longer properly open source. See [./LICENSE.md]
+Note: this is no longer properly open source. See [./LICENSE.md](./LICENSE.md)
 
 This is a video player primarily designed for video-heavy apps that need features like background playback, PiP, casting, analytics, etc.
 
