@@ -199,7 +199,7 @@ class _AndroidPlayer extends StatelessWidget {
       },
       onCreatePlatformView: (params) {
         AndroidViewController controller;
-        if (parent.useStandardAndroidView == true) {
+        if (parent.useStandardAndroidView != false && parent.useSurfaceView != true) {
           controller = PlatformViewsService.initAndroidView(
             id: params.id,
             viewType: 'bccm-player',
@@ -208,7 +208,6 @@ class _AndroidPlayer extends StatelessWidget {
               'player_id': parent.playerController.value.playerId,
               'show_controls': parent.showControls,
               if (parent.pipOnLeave != null) 'pip_on_leave': parent.pipOnLeave,
-              if (parent.useSurfaceView == true) 'use_surface_view': true,
               if (parent.allowSystemGestures == true) 'allow_system_gestures': true,
             },
             creationParamsCodec: const StandardMessageCodec(),
