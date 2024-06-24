@@ -1,5 +1,6 @@
 package media.bcc.bccm_player
 
+import media.bcc.bccm_player.utils.DevicePerformanceManager
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
@@ -14,7 +15,6 @@ import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.performance.DevicePerformance
-import androidx.core.performance.play.services.PlayServicesDevicePerformance
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.android.gms.cast.framework.CastContext
@@ -47,7 +47,6 @@ import media.bcc.bccm_player.views.FullscreenPlayerView
 class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveHintListener {
     companion object {
 
-        var devicePerformance: DevicePerformance? = null
         private var mBound = false
         private var playbackServiceCompleter = CompletableDeferred<PlaybackService>()
         private val playbackServiceConnection = object : ServiceConnection {
@@ -99,9 +98,7 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
     fun attach(onComplete: () -> Unit) {
         pluginBinding?.also {
             try {
-                if (devicePerformance == null) {
-                    devicePerformance = PlayServicesDevicePerformance(it.applicationContext)
-                }
+                DevicePerformanceManager.getInstance(it.applicationContext)
             } catch (e: Exception) {
                 Log.d("bccm", "PlayServicesDevicePerformance failed to initialize.")
             }
@@ -356,6 +353,10 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
 
     fun getPlaybackService(): PlaybackService? {
         return playbackService
+    }
+
+    fun getApplicationContext(): Context? {
+        return pluginBinding?.applicationContext
     }
 
     override fun onUserLeaveHint() {

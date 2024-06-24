@@ -2,7 +2,6 @@ package media.bcc.bccm_player
 
 import android.content.Intent
 import android.util.Log
-import android.view.Surface
 import com.google.android.gms.cast.framework.CastButtonFactory
 import io.flutter.embedding.android.FlutterFragmentActivity
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +13,7 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.BufferMode
 import media.bcc.bccm_player.players.chromecast.CastExpandedControlsActivity
 import media.bcc.bccm_player.players.chromecast.CastPlayerController
+import media.bcc.bccm_player.utils.DevicePerformanceManager
 import media.bcc.bccm_player.utils.toMedia3Type
 
 
@@ -396,7 +396,13 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
     }
 
     override fun getAndroidPerformanceClass(result: PlaybackPlatformApi.Result<Long>) {
-        var performanceClass = BccmPlayerPlugin.devicePerformance?.mediaPerformanceClass?.toLong()
+        val context = plugin.getApplicationContext()
+        if (context == null) {
+            result.error(Error("No context available"))
+            return
+        }
+        var performanceClass =
+            DevicePerformanceManager.getInstance(context)?.mediaPerformanceClass?.toLong()
         if (performanceClass == 0L) {
             performanceClass = null
         }
