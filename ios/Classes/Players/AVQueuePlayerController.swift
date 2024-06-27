@@ -446,6 +446,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             guard let playerItem = playerItem else {
                 return
             }
+            // Set initial seek position as soon as the player item is created
+            if let playbackStartPositionMs = mediaItem.playbackStartPositionMs {
+                playerItem.seek(to: CMTime(value: Int64(truncating: playbackStartPositionMs), timescale: 1000), completionHandler: nil)
+            }
             self.updateYouboraOptions(mediaItemOverride: mediaItem)
             DispatchQueue.main.async {
                 self.player.removeAllItems()
@@ -453,12 +457,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 self.temporaryStatusObserver = playerItem.observe(\.status, options: [.new, .old]) {
                     playerItem, _ in
                     if playerItem.status == .readyToPlay {
-                        if let playbackStartPositionMs = mediaItem.playbackStartPositionMs {
-                            playerItem.seek(to: CMTime(value: Int64(truncating: playbackStartPositionMs), timescale: 1000), completionHandler: nil)
-                        }
                         if autoplay?.boolValue == true {
                             debugPrint("\(self.id) autoplaying")
-                            self.player.play()
+                            self.playImmediately()
                         }
                         if let audioLanguages = self.appConfig?.audioLanguages {
                             _ = playerItem.setAudioLanguagePrioritized(audioLanguages)
