@@ -68,6 +68,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     deinit {
+        fastStartupTimer?.invalidate()
         refreshStateTimer?.invalidate()
         for observer in observers {
             observer.invalidate()
@@ -237,11 +238,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         setupCommandCenter()
     }
     
+    var fastStartupTimer: Timer?
     public func play() {
         if bufferMode == .fastStartShortForm {
             playImmediately()
         } else {
-            player.play()
+            // used to be player.play(). Changed june 28th to test how it affects the experience
+            playImmediately()
         }
     }
     
@@ -446,20 +449,29 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             guard let playerItem = playerItem else {
                 return
             }
+            if self.bufferMode == BufferMode.fastStartShortForm {
+                playerItem.preferredForwardBufferDuration = 6
+            }
             // Set initial seek position as soon as the player item is created
             if let playbackStartPositionMs = mediaItem.playbackStartPositionMs {
-                playerItem.seek(to: CMTime(value: Int64(truncating: playbackStartPositionMs), timescale: 1000), completionHandler: nil)
+                playerItem.seek(to: CMTime(value: Int64(truncating: playbackStartPositionMs), timescale: 1000),
+                                toleranceBefore: CMTime.zero,
+                                toleranceAfter: CMTime.zero, completionHandler: nil)
             }
             self.updateYouboraOptions(mediaItemOverride: mediaItem)
             DispatchQueue.main.async {
                 self.player.removeAllItems()
                 self.player.replaceCurrentItem(with: playerItem)
+                if autoplay?.boolValue == true {
+                    debugPrint("\(self.id) autoplaying")
+                    self.play()
+                }
                 self.temporaryStatusObserver = playerItem.observe(\.status, options: [.new, .old]) {
                     playerItem, _ in
                     if playerItem.status == .readyToPlay {
-                        if autoplay?.boolValue == true {
-                            debugPrint("\(self.id) autoplaying")
-                            self.playImmediately()
+                        if autoplay?.boolValue == true && !self.isPlaying() {
+                            debugPrint("\(self.id) autoplaying 2")
+                            self.play()
                         }
                         if let audioLanguages = self.appConfig?.audioLanguages {
                             _ = playerItem.setAudioLanguagePrioritized(audioLanguages)
@@ -511,11 +523,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             }
             let asset = AVURLAsset(url: url, options: mediaItem.mimeType != nil ? ["AVURLAssetOutOfBandMIMETypeKey": mediaItem.mimeType!] : nil)
             
-            asset.resourceLoader.setDelegate(DebugResourceLoaderDelegate(), queue: DispatchQueue.main)
-            
             asset.loadValuesAsynchronously(forKeys: ["playable", "duration", "tracks", "availableMediaCharacteristicsWithMediaSelectionOptions"]) {
                 let playerItem = self._createPlayerItem(mediaItem, asset)
                 completion(playerItem)
+                if let playerItem = playerItem {
+                    self.addArtworkAsync(to: playerItem, mediaItem: mediaItem)
+                }
             }
         }
     }
@@ -548,19 +561,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 }
             }
             if let artworkUri = mediaItem.metadata?.artworkUri {
-                if let url = URL(string: artworkUri) {
-                    if let data = try? Data(contentsOf: url) {
-                        if let image = UIImage(data: data) {
-                            if let artworkItem = MetadataUtils.metadataArtworkItem(image: image) {
-                                var externalMetadata = playerItem.externalMetadata
-                                externalMetadata.append(artworkItem)
-                                playerItem.externalMetadata = externalMetadata
-                            }
-                        }
-                    }
-                    if let artworkUriMeta = MetadataUtils.metadataItem(identifier: PlayerMetadataConstants.ArtworkUri, value: artworkUri as (NSCopying & NSObjectProtocol)?, namespace: .BccmPlayer) {
-                        playerItem.externalMetadata.append(artworkUriMeta)
-                    }
+                if let artworkUriMeta = MetadataUtils.metadataItem(identifier: PlayerMetadataConstants.ArtworkUri, value: artworkUri as (NSCopying & NSObjectProtocol)?, namespace: .BccmPlayer) {
+                    playerItem.externalMetadata.append(artworkUriMeta)
                 }
             }
             if let extras = mediaItem.metadata?.safeExtras() {
@@ -671,9 +673,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         if rate == 0 {
             rate = 1
         }
-        debugPrint("\(id) playImmediately(atRate:\(rate))")
         player.playImmediately(atRate: rate)
-        debugPrint("\(id) player.timeControlStatus: \(player.timeControlStatus.rawValue)")
     }
     
     func isBuffering() -> Bool {
@@ -687,6 +687,25 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         let waitingBecauseNoItemToPlay = player.timeControlStatus == AVPlayer.TimeControlStatus.waitingToPlayAtSpecifiedRate
             && player.reasonForWaitingToPlay == AVPlayer.WaitingReason.noItemToPlay
         return !paused && !waitingBecauseNoItemToPlay
+    }
+    
+    private func addArtworkAsync(to playerItem: AVPlayerItem, mediaItem: MediaItem) {
+        guard let artworkUri = mediaItem.metadata?.artworkUri, let url = URL(string: artworkUri) else {
+            return
+        }
+        weak var weakPlayerItem = playerItem
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let data = try? Data(contentsOf: url), let image = UIImage(data: data), let artworkItem = MetadataUtils.metadataArtworkItem(image: image) {
+                DispatchQueue.main.async {
+                    if let playerItem = weakPlayerItem {
+                        var externalMetadata = playerItem.externalMetadata
+                        externalMetadata.append(artworkItem)
+                        playerItem.externalMetadata = externalMetadata
+                    }
+                }
+            }
+        }
     }
     
     @objc private func playerItemDidPlayToEndTime() {
