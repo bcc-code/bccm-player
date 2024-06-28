@@ -1,5 +1,6 @@
 package media.bcc.bccm_player.players.chromecast
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.media3.cast.MediaItemConverter
@@ -19,7 +20,7 @@ import org.json.JSONException
 import org.json.JSONObject
 
 /** Based on the default [MediaItemConverter] implementation.  */
-@UnstableApi
+@SuppressLint("UnsafeOptInUsageError")
 class CastMediaItemConverter : MediaItemConverter {
     override fun toMediaItem(mediaQueueItem: MediaQueueItem): MediaItem {
         val mediaInfo = mediaQueueItem.media
@@ -199,6 +200,7 @@ class CastMediaItemConverter : MediaItemConverter {
         const val PLAYER_DATA_IS_LIVE = "$BCCM_PLAYER_DATA.is_live"
         const val PLAYER_DATA_IS_OFFLINE = "$BCCM_PLAYER_DATA.is_offline"
         const val PLAYER_DATA_MIME_TYPE = "$BCCM_PLAYER_DATA.mime_type"
+        const val PLAYER_DATA_DURATION = "$BCCM_PLAYER_DATA.durationMs"
         const val PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE =
             "$BCCM_PLAYER_DATA.last_known_audio_language"
         const val PLAYER_DATA_LAST_KNOWN_SUBTITLE_LANGUAGE =

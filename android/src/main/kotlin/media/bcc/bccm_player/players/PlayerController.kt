@@ -1,5 +1,6 @@
 package media.bcc.bccm_player.players
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import android.view.Surface
@@ -20,6 +21,7 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.RepeatMode
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.VideoSize
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.BCCM_META_EXTRAS
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_DURATION
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
@@ -60,6 +62,7 @@ abstract class PlayerController : Player.Listener {
     open fun release() {
         surface?.release()
         surface = null
+        pluginPlayerListener?.stop()
         detachPlugin();
     }
 
@@ -100,6 +103,7 @@ abstract class PlayerController : Player.Listener {
 
     abstract fun stop(reset: Boolean)
 
+    @SuppressLint("UnsafeOptInUsageError")
     fun replaceCurrentMediaItem(mediaItem: PlaybackPlatformApi.MediaItem, autoplay: Boolean?) {
         this.isLive = mediaItem.isLive ?: false
         var androidMi = mapMediaItem(mediaItem)
@@ -129,8 +133,19 @@ abstract class PlayerController : Player.Listener {
             }
         }
         player.setMediaItem(androidMi, playbackStartPositionMs?.toLong() ?: 0)
+        if (playbackStartPositionMs != null) {
+            player.seekTo(playbackStartPositionMs.toLong())
+        }
+        manualUpdateEvent()
         player.playWhenReady = autoplay == true
         player.prepare()
+    }
+
+    fun manualUpdateEvent() {
+        val event = PlaybackPlatformApi.PlayerStateUpdateEvent.Builder()
+            .setPlayerId(id)
+            .setSnapshot(getPlayerStateSnapshot())
+        plugin?.playbackPigeon?.onPlayerStateUpdate(event.build()) {}
     }
 
     fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
@@ -169,6 +184,10 @@ abstract class PlayerController : Player.Listener {
         if (mediaItem.isOffline == true) {
             exoExtras.putString(PLAYER_DATA_IS_OFFLINE, "true")
         }
+        val duration = mediaItem.metadata?.durationMs;
+        if (duration != null) {
+            exoExtras.putDouble(PLAYER_DATA_DURATION, duration)
+        }
 
         val sourceExtra = mediaItem.metadata?.extras
         if (sourceExtra != null) {
@@ -202,7 +221,11 @@ abstract class PlayerController : Player.Listener {
             extraMeta = extractExtrasFromAndroid(sourceExtras)
         }
         if (player.currentMediaItem == mediaItem) {
-            metaBuilder.setDurationMs(player.duration.toDouble());
+            var duration: Double? = player.duration.toDouble()
+            if (duration == null || duration <= 0) {
+                duration = sourceExtras?.getDouble(PLAYER_DATA_DURATION)
+            }
+            metaBuilder.setDurationMs(duration)
         }
         metaBuilder.setExtras(extraMeta)
         val miBuilder = PlaybackPlatformApi.MediaItem.Builder()
@@ -335,6 +358,7 @@ abstract class PlayerController : Player.Listener {
      * Sets the language of the subtitles. Returns false if there is the language
      * is not available for the current media item.
      */
+    @SuppressLint("UnsafeOptInUsageError")
     fun setSelectedTrackByLanguage(
         type: @C.TrackType Int,
         language: String,

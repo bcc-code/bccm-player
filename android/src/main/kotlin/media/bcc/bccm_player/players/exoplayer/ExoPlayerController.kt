@@ -291,7 +291,7 @@ class ExoPlayerController(
     override fun release() {
         super.release()
         mainScope.cancel()
-        pluginPlayerListener?.stop()
+        player.removeListener(this)
         exoPlayer.stop()
         exoPlayer.release()
     }
@@ -323,7 +323,13 @@ class ExoPlayerController(
 
     private fun getLoadControlForBufferMode(bufferMode: BufferMode): LoadControl {
         return when (bufferMode) {
-            BufferMode.STANDARD -> DefaultLoadControl()
+            BufferMode.STANDARD -> DefaultLoadControl.Builder().setBufferDurationsMs(
+                5000,
+                50000,
+                500,
+                2000
+            ).setPrioritizeTimeOverSizeThresholds(true).build()
+
             BufferMode.FAST_START_SHORT_FORM -> DefaultLoadControl.Builder()
                 .setBufferDurationsMs(
                     5000,

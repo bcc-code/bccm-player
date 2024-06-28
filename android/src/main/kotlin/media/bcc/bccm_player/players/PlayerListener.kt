@@ -41,10 +41,7 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
     }
 
     fun onManualPlayerStateUpdate() {
-        val event = PlayerStateUpdateEvent.Builder()
-            .setPlayerId(playerController.id)
-            .setSnapshot(playerController.getPlayerStateSnapshot())
-        plugin.playbackPigeon?.onPlayerStateUpdate(event.build()) {}
+        playerController.manualUpdateEvent();
     }
 
     override fun onPlayerErrorChanged(error: PlaybackException?) {
