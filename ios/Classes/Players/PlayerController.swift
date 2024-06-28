@@ -28,4 +28,5 @@ public protocol PlayerController {
     func exitFullscreen()
     func enterFullscreen()
     func hasBecomePrimary()
+    func hasLostPrimary()
 }

@@ -85,10 +85,14 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     public func setPrimary(_ id: String, completion: @escaping (FlutterError?) -> Void) {
         if primaryPlayerId == id { return }
         previousPrimaryPlayerId = primaryPlayerId
+        let previousPrimary = getPrimaryPlayer()
+
         primaryPlayerId = id
         getPrimaryPlayer()?.hasBecomePrimary()
-        playbackListener.onPrimaryPlayerChanged(PrimaryPlayerChangedEvent.make(withPlayerId: id), completion: { _ in })
+        previousPrimary?.hasLostPrimary()
+
         completion(nil)
+        playbackListener.onPrimaryPlayerChanged(PrimaryPlayerChangedEvent.make(withPlayerId: id), completion: { _ in })
     }
 
     public func newPlayer(_ bufferModeBoxed: BufferModeBox?, disableNpaw: NSNumber?, completion: @escaping (String?, FlutterError?) -> Void) {

@@ -25,6 +25,7 @@ class CastPlayerController: NSObject, PlayerController {
     }
     
     public func hasBecomePrimary() {}
+    public func hasLostPrimary() {}
     
     public func getPlayerStateSnapshot() -> PlayerStateSnapshot {
         let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus

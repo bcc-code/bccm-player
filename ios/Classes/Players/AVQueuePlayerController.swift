@@ -79,6 +79,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         for observer in notificationObservers {
             NotificationCenter.default.removeObserver(observer)
         }
+        commandCenterCleanup?()
     }
     
     public func setRepeatMode(_ repeatMode: RepeatMode) {
@@ -238,6 +239,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         setupCommandCenter()
     }
     
+    public func hasLostPrimary() {
+        isPrimary = false
+        commandCenterCleanup?()
+    }
+    
     var fastStartupTimer: Timer?
     public func play() {
         if bufferMode == .fastStartShortForm {
@@ -359,21 +365,56 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
     
+    var commandCenterCleanup: (() -> Void)?
     func setupCommandCenter() {
         let commandCenter = MPRemoteCommandCenter.shared()
         commandCenter.playCommand.isEnabled = true
         commandCenter.pauseCommand.isEnabled = true
-        commandCenter.playCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
-            self?.player.play()
-            return .success
-        }
-        commandCenter.pauseCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
-            self?.player.pause()
-            return .success
+    
+        let targets: [Any] = [
+            commandCenter.playCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
+                self?.player.play()
+                return .success
+            },
+            commandCenter.pauseCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
+                self?.player.pause()
+                return .success
+            },
+        ]
+        commandCenterCleanup = {
+            for target in targets {
+                commandCenter.playCommand.removeTarget(target)
+                commandCenter.pauseCommand.removeTarget(target)
+            }
         }
         
         let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
         nowPlayingInfoCenter.nowPlayingInfo = [:]
+    }
+    
+    func updateNowPlayingInfo(mediaItem: MediaItem?, playerItem: AVPlayerItem?) {
+        if !isPrimary {
+            return
+        } else {}
+        let metadata = mediaItem?.metadata
+        let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
+        
+        // Player state
+        nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = player.rate
+        nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
+        
+        // Metadata
+        nowPlayingInfoCenter.nowPlayingInfo?[MPMediaItemPropertyArtist] = metadata?.artist
+        nowPlayingInfoCenter.nowPlayingInfo?[MPMediaItemPropertyTitle] = metadata?.title
+        var artwork: MPMediaItemArtwork? = nil
+        if let imageData = playerItem?.externalMetadata.first(where: { $0.identifier == AVMetadataIdentifier.commonIdentifierArtwork })?.value as? Data {
+            if let image = UIImage(data: imageData) {
+                artwork = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (_: CGSize) -> UIImage in
+                    image
+                })
+            }
+        }
+        nowPlayingInfoCenter.nowPlayingInfo?[MPMediaItemPropertyArtwork] = artwork
     }
     
     private func initYoubora(_ npawConfig: NpawConfig) {
@@ -645,18 +686,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             
         })
         observers.append(player.observe(\.rate, options: [.old, .new]) {
-            player, change in
-            let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = change.newValue
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
+            player, _ in
             let positionDiscontinuityEvent = PositionDiscontinuityEvent.make(withPlayerId: self.id, playbackPositionMs: (player.currentTime().seconds * 1000).rounded() as NSNumber)
             self.playbackListener.onPositionDiscontinuity(positionDiscontinuityEvent, completion: { _ in })
+            self.updateNowPlayingInfo(mediaItem: self.getCurrentItem(), playerItem: player.currentItem)
         })
         observers.append(player.observe(\.timeControlStatus, options: [.old, .new]) {
             player, _ in
-            let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = player.rate
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
             let isPlayingEvent = PlaybackStateChangedEvent.make(
                 withPlayerId: self.id,
                 playbackState: self.isPlaying() ? PlaybackState.playing : PlaybackState.stopped,
@@ -665,6 +701,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             self.playbackListener.onPlaybackStateChanged(isPlayingEvent, completion: { _ in })
             let positionDiscontinuityEvent = PositionDiscontinuityEvent.make(withPlayerId: self.id, playbackPositionMs: (player.currentTime().seconds * 1000).rounded() as NSNumber)
             self.playbackListener.onPositionDiscontinuity(positionDiscontinuityEvent, completion: { _ in })
+            self.updateNowPlayingInfo(mediaItem: self.getCurrentItem(), playerItem: player.currentItem)
         })
     }
     

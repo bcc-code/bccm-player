@@ -12,7 +12,6 @@ class MediaItemMapper {
             return nil
         }
 
-        let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
         var metadata: MediaMetadata?
         var playerData: [String: String]?
         if #available(iOS 12.2, *) {
@@ -26,17 +25,6 @@ class MediaItemMapper {
                 durationMs: !playerItem.duration.seconds.isFinite ? nil : NSNumber(floatLiteral: playerItem.duration.seconds * 1000),
                 extras: extras
             )
-
-            nowPlayingInfoCenter.nowPlayingInfo?[MPMediaItemPropertyArtist] = metadata?.artist
-            nowPlayingInfoCenter.nowPlayingInfo?[MPMediaItemPropertyTitle] = metadata?.title
-            if let imageData = playerItem.externalMetadata.first(where: { $0.identifier == AVMetadataIdentifier.commonIdentifierArtwork })?.value as? Data {
-                if let image = UIImage(data: imageData) {
-                    let nowPlayingArtwork = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (_: CGSize) -> UIImage in
-                        image
-                    })
-                    nowPlayingInfoCenter.nowPlayingInfo?[MPMediaItemPropertyArtwork] = nowPlayingArtwork
-                }
-            }
         }
         let mimeType: String? = playerData?[PlayerMetadataConstants.MimeType]
 
@@ -45,7 +33,7 @@ class MediaItemMapper {
             isLive = isLiveMeta == "true"
         }
 
-        var isOffline: Bool? = playerData?[PlayerMetadataConstants.IsOffline] == "true"
+        let isOffline: Bool? = playerData?[PlayerMetadataConstants.IsOffline] == "true"
 
         let mediaItem = MediaItem.make(
             withUrl: asset.url.absoluteString,
