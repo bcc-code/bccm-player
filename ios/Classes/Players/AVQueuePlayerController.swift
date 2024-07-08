@@ -33,6 +33,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     private func updateAutomaticAudioOnlyTimer() {
+        if bufferMode == BufferMode.fastStartShortForm {
+            // no-op, we dont want automatic audio-only for shortform content
+            return
+        }
         if currentViewController != nil {
             if let timer = audioOnlyTimer {
                 timer.invalidate()
@@ -709,7 +713,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     @objc private func playerItemDidPlayToEndTime() {
-        debugPrint("played to end, repeatmode is \(repeatMode)")
         if repeatMode == RepeatMode.one {
             player.seek(to: CMTime.zero,
                         toleranceBefore: CMTime.zero,
