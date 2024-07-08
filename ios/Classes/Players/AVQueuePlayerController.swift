@@ -709,11 +709,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     @objc private func playerItemDidPlayToEndTime() {
+        debugPrint("played to end, repeatmode is \(repeatMode)")
         if repeatMode == RepeatMode.one {
             player.seek(to: CMTime.zero,
                         toleranceBefore: CMTime.zero,
                         toleranceAfter: CMTime.zero,
-                        completionHandler: { _ in
+                        completionHandler: { [weak self] _ in
+                            self?.player.play()
                         })
         } else {
             player.pause()
