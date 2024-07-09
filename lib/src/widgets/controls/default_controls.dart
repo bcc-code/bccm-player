@@ -171,10 +171,10 @@ class DefaultControls extends HookWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                if (viewController.config.controlsConfig.playNextButton != null && viewController.isFullscreen)
+                                if (viewController.config.controlsConfig.rightSideSlot != null && viewController.isFullscreen)
                                   Padding(
                                       padding: const EdgeInsets.only(bottom: 8, right: 12),
-                                      child: viewController.config.controlsConfig.playNextButton!(context)),
+                                      child: viewController.config.controlsConfig.rightSideSlot!(context)),
                               ],
                             ),
                           ),
