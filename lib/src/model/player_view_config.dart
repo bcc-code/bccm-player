@@ -116,12 +116,14 @@ class BccmPlayerViewConfig {
 class BccmPlayerControlsConfig {
   /// * [customBuilder] is a builder that will be used to build the controls if you want to completely customize them.
   /// * [rightSideSlot] is a widget that will be shown in the bottom right corner of the player.
+  /// * [centerExtraSlot] is a widget that will be shown in the center under the play button.
   /// * [playbackSpeeds] is a list of playback speeds that will be shown in the settings menu.
   /// * [hidePlaybackSpeed] will hide the playback speed selector in the settings menu.
   /// * [hideQualitySelector] will hide the quality selector in the settings menu.
   BccmPlayerControlsConfig({
     this.customBuilder,
     this.rightSideSlot,
+    this.centerExtraSlot,
     List<double>? playbackSpeeds,
     this.hidePlaybackSpeed,
     this.hideQualitySelector,
@@ -132,6 +134,7 @@ class BccmPlayerControlsConfig {
 
   final ControlsBuilder? customBuilder;
   final WidgetBuilder? rightSideSlot;
+  final WidgetBuilder? centerExtraSlot;
   final List<double> playbackSpeeds;
   final bool? hidePlaybackSpeed;
   final bool? hideQualitySelector;
@@ -142,6 +145,7 @@ class BccmPlayerControlsConfig {
   BccmPlayerControlsConfig copyWith({
     ControlsBuilder? customBuilder,
     WidgetBuilder? rightSideSlot,
+    WidgetBuilder? centerExtraSlot,
     List<double>? playbackSpeeds,
     bool? hidePlaybackSpeed,
     bool? hideQualitySelector,
@@ -152,6 +156,7 @@ class BccmPlayerControlsConfig {
     return BccmPlayerControlsConfig(
       customBuilder: customBuilder ?? this.customBuilder,
       rightSideSlot: rightSideSlot ?? this.rightSideSlot,
+      centerExtraSlot: centerExtraSlot ?? this.centerExtraSlot,
       playbackSpeeds: playbackSpeeds ?? this.playbackSpeeds,
       hidePlaybackSpeed: hidePlaybackSpeed ?? this.hidePlaybackSpeed,
       hideQualitySelector: hideQualitySelector ?? this.hideQualitySelector,
