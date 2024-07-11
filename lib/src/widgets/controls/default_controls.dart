@@ -184,17 +184,12 @@ class DefaultControls extends HookWidget {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 if (viewController.config.controlsConfig.rightSideSlot != null)
-                                  AnimatedBuilder(
-                                    animation: ControlsState.of(context).visibilityAnimation,
-                                    builder: (context, child) => ControlsState.of(context).visibilityAnimation.value == 0
-                                        ? Align(
-                                            alignment: Alignment.bottomRight,
-                                            child: Padding(
-                                                padding: const EdgeInsets.only(bottom: 8, right: 12),
-                                                child: viewController.config.controlsConfig.rightSideSlot!(context)),
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 8, right: 12),
+                                        child: viewController.config.controlsConfig.rightSideSlot!(context)),
+                                  )
                               ],
                             ),
                           ),
