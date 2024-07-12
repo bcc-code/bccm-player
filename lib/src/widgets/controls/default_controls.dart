@@ -88,6 +88,89 @@ class DefaultControls extends HookWidget {
                         ),
                       ),
                     ),
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      padding: const EdgeInsets.only(left: 12, right: 12),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                if (viewController.config.controlsConfig.rightSideSlot != null)
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 8, right: 12),
+                                        child: viewController.config.controlsConfig.rightSideSlot!(context)),
+                                  )
+                              ],
+                            ),
+                          ),
+                          ControlFadeOut(
+                            child: SizedBox(
+                              height: 42,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  if (player.value.currentMediaItem?.isLive != true)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 8, left: 13),
+                                      child: Text(
+                                        '${getFormattedDuration(timeline.seeking ? timeline.currentScrub : timeline.actualTimeMs)} / ${getFormattedDuration(timeline.duration)}',
+                                        style: controlsTheme.durationTextStyle,
+                                      ),
+                                    ),
+                                  const Spacer(),
+                                  ...?viewController.config.controlsConfig.additionalActionsBuilder?.call(context),
+                                  FullscreenButton(
+                                    viewController: viewController,
+                                    padding: EdgeInsets.only(
+                                      right: 10,
+                                      top: 8,
+                                      bottom: 5,
+                                      left: viewController.config.controlsConfig.additionalActionsBuilder != null ? 12 : 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (player.value.currentMediaItem?.isLive == true)
+                            const Padding(padding: EdgeInsets.only(top: 12))
+                          else
+                            ControlFadeOut(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: SliderTheme(
+                                        data: controlsTheme.progressBarTheme!,
+                                        child: SizedBox(
+                                          height: 16,
+                                          child: Slider(
+                                            value: timeline.timeFraction,
+                                            onChanged: (double value) {
+                                              timeline.scrubTo(value * timeline.duration);
+                                            },
+                                            onChangeEnd: (double value) {
+                                              //seekDebouncer.forceEarly();
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                        ],
+                      ),
+                    ),
                     ControlFadeOut(
                       child: Container(
                         alignment: Alignment.center,
@@ -170,91 +253,6 @@ class DefaultControls extends HookWidget {
                               ),
                           ],
                         ),
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.bottomLeft,
-                      padding: const EdgeInsets.only(left: 12, right: 12),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          SizedBox(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                if (viewController.config.controlsConfig.rightSideSlot != null)
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Padding(
-                                        padding: const EdgeInsets.only(bottom: 8, right: 12),
-                                        child: viewController.config.controlsConfig.rightSideSlot!(context)),
-                                  )
-                              ],
-                            ),
-                          ),
-                          ControlFadeOut(
-                            blockBackgroundClicks: true,
-                            child: SizedBox(
-                              height: 42,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  if (player.value.currentMediaItem?.isLive != true)
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 8, left: 13),
-                                      child: Text(
-                                        '${getFormattedDuration(timeline.seeking ? timeline.currentScrub : timeline.actualTimeMs)} / ${getFormattedDuration(timeline.duration)}',
-                                        style: controlsTheme.durationTextStyle,
-                                      ),
-                                    ),
-                                  const Spacer(),
-                                  ...?viewController.config.controlsConfig.additionalActionsBuilder?.call(context),
-                                  FullscreenButton(
-                                    viewController: viewController,
-                                    padding: EdgeInsets.only(
-                                      right: 10,
-                                      top: 8,
-                                      bottom: 5,
-                                      left: viewController.config.controlsConfig.additionalActionsBuilder != null ? 12 : 20,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          if (player.value.currentMediaItem?.isLive == true)
-                            const Padding(padding: EdgeInsets.only(top: 12))
-                          else
-                            ControlFadeOut(
-                              blockBackgroundClicks: true,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: SliderTheme(
-                                        data: controlsTheme.progressBarTheme!,
-                                        child: SizedBox(
-                                          height: 16,
-                                          child: Slider(
-                                            value: timeline.timeFraction,
-                                            onChanged: (double value) {
-                                              timeline.scrubTo(value * timeline.duration);
-                                            },
-                                            onChangeEnd: (double value) {
-                                              //seekDebouncer.forceEarly();
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                        ],
                       ),
                     ),
                   ],
