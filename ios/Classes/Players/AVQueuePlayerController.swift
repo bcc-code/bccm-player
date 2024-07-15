@@ -2,9 +2,11 @@ import AVFoundation
 import AVKit
 import Foundation
 import MediaPlayer
+import os.signpost
 import YouboraAVPlayerAdapter
 import YouboraLib
 
+@available(iOS 15.0, *)
 public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewControllerDelegate {
     lazy var player: AVQueuePlayer = .init()
     public final let id: String
@@ -60,6 +62,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         if bufferMode == .fastStartShortForm {
             player.automaticallyWaitsToMinimizeStalling = false
         }
+        player.automaticallyWaitsToMinimizeStalling = false
         updateAppConfig(appConfig: appConfig)
         addObservers()
         refreshStateTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
@@ -448,14 +451,23 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         updateYouboraOptions()
     }
     
+    private let pointsOfInterest = OSSignposter(subsystem: Bundle.main.bundleIdentifier!, category: .pointsOfInterest)
+
     public func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: @escaping (FlutterError?) -> Void) {
+        // Capture the start time
+        var startTime = DispatchTime.now()
+        player.removeAllItems()
+        let id = pointsOfInterest.makeSignpostID()
+        let state = pointsOfInterest.beginInterval("replaceCurrentMediaItem", id: id, "asd")
         createPlayerItem(mediaItem) { playerItem in
+            self.pointsOfInterest.emitEvent("createPlayerItem done")
             guard let playerItem = playerItem else {
                 return
             }
             if self.bufferMode == BufferMode.fastStartShortForm {
                 playerItem.preferredForwardBufferDuration = 6
             }
+            playerItem.preferredForwardBufferDuration = 1
             // Set initial seek position as soon as the player item is created
             if let playbackStartPositionMs = mediaItem.playbackStartPositionMs {
                 playerItem.seek(to: CMTime(value: Int64(truncating: playbackStartPositionMs), timescale: 1000),
@@ -464,30 +476,32 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             }
             self.updateYouboraOptions(mediaItemOverride: mediaItem)
             DispatchQueue.main.async {
-                self.player.removeAllItems()
+                // Calculate the end time and duration
+                var duration = Double(DispatchTime.now().uptimeNanoseconds - startTime.uptimeNanoseconds) / 1000000
+                print("ag: start of async: \(duration) ms")
+                startTime = DispatchTime.now()
+                self.pointsOfInterest.emitEvent("start of async")
+
                 self.player.replaceCurrentItem(with: playerItem)
-                if autoplay?.boolValue == true {
-                    debugPrint("\(self.id) autoplaying")
-                    self.play()
-                }
                 self.temporaryStatusObserver = playerItem.observe(\.status, options: [.new, .old]) {
                     playerItem, _ in
                     if playerItem.status == .readyToPlay {
+                        self.pointsOfInterest.emitEvent("readyToPlay")
+
+                        duration = Double(DispatchTime.now().uptimeNanoseconds - startTime.uptimeNanoseconds) / 1000000
+                        print("ag: readytoplay: \(duration) ms")
+                        startTime = DispatchTime.now()
+                        
                         if autoplay?.boolValue == true && !self.isPlaying() {
                             debugPrint("\(self.id) autoplaying 2")
-                            self.play()
-                        }
-                        if let audioLanguages = self.appConfig?.audioLanguages {
-                            _ = playerItem.setAudioLanguagePrioritized(audioLanguages)
-                        }
-                        if let subtitleLanguages = self.appConfig?.subtitleLanguages {
-                            _ = playerItem.setSubtitleLanguagePrioritized(subtitleLanguages)
+                            self.player.play()
                         }
                         
-                        // This is the initial signal. If this is not set the language is generally empty in NPAW
-                        self.youboraPlugin?.options.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
-                        self.youboraPlugin?.options.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
                         debugPrint("\(self.id) readyToPlay")
+                        duration = Double(DispatchTime.now().uptimeNanoseconds - startTime.uptimeNanoseconds) / 1000000
+                        print("ag: done: \(duration) ms")
+                        startTime = DispatchTime.now()
+                        self.pointsOfInterest.endInterval("replaceCurrentMediaItem", state)
                         completion(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")
