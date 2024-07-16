@@ -99,7 +99,7 @@ class DefaultControls extends HookWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                if (viewController.config.controlsConfig.rightSideSlot != null)
+                                if (viewController.config.controlsConfig.rightSideSlot != null && viewController.isFullscreen)
                                   Align(
                                     alignment: Alignment.bottomRight,
                                     child: Padding(
