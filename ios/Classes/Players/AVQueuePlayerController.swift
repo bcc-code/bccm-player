@@ -344,11 +344,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     func updatePipController(_ playerView: AVPlayerViewController?) {
-        let shouldReleaseCurrent = playerView == nil && currentViewController == pipController
         pipController = playerView
-        if shouldReleaseCurrent {
-            releasePlayerView(currentViewController!)
-        }
         let event = PictureInPictureModeChangedEvent.make(withPlayerId: id, isInPipMode: (playerView != nil) as NSNumber)
         playbackListener.onPicture(inPictureModeChanged: event, completion: { _ in })
     }
@@ -474,7 +470,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                     playerItem, _ in
                     if playerItem.status == .readyToPlay {
                         if autoplay?.boolValue == true && !self.isPlaying() {
-                            debugPrint("\(self.id) autoplaying 2")
+                            debugPrint("\(self.id) q 2")
                             self.play()
                         }
                         if let audioLanguages = self.appConfig?.audioLanguages {
