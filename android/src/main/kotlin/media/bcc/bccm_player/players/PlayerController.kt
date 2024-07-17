@@ -175,7 +175,11 @@ abstract class PlayerController : Player.Listener {
             metaBuilder.setArtworkUri(Uri.parse(mediaItem.metadata?.artworkUri))
         }
 
-        val mimeType = mediaItem.mimeType ?: "application/x-mpegURL"
+        val hasM3u8Extension = mediaItem.url?.contains(".m3u8") == true
+        var mimeType = mediaItem.mimeType;
+        if (mediaItem.url?.contains(".m3u8") == true) {
+            mimeType = "application/x-mpegURL"
+        }
         exoExtras.putString(PLAYER_DATA_MIME_TYPE, mimeType)
 
         if (mediaItem.isLive == true) {

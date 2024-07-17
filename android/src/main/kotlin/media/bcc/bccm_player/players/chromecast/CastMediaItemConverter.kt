@@ -175,7 +175,6 @@ class CastMediaItemConverter : MediaItemConverter {
             .setStreamType(if (playerData?.isLive == true) MediaInfo.STREAM_TYPE_LIVE else MediaInfo.STREAM_TYPE_BUFFERED)
             .setContentType(
                 playerData?.mimeType ?: mediaItem.localConfiguration?.mimeType
-                ?: "application/x-mpegURL"
             )
             .setContentUrl(contentUrl)
             .setMetadata(metadata)
