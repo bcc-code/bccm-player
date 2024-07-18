@@ -13,6 +13,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     final var observers = [NSKeyValueObservation]()
     final var notificationObservers = [NSObjectProtocol]()
     final lazy var peakBitRateController = PeakBitrateController(player: player)
+    public var mixWithOthers = false
     
     var temporaryStatusObserver: NSKeyValueObservation? = nil
     var youboraPlugin: YBPlugin?
@@ -69,6 +70,15 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             initYoubora(npawConfig)
         }
         print("BTV DEBUG: end of init playerController")
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        print("bccm: audiosession category before: " + audioSession.category.rawValue)
+        do {
+            try audioSession.setCategory(.playback)
+            try audioSession.setActive(true)
+        } catch {
+            print("Setting category to AVAudioSessionCategoryPlayback failed.")
+        }
     }
     
     deinit {
@@ -333,14 +343,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     public func playerViewControllerWillStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
         print("bccm: audiosession category willstop: " + AVAudioSession.sharedInstance().category.rawValue)
         updatePipController(nil)
-        let audioSession = AVAudioSession.sharedInstance()
-        print("bccm: audiosession category before: " + audioSession.category.rawValue)
-        do {
-            try audioSession.setCategory(.playback)
-            try audioSession.setActive(true)
-        } catch {
-            print("Setting category to AVAudioSessionCategoryPlayback failed.")
-        }
     }
     
     func updatePipController(_ playerView: AVPlayerViewController?) {

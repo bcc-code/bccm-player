@@ -6,6 +6,7 @@ class CastPlayerController: NSObject, PlayerController {
     static let DEFAULT_ID = "chromecast"
     var id: String
     var playbackApi: PlaybackApiImpl
+    var mixWithOthers = false
     var castState: GCKCastState?
     var positionUponEndingSession: TimeInterval?
     var sessionManager: GCKSessionManager?

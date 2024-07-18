@@ -139,6 +139,7 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     public func replaceCurrentMediaItem(_ playerId: String, mediaItem: MediaItem, playbackPositionFromPrimary: NSNumber?, autoplay: NSNumber?, completion: @escaping (FlutterError?) -> Void) {
         let player = getPlayer(playerId)
 
+        updateAudioSession()
         player?.replaceCurrentMediaItem(mediaItem, autoplay: autoplay, completion: completion)
     }
 
@@ -212,11 +213,9 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     }
 
     public func setMixWithOthers(_ playerId: String, mixWithOthers: NSNumber, completion: @escaping (FlutterError?) -> Void) {
-        if mixWithOthers.boolValue {
-            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
-        } else {
-            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-        }
+        var player = getPlayer(playerId)
+        player?.mixWithOthers = mixWithOthers.boolValue
+        updateAudioSession()
     }
 
     public func fetchMediaInfo(_ urlString: String, mimeType: String?) async -> (MediaInfo?, FlutterError?) {
@@ -226,6 +225,14 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
             }
             let tracks = try await MediaInfoFetcher.fetchInfo(for: url, mimeType: mimeType)
             return tracks
+        }
+    }
+
+    func updateAudioSession() {
+        if players.contains(where: { $0.mixWithOthers }) {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
+        } else {
+            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
         }
     }
 }
