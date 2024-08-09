@@ -55,9 +55,9 @@ class OneAsyncAtATime {
       final action = _nextAction;
       _nextAction = null;
       await action!();
-      _currentCompleter!.complete();
+      _currentCompleter?.complete();
     } catch (e) {
-      _currentCompleter!.completeError(e);
+      _currentCompleter?.completeError(e);
     }
     _currentCompleter = null;
     _goNext();
