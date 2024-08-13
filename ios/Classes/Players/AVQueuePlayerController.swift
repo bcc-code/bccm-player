@@ -70,15 +70,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             initYoubora(npawConfig)
         }
         print("BTV DEBUG: end of init playerController")
-        
-        let audioSession = AVAudioSession.sharedInstance()
-        print("bccm: audiosession category before: " + audioSession.category.rawValue)
-        do {
-            try audioSession.setCategory(.playback)
-            try audioSession.setActive(true)
-        } catch {
-            print("Setting category to AVAudioSessionCategoryPlayback failed.")
-        }
     }
     
     deinit {
