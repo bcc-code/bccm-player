@@ -45,7 +45,7 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
 
     override fun getTracks(
         playerId: String?,
-        result: PlaybackPlatformApi.Result<PlaybackPlatformApi.PlayerTracksSnapshot>
+        result: PlaybackPlatformApi.NullableResult<PlaybackPlatformApi.PlayerTracksSnapshot>
     ) {
         val playbackService = plugin.getPlaybackService()
         if (playbackService == null) {
@@ -63,7 +63,7 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
 
     override fun getPlayerState(
         playerId: String?,
-        result: PlaybackPlatformApi.Result<PlaybackPlatformApi.PlayerStateSnapshot>
+        result: PlaybackPlatformApi.NullableResult<PlaybackPlatformApi.PlayerStateSnapshot>
     ) {
         val playbackService = plugin.getPlaybackService()
         if (playbackService == null) {

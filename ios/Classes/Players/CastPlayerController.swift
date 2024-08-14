@@ -33,9 +33,9 @@ class CastPlayerController: NSObject, PlayerController {
         return PlayerStateSnapshot.make(
             withPlayerId: id,
             playbackState: playbackStateFromMediaStatus(mediaStatus: mediaStatus),
-            isBuffering: NSNumber(booleanLiteral: mediaStatus?.playerState == .buffering),
+            isBuffering: mediaStatus?.playerState == .buffering,
             isFullscreen: false,
-            playbackSpeed: mediaStatus?.playbackRate as NSNumber? ?? 1.0,
+            playbackSpeed: Double(mediaStatus?.playbackRate ?? 1.0),
             videoSize: mediaStatus != nil ? getVideoSize(mediaStatus!) : nil,
             currentMediaItem: currentItem,
             playbackPositionMs: mediaStatus == nil ? nil : NSNumber(value: mediaStatus!.streamPosition * 1000),
@@ -49,7 +49,7 @@ class CastPlayerController: NSObject, PlayerController {
         guard let width = mediaStatus.videoInfo?.width, let height = mediaStatus.videoInfo?.height else {
             return nil
         }
-        return VideoSize.make(withWidth: width as NSNumber, height: height as NSNumber)
+        return VideoSize.make(withWidth: Int(width), height: Int(height))
     }
     
     public func getPlayerTracksSnapshot() -> PlayerTracksSnapshot {
@@ -76,7 +76,7 @@ class CastPlayerController: NSObject, PlayerController {
                                             width: nil,
                                             height: nil,
                                             downloaded: false,
-                                            isSelected: NSNumber(booleanLiteral: isSelected))
+                                            isSelected: isSelected)
              
             switch track.type {
             case .audio:
@@ -214,9 +214,9 @@ class CastPlayerController: NSObject, PlayerController {
     
     var activeSeekRequest: GCKRequest? = nil
     var activeSeekRequestDelegate: GCKRequestDelegate? = nil
-    func seekTo(_ positionMs: NSNumber, _ completion: @escaping (Bool) -> Void) {
+    func seekTo(_ positionMs: Int64, _ completion: @escaping (Bool) -> Void) {
         let options = GCKMediaSeekOptions()
-        options.interval = max(positionMs.doubleValue / 1000, 0)
+        options.interval = max(Double(positionMs) / 1000, 0)
         guard let request = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options) else {
             completion(false)
             return

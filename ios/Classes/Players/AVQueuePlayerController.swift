@@ -99,9 +99,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         return PlayerStateSnapshot.make(
             withPlayerId: id,
             playbackState: isPlaying() ? PlaybackState.playing : PlaybackState.paused,
-            isBuffering: NSNumber(booleanLiteral: isBuffering()),
-            isFullscreen: (currentViewController != nil && currentViewController == fullscreenViewController) as NSNumber,
-            playbackSpeed: getPlaybackSpeed() as NSNumber,
+            isBuffering: isBuffering(),
+            isFullscreen: currentViewController != nil && currentViewController == fullscreenViewController,
+            playbackSpeed: Double(getPlaybackSpeed()),
             videoSize: getVideoSize(),
             currentMediaItem: MediaItemMapper.mapPlayerItem(player.currentItem),
             playbackPositionMs: NSNumber(value: player.currentTime().seconds * 1000),
@@ -125,7 +125,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         if width <= 0 || height <= 0 {
             return nil
         }
-        return VideoSize.make(withWidth: Int(width) as NSNumber, height: Int(height) as NSNumber)
+        return VideoSize.make(withWidth: Int(width), height: Int(height))
     }
     
     public func getPlayerTracksSnapshot() -> PlayerTracksSnapshot {
@@ -253,8 +253,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
     
-    public func seekTo(_ positionMs: NSNumber, _ completion: @escaping (Bool) -> Void) {
-        player.seek(to: CMTime(value: Int64(truncating: positionMs), timescale: 1000),
+    public func seekTo(_ positionMs: Int64, _ completion: @escaping (Bool) -> Void) {
+        player.seek(to: CMTime(value: positionMs, timescale: 1000),
                     toleranceBefore: CMTime.zero,
                     toleranceAfter: CMTime.zero,
                     completionHandler: { result in
@@ -338,7 +338,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     
     func updatePipController(_ playerView: AVPlayerViewController?) {
         pipController = playerView
-        let event = PictureInPictureModeChangedEvent.make(withPlayerId: id, isInPipMode: (playerView != nil) as NSNumber)
+        let event = PictureInPictureModeChangedEvent.make(withPlayerId: id, isInPipMode: playerView != nil)
         playbackListener.onPicture(inPictureModeChanged: event, completion: { _ in })
     }
     
@@ -653,7 +653,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             let isPlayingEvent = PlaybackStateChangedEvent.make(
                 withPlayerId: self.id,
                 playbackState: self.isPlaying() ? PlaybackState.playing : PlaybackState.stopped,
-                isBuffering: NSNumber(booleanLiteral: self.isBuffering())
+                isBuffering: self.isBuffering()
             )
             self.playbackListener.onPlaybackStateChanged(isPlayingEvent, completion: { _ in })
             let positionDiscontinuityEvent = PositionDiscontinuityEvent.make(withPlayerId: self.id, playbackPositionMs: (player.currentTime().seconds * 1000).rounded() as NSNumber)

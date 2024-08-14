@@ -229,8 +229,8 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
             binding.activity,
             downloaderPigeon!!
         ) // onAttachedToActivity always runs after onAttachedToEngine
-        PlaybackPlatformPigeon.setup(pluginBinding!!.binaryMessenger, PlaybackApiImpl(this))
-        DownloaderPigeon.setup(pluginBinding!!.binaryMessenger, DownloaderApiImpl(downloader))
+        PlaybackPlatformPigeon.setUp(pluginBinding!!.binaryMessenger, PlaybackApiImpl(this))
+        DownloaderPigeon.setUp(pluginBinding!!.binaryMessenger, DownloaderApiImpl(downloader))
 
         val sessionToken = SessionToken(
             binding.activity, ComponentName(binding.activity, PlaybackService::class.java)

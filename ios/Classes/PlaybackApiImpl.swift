@@ -11,7 +11,7 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         completion(nil, nil)
     }
 
-    public func switchToVideoTexture(forPlayer playerId: String, textureId: NSNumber, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+    public func switchToVideoTexture(forPlayer playerId: String, textureId: Int, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
         completion(nil, FlutterError(code: "PlaybackApiImpl", message: "Textures are not implemented on iOS. Wrap with Platform.isAndroid().", details: nil))
     }
 
@@ -19,7 +19,7 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         completion(nil, FlutterError(code: "PlaybackApiImpl", message: "Textures are not implemented on iOS. Wrap with Platform.isAndroid().", details: nil))
     }
 
-    public func disposeVideoTexture(_ textureId: NSNumber, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+    public func disposeVideoTexture(_ textureId: Int, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
         completion(nil, FlutterError(code: "PlaybackApiImpl", message: "Textures are not implemented on iOS. Wrap with Platform.isAndroid().", details: nil))
     }
 
@@ -65,7 +65,7 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         }
     }
 
-    public func setPlayerViewVisibility(_ viewId: NSNumber, visible: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {}
+    public func setPlayerViewVisibility(_ viewId: Int, visible: Bool, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {}
 
     public func setNpawConfig(_ config: NpawConfig?, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
         npawConfig = config
@@ -161,15 +161,15 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         completion(nil)
     }
 
-    public func setPlaybackSpeed(_ playerId: String, speed: NSNumber, completion: @escaping (FlutterError?) -> Void) {
+    public func setPlaybackSpeed(_ playerId: String, speed: Double, completion: @escaping (FlutterError?) -> Void) {
         let player = getPlayer(playerId)
-        player?.setPlaybackSpeed(speed.floatValue)
+        player?.setPlaybackSpeed(Float(speed))
         completion(nil)
     }
 
-    public func setVolume(_ playerId: String, volume: NSNumber, completion: @escaping (FlutterError?) -> Void) {
+    public func setVolume(_ playerId: String, volume: Double, completion: @escaping (FlutterError?) -> Void) {
         let player = getPlayer(playerId)
-        player?.setVolume(volume.floatValue)
+        player?.setVolume(Float(volume))
         completion(nil)
     }
 
@@ -185,9 +185,9 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         player?.play()
     }
 
-    public func seek(_ playerId: String, positionMs: NSNumber, completion: @escaping (FlutterError?) -> Void) {
+    public func seek(_ playerId: String, positionMs: Double, completion: @escaping (FlutterError?) -> Void) {
         let player = getPlayer(playerId)
-        player?.seekTo(positionMs) { _ in
+        player?.seekTo(Int64(positionMs)) { _ in
             completion(nil)
         }
     }
@@ -197,9 +197,9 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         player?.pause()
     }
 
-    public func stop(_ playerId: String, reset: NSNumber, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
+    public func stop(_ playerId: String, reset: Bool, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
         let player = getPlayer(playerId)
-        player?.stop(reset: reset.boolValue)
+        player?.stop(reset: reset)
     }
 
     public func exitFullscreen(_ playerId: String, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
@@ -212,9 +212,9 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         player?.enterFullscreen()
     }
 
-    public func setMixWithOthers(_ playerId: String, mixWithOthers: NSNumber, completion: @escaping (FlutterError?) -> Void) {
+    public func setMixWithOthers(_ playerId: String, mixWithOthers: Bool, completion: @escaping (FlutterError?) -> Void) {
         var player = getPlayer(playerId)
-        player?.mixWithOthers = mixWithOthers.boolValue
+        player?.mixWithOthers = mixWithOthers
         updateAudioSession()
     }
 

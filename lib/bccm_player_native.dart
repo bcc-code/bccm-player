@@ -59,8 +59,8 @@ class BccmPlayerNative extends BccmPlayerInterface {
     WidgetsFlutterBinding.ensureInitialized();
     await _pigeon.attach();
     _rootPlaybackListener.addListener(StatePlaybackListener(stateNotifier));
-    ChromecastPigeon.setup(_chromecastListener);
-    PlaybackListenerPigeon.setup(_rootPlaybackListener);
+    ChromecastPigeon.setUp(_chromecastListener);
+    PlaybackListenerPigeon.setUp(_rootPlaybackListener);
     // load primary player state
     final initialState = await getPlayerState();
     if (initialState != null) {

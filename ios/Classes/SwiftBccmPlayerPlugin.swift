@@ -24,13 +24,13 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
         let downloader = Downloader()
         cancellables.append(contentsOf: [
             downloader.changeEvents.sink { event in
-                downloaderListener.onDownloadStatusChanged(event: event) {}
+                downloaderListener.onDownloadStatusChanged(event: event) { _ in }
             },
             downloader.removeEvents.sink { event in
-                downloaderListener.onDownloadRemoved(event: event) {}
+                downloaderListener.onDownloadRemoved(event: event) { _ in }
             },
             downloader.failEvents.sink { event in
-                downloaderListener.onDownloadFailed(event: event) {}
+                downloaderListener.onDownloadFailed(event: event) { _ in }
             }
         ])
 
@@ -44,7 +44,7 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
             CastButtonFactory(messenger: messenger, playbackApi: playbackApi),
             withId: "bccm_player/cast_button")
 
-        PlaybackPlatformPigeonSetup(registrar.messenger(), playbackApi)
+        SetUpPlaybackPlatformPigeon(registrar.messenger(), playbackApi)
         DownloaderPigeonSetup.setUp(binaryMessenger: registrar.messenger(), api: DownloaderApiImpl(downloader: downloader))
 
         UIApplication.shared.beginReceivingRemoteControlEvents()
