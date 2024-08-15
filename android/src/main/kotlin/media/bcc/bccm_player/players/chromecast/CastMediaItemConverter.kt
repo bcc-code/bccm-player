@@ -2,18 +2,15 @@ package media.bcc.bccm_player.players.chromecast
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.media3.cast.MediaItemConverter
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.Assertions
-import androidx.media3.common.util.UnstableApi
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.common.images.WebImage
-import com.npaw.youbora.lib6.extensions.toMap
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
 import org.json.JSONArray
 import org.json.JSONException
@@ -56,13 +53,11 @@ class CastMediaItemConverter : MediaItemConverter {
                 metadataBuilder.setTrackNumber(metadata.getInt(com.google.android.gms.cast.MediaMetadata.KEY_TRACK_NUMBER))
             }
 
-
-
             for (key in metadata.keySet()
                 .filter { it.contains(BCCM_META_EXTRAS) || it.contains(BCCM_PLAYER_DATA) }) {
                 try {
                     extrasBundle.putString(key, metadata.getString(key))
-                } catch (e: Throwable) {
+                } catch (_: Throwable) {
                 }
             }
         }
@@ -74,6 +69,7 @@ class CastMediaItemConverter : MediaItemConverter {
         playerData?.mimeType?.let {
             mediaItemBuilder.setMimeType(it)
         }
+
         return mediaItemBuilder
             .setMediaMetadata(metadataBuilder.build())
             .setUri(mediaQueueItem.media?.contentId ?: mediaQueueItem.media!!.contentUrl)
@@ -82,11 +78,11 @@ class CastMediaItemConverter : MediaItemConverter {
 
     private fun extractPlayerData(metadata: com.google.android.gms.cast.MediaMetadata?): CastPlayerData? {
         if (metadata == null) return null
-        var map = mutableMapOf<String, Any>()
+        val map = mutableMapOf<String, Any>()
         for (key in metadata.keySet()) {
             try {
                 map[key] = metadata.getString(key)!!
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
             }
         }
         return CastPlayerData.from(map)
@@ -291,4 +287,17 @@ class CastMediaItemConverter : MediaItemConverter {
             return playerConfigJson
         }
     }
+}
+
+fun Bundle.toMap(): MutableMap<String, String> {
+    val map: MutableMap<String, String> = HashMap()
+
+    val ks = keySet()
+    val iterator = ks.iterator()
+    while (iterator.hasNext()) {
+        val key = iterator.next()
+        get(key)?.let { map[key] = it.toString() }
+    }
+
+    return map
 }

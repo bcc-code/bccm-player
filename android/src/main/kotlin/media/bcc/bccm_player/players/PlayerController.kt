@@ -167,7 +167,7 @@ abstract class PlayerController : Player.Listener {
         return extraMeta
     }
 
-    fun mapMediaItem(mediaItem: PlaybackPlatformApi.MediaItem): MediaItem {
+    private fun mapMediaItem(mediaItem: PlaybackPlatformApi.MediaItem): MediaItem {
         val metaBuilder = MediaMetadata.Builder()
         val exoExtras = Bundle()
 
@@ -190,7 +190,7 @@ abstract class PlayerController : Player.Listener {
         }
         val duration = mediaItem.metadata?.durationMs;
         if (duration != null) {
-            exoExtras.putDouble(PLAYER_DATA_DURATION, duration)
+            exoExtras.putString(PLAYER_DATA_DURATION, duration.toString())
         }
 
         val sourceExtra = mediaItem.metadata?.extras
@@ -206,6 +206,7 @@ abstract class PlayerController : Player.Listener {
             .setTitle(mediaItem.metadata?.title)
             .setArtist(mediaItem.metadata?.artist)
             .setExtras(exoExtras).build()
+
         return MediaItem.Builder()
             .setUri(mediaItem.url)
             .setMimeType(mimeType)
@@ -227,7 +228,8 @@ abstract class PlayerController : Player.Listener {
         if (player.currentMediaItem == mediaItem) {
             var duration: Double? = player.duration.toDouble()
             if (duration == null || duration <= 0) {
-                duration = sourceExtras?.getDouble(PLAYER_DATA_DURATION)
+                val durationStr = sourceExtras?.getString(PLAYER_DATA_DURATION)
+                duration = durationStr?.toDouble()
             }
             metaBuilder.setDurationMs(duration)
         }

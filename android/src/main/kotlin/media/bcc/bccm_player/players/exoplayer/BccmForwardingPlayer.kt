@@ -3,7 +3,9 @@ package media.bcc.bccm_player.players.exoplayer
 import androidx.media3.common.C
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 
+@UnstableApi
 class BccmForwardingPlayer(private val playerController: ExoPlayerController) :
     ForwardingPlayer(playerController.getExoPlayer()) {
     private var seekBackIncrement: Long = 15000
