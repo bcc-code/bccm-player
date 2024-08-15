@@ -320,10 +320,10 @@ class CastPlayerController: NSObject, PlayerController {
             subtitlesTracks.append(lang)
         }
         if let langs = appConfig?.audioLanguages {
-            audioTracks = langs
+            audioTracks.append(contentsOf: langs)
         }
-        if let lang = appConfig?.subtitleLanguages {
-            subtitlesTracks.append(contentsOf: lang)
+        if let langs = appConfig?.subtitleLanguages {
+            subtitlesTracks.append(contentsOf: langs)
         }
         customData["audioTracks"] = audioTracks
         customData["subtitlesTracks"] = subtitlesTracks
