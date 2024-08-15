@@ -60,7 +60,7 @@ class TrackUtils {
                                        width: nil,
                                        height: nil,
                                        downloaded: isDownloaded,
-                                       isSelected: playerItem == nil ? false : NSNumber(value: playerItem!.currentMediaSelection.selectedMediaOption(in: audioGroup) == option))
+                                       isSelected: playerItem == nil ? false : playerItem!.currentMediaSelection.selectedMediaOption(in: audioGroup) == option)
                 audioTracks.append(track)
             }
         }
@@ -82,7 +82,7 @@ class TrackUtils {
                                        width: nil,
                                        height: nil,
                                        downloaded: isDownloaded,
-                                       isSelected: NSNumber(value: playerItem == nil ? false : playerItem!.currentMediaSelection.selectedMediaOption(in: subtitleGroup) == option))
+                                       isSelected: playerItem == nil ? false : playerItem!.currentMediaSelection.selectedMediaOption(in: subtitleGroup) == option)
                 textTracks.append(track)
             }
         }
@@ -111,7 +111,7 @@ class TrackUtils {
                                        width: width != nil ? Int(width!) as NSNumber : nil,
                                        height: height != nil ? Int(height!) as NSNumber : nil,
                                        downloaded: false,
-                                       isSelected: (currentPreferredBitrate != nil && bitrate != nil && Int(currentPreferredBitrate!) == Int(bitrate!)) as NSNumber)
+                                       isSelected: currentPreferredBitrate != nil && bitrate != nil && Int(currentPreferredBitrate!) == Int(bitrate!))
                 videoTracks.append(track)
             }
         }

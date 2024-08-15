@@ -14,6 +14,7 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PrimaryPlayerChangedEven
 import media.bcc.bccm_player.players.PlayerController
 import media.bcc.bccm_player.players.chromecast.CastPlayerController
 import media.bcc.bccm_player.players.exoplayer.ExoPlayerController
+import media.bcc.bccm_player.utils.NoOpVoidResult
 
 class PlaybackService : MediaSessionService() {
     private var plugin: BccmPlayerPlugin? = null
@@ -123,13 +124,13 @@ class PlaybackService : MediaSessionService() {
             mediaSession.player = pc.player
             if (plugin != null) {
                 plugin!!.playbackPigeon?.onPrimaryPlayerChanged(
-                    PrimaryPlayerChangedEvent.Builder().setPlayerId(playerId).build()
-                ) {}
+                    PrimaryPlayerChangedEvent.Builder().setPlayerId(playerId).build(), NoOpVoidResult()
+                )
                 val stateUpdateEvent =
                     PlayerStateUpdateEvent.Builder()
                         .setPlayerId(playerId)
                         .setSnapshot(primaryPlayerController!!.getPlayerStateSnapshot())
-                plugin!!.playbackPigeon?.onPlayerStateUpdate(stateUpdateEvent.build()) {}
+                plugin!!.playbackPigeon?.onPlayerStateUpdate(stateUpdateEvent.build(), NoOpVoidResult())
                 pc.attachPlugin(plugin!!)
             }
         }

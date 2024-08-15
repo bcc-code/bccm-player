@@ -10,7 +10,7 @@ import androidx.media3.common.VideoSize
 import com.npaw.youbora.lib6.Timer
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
-import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlayerStateUpdateEvent
+import media.bcc.bccm_player.utils.NoOpVoidResult
 
 class PlayerListener(private val playerController: PlayerController, val plugin: BccmPlayerPlugin) :
     Player.Listener {
@@ -60,7 +60,7 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
             } else {
                 event.setMediaItem(null)
             }
-            plugin.playbackPigeon?.onPlaybackEnded(event.build()) {}
+            plugin.playbackPigeon?.onPlaybackEnded(event.build(), NoOpVoidResult())
         }
         onIsPlayingChanged(playerController.player.isPlaying)
         Log.d("bccm", "playbackState: " + playerController.player.playbackState.toString())
@@ -72,7 +72,7 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
                 .setPlayerId(playerController.id)
                 .setPlaybackState(playerController.getPlaybackState())
                 .setIsBuffering(playerController.player.playbackState == Player.STATE_BUFFERING)
-        plugin.playbackPigeon?.onPlaybackStateChanged(event.build()) {}
+        plugin.playbackPigeon?.onPlaybackStateChanged(event.build(), NoOpVoidResult())
     }
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -89,7 +89,7 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
             "onMediaItemTransition" + plugin.playbackPigeon.toString() + "event:" + event.build()
                 .toString()
         );
-        plugin.playbackPigeon?.onMediaItemTransition(event.build()) {}
+        plugin.playbackPigeon?.onMediaItemTransition(event.build(), NoOpVoidResult())
     }
 
     override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
@@ -112,8 +112,8 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
         val event = PlaybackPlatformApi.PositionDiscontinuityEvent.Builder()
             .setPlayerId(playerController.id)
         plugin.playbackPigeon?.onPositionDiscontinuity(
-            event.setPlaybackPositionMs(newPosition.positionMs.toDouble()).build()
-        ) {}
+            event.setPlaybackPositionMs(newPosition.positionMs.toDouble()).build(), NoOpVoidResult()
+        )
     }
 
 }

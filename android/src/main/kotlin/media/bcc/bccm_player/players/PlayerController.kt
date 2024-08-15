@@ -13,7 +13,6 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import io.flutter.view.TextureRegistry.SurfaceTextureEntry
-import io.flutter.view.TextureRegistry.TextureEntry
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.DOWNLOADED_URL_SCHEME
 import media.bcc.bccm_player.Downloader
@@ -26,6 +25,7 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
+import media.bcc.bccm_player.utils.NoOpVoidResult
 import media.bcc.bccm_player.utils.TrackUtils
 
 
@@ -145,7 +145,7 @@ abstract class PlayerController : Player.Listener {
         val event = PlaybackPlatformApi.PlayerStateUpdateEvent.Builder()
             .setPlayerId(id)
             .setSnapshot(getPlayerStateSnapshot())
-        plugin?.playbackPigeon?.onPlayerStateUpdate(event.build()) {}
+        plugin?.playbackPigeon?.onPlayerStateUpdate(event.build(), NoOpVoidResult())
     }
 
     fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
