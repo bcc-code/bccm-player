@@ -1,6 +1,7 @@
 package media.bcc.bccm_player
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -39,6 +40,7 @@ import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadChangedEvent
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadFailedEvent
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadRemovedEvent
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloadStatus
+import media.bcc.bccm_player.utils.DownloaderApiNoOpVoidResult
 import java.io.File
 import java.io.IOException
 import java.util.UUID
@@ -56,6 +58,7 @@ data class DownloadInfo(
     val additionalData: Map<String, String?>
 )
 
+@SuppressLint("UnsafeOptInUsageError")
 suspend fun DownloadHelper.prepare() {
     suspendCoroutine { cont ->
         prepare(object : DownloadHelper.Callback {
@@ -70,6 +73,7 @@ suspend fun DownloadHelper.prepare() {
     }
 }
 
+@SuppressLint("UnsafeOptInUsageError")
 class Downloader(
     private val context: Activity,
     private val pigeon: DownloaderApi.DownloaderListenerPigeon
@@ -120,7 +124,7 @@ class Downloader(
 
         mainScope.launch {
             statusChanged.collect {
-                pigeon.onDownloadStatusChanged(it) {}
+                pigeon.onDownloadStatusChanged(it, DownloaderApiNoOpVoidResult())
             }
         }
     }
@@ -129,8 +133,8 @@ class Downloader(
         pigeon.onDownloadRemoved(
             DownloadRemovedEvent.Builder()
                 .setKey(download.request.id)
-                .build()
-        ) {}
+                .build(), DownloaderApiNoOpVoidResult()
+        )
     }
 
     override fun onDownloadChanged(
@@ -143,15 +147,15 @@ class Downloader(
                 DownloadFailedEvent.Builder()
                     .setKey(download.request.id)
                     .setError(finalException.message + ", " + finalException.stackTraceToString())
-                    .build()
-            ) {}
+                    .build(), DownloaderApiNoOpVoidResult()
+            )
             return
         }
         pigeon.onDownloadStatusChanged(
             DownloadChangedEvent.Builder()
                 .setDownload(download.toDownloaderApiModel())
-                .build()
-        ) {}
+                .build(), DownloaderApiNoOpVoidResult()
+        )
     }
 
     val statusChanged: Flow<DownloadChangedEvent>
@@ -299,6 +303,7 @@ class Downloader(
     }
 }
 
+@SuppressLint("UnsafeOptInUsageError")
 fun Download.toDownloaderApiModel(): DownloaderApi.Download {
     val downloadInfo = try {
         Json.decodeFromString<DownloadInfo>(String(request.data))
@@ -327,6 +332,7 @@ fun Download.toDownloaderApiModel(): DownloaderApi.Download {
         .build()
 }
 
+@SuppressLint("UnsafeOptInUsageError")
 // map between DownloadStatus and Download.STATE_*
 fun toApiDownloadStatus(state: Int): DownloadStatus {
     return when (state) {

@@ -1,6 +1,5 @@
 package media.bcc.bccm_player
 
-import media.bcc.bccm_player.utils.DevicePerformanceManager
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
@@ -14,7 +13,6 @@ import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
-import androidx.core.performance.DevicePerformance
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.android.gms.cast.framework.CastContext
@@ -38,6 +36,9 @@ import media.bcc.bccm_player.pigeon.DownloaderApi
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloaderPigeon
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlaybackPlatformPigeon
+import media.bcc.bccm_player.utils.DevicePerformanceManager
+import media.bcc.bccm_player.utils.DownloaderApiNoOpVoidResult
+import media.bcc.bccm_player.utils.NoOpVoidResult
 import media.bcc.bccm_player.views.FlutterCastButton
 import media.bcc.bccm_player.views.FlutterCastPlayerView
 import media.bcc.bccm_player.views.FlutterExoPlayerView
@@ -250,13 +251,13 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
                     if (primaryId != null) {
                         builder.setPlayerId(primaryId)
                         builder.setIsInPipMode(pipEvent.isInPictureInPictureMode)
-                        playbackPigeon?.onPictureInPictureModeChanged(builder.build()) {}
+                        playbackPigeon?.onPictureInPictureModeChanged(builder.build(), NoOpVoidResult())
                     }
                 }
         }
         mainScope.launch {
             downloader.statusChanged.collect {
-                downloaderPigeon?.onDownloadStatusChanged(it) {}
+                downloaderPigeon?.onDownloadStatusChanged(it, DownloaderApiNoOpVoidResult())
             }
         }
     }

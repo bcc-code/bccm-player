@@ -1,5 +1,6 @@
 package media.bcc.bccm_player.players.chromecast
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.media3.cast.CastPlayer
@@ -18,7 +19,9 @@ import media.bcc.bccm_player.players.PlayerController
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_LAST_KNOWN_SUBTITLE_LANGUAGE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
+import media.bcc.bccm_player.utils.ChromecastNoOpVoidResult
 
+@SuppressLint("UnsafeOptInUsageError")
 class CastPlayerController(
     private val castContext: CastContext,
     private val playbackService: PlaybackService
@@ -69,54 +72,54 @@ class CastPlayerController(
 
     override fun onSessionEnded(p0: Session, p1: Int) {
         Log.d("bccm", "CastPlayerController::onSessionEnded")
-        plugin?.chromecastPigeon?.onSessionEnded {}
+        plugin?.chromecastPigeon?.onSessionEnded(ChromecastNoOpVoidResult())
     }
 
     override fun onSessionEnding(p0: Session) {
         Log.d("bccm", "CastPlayerController::onSessionEnding")
-        plugin?.chromecastPigeon?.onSessionEnding {}
+        plugin?.chromecastPigeon?.onSessionEnding(ChromecastNoOpVoidResult())
     }
 
     override fun onSessionResumeFailed(p0: Session, p1: Int) {
         Log.d("bccm", "CastPlayerController::onSessionResumeFailed")
-        plugin?.chromecastPigeon?.onSessionResumeFailed {}
+        plugin?.chromecastPigeon?.onSessionResumeFailed(ChromecastNoOpVoidResult())
     }
 
     override fun onSessionResumed(p0: Session, p1: Boolean) {
         Log.d("bccm", "CastPlayerController::onSessionResumed, setting as primary")
-        plugin?.chromecastPigeon?.onSessionResumed {}
+        plugin?.chromecastPigeon?.onSessionResumed(ChromecastNoOpVoidResult())
         playbackService.setPrimary(this.id);
     }
 
     override fun onSessionResuming(p0: Session, p1: String) {
         Log.d("bccm", "CastPlayerController::onSessionResuming")
-        plugin?.chromecastPigeon?.onSessionResuming {}
+        plugin?.chromecastPigeon?.onSessionResuming(ChromecastNoOpVoidResult())
     }
 
     override fun onSessionStartFailed(p0: Session, p1: Int) {
         Log.d("bccm", "CastPlayerController::onSessionStartFailed")
-        plugin?.chromecastPigeon?.onSessionStartFailed {}
+        plugin?.chromecastPigeon?.onSessionStartFailed(ChromecastNoOpVoidResult())
     }
 
     override fun onSessionStarted(p0: Session, p1: String) {
         Log.d("bccm", "CastPlayerController::onSessionStarted")
-        plugin?.chromecastPigeon?.onSessionStarted {}
+        plugin?.chromecastPigeon?.onSessionStarted(ChromecastNoOpVoidResult())
     }
 
     override fun onSessionStarting(p0: Session) {
         Log.d("bccm", "CastPlayerController::onSessionStarting")
-        plugin?.chromecastPigeon?.onSessionStarting {}
+        plugin?.chromecastPigeon?.onSessionStarting(ChromecastNoOpVoidResult())
     }
 
     override fun onSessionSuspended(p0: Session, p1: Int) {
         Log.d("bccm", "CastPlayerController::onSessionSuspended")
-        plugin?.chromecastPigeon?.onSessionSuspended {}
+        plugin?.chromecastPigeon?.onSessionSuspended(ChromecastNoOpVoidResult())
     }
 
     // SessionAvailabilityListener
 
     override fun onCastSessionAvailable() {
-        plugin?.chromecastPigeon?.onCastSessionAvailable {}
+        plugin?.chromecastPigeon?.onCastSessionAvailable(ChromecastNoOpVoidResult())
         Log.d("bccm", "Session available. Transferring state from primaryPlayer to castPlayer")
         val primaryPlayer =
             playbackService.getPrimaryController()?.player ?: return
@@ -140,7 +143,7 @@ class CastPlayerController(
             event.setPlaybackPositionMs(currentPosition)
         }
         playbackService.unclaimIfPrimary(this)
-        plugin?.chromecastPigeon?.onCastSessionUnavailable(event.build()) {}
+        plugin?.chromecastPigeon?.onCastSessionUnavailable(event.build(), ChromecastNoOpVoidResult())
     };
 }
 

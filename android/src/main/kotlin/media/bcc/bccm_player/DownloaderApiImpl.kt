@@ -31,15 +31,12 @@ class DownloaderApiImpl(private val downloader: Downloader) : DownloaderApi.Down
         result.success(downloader.getDownloads().toMutableList())
     }
 
-    override fun getDownload(
-        downloadKey: String,
-        result: DownloaderApi.Result<DownloaderApi.Download>
-    ) {
+    override fun getDownload(downloadKey: String, result: DownloaderApi.NullableResult<DownloaderApi.Download>) {
     }
 
-    override fun removeDownload(downloadKey: String, result: DownloaderApi.Result<Void>) {
+    override fun removeDownload(downloadKey: String, result: DownloaderApi.VoidResult) {
         downloader.removeDownload(downloadKey)
-        result.success(null)
+        result.success()
     }
 
     override fun getFreeDiskSpace(result: DownloaderApi.Result<Double>) {
