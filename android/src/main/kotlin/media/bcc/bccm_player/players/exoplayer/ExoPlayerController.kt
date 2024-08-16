@@ -136,10 +136,11 @@ class ExoPlayerController(
             "setting preferred audio and sub lang to: ${appConfigState?.audioLanguages}, ${appConfigState?.subtitleLanguages}"
         )
         var audioLanguages = getExpectedAudioLanguages(appConfigState)
+        val isPrimary = plugin?.getPlaybackService()?.getPrimaryController()?.id == id
 
         if (
             player.trackSelectionParameters.preferredAudioLanguages != audioLanguages
-            && manuallySelectedAudioLanguage != null
+            && isPrimary
             && appConfigState != null
         ) {
             audioLanguages = appConfigState.audioLanguages

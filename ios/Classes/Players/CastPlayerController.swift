@@ -12,6 +12,7 @@ class CastPlayerController: NSObject, PlayerController {
     var sessionManager: GCKSessionManager?
     var appConfig: AppConfig? = nil
     final var observers = [NSKeyValueObservation]()
+    var manuallySelectedAudioLanguage: String?
     
     init(playbackApi: PlaybackApiImpl) {
         self.id = CastPlayerController.DEFAULT_ID
@@ -313,6 +314,9 @@ class CastPlayerController: NSObject, PlayerController {
         var customData: [String: Any] = [:]
         var audioTracks = [String]()
         var subtitlesTracks = [String]()
+        if let lang = manuallySelectedAudioLanguage {
+            audioTracks.append(lang)
+        }
         if let lang = mediaItem.lastKnownAudioLanguage {
             audioTracks.append(lang)
         }
@@ -334,8 +338,12 @@ class CastPlayerController: NSObject, PlayerController {
     }
     
     func transferStateFromPrimary() {
-        guard let player = (playbackApi.getPrimaryPlayer() as? AVQueuePlayerController)?.getPlayer() else {
-            debugPrint("No primary player")
+        guard let playerController = playbackApi.getPrimaryPlayer() else {
+            debugPrint("No primary player controller")
+            return
+        }
+        guard let player = (playerController as? AVQueuePlayerController)?.getPlayer() else {
+            debugPrint("Primary player is not of type AVQueuePlayerController")
             return
         }
         guard let currentItem = player.currentItem else {
@@ -361,6 +369,8 @@ class CastPlayerController: NSObject, PlayerController {
         guard let remoteMediaClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
             return
         }
+        
+        manuallySelectedAudioLanguage = playerController.manuallySelectedAudioLanguage
         
         let queueBuilder = GCKMediaQueueDataBuilder(queueType: GCKMediaQueueType.videoPlayList)
         queueBuilder.items = queue

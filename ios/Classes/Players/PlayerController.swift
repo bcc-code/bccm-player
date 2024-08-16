@@ -11,6 +11,7 @@ import Foundation
 public protocol PlayerController {
     var id: String { get }
     var mixWithOthers: Bool { get set }
+    var manuallySelectedAudioLanguage: String? { get set }
     func setNpawConfig(npawConfig: NpawConfig?)
     func updateAppConfig(appConfig: AppConfig?)
     func getCurrentItem() -> MediaItem?

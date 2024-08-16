@@ -33,7 +33,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
     
-    var manuallySelectedAudioLanguage: String?
+    public var manuallySelectedAudioLanguage: String?
     
     private func updateAutomaticAudioOnlyTimer() {
         if bufferMode == BufferMode.fastStartShortForm {
@@ -438,6 +438,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
 
     public func updateAppConfig(appConfig: AppConfig?) {
+        if (self.appConfig?.audioLanguages != appConfig?.audioLanguages && isPrimary) {
+            manuallySelectedAudioLanguage = nil
+            if let appConfig = appConfig {
+                _ = player.currentItem?.setAudioLanguagePrioritized(appConfig.audioLanguages)
+            }
+        }
         self.appConfig = appConfig
         updateYouboraOptions()
     }
@@ -472,8 +478,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                             self.play()
                         }
                         var audioLanguages: [String] = []
-                        if let manuallySelectedLanguageCode = self.manuallySelectedAudioLanguage {
-                            audioLanguages.append(manuallySelectedLanguageCode)
+                        if let manuallySelectedAudioLanguage = self.manuallySelectedAudioLanguage {
+                            audioLanguages.append(manuallySelectedAudioLanguage)
                         }
                         if let configAudioLanguages = self.appConfig?.audioLanguages {
                             audioLanguages.append(contentsOf: configAudioLanguages)
