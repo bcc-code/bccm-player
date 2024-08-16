@@ -1,10 +1,12 @@
 package media.bcc.bccm_player.utils
 
+import android.annotation.SuppressLint
 import androidx.media3.common.C
 import androidx.media3.common.Format
 import androidx.media3.common.Player
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 
+@SuppressLint("UnsafeOptInUsageError")
 object TrackUtils {
     fun getAudioTracksForPlayer(player: Player): MutableList<PlaybackPlatformApi.Track> {
         val currentTracks = player.currentTracks;

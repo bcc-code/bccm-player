@@ -121,15 +121,17 @@ class CastPlayerController(
     override fun onCastSessionAvailable() {
         plugin?.chromecastPigeon?.onCastSessionAvailable(ChromecastNoOpVoidResult())
         Log.d("bccm", "Session available. Transferring state from primaryPlayer to castPlayer")
+        val primaryController = playbackService.getPrimaryController()
         val primaryPlayer =
-            playbackService.getPrimaryController()?.player ?: return
+            primaryController?.player ?: return
 
         Log.d(
             "bccm",
             "oncastsessionavailable + " + castPlayer.mediaMetadata.extras?.getString("id")
         )
+        manuallySelectedAudioLanguage = primaryController.manuallySelectedAudioLanguage
         if (primaryPlayer.isPlaying) {
-            transferState(primaryPlayer, castPlayer)
+            transferMediaItems(primaryPlayer, castPlayer)
         } else {
             primaryPlayer.pause()
         }
@@ -149,7 +151,7 @@ class CastPlayerController(
 
 // Extra
 
-private fun transferState(previous: Player, next: Player) {
+private fun transferMediaItems(previous: Player, next: Player) {
     val currentTracks = previous.currentTracks
     Log.d("bccm", currentTracks.toString())
     val audioTrack =

@@ -1,5 +1,6 @@
 package media.bcc.bccm_player.players.chromecast
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.Format
@@ -12,6 +13,7 @@ import com.google.android.gms.cast.MediaTrack
 import com.google.android.gms.cast.framework.CastContext
 
 
+@SuppressLint("UnsafeOptInUsageError")
 class CastPlayerWithTrackSelection(private val castContext: CastContext, player: Player) :
     ForwardingPlayer(player) {
     private var selectionBeingProcessed: LongArray? = null

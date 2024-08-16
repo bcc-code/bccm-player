@@ -64,7 +64,7 @@ class CastPlayerController: NSObject, PlayerController {
         }
         var audioTracks = [Track]()
         var textTracks = [Track]()
-        var videoTracks = [Track]()
+        let videoTracks = [Track]()
          
         for track in tracks {
             let isSelected = mediaStatus.activeTrackIDs?.contains(where: { $0.intValue == track.identifier }) ?? false

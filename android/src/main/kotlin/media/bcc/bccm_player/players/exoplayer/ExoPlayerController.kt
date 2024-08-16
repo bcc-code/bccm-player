@@ -2,7 +2,6 @@ package media.bcc.bccm_player.players.exoplayer
 
 import android.content.Context
 import android.util.Log
-import android.view.Surface
 import android.view.WindowManager
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -136,9 +135,22 @@ class ExoPlayerController(
             "bccm",
             "setting preferred audio and sub lang to: ${appConfigState?.audioLanguages}, ${appConfigState?.subtitleLanguages}"
         )
-        val audioLanguages = appConfigState?.audioLanguages?.toTypedArray() ?: arrayOf();
+        var audioLanguages = getExpectedAudioLanguages(appConfigState)
+
+        if (
+            player.trackSelectionParameters.preferredAudioLanguages != audioLanguages
+            && manuallySelectedAudioLanguage != null
+            && appConfigState != null
+        ) {
+            audioLanguages = appConfigState.audioLanguages
+            manuallySelectedAudioLanguage = null
+            player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+                .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+                .build()
+        }
+
         player.trackSelectionParameters = trackSelector.parameters.buildUpon()
-            .setPreferredAudioLanguages(*(audioLanguages))
+            .setPreferredAudioLanguages(*(audioLanguages.toTypedArray()))
             .build()
 
         textLanguagesThatShouldBeSelected =

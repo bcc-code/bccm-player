@@ -33,6 +33,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
     
+    var manuallySelectedAudioLanguage: String?
+    
     private func updateAutomaticAudioOnlyTimer() {
         if bufferMode == BufferMode.fastStartShortForm {
             // no-op, we dont want automatic audio-only for shortform content
@@ -202,6 +204,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 return
             } else {
                 currentItem.select(optionToSelect, in: selectionGroup)
+                if type == .audio {
+                    manuallySelectedAudioLanguage = optionToSelect.locale?.identifier
+                }
             }
         } else {
             print("trackId is out of bounds: " + trackId + " of " + selectionGroup.options.count.description)
@@ -466,7 +471,14 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                             debugPrint("\(self.id) q 2")
                             self.play()
                         }
-                        if let audioLanguages = self.appConfig?.audioLanguages {
+                        var audioLanguages: [String] = []
+                        if let manuallySelectedLanguageCode = self.manuallySelectedAudioLanguage {
+                            audioLanguages.append(manuallySelectedLanguageCode)
+                        }
+                        if let configAudioLanguages = self.appConfig?.audioLanguages {
+                            audioLanguages.append(contentsOf: configAudioLanguages)
+                        }
+                        if !audioLanguages.isEmpty {
                             _ = playerItem.setAudioLanguagePrioritized(audioLanguages)
                         }
                         if let subtitleLanguages = self.appConfig?.subtitleLanguages {
@@ -480,7 +492,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         completion(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")
-                        completion(FlutterError(code: "", message: "MediaItem failed to load", details: ["playerItem.status", playerItem.status.rawValue, "playerItem.error", playerItem.error?.localizedDescription]))
+                        completion(FlutterError(code: "", message: "MediaItem failed to load", details: ["playerItem.status", playerItem.status.rawValue, "playerItem.error", playerItem.error?.localizedDescription ?? ""]))
                     }
                     self.temporaryStatusObserver?.invalidate()
                     self.temporaryStatusObserver = nil

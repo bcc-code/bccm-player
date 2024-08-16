@@ -7,6 +7,7 @@ import android.view.Surface
 import androidx.annotation.CallSuper
 import androidx.core.math.MathUtils.clamp
 import androidx.media3.common.C
+import androidx.media3.common.C.TRACK_TYPE_AUDIO
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -14,6 +15,7 @@ import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import io.flutter.view.TextureRegistry.SurfaceTextureEntry
 import media.bcc.bccm_player.BccmPlayerPlugin
+import media.bcc.bccm_player.BccmPlayerPluginSingleton
 import media.bcc.bccm_player.DOWNLOADED_URL_SCHEME
 import media.bcc.bccm_player.Downloader
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
@@ -23,6 +25,7 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_DURATION
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_MIME_TYPE
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.utils.NoOpVoidResult
@@ -38,6 +41,7 @@ abstract class PlayerController : Player.Listener {
     var isLive: Boolean = false
     var texture: SurfaceTextureEntry? = null
     var surface: Surface? = null
+    var manuallySelectedAudioLanguage: String? = null
 
     fun attachPlugin(newPlugin: BccmPlayerPlugin) {
         if (this.plugin != null) detachPlugin()
@@ -175,9 +179,8 @@ abstract class PlayerController : Player.Listener {
             metaBuilder.setArtworkUri(Uri.parse(mediaItem.metadata?.artworkUri))
         }
 
-        val hasM3u8Extension = mediaItem.url?.contains(".m3u8") == true
         var mimeType = mediaItem.mimeType;
-        if (mediaItem.url?.contains(".m3u8") == true) {
+        if (mimeType == null && mediaItem.url?.contains(".m3u8") == true) {
             mimeType = "application/x-mpegURL"
         }
         exoExtras.putString(PLAYER_DATA_MIME_TYPE, mimeType)
@@ -191,6 +194,13 @@ abstract class PlayerController : Player.Listener {
         val duration = mediaItem.metadata?.durationMs;
         if (duration != null) {
             exoExtras.putString(PLAYER_DATA_DURATION, duration.toString())
+        }
+
+        if (mediaItem.lastKnownAudioLanguage != null) {
+            exoExtras.putString(PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE, mediaItem.lastKnownAudioLanguage)
+        }
+        manuallySelectedAudioLanguage?.let {
+            exoExtras.putString(PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE, it)
         }
 
         val sourceExtra = mediaItem.metadata?.extras
@@ -325,22 +335,43 @@ abstract class PlayerController : Player.Listener {
         val tracks = tracksOverride ?: player.currentTracks
         var trackGroup: Tracks.Group? = null
         var trackIndex: Int? = null
-        for (group in tracks.groups.filter { it.type == type && it.length > 0 }) {
+        l@ for (group in tracks.groups.filter { it.type == type && it.length > 0 }) {
             for (i in 0 until group.length) {
                 val format = group.getTrackFormat(i);
                 if (format.id == trackId) {
                     trackGroup = group
                     trackIndex = i
+                    if (type == TRACK_TYPE_AUDIO) {
+                        manuallySelectedAudioLanguage = format.language
+                    }
+                    break@l
                 }
             }
         }
         if (trackGroup != null && trackIndex != null) {
+            val appConfig = BccmPlayerPluginSingleton.appConfigState.value
+            val audioLanguages = getExpectedAudioLanguages(appConfig)
+
             player.trackSelectionParameters = player.trackSelectionParameters
                 .buildUpon()
                 .clearOverridesOfType(type)
+                .setPreferredAudioLanguages(*audioLanguages.toTypedArray())
                 .setOverrideForType(TrackSelectionOverride(trackGroup.mediaTrackGroup, trackIndex))
                 .build()
         }
+    }
+
+    fun getExpectedAudioLanguages(appConfig: PlaybackPlatformApi.AppConfig?): MutableList<String> {
+        val audioLanguages: MutableList<String> = mutableListOf()
+
+        manuallySelectedAudioLanguage?.let {
+            audioLanguages.add(it)
+        }
+        if (appConfig?.audioLanguages?.isEmpty() == false) {
+            audioLanguages.addAll(appConfig.audioLanguages)
+        }
+
+        return audioLanguages
     }
 
     /**
