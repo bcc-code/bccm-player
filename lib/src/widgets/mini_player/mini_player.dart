@@ -28,7 +28,7 @@ class MiniPlayer extends HookWidget {
   final String? pauseSemanticLabel;
 
   const MiniPlayer({
-    Key? key,
+    super.key,
     required this.secondaryTitle,
     required this.title,
     required this.isPlaying,
@@ -44,8 +44,7 @@ class MiniPlayer extends HookWidget {
     this.loadingIndicator,
     this.playSemanticLabel,
     this.pauseSemanticLabel,
-  })  : assert(artworkUri != null || artwork != null, "Artwork must be set"),
-        super(key: key);
+  })  : assert(artworkUri != null || artwork != null, "Artwork must be set");
 
   @override
   Widget build(BuildContext context) {

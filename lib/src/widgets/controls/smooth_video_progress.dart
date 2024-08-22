@@ -34,11 +34,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 /// position value for [BccmPlayerController].
 class SmoothVideoProgress extends HookWidget {
   const SmoothVideoProgress({
-    Key? key,
+    super.key,
     required this.controller,
     required this.builder,
     this.child,
-  }) : super(key: key);
+  });
 
   /// The [VideoPlayerController] to build a progress widget for.
   final BccmPlayerController controller;

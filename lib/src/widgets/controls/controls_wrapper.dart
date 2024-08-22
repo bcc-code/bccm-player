@@ -11,12 +11,12 @@ class ControlsState extends InheritedWidget {
   final VoidCallback hide;
 
   const ControlsState({
-    Key? key,
+    super.key,
     required this.visible,
     required this.visibilityAnimation,
     required this.hide,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   static ControlsState of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<ControlsState>()!;

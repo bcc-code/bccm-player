@@ -38,9 +38,8 @@ class CastButton extends StatelessWidget {
 
 class _Android extends StatelessWidget {
   const _Android({
-    Key? key,
     required this.creationParams,
-  }) : super(key: key);
+  });
 
   final Map<String, dynamic> creationParams;
 

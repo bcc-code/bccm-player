@@ -177,9 +177,8 @@ class _IOSPlayer extends StatelessWidget {
 
 class _AndroidPlayer extends StatelessWidget {
   const _AndroidPlayer({
-    Key? key,
     required this.parent,
-  }) : super(key: key);
+  });
 
   final VideoPlatformView parent;
 

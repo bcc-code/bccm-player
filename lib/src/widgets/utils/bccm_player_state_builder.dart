@@ -82,12 +82,12 @@ class BccmPlayerStateBuilder<T> extends StatelessWidget {
 class StateNotifierSelectBuilder<T, T2> extends StatefulWidget {
   /// {@macro flutter_state_notifier.state_notifier_builder}
   const StateNotifierSelectBuilder({
-    Key? key,
+    super.key,
     required this.builder,
     required this.stateNotifier,
     required this.select,
     this.child,
-  }) : super(key: key);
+  });
 
   /// A callback that builds a [Widget] based on the current value of [stateNotifier]
   ///
