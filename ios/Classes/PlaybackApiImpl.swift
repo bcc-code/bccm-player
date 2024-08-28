@@ -234,6 +234,8 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         } else {
             try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
         }
+        
+        try? AVAudioSession.sharedInstance().setActive(true)
     }
 }
 
