@@ -11,4 +11,5 @@ enum PlayerMetadataConstants {
     static let IsLive = "is_live"
     static let IsOffline = "is_offline"
     static let ArtworkUri = "artwork_uri"
+    static let Id = "id"
 }

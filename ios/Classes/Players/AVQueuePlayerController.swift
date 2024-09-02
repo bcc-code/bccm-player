@@ -12,8 +12,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     final var currentItemObservers = [NSKeyValueObservation]()
     final var observers = [NSKeyValueObservation]()
     final var notificationObservers = [NSObjectProtocol]()
-    final lazy var peakBitRateController = PeakBitrateController(player: player)
     public var mixWithOthers = false
+    final lazy var peakBitRateController = PeakBitrateController(player: player)
+    final lazy var queue = MediaQueueController(playerController: self)
     
     var temporaryStatusObserver: NSKeyValueObservation? = nil
     var youboraPlugin: YBPlugin?
@@ -268,6 +269,22 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                     })
     }
     
+    public func moveQueueItem(from fromIndex: Int, to toIndex: Int) {
+        queue.moveQueueItem(from: fromIndex, to: toIndex)
+    }
+    
+    public func removeQueueItem(id: String) {}
+    
+    public func clearQueue() {}
+    
+    public func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int) {}
+    
+    public func setCurrentQueueItem(id: String) {}
+    
+    public func getQueue() -> MediaQueue {
+        return queue.toMediaQueue()
+    }
+    
     public func pause() {
         debugPrint("\(id) pausing")
         player.pause()
@@ -438,7 +455,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
 
     public func updateAppConfig(appConfig: AppConfig?) {
-        if (self.appConfig?.audioLanguages != appConfig?.audioLanguages && isPrimary) {
+        if self.appConfig?.audioLanguages != appConfig?.audioLanguages && isPrimary {
             manuallySelectedAudioLanguage = nil
             if let appConfig = appConfig {
                 _ = player.currentItem?.setAudioLanguagePrioritized(appConfig.audioLanguages)
@@ -448,7 +465,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         updateYouboraOptions()
     }
     
-    public func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: @escaping (FlutterError?) -> Void) {
+    public func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: ((FlutterError?) -> Void)?) {
         createPlayerItem(mediaItem) { playerItem in
             guard let playerItem = playerItem else {
                 return
@@ -495,10 +512,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         self.youboraPlugin?.options.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
                         self.youboraPlugin?.options.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
                         debugPrint("\(self.id) readyToPlay")
-                        completion(nil)
+                        completion?(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")
-                        completion(FlutterError(code: "", message: "MediaItem failed to load", details: ["playerItem.status", playerItem.status.rawValue, "playerItem.error", playerItem.error?.localizedDescription ?? ""]))
+                        completion?(FlutterError(code: "", message: "MediaItem failed to load", details: ["playerItem.status", playerItem.status.rawValue, "playerItem.error", playerItem.error?.localizedDescription ?? ""]))
                     }
                     self.temporaryStatusObserver?.invalidate()
                     self.temporaryStatusObserver = nil

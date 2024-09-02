@@ -7,6 +7,26 @@ import GoogleCast
 // TODO: this file should be a pure api towards flutter,
 // we should move the "players" array and state into a dedicated class
 public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
+    public func updateQueueOrder(_ playerId: String, itemIds items: [String], completion: @escaping (FlutterError?) -> Void) {
+        // no-op
+    }
+
+    public func moveQueueItem(_ playerId: String, from fromIndex: Int, to toIndex: Int, completion: @escaping (FlutterError?) -> Void) {
+        let player = getPlayer(playerId)
+        player?.moveQueueItem(from: fromIndex, to: toIndex)
+        completion(nil)
+    }
+
+    public func removeQueueItem(_ playerId: String, id: String, completion: @escaping (FlutterError?) -> Void) {}
+
+    public func clearQueue(_ playerId: String, completion: @escaping (FlutterError?) -> Void) {}
+
+    public func replaceQueueItems(_ playerId: String, items: [MediaItem], from fromIndex: Int, to toIndex: Int, completion: @escaping (FlutterError?) -> Void) {}
+
+    public func setCurrentQueueItem(_ playerId: String, id: String, completion: @escaping (FlutterError?) -> Void) {}
+
+    public func getQueue(_ playerId: String, completion: @escaping (MediaQueue?, FlutterError?) -> Void) {}
+
     public func getAndroidPerformanceClass(completion: @escaping (NSNumber?, FlutterError?) -> Void) {
         completion(nil, nil)
     }

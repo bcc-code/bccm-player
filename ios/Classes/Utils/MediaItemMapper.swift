@@ -47,8 +47,11 @@ class MediaItemMapper {
 
         var isOffline: Bool? = playerData?[PlayerMetadataConstants.IsOffline] == "true"
 
+        let id = playerData?[PlayerMetadataConstants.Id] ?? UUID().uuidString
+
         let mediaItem = MediaItem.make(
-            withUrl: asset.url.absoluteString,
+            withId: id,
+            url: asset.url.absoluteString,
             mimeType: mimeType,
             metadata: metadata,
             isLive: isLive as NSNumber,
