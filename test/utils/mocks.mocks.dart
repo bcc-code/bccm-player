@@ -3,14 +3,14 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
+import 'dart:async' as _i4;
 
 import 'package:bccm_player/bccm_player.dart' as _i2;
-import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart' as _i6;
+import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i5;
+import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:plugin_platform_interface/plugin_platform_interface.dart'
-    as _i4;
+    as _i5;
 import 'package:state_notifier/state_notifier.dart' as _i7;
 
 // ignore_for_file: type=lint
@@ -58,9 +58,19 @@ class _FakeMediaInfo_2 extends _i1.SmartFake implements _i2.MediaInfo {
         );
 }
 
-class _FakePlayerPluginState_3 extends _i1.SmartFake
+class _FakeMediaQueue_3 extends _i1.SmartFake implements _i3.MediaQueue {
+  _FakeMediaQueue_3(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakePlayerPluginState_4 extends _i1.SmartFake
     implements _i2.PlayerPluginState {
-  _FakePlayerPluginState_3(
+  _FakePlayerPluginState_4(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -69,9 +79,9 @@ class _FakePlayerPluginState_3 extends _i1.SmartFake
         );
 }
 
-class _FakePlayerStateNotifier_4 extends _i1.SmartFake
+class _FakePlayerStateNotifier_5 extends _i1.SmartFake
     implements _i2.PlayerStateNotifier {
-  _FakePlayerStateNotifier_4(
+  _FakePlayerStateNotifier_5(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -80,8 +90,8 @@ class _FakePlayerStateNotifier_4 extends _i1.SmartFake
         );
 }
 
-class _FakeTimer_5 extends _i1.SmartFake implements _i3.Timer {
-  _FakeTimer_5(
+class _FakeTimer_6 extends _i1.SmartFake implements _i4.Timer {
+  _FakeTimer_6(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -90,8 +100,8 @@ class _FakeTimer_5 extends _i1.SmartFake implements _i3.Timer {
         );
 }
 
-class _FakePlayerState_6 extends _i1.SmartFake implements _i2.PlayerState {
-  _FakePlayerState_6(
+class _FakePlayerState_7 extends _i1.SmartFake implements _i2.PlayerState {
+  _FakePlayerState_7(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -104,7 +114,7 @@ class _FakePlayerState_6 extends _i1.SmartFake implements _i2.PlayerState {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBccmPlayerInterface extends _i1.Mock
-    with _i4.MockPlatformInterfaceMixin
+    with _i5.MockPlatformInterfaceMixin
     implements _i2.BccmPlayerInterface {
   @override
   _i2.PlayerPluginStateNotifier get stateNotifier => (super.noSuchMethod(
@@ -120,19 +130,19 @@ class MockBccmPlayerInterface extends _i1.Mock
       ) as _i2.PlayerPluginStateNotifier);
 
   @override
-  _i3.Stream<_i2.ChromecastEvent> get chromecastEventStream =>
+  _i4.Stream<_i2.ChromecastEvent> get chromecastEventStream =>
       (super.noSuchMethod(
         Invocation.getter(#chromecastEventStream),
-        returnValue: _i3.Stream<_i2.ChromecastEvent>.empty(),
-        returnValueForMissingStub: _i3.Stream<_i2.ChromecastEvent>.empty(),
-      ) as _i3.Stream<_i2.ChromecastEvent>);
+        returnValue: _i4.Stream<_i2.ChromecastEvent>.empty(),
+        returnValueForMissingStub: _i4.Stream<_i2.ChromecastEvent>.empty(),
+      ) as _i4.Stream<_i2.ChromecastEvent>);
 
   @override
-  _i3.Stream<dynamic> get playerEventStream => (super.noSuchMethod(
+  _i4.Stream<dynamic> get playerEventStream => (super.noSuchMethod(
         Invocation.getter(#playerEventStream),
-        returnValue: _i3.Stream<dynamic>.empty(),
-        returnValueForMissingStub: _i3.Stream<dynamic>.empty(),
-      ) as _i3.Stream<dynamic>);
+        returnValue: _i4.Stream<dynamic>.empty(),
+        returnValueForMissingStub: _i4.Stream<dynamic>.empty(),
+      ) as _i4.Stream<dynamic>);
 
   @override
   _i2.BccmPlayerController get primaryController => (super.noSuchMethod(
@@ -148,17 +158,17 @@ class MockBccmPlayerInterface extends _i1.Mock
       ) as _i2.BccmPlayerController);
 
   @override
-  _i3.Future<void> setup() => (super.noSuchMethod(
+  _i4.Future<void> setup() => (super.noSuchMethod(
         Invocation.method(
           #setup,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<String> newPlayer({
+  _i4.Future<String> newPlayer({
     _i2.BufferMode? bufferMode,
     bool? disableNpaw,
   }) =>
@@ -171,7 +181,7 @@ class MockBccmPlayerInterface extends _i1.Mock
             #disableNpaw: disableNpaw,
           },
         ),
-        returnValue: _i3.Future<String>.value(_i5.dummyValue<String>(
+        returnValue: _i4.Future<String>.value(_i6.dummyValue<String>(
           this,
           Invocation.method(
             #newPlayer,
@@ -183,7 +193,7 @@ class MockBccmPlayerInterface extends _i1.Mock
           ),
         )),
         returnValueForMissingStub:
-            _i3.Future<String>.value(_i5.dummyValue<String>(
+            _i4.Future<String>.value(_i6.dummyValue<String>(
           this,
           Invocation.method(
             #newPlayer,
@@ -194,30 +204,30 @@ class MockBccmPlayerInterface extends _i1.Mock
             },
           ),
         )),
-      ) as _i3.Future<String>);
+      ) as _i4.Future<String>);
 
   @override
-  _i3.Future<void> disposePlayer(String? playerId) => (super.noSuchMethod(
+  _i4.Future<void> disposePlayer(String? playerId) => (super.noSuchMethod(
         Invocation.method(
           #disposePlayer,
           [playerId],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<bool> setPrimary(String? id) => (super.noSuchMethod(
+  _i4.Future<bool> setPrimary(String? id) => (super.noSuchMethod(
         Invocation.method(
           #setPrimary,
           [id],
         ),
-        returnValue: _i3.Future<bool>.value(false),
-        returnValueForMissingStub: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+        returnValue: _i4.Future<bool>.value(false),
+        returnValueForMissingStub: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
 
   @override
-  _i3.Future<void> replaceCurrentMediaItem(
+  _i4.Future<void> replaceCurrentMediaItem(
     String? playerId,
     _i2.MediaItem? mediaItem, {
     bool? playbackPositionFromPrimary,
@@ -235,12 +245,12 @@ class MockBccmPlayerInterface extends _i1.Mock
             #autoplay: autoplay,
           },
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> queueMediaItem(
+  _i4.Future<void> queueMediaItem(
     String? playerId,
     _i2.MediaItem? mediaItem,
   ) =>
@@ -252,44 +262,44 @@ class MockBccmPlayerInterface extends _i1.Mock
             mediaItem,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<_i6.ChromecastState?> getChromecastState() => (super.noSuchMethod(
+  _i4.Future<_i3.ChromecastState?> getChromecastState() => (super.noSuchMethod(
         Invocation.method(
           #getChromecastState,
           [],
         ),
-        returnValue: _i3.Future<_i6.ChromecastState?>.value(),
-        returnValueForMissingStub: _i3.Future<_i6.ChromecastState?>.value(),
-      ) as _i3.Future<_i6.ChromecastState?>);
+        returnValue: _i4.Future<_i3.ChromecastState?>.value(),
+        returnValueForMissingStub: _i4.Future<_i3.ChromecastState?>.value(),
+      ) as _i4.Future<_i3.ChromecastState?>);
 
   @override
-  _i3.Future<_i2.PlayerTracksSnapshot?> getPlayerTracks({String? playerId}) =>
+  _i4.Future<_i2.PlayerTracksSnapshot?> getPlayerTracks({String? playerId}) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPlayerTracks,
           [],
           {#playerId: playerId},
         ),
-        returnValue: _i3.Future<_i2.PlayerTracksSnapshot?>.value(),
+        returnValue: _i4.Future<_i2.PlayerTracksSnapshot?>.value(),
         returnValueForMissingStub:
-            _i3.Future<_i2.PlayerTracksSnapshot?>.value(),
-      ) as _i3.Future<_i2.PlayerTracksSnapshot?>);
+            _i4.Future<_i2.PlayerTracksSnapshot?>.value(),
+      ) as _i4.Future<_i2.PlayerTracksSnapshot?>);
 
   @override
-  _i3.Future<_i6.PlayerStateSnapshot?> getPlayerState({String? playerId}) =>
+  _i4.Future<_i3.PlayerStateSnapshot?> getPlayerState({String? playerId}) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPlayerState,
           [],
           {#playerId: playerId},
         ),
-        returnValue: _i3.Future<_i6.PlayerStateSnapshot?>.value(),
-        returnValueForMissingStub: _i3.Future<_i6.PlayerStateSnapshot?>.value(),
-      ) as _i3.Future<_i6.PlayerStateSnapshot?>);
+        returnValue: _i4.Future<_i3.PlayerStateSnapshot?>.value(),
+        returnValueForMissingStub: _i4.Future<_i3.PlayerStateSnapshot?>.value(),
+      ) as _i4.Future<_i3.PlayerStateSnapshot?>);
 
   @override
   void openExpandedCastController() => super.noSuchMethod(
@@ -310,27 +320,27 @@ class MockBccmPlayerInterface extends _i1.Mock
       );
 
   @override
-  _i3.Future<void> addPlaybackListener(_i6.PlaybackListenerPigeon? listener) =>
+  _i4.Future<void> addPlaybackListener(_i3.PlaybackListenerPigeon? listener) =>
       (super.noSuchMethod(
         Invocation.method(
           #addPlaybackListener,
           [listener],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> removePlaybackListener(
-          _i6.PlaybackListenerPigeon? listener) =>
+  _i4.Future<void> removePlaybackListener(
+          _i3.PlaybackListenerPigeon? listener) =>
       (super.noSuchMethod(
         Invocation.method(
           #removePlaybackListener,
           [listener],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void play(String? playerId) => super.noSuchMethod(
@@ -342,7 +352,7 @@ class MockBccmPlayerInterface extends _i1.Mock
       );
 
   @override
-  _i3.Future<void> seekTo(
+  _i4.Future<void> seekTo(
     String? playerId,
     double? positionMs,
   ) =>
@@ -354,9 +364,9 @@ class MockBccmPlayerInterface extends _i1.Mock
             positionMs,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void pause(String? playerId) => super.noSuchMethod(
@@ -384,7 +394,7 @@ class MockBccmPlayerInterface extends _i1.Mock
       );
 
   @override
-  _i3.Future<void> setSelectedTrack(
+  _i4.Future<void> setSelectedTrack(
     String? playerId,
     _i2.TrackType? type,
     String? trackId,
@@ -398,12 +408,12 @@ class MockBccmPlayerInterface extends _i1.Mock
             trackId,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> setPlaybackSpeed(
+  _i4.Future<void> setPlaybackSpeed(
     String? playerId,
     double? speed,
   ) =>
@@ -415,12 +425,12 @@ class MockBccmPlayerInterface extends _i1.Mock
             speed,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> setVolume(
+  _i4.Future<void> setVolume(
     String? playerId,
     double? volume,
   ) =>
@@ -432,9 +442,9 @@ class MockBccmPlayerInterface extends _i1.Mock
             volume,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void exitFullscreen(String? playerId) => super.noSuchMethod(
@@ -446,14 +456,14 @@ class MockBccmPlayerInterface extends _i1.Mock
       );
 
   @override
-  _i3.Future<void> enterFullscreen(String? playerId) => (super.noSuchMethod(
+  _i4.Future<void> enterFullscreen(String? playerId) => (super.noSuchMethod(
         Invocation.method(
           #enterFullscreen,
           [playerId],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void setAppConfig(_i2.AppConfig? config) => super.noSuchMethod(
@@ -481,7 +491,7 @@ class MockBccmPlayerInterface extends _i1.Mock
       );
 
   @override
-  _i3.Future<void> setMixWithOthers(
+  _i4.Future<void> setMixWithOthers(
     String? playerId,
     bool? mixWithOthers,
   ) =>
@@ -493,32 +503,32 @@ class MockBccmPlayerInterface extends _i1.Mock
             mixWithOthers,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<int> createVideoTexture() => (super.noSuchMethod(
+  _i4.Future<int> createVideoTexture() => (super.noSuchMethod(
         Invocation.method(
           #createVideoTexture,
           [],
         ),
-        returnValue: _i3.Future<int>.value(0),
-        returnValueForMissingStub: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+        returnValueForMissingStub: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<bool> disposeVideoTexture(int? textureId) => (super.noSuchMethod(
+  _i4.Future<bool> disposeVideoTexture(int? textureId) => (super.noSuchMethod(
         Invocation.method(
           #disposeVideoTexture,
           [textureId],
         ),
-        returnValue: _i3.Future<bool>.value(false),
-        returnValueForMissingStub: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+        returnValue: _i4.Future<bool>.value(false),
+        returnValueForMissingStub: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
 
   @override
-  _i3.Future<int> switchToVideoTexture(
+  _i4.Future<int> switchToVideoTexture(
     String? playerId,
     int? textureId,
   ) =>
@@ -530,12 +540,12 @@ class MockBccmPlayerInterface extends _i1.Mock
             textureId,
           ],
         ),
-        returnValue: _i3.Future<int>.value(0),
-        returnValueForMissingStub: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+        returnValueForMissingStub: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<_i2.MediaInfo> fetchMediaInfo({
+  _i4.Future<_i2.MediaInfo> fetchMediaInfo({
     required String? url,
     String? mimeType,
   }) =>
@@ -548,7 +558,7 @@ class MockBccmPlayerInterface extends _i1.Mock
             #mimeType: mimeType,
           },
         ),
-        returnValue: _i3.Future<_i2.MediaInfo>.value(_FakeMediaInfo_2(
+        returnValue: _i4.Future<_i2.MediaInfo>.value(_FakeMediaInfo_2(
           this,
           Invocation.method(
             #fetchMediaInfo,
@@ -560,7 +570,7 @@ class MockBccmPlayerInterface extends _i1.Mock
           ),
         )),
         returnValueForMissingStub:
-            _i3.Future<_i2.MediaInfo>.value(_FakeMediaInfo_2(
+            _i4.Future<_i2.MediaInfo>.value(_FakeMediaInfo_2(
           this,
           Invocation.method(
             #fetchMediaInfo,
@@ -571,10 +581,10 @@ class MockBccmPlayerInterface extends _i1.Mock
             },
           ),
         )),
-      ) as _i3.Future<_i2.MediaInfo>);
+      ) as _i4.Future<_i2.MediaInfo>);
 
   @override
-  _i3.Future<void> setRepeatMode(
+  _i4.Future<void> setRepeatMode(
     String? playerId,
     _i2.RepeatMode? repeatMode,
   ) =>
@@ -586,19 +596,126 @@ class MockBccmPlayerInterface extends _i1.Mock
             repeatMode,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<int> getAndroidPerformanceClass() => (super.noSuchMethod(
+  _i4.Future<int> getAndroidPerformanceClass() => (super.noSuchMethod(
         Invocation.method(
           #getAndroidPerformanceClass,
           [],
         ),
-        returnValue: _i3.Future<int>.value(0),
-        returnValueForMissingStub: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+        returnValueForMissingStub: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
+
+  @override
+  _i4.Future<_i3.MediaQueue> getQueue(String? playerId) => (super.noSuchMethod(
+        Invocation.method(
+          #getQueue,
+          [playerId],
+        ),
+        returnValue: _i4.Future<_i3.MediaQueue>.value(_FakeMediaQueue_3(
+          this,
+          Invocation.method(
+            #getQueue,
+            [playerId],
+          ),
+        )),
+        returnValueForMissingStub:
+            _i4.Future<_i3.MediaQueue>.value(_FakeMediaQueue_3(
+          this,
+          Invocation.method(
+            #getQueue,
+            [playerId],
+          ),
+        )),
+      ) as _i4.Future<_i3.MediaQueue>);
+
+  @override
+  _i4.Future<void> moveQueueItem(
+    String? playerId,
+    int? fromIndex,
+    int? toIndex,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #moveQueueItem,
+          [
+            playerId,
+            fromIndex,
+            toIndex,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> removeQueueItem(
+    String? playerId,
+    String? id,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #removeQueueItem,
+          [
+            playerId,
+            id,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> clearQueue(String? playerId) => (super.noSuchMethod(
+        Invocation.method(
+          #clearQueue,
+          [playerId],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> replaceQueueItems(
+    String? playerId,
+    List<_i2.MediaItem>? items,
+    int? fromIndex,
+    int? toIndex,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #replaceQueueItems,
+          [
+            playerId,
+            items,
+            fromIndex,
+            toIndex,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> setCurrentQueueItem(
+    String? playerId,
+    String? id,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setCurrentQueueItem,
+          [
+            playerId,
+            id,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [PlayerPluginStateNotifier].
@@ -630,20 +747,20 @@ class MockPlayerPluginStateNotifier extends _i1.Mock
       ) as bool);
 
   @override
-  _i3.Stream<_i2.PlayerPluginState> get stream => (super.noSuchMethod(
+  _i4.Stream<_i2.PlayerPluginState> get stream => (super.noSuchMethod(
         Invocation.getter(#stream),
-        returnValue: _i3.Stream<_i2.PlayerPluginState>.empty(),
-        returnValueForMissingStub: _i3.Stream<_i2.PlayerPluginState>.empty(),
-      ) as _i3.Stream<_i2.PlayerPluginState>);
+        returnValue: _i4.Stream<_i2.PlayerPluginState>.empty(),
+        returnValueForMissingStub: _i4.Stream<_i2.PlayerPluginState>.empty(),
+      ) as _i4.Stream<_i2.PlayerPluginState>);
 
   @override
   _i2.PlayerPluginState get state => (super.noSuchMethod(
         Invocation.getter(#state),
-        returnValue: _FakePlayerPluginState_3(
+        returnValue: _FakePlayerPluginState_4(
           this,
           Invocation.getter(#state),
         ),
-        returnValueForMissingStub: _FakePlayerPluginState_3(
+        returnValueForMissingStub: _FakePlayerPluginState_4(
           this,
           Invocation.getter(#state),
         ),
@@ -661,11 +778,11 @@ class MockPlayerPluginStateNotifier extends _i1.Mock
   @override
   _i2.PlayerPluginState get debugState => (super.noSuchMethod(
         Invocation.getter(#debugState),
-        returnValue: _FakePlayerPluginState_3(
+        returnValue: _FakePlayerPluginState_4(
           this,
           Invocation.getter(#debugState),
         ),
-        returnValueForMissingStub: _FakePlayerPluginState_3(
+        returnValueForMissingStub: _FakePlayerPluginState_4(
           this,
           Invocation.getter(#debugState),
         ),
@@ -714,14 +831,14 @@ class MockPlayerPluginStateNotifier extends _i1.Mock
           #getOrAddPlayerNotifier,
           [playerId],
         ),
-        returnValue: _FakePlayerStateNotifier_4(
+        returnValue: _FakePlayerStateNotifier_5(
           this,
           Invocation.method(
             #getOrAddPlayerNotifier,
             [playerId],
           ),
         ),
-        returnValueForMissingStub: _FakePlayerStateNotifier_4(
+        returnValueForMissingStub: _FakePlayerStateNotifier_5(
           this,
           Invocation.method(
             #getOrAddPlayerNotifier,
@@ -776,20 +893,20 @@ class MockPlayerStateNotifier extends _i1.Mock
       ) as bool);
 
   @override
-  _i3.Timer get positionUpdateTimer => (super.noSuchMethod(
+  _i4.Timer get positionUpdateTimer => (super.noSuchMethod(
         Invocation.getter(#positionUpdateTimer),
-        returnValue: _FakeTimer_5(
+        returnValue: _FakeTimer_6(
           this,
           Invocation.getter(#positionUpdateTimer),
         ),
-        returnValueForMissingStub: _FakeTimer_5(
+        returnValueForMissingStub: _FakeTimer_6(
           this,
           Invocation.getter(#positionUpdateTimer),
         ),
-      ) as _i3.Timer);
+      ) as _i4.Timer);
 
   @override
-  set positionUpdateTimer(_i3.Timer? _positionUpdateTimer) =>
+  set positionUpdateTimer(_i4.Timer? _positionUpdateTimer) =>
       super.noSuchMethod(
         Invocation.setter(
           #positionUpdateTimer,
@@ -815,20 +932,20 @@ class MockPlayerStateNotifier extends _i1.Mock
       ) as bool);
 
   @override
-  _i3.Stream<_i2.PlayerState> get stream => (super.noSuchMethod(
+  _i4.Stream<_i2.PlayerState> get stream => (super.noSuchMethod(
         Invocation.getter(#stream),
-        returnValue: _i3.Stream<_i2.PlayerState>.empty(),
-        returnValueForMissingStub: _i3.Stream<_i2.PlayerState>.empty(),
-      ) as _i3.Stream<_i2.PlayerState>);
+        returnValue: _i4.Stream<_i2.PlayerState>.empty(),
+        returnValueForMissingStub: _i4.Stream<_i2.PlayerState>.empty(),
+      ) as _i4.Stream<_i2.PlayerState>);
 
   @override
   _i2.PlayerState get state => (super.noSuchMethod(
         Invocation.getter(#state),
-        returnValue: _FakePlayerState_6(
+        returnValue: _FakePlayerState_7(
           this,
           Invocation.getter(#state),
         ),
-        returnValueForMissingStub: _FakePlayerState_6(
+        returnValueForMissingStub: _FakePlayerState_7(
           this,
           Invocation.getter(#state),
         ),
@@ -846,11 +963,11 @@ class MockPlayerStateNotifier extends _i1.Mock
   @override
   _i2.PlayerState get debugState => (super.noSuchMethod(
         Invocation.getter(#debugState),
-        returnValue: _FakePlayerState_6(
+        returnValue: _FakePlayerState_7(
           this,
           Invocation.getter(#debugState),
         ),
-        returnValueForMissingStub: _FakePlayerState_6(
+        returnValueForMissingStub: _FakePlayerState_7(
           this,
           Invocation.getter(#debugState),
         ),
@@ -937,7 +1054,16 @@ class MockPlayerStateNotifier extends _i1.Mock
       );
 
   @override
-  void setStateFromSnapshot(_i6.PlayerStateSnapshot? snapshot) =>
+  void setQueue(_i3.MediaQueue? queue) => super.noSuchMethod(
+        Invocation.method(
+          #setQueue,
+          [queue],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setStateFromSnapshot(_i3.PlayerStateSnapshot? snapshot) =>
       super.noSuchMethod(
         Invocation.method(
           #setStateFromSnapshot,

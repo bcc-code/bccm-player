@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bccm_player/bccm_player.dart';
+import 'package:bccm_player_example/examples/queue.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -36,7 +37,7 @@ class _MyAppState extends State<MyApp> {
           LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
         },
         child: DefaultTabController(
-          length: 6,
+          length: 7,
           child: MaterialApp(
             home: Scaffold(
               appBar: AppBar(
@@ -48,6 +49,7 @@ class _MyAppState extends State<MyApp> {
                   ),
                 ],
                 bottom: const TabBar(tabs: [
+                  Tab(text: 'Queue'),
                   Tab(text: 'Playground'),
                   Tab(text: 'List Of Players'),
                   Tab(text: 'Simple player'),
@@ -59,6 +61,7 @@ class _MyAppState extends State<MyApp> {
               // tabs with Playground #1 then a new "ListOfPlayers" tab at #2 and controls to navigate between the tabs
               body: const TabBarView(
                 children: [
+                  QueueExample(),
                   Playground(),
                   ListOfPlayers(),
                   SimplePlayer(),

@@ -182,7 +182,7 @@ class CastPlayerController: NSObject, PlayerController {
         self.appConfig = appConfig
     }
     
-    func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: @escaping (FlutterError?) -> Void) {
+    func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: ((FlutterError?) -> Void)?) {
         guard let mediaInfo = mapMediaItemToMediaInformation(mediaItem) else {
             fatalError("invalid url passed to setMediaItem")
         }
@@ -429,7 +429,8 @@ class CastPlayerController: NSObject, PlayerController {
         let isLive = playerData[PlayerMetadataConstants.IsLive] == "true"
         
         let mediaItem = MediaItem.make(
-            withUrl: "",
+            withId: "",
+            url: "",
             mimeType: mimeType,
             metadata: mappedMetadata,
             isLive: isLive as NSNumber,
@@ -441,14 +442,24 @@ class CastPlayerController: NSObject, PlayerController {
         
         return mediaItem
     }
-   
-    var metaTemp: GCKMediaMetadata? = nil
+    
+    func moveQueueItem(from fromIndex: Int, to toIndex: Int) {}
+    
+    func removeQueueItem(id: String) {}
+    
+    func clearQueue() {}
+    
+    func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int) {}
+    
+    func setCurrentQueueItem(id: String) {}
+    
+    func getQueue() -> MediaQueue {
+        return MediaQueue.make(with: [], currentIndex: nil)
+    }
 }
 
 extension CastPlayerController: GCKRemoteMediaClientListener {
     func remoteMediaClient(_ client: GCKRemoteMediaClient, didUpdate mediaMetadata: GCKMediaMetadata?) {
-        debugPrint("something didUpdate mediaMetadata:" + mediaMetadata.debugDescription)
-        debugPrint("is metaTemp same?: " + (metaTemp == mediaMetadata).description)
         guard let mediaItem = mapMediaMetadata(mediaMetadata) else {
             playbackApi.playbackListener.onMediaItemTransition(MediaItemTransitionEvent.make(withPlayerId: id, mediaItem: nil), completion: { _ in })
             return

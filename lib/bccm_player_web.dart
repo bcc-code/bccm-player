@@ -115,4 +115,9 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   Future<int> getAndroidPerformanceClass() {
     throw UnimplementedError();
   }
+  
+  @override
+  Future<pigeon.MediaQueue> getQueue(String playerId) {
+    throw UnimplementedError();
+  }
 }

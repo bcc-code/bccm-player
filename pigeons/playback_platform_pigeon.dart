@@ -51,6 +51,34 @@ abstract class PlaybackPlatformPigeon {
   void queueMediaItem(String playerId, MediaItem mediaItem);
 
   @async
+  @ObjCSelector("updateQueueOrder:itemIds:")
+  void updateQueueOrder(String playerId, List<String> items);
+
+  @async
+  @ObjCSelector("moveQueueItem:fromIndex:toIndex:")
+  void moveQueueItem(String playerId, int fromIndex, int toIndex);
+
+  @async
+  @ObjCSelector("removeQueueItem:id:")
+  void removeQueueItem(String playerId, String id);
+
+  @async
+  @ObjCSelector("clearQueue:")
+  void clearQueue(String playerId);
+
+  @async
+  @ObjCSelector("replaceQueueItems:items:fromIndex:toIndex:")
+  void replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex);
+
+  @async
+  @ObjCSelector("setCurrentQueueItem:id:")
+  void setCurrentQueueItem(String playerId, String id);
+
+  @async
+  @ObjCSelector("getQueue:")
+  MediaQueue getQueue(String playerId);
+
+  @async
   @ObjCSelector("replaceCurrentMediaItem:mediaItem:playbackPositionFromPrimary:autoplay:")
   void replaceCurrentMediaItem(String playerId, MediaItem mediaItem, bool? playbackPositionFromPrimary, bool? autoplay);
 
@@ -168,6 +196,7 @@ class SetUrlArgs {
 }
 
 class MediaItem {
+  String? id;
   String? url;
   String? mimeType;
   MediaMetadata? metadata;
@@ -184,6 +213,11 @@ class MediaMetadata {
   String? artist;
   double? durationMs;
   Map<String?, String?>? extras;
+}
+
+class MediaQueue {
+  late List<MediaItem?> items;
+  int? currentIndex;
 }
 
 class PlayerStateSnapshot {
@@ -274,6 +308,13 @@ abstract class PlaybackListenerPigeon {
   void onMediaItemTransition(MediaItemTransitionEvent event);
   @ObjCSelector("onPictureInPictureModeChanged:")
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
+  @ObjCSelector("onQueueChanged:")
+  void onQueueChanged(QueueChangedEvent event);
+}
+
+class QueueChangedEvent {
+  late String playerId;
+  late MediaQueue? queue;
 }
 
 class PrimaryPlayerChangedEvent {

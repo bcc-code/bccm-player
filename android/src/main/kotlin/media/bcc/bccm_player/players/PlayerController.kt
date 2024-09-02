@@ -3,6 +3,7 @@ package media.bcc.bccm_player.players
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Surface
 import androidx.annotation.CallSuper
 import androidx.core.math.MathUtils.clamp
@@ -30,6 +31,7 @@ import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.utils.NoOpVoidResult
 import media.bcc.bccm_player.utils.TrackUtils
+import java.util.UUID
 
 
 abstract class PlayerController : Player.Listener {
@@ -116,26 +118,6 @@ abstract class PlayerController : Player.Listener {
             playbackStartPositionMs = mediaItem.playbackStartPositionMs
         }
 
-        if (mediaItem.url?.startsWith(DOWNLOADED_URL_SCHEME) == true) {
-            // Create a read-only cache data source factory using the download cache.
-
-            val id = mediaItem.url!!.substring(DOWNLOADED_URL_SCHEME.length);
-            val downloadManager = Downloader.getDownloadManager();
-            val download = downloadManager.downloadIndex.getDownload(id);
-            val downloadRequest = download?.request;
-            downloadManager.resumeDownloads()
-            if (downloadRequest != null) {
-                androidMi = androidMi.buildUpon()
-                    .setMediaId(id)
-                    .setUri(downloadRequest.uri)
-                    .setCustomCacheKey(downloadRequest.customCacheKey)
-                    .setMimeType(downloadRequest.mimeType)
-                    .setStreamKeys(downloadRequest.streamKeys)
-                    .build()
-            } else {
-                throw Error("Tried to play non-existent download")
-            }
-        }
         player.setMediaItem(androidMi, playbackStartPositionMs?.toLong() ?: 0)
         if (playbackStartPositionMs != null) {
             player.seekTo(playbackStartPositionMs.toLong())
@@ -155,6 +137,7 @@ abstract class PlayerController : Player.Listener {
     fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
         val androidMi = mapMediaItem(mediaItem)
         player.addMediaItem(androidMi)
+        player.prepare()
     }
 
     fun extractExtrasFromAndroid(source: Bundle): Map<String, String> {
@@ -171,6 +154,7 @@ abstract class PlayerController : Player.Listener {
         return extraMeta
     }
 
+    @SuppressLint("UnsafeOptInUsageError")
     private fun mapMediaItem(mediaItem: PlaybackPlatformApi.MediaItem): MediaItem {
         val metaBuilder = MediaMetadata.Builder()
         val exoExtras = Bundle()
@@ -217,9 +201,30 @@ abstract class PlayerController : Player.Listener {
             .setArtist(mediaItem.metadata?.artist)
             .setExtras(exoExtras).build()
 
+        if (mediaItem.url?.startsWith(DOWNLOADED_URL_SCHEME) == true) {
+            val id = mediaItem.url!!.substring(DOWNLOADED_URL_SCHEME.length);
+            val downloadManager = Downloader.getDownloadManager();
+            val download = downloadManager.downloadIndex.getDownload(id);
+            val downloadRequest = download?.request;
+            downloadManager.resumeDownloads()
+            if (downloadRequest != null) {
+                return MediaItem.Builder()
+                    .setMediaId(id)
+                    .setUri(downloadRequest.uri)
+                    .setMediaMetadata(metaBuilder.build())
+                    .setCustomCacheKey(downloadRequest.customCacheKey)
+                    .setMimeType(downloadRequest.mimeType)
+                    .setStreamKeys(downloadRequest.streamKeys)
+                    .build()
+            } else {
+                throw Error("Tried to play non-existent download")
+            }
+        }
+
         return MediaItem.Builder()
             .setUri(mediaItem.url)
             .setMimeType(mimeType)
+            .setMediaId(mediaItem.id ?: UUID.randomUUID().toString())
             .setMediaMetadata(metaBuilder.build()).build()
     }
 
@@ -255,6 +260,7 @@ abstract class PlayerController : Player.Listener {
         } else if (mediaItem.localConfiguration?.mimeType != null) {
             miBuilder.setMimeType(mediaItem.localConfiguration?.mimeType)
         }
+        miBuilder.setId(mediaItem.mediaId)
 
         return miBuilder.build()
     }
@@ -441,5 +447,75 @@ abstract class PlayerController : Player.Listener {
         pluginPlayerListener?.onManualPlayerStateUpdate()
     }
 
+    fun updateQueueOrder(ids: List<String>) {
+        val current = getPlaylist()
+        if (current == ids) return;
+
+        if (current.size != ids.size) {
+            Log.e("bccm", "updateQueueOrder: playlist size mismatch")
+            return
+        }
+
+        for (newIndex in ids.indices) {
+            val mediaId = ids[newIndex]
+            val currentIndex = current.indexOf(mediaId)
+
+            if (currentIndex != newIndex && currentIndex >= 0) {
+                player.moveMediaItem(currentIndex, newIndex)
+            }
+        }
+    }
+
+    fun moveQueueItem(fromIndex: Int, toIndex: Int) {
+        player.moveMediaItem(fromIndex, toIndex)
+    }
+
+    private fun getPlaylist(): List<String> {
+        val count = player.mediaItemCount
+        val playlist = mutableListOf<String>()
+        for (i in 0 until count) {
+            val mediaItem = player.getMediaItemAt(i)
+            playlist.add(mediaItem.mediaId)
+        }
+
+        return playlist;
+    }
+
+    fun getQueue(): PlaybackPlatformApi.MediaQueue {
+        val queue = PlaybackPlatformApi.MediaQueue.Builder()
+        val temp = mutableListOf<PlaybackPlatformApi.MediaItem>()
+        val count = player.mediaItemCount
+        for (i in 0 until count) {
+            val mediaItem = player.getMediaItemAt(i)
+            temp.add(mapMediaItem(mediaItem))
+        }
+        queue.setItems(temp)
+        queue.setCurrentIndex(player.currentMediaItemIndex.toLong())
+        return queue.build()
+    }
+
+
+    fun removeQueueItem(id: String) {
+        val index = getPlaylist().indexOf(id)
+        if (index >= 0) {
+            player.removeMediaItem(index)
+        }
+    }
+
     abstract fun setMixWithOthers(mixWithOthers: Boolean);
+
+    fun replaceQueueItems(fromIndex: Int, toIndex: Int, items: MutableList<PlaybackPlatformApi.MediaItem>) {
+        player.replaceMediaItems(fromIndex, toIndex, items.map { mapMediaItem(it) })
+    }
+
+    fun clearQueue() {
+        player.clearMediaItems()
+    }
+
+    fun setCurrentQueueItem(id: String) {
+        val index = getPlaylist().indexOf(id)
+        if (index >= 0) {
+            player.seekTo(index, 0)
+        }
+    }
 }
