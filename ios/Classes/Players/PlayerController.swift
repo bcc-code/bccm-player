@@ -37,28 +37,3 @@ public protocol PlayerController {
     func setCurrentQueueItem(id: String)
     func getQueue() -> MediaQueue
 }
-
-/*
- 
- public func moveQueueItem(_ playerId: String, from fromIndex: Int, to toIndex: Int, completion: @escaping (FlutterError?) -> Void) {
-     let player = getPlayer(playerId)
-     player.moveQueueItem(fromIndex, to: toIndex)
-     completion(nil)
- }
- 
- public func removeQueueItem(_ playerId: String, id: String, completion: @escaping (FlutterError?) -> Void) {
- }
- 
- public func clearQueue(_ playerId: String, completion: @escaping (FlutterError?) -> Void) {
- }
- 
- public func replaceQueueItems(_ playerId: String, items: [MediaItem], from fromIndex: Int, to toIndex: Int, completion: @escaping (FlutterError?) -> Void) {
- }
- 
- public func setCurrentQueueItem(_ playerId: String, id: String, completion: @escaping (FlutterError?) -> Void) {
- }
- 
- public func getQueue(_ playerId: String, completion: @escaping (MediaQueue?, FlutterError?) -> Void) {
- }
- 
- */

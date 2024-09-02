@@ -12,9 +12,9 @@ class QueueExample extends HookWidget {
 
     final queue = useListenableSelector(controller, () => controller.value.queue);
 
-    final tempQueueItems = useState(queue?.items ?? []);
+    var tempQueueItems = useState([...queue?.items ?? []]);
     useEffect(() {
-      tempQueueItems.value = queue?.items ?? [];
+      tempQueueItems.value = [...queue?.items ?? []];
       return null;
     }, [queue?.items]);
 

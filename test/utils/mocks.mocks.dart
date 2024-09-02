@@ -668,6 +668,54 @@ class MockBccmPlayerInterface extends _i1.Mock
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
       ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> clearQueue(String? playerId) => (super.noSuchMethod(
+        Invocation.method(
+          #clearQueue,
+          [playerId],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> replaceQueueItems(
+    String? playerId,
+    List<_i2.MediaItem>? items,
+    int? fromIndex,
+    int? toIndex,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #replaceQueueItems,
+          [
+            playerId,
+            items,
+            fromIndex,
+            toIndex,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> setCurrentQueueItem(
+    String? playerId,
+    String? id,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setCurrentQueueItem,
+          [
+            playerId,
+            id,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [PlayerPluginStateNotifier].

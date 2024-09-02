@@ -155,6 +155,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         )
     }
     
+    public func onQueueChanged() {
+        let event = QueueChangedEvent.make(withPlayerId: id, queue: queue.toMediaQueue())
+        playbackListener.onQueueChanged(event, completion: { _ in })
+    }
+    
     public func setSelectedTrack(type: TrackType, trackId: String?) {
         guard let currentItem = player.currentItem else {
             debugPrint("Tried to setSelectedTrack, but no item is currently loaded in the player")
@@ -273,13 +278,21 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         queue.moveQueueItem(from: fromIndex, to: toIndex)
     }
     
-    public func removeQueueItem(id: String) {}
+    public func removeQueueItem(id: String) {
+        queue.removeQueueItem(id: id)
+    }
     
-    public func clearQueue() {}
+    public func clearQueue() {
+        queue.clearQueue()
+    }
     
-    public func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int) {}
+    public func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int) {
+        queue.replaceQueueItems(items: items, from: fromIndex, to: toIndex)
+    }
     
-    public func setCurrentQueueItem(id: String) {}
+    public func setCurrentQueueItem(id: String) {
+        queue.setCurrentQueueItem(id: id)
+    }
     
     public func getQueue() -> MediaQueue {
         return queue.toMediaQueue()
@@ -529,14 +542,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
 
     public func queueItem(_ mediaItem: MediaItem) {
-        createPlayerItem(mediaItem) { playerItem in
-            guard let playerItem = playerItem else {
-                return
-            }
-            DispatchQueue.main.async {
-                self.player.insert(playerItem, after: nil)
-            }
-        }
+        queue.add(mediaItem)
     }
     
     func takeOwnership(_ playerViewController: AVPlayerViewController) {
@@ -745,7 +751,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                             self?.player.play()
                         })
         } else {
-            player.pause()
+            queue.playNext()
         }
         let endedEvent = PlaybackEndedEvent.make(withPlayerId: id, mediaItem: getCurrentItem())
         playbackListener.onPlaybackEnded(endedEvent, completion: { _ in })

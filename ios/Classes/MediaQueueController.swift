@@ -11,7 +11,20 @@ public class MediaQueueController {
     }
 
     public func toMediaQueue() -> MediaQueue {
+        debugPrint(items.map { $0.id })
         return MediaQueue.make(with: items, currentIndex: currentIndex as NSNumber)
+    }
+
+    public func add(_ mediaItem: MediaItem) {
+        if mediaItem.id == nil {
+            mediaItem.id = UUID().uuidString
+        }
+        items.append(mediaItem)
+        if items.count == 1 {
+            currentIndex = 0
+            updatePlayerCurrentItem()
+        }
+        playerController.onQueueChanged()
     }
 
     public func moveQueueItem(from fromIndex: Int, to toIndex: Int) {
@@ -23,7 +36,7 @@ public class MediaQueueController {
 
         let item = items.remove(at: fromIndex)
         items.insert(item, at: toIndex)
-
+        
         if currentIndex == fromIndex {
             currentIndex = toIndex
         } else if currentIndex > fromIndex, currentIndex <= toIndex {
@@ -31,6 +44,7 @@ public class MediaQueueController {
         } else if currentIndex < fromIndex, currentIndex >= toIndex {
             currentIndex += 1
         }
+        playerController.onQueueChanged()
     }
 
     public func removeQueueItem(id: String) {
@@ -46,17 +60,25 @@ public class MediaQueueController {
             currentIndex = min(currentIndex, items.count - 1)
             updatePlayerCurrentItem()
         }
+        playerController.onQueueChanged()
     }
 
     public func clearQueue() {
         items.removeAll()
         playerController.player.replaceCurrentItem(with: nil)
         currentIndex = 0
+        playerController.onQueueChanged()
     }
 
     public func replaceQueueItems(items newItems: [MediaItem], from fromIndex: Int, to toIndex: Int) {
         guard fromIndex >= 0, fromIndex <= toIndex, toIndex <= items.count else {
             return
+        }
+
+        for item in newItems {
+            if item.id == nil {
+                item.id = UUID().uuidString
+            }
         }
 
         items.replaceSubrange(fromIndex ..< toIndex, with: newItems)
@@ -67,6 +89,17 @@ public class MediaQueueController {
         } else if currentIndex >= toIndex {
             currentIndex = min(currentIndex + (newItems.count - (toIndex - fromIndex)), items.count - 1)
         }
+        playerController.onQueueChanged()
+    }
+
+    public func playNext() {
+        if currentIndex == items.count - 1 {
+            playerController.pause()
+        } else {
+            currentIndex = currentIndex + 1
+        }
+        updatePlayerCurrentItem()
+        playerController.onQueueChanged()
     }
 
     public func setCurrentQueueItem(id: String) {
@@ -76,6 +109,7 @@ public class MediaQueueController {
 
         currentIndex = index
         updatePlayerCurrentItem()
+        playerController.onQueueChanged()
     }
 
     private func updatePlayerCurrentItem() {
