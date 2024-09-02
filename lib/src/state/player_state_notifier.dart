@@ -77,6 +77,10 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(isBuffering: isBuffering);
   }
 
+  void setQueue(MediaQueue? queue) {
+    state = state.copyWith(queue: queue);
+  }
+
   void setStateFromSnapshot(PlayerStateSnapshot snapshot) {
     state = state.copyWithSnapshot(snapshot);
   }
@@ -96,6 +100,7 @@ class PlayerState with _$PlayerState {
     @Default(false) bool isBuffering,
     @Default(false) bool isInPipMode,
     @Default(false) bool isInitialized,
+    MediaQueue? queue,
     int? textureId,
     double? volume,
     PlayerError? error,
@@ -123,6 +128,7 @@ extension on PlayerState {
   PlayerState copyWithSnapshot(PlayerStateSnapshot snapshot) {
     return PlayerState.fromPlayerStateSnapshot(snapshot).copyWith(
       isInPipMode: isInPipMode, // not part of snapshot
+      queue: queue, // not part of snapshot
       isInitialized: true,
     );
   }

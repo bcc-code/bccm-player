@@ -134,6 +134,7 @@ class AppConfig {
 
 class MediaItem {
   MediaItem({
+    this.id,
     this.url,
     this.mimeType,
     this.metadata,
@@ -143,6 +144,8 @@ class MediaItem {
     this.lastKnownAudioLanguage,
     this.lastKnownSubtitleLanguage,
   });
+
+  String? id;
 
   String? url;
 
@@ -162,6 +165,7 @@ class MediaItem {
 
   Object encode() {
     return <Object?>[
+      id,
       url,
       mimeType,
       metadata,
@@ -176,14 +180,15 @@ class MediaItem {
   static MediaItem decode(Object result) {
     result as List<Object?>;
     return MediaItem(
-      url: result[0] as String?,
-      mimeType: result[1] as String?,
-      metadata: result[2] as MediaMetadata?,
-      isLive: result[3] as bool?,
-      isOffline: result[4] as bool?,
-      playbackStartPositionMs: result[5] as double?,
-      lastKnownAudioLanguage: result[6] as String?,
-      lastKnownSubtitleLanguage: result[7] as String?,
+      id: result[0] as String?,
+      url: result[1] as String?,
+      mimeType: result[2] as String?,
+      metadata: result[3] as MediaMetadata?,
+      isLive: result[4] as bool?,
+      isOffline: result[5] as bool?,
+      playbackStartPositionMs: result[6] as double?,
+      lastKnownAudioLanguage: result[7] as String?,
+      lastKnownSubtitleLanguage: result[8] as String?,
     );
   }
 }
@@ -225,6 +230,32 @@ class MediaMetadata {
       artist: result[2] as String?,
       durationMs: result[3] as double?,
       extras: (result[4] as Map<Object?, Object?>?)?.cast<String?, String?>(),
+    );
+  }
+}
+
+class MediaQueue {
+  MediaQueue({
+    required this.items,
+    this.currentIndex,
+  });
+
+  List<MediaItem?> items;
+
+  int? currentIndex;
+
+  Object encode() {
+    return <Object?>[
+      items,
+      currentIndex,
+    ];
+  }
+
+  static MediaQueue decode(Object result) {
+    result as List<Object?>;
+    return MediaQueue(
+      items: (result[0] as List<Object?>?)!.cast<MediaItem?>(),
+      currentIndex: result[1] as int?,
     );
   }
 }
@@ -506,6 +537,32 @@ class Track {
   }
 }
 
+class QueueChangedEvent {
+  QueueChangedEvent({
+    required this.playerId,
+    this.queue,
+  });
+
+  String playerId;
+
+  MediaQueue? queue;
+
+  Object encode() {
+    return <Object?>[
+      playerId,
+      queue,
+    ];
+  }
+
+  static QueueChangedEvent decode(Object result) {
+    result as List<Object?>;
+    return QueueChangedEvent(
+      playerId: result[0]! as String,
+      queue: result[1] as MediaQueue?,
+    );
+  }
+}
+
 class PrimaryPlayerChangedEvent {
   PrimaryPlayerChangedEvent({
     this.playerId,
@@ -720,47 +777,53 @@ class _PigeonCodec extends StandardMessageCodec {
     } else     if (value is MediaMetadata) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    } else     if (value is PlayerStateSnapshot) {
+    } else     if (value is MediaQueue) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    } else     if (value is PlayerError) {
+    } else     if (value is PlayerStateSnapshot) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    } else     if (value is VideoSize) {
+    } else     if (value is PlayerError) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    } else     if (value is ChromecastState) {
+    } else     if (value is VideoSize) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    } else     if (value is MediaInfo) {
+    } else     if (value is ChromecastState) {
       buffer.putUint8(142);
       writeValue(buffer, value.encode());
-    } else     if (value is PlayerTracksSnapshot) {
+    } else     if (value is MediaInfo) {
       buffer.putUint8(143);
       writeValue(buffer, value.encode());
-    } else     if (value is Track) {
+    } else     if (value is PlayerTracksSnapshot) {
       buffer.putUint8(144);
       writeValue(buffer, value.encode());
-    } else     if (value is PrimaryPlayerChangedEvent) {
+    } else     if (value is Track) {
       buffer.putUint8(145);
       writeValue(buffer, value.encode());
-    } else     if (value is PlayerStateUpdateEvent) {
+    } else     if (value is QueueChangedEvent) {
       buffer.putUint8(146);
       writeValue(buffer, value.encode());
-    } else     if (value is PositionDiscontinuityEvent) {
+    } else     if (value is PrimaryPlayerChangedEvent) {
       buffer.putUint8(147);
       writeValue(buffer, value.encode());
-    } else     if (value is PlaybackStateChangedEvent) {
+    } else     if (value is PlayerStateUpdateEvent) {
       buffer.putUint8(148);
       writeValue(buffer, value.encode());
-    } else     if (value is PlaybackEndedEvent) {
+    } else     if (value is PositionDiscontinuityEvent) {
       buffer.putUint8(149);
       writeValue(buffer, value.encode());
-    } else     if (value is PictureInPictureModeChangedEvent) {
+    } else     if (value is PlaybackStateChangedEvent) {
       buffer.putUint8(150);
       writeValue(buffer, value.encode());
-    } else     if (value is MediaItemTransitionEvent) {
+    } else     if (value is PlaybackEndedEvent) {
       buffer.putUint8(151);
+      writeValue(buffer, value.encode());
+    } else     if (value is PictureInPictureModeChangedEvent) {
+      buffer.putUint8(152);
+      writeValue(buffer, value.encode());
+    } else     if (value is MediaItemTransitionEvent) {
+      buffer.putUint8(153);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -794,32 +857,36 @@ class _PigeonCodec extends StandardMessageCodec {
       case 137: 
         return MediaMetadata.decode(readValue(buffer)!);
       case 138: 
-        return PlayerStateSnapshot.decode(readValue(buffer)!);
+        return MediaQueue.decode(readValue(buffer)!);
       case 139: 
-        return PlayerError.decode(readValue(buffer)!);
+        return PlayerStateSnapshot.decode(readValue(buffer)!);
       case 140: 
-        return VideoSize.decode(readValue(buffer)!);
+        return PlayerError.decode(readValue(buffer)!);
       case 141: 
-        return ChromecastState.decode(readValue(buffer)!);
+        return VideoSize.decode(readValue(buffer)!);
       case 142: 
-        return MediaInfo.decode(readValue(buffer)!);
+        return ChromecastState.decode(readValue(buffer)!);
       case 143: 
-        return PlayerTracksSnapshot.decode(readValue(buffer)!);
+        return MediaInfo.decode(readValue(buffer)!);
       case 144: 
-        return Track.decode(readValue(buffer)!);
+        return PlayerTracksSnapshot.decode(readValue(buffer)!);
       case 145: 
-        return PrimaryPlayerChangedEvent.decode(readValue(buffer)!);
+        return Track.decode(readValue(buffer)!);
       case 146: 
-        return PlayerStateUpdateEvent.decode(readValue(buffer)!);
+        return QueueChangedEvent.decode(readValue(buffer)!);
       case 147: 
-        return PositionDiscontinuityEvent.decode(readValue(buffer)!);
+        return PrimaryPlayerChangedEvent.decode(readValue(buffer)!);
       case 148: 
-        return PlaybackStateChangedEvent.decode(readValue(buffer)!);
+        return PlayerStateUpdateEvent.decode(readValue(buffer)!);
       case 149: 
-        return PlaybackEndedEvent.decode(readValue(buffer)!);
+        return PositionDiscontinuityEvent.decode(readValue(buffer)!);
       case 150: 
-        return PictureInPictureModeChangedEvent.decode(readValue(buffer)!);
+        return PlaybackStateChangedEvent.decode(readValue(buffer)!);
       case 151: 
+        return PlaybackEndedEvent.decode(readValue(buffer)!);
+      case 152: 
+        return PictureInPictureModeChangedEvent.decode(readValue(buffer)!);
+      case 153: 
         return MediaItemTransitionEvent.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -1017,6 +1084,165 @@ class PlaybackPlatformPigeon {
       );
     } else {
       return;
+    }
+  }
+
+  Future<void> updateQueueOrder(String playerId, List<String?> items) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.updateQueueOrder$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId, items]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> moveQueueItem(String playerId, int fromIndex, int toIndex) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.moveQueueItem$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId, fromIndex, toIndex]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> removeQueueItem(String playerId, String id) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.removeQueueItem$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId, id]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> clearQueue(String playerId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.clearQueue$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> replaceQueueItems(String playerId, List<MediaItem?> items, int fromIndex, int toIndex) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.replaceQueueItems$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId, items, fromIndex, toIndex]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> setCurrentQueueItem(String playerId, String id) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setCurrentQueueItem$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId, id]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<MediaQueue> getQueue(String playerId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.getQueue$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as MediaQueue?)!;
     }
   }
 
@@ -1555,6 +1781,8 @@ abstract class PlaybackListenerPigeon {
 
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
 
+  void onQueueChanged(QueueChangedEvent event);
+
   static void setUp(PlaybackListenerPigeon? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
@@ -1723,6 +1951,31 @@ abstract class PlaybackListenerPigeon {
               'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onPictureInPictureModeChanged was null, expected non-null PictureInPictureModeChangedEvent.');
           try {
             api.onPictureInPictureModeChanged(arg_event!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onQueueChanged$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onQueueChanged was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final QueueChangedEvent? arg_event = (args[0] as QueueChangedEvent?);
+          assert(arg_event != null,
+              'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onQueueChanged was null, expected non-null QueueChangedEvent.');
+          try {
+            api.onQueueChanged(arg_event!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);

@@ -74,6 +74,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class AppConfig;
 @class MediaItem;
 @class MediaMetadata;
+@class MediaQueue;
 @class PlayerStateSnapshot;
 @class PlayerError;
 @class VideoSize;
@@ -81,6 +82,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class MediaInfo;
 @class PlayerTracksSnapshot;
 @class Track;
+@class QueueChangedEvent;
 @class PrimaryPlayerChangedEvent;
 @class PlayerStateUpdateEvent;
 @class PositionDiscontinuityEvent;
@@ -116,7 +118,8 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @end
 
 @interface MediaItem : NSObject
-+ (instancetype)makeWithUrl:(nullable NSString *)url
++ (instancetype)makeWithId:(nullable NSString *)id
+    url:(nullable NSString *)url
     mimeType:(nullable NSString *)mimeType
     metadata:(nullable MediaMetadata *)metadata
     isLive:(nullable NSNumber *)isLive
@@ -124,6 +127,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     playbackStartPositionMs:(nullable NSNumber *)playbackStartPositionMs
     lastKnownAudioLanguage:(nullable NSString *)lastKnownAudioLanguage
     lastKnownSubtitleLanguage:(nullable NSString *)lastKnownSubtitleLanguage;
+@property(nonatomic, copy, nullable) NSString * id;
 @property(nonatomic, copy, nullable) NSString * url;
 @property(nonatomic, copy, nullable) NSString * mimeType;
 @property(nonatomic, strong, nullable) MediaMetadata * metadata;
@@ -145,6 +149,15 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, copy, nullable) NSString * artist;
 @property(nonatomic, strong, nullable) NSNumber * durationMs;
 @property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * extras;
+@end
+
+@interface MediaQueue : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithItems:(NSArray<MediaItem *> *)items
+    currentIndex:(nullable NSNumber *)currentIndex;
+@property(nonatomic, copy) NSArray<MediaItem *> * items;
+@property(nonatomic, strong, nullable) NSNumber * currentIndex;
 @end
 
 @interface PlayerStateSnapshot : NSObject
@@ -246,6 +259,15 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, assign) BOOL  isSelected;
 @end
 
+@interface QueueChangedEvent : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithPlayerId:(NSString *)playerId
+    queue:(nullable MediaQueue *)queue;
+@property(nonatomic, copy) NSString * playerId;
+@property(nonatomic, strong, nullable) MediaQueue * queue;
+@end
+
 @interface PrimaryPlayerChangedEvent : NSObject
 + (instancetype)makeWithPlayerId:(nullable NSString *)playerId;
 @property(nonatomic, copy, nullable) NSString * playerId;
@@ -319,6 +341,13 @@ NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 - (void)switchToVideoTextureForPlayer:(NSString *)playerId textureId:(NSInteger)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)disposePlayer:(NSString *)playerId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)queueMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)updateQueueOrder:(NSString *)playerId itemIds:(NSArray<NSString *> *)items completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)moveQueueItem:(NSString *)playerId fromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)removeQueueItem:(NSString *)playerId id:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)clearQueue:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)replaceQueueItems:(NSString *)playerId items:(NSArray<MediaItem *> *)items fromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)setCurrentQueueItem:(NSString *)playerId id:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)getQueue:(NSString *)playerId completion:(void (^)(MediaQueue *_Nullable, FlutterError *_Nullable))completion;
 - (void)replaceCurrentMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem playbackPositionFromPrimary:(nullable NSNumber *)playbackPositionFromPrimary autoplay:(nullable NSNumber *)autoplay completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setPlayerViewVisibility:(NSInteger)viewId visible:(BOOL)visible error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setPrimary:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
@@ -360,6 +389,7 @@ extern void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> bin
 - (void)onPlaybackEnded:(PlaybackEndedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onMediaItemTransition:(MediaItemTransitionEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onPictureInPictureModeChanged:(PictureInPictureModeChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)onQueueChanged:(QueueChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 @end
 
 NS_ASSUME_NONNULL_END

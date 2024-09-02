@@ -150,4 +150,11 @@ abstract class BccmPlayerInterface extends PlatformInterface {
 
   /// Gets the performance class of the device. See https://developer.android.com/topic/performance/performance-class
   Future<int> getAndroidPerformanceClass();
+
+  Future<MediaQueue> getQueue(String playerId);
+  Future<void> moveQueueItem(String playerId, int fromIndex, int toIndex);
+  Future<void> removeQueueItem(String playerId, String id);
+  Future<void> clearQueue(String playerId);
+  Future<void> replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex);
+  Future<void> setCurrentQueueItem(String playerId, String id);
 }

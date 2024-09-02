@@ -26,6 +26,7 @@ mixin _$PlayerState {
   bool get isBuffering => throw _privateConstructorUsedError;
   bool get isInPipMode => throw _privateConstructorUsedError;
   bool get isInitialized => throw _privateConstructorUsedError;
+  MediaQueue? get queue => throw _privateConstructorUsedError;
   int? get textureId => throw _privateConstructorUsedError;
   double? get volume => throw _privateConstructorUsedError;
   PlayerError? get error => throw _privateConstructorUsedError;
@@ -52,6 +53,7 @@ abstract class $PlayerStateCopyWith<$Res> {
       bool isBuffering,
       bool isInPipMode,
       bool isInitialized,
+      MediaQueue? queue,
       int? textureId,
       double? volume,
       PlayerError? error});
@@ -80,6 +82,7 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
     Object? isBuffering = null,
     Object? isInPipMode = null,
     Object? isInitialized = null,
+    Object? queue = freezed,
     Object? textureId = freezed,
     Object? volume = freezed,
     Object? error = freezed,
@@ -125,6 +128,10 @@ class _$PlayerStateCopyWithImpl<$Res, $Val extends PlayerState>
           ? _value.isInitialized
           : isInitialized // ignore: cast_nullable_to_non_nullable
               as bool,
+      queue: freezed == queue
+          ? _value.queue
+          : queue // ignore: cast_nullable_to_non_nullable
+              as MediaQueue?,
       textureId: freezed == textureId
           ? _value.textureId
           : textureId // ignore: cast_nullable_to_non_nullable
@@ -160,6 +167,7 @@ abstract class _$$PlayerStateImplCopyWith<$Res>
       bool isBuffering,
       bool isInPipMode,
       bool isInitialized,
+      MediaQueue? queue,
       int? textureId,
       double? volume,
       PlayerError? error});
@@ -186,6 +194,7 @@ class __$$PlayerStateImplCopyWithImpl<$Res>
     Object? isBuffering = null,
     Object? isInPipMode = null,
     Object? isInitialized = null,
+    Object? queue = freezed,
     Object? textureId = freezed,
     Object? volume = freezed,
     Object? error = freezed,
@@ -231,6 +240,10 @@ class __$$PlayerStateImplCopyWithImpl<$Res>
           ? _value.isInitialized
           : isInitialized // ignore: cast_nullable_to_non_nullable
               as bool,
+      queue: freezed == queue
+          ? _value.queue
+          : queue // ignore: cast_nullable_to_non_nullable
+              as MediaQueue?,
       textureId: freezed == textureId
           ? _value.textureId
           : textureId // ignore: cast_nullable_to_non_nullable
@@ -261,6 +274,7 @@ class _$PlayerStateImpl extends _PlayerState with DiagnosticableTreeMixin {
       this.isBuffering = false,
       this.isInPipMode = false,
       this.isInitialized = false,
+      this.queue,
       this.textureId,
       this.volume,
       this.error})
@@ -293,6 +307,8 @@ class _$PlayerStateImpl extends _PlayerState with DiagnosticableTreeMixin {
   @JsonKey()
   final bool isInitialized;
   @override
+  final MediaQueue? queue;
+  @override
   final int? textureId;
   @override
   final double? volume;
@@ -301,7 +317,7 @@ class _$PlayerStateImpl extends _PlayerState with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, videoSize: $videoSize, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized, textureId: $textureId, volume: $volume, error: $error)';
+    return 'PlayerState(playerId: $playerId, currentMediaItem: $currentMediaItem, videoSize: $videoSize, playbackPositionMs: $playbackPositionMs, playbackSpeed: $playbackSpeed, isNativeFullscreen: $isNativeFullscreen, playbackState: $playbackState, isBuffering: $isBuffering, isInPipMode: $isInPipMode, isInitialized: $isInitialized, queue: $queue, textureId: $textureId, volume: $volume, error: $error)';
   }
 
   @override
@@ -319,6 +335,7 @@ class _$PlayerStateImpl extends _PlayerState with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('isBuffering', isBuffering))
       ..add(DiagnosticsProperty('isInPipMode', isInPipMode))
       ..add(DiagnosticsProperty('isInitialized', isInitialized))
+      ..add(DiagnosticsProperty('queue', queue))
       ..add(DiagnosticsProperty('textureId', textureId))
       ..add(DiagnosticsProperty('volume', volume))
       ..add(DiagnosticsProperty('error', error));
@@ -349,6 +366,7 @@ class _$PlayerStateImpl extends _PlayerState with DiagnosticableTreeMixin {
                 other.isInPipMode == isInPipMode) &&
             (identical(other.isInitialized, isInitialized) ||
                 other.isInitialized == isInitialized) &&
+            (identical(other.queue, queue) || other.queue == queue) &&
             (identical(other.textureId, textureId) ||
                 other.textureId == textureId) &&
             (identical(other.volume, volume) || other.volume == volume) &&
@@ -368,6 +386,7 @@ class _$PlayerStateImpl extends _PlayerState with DiagnosticableTreeMixin {
       isBuffering,
       isInPipMode,
       isInitialized,
+      queue,
       textureId,
       volume,
       error);
@@ -391,6 +410,7 @@ abstract class _PlayerState extends PlayerState {
       final bool isBuffering,
       final bool isInPipMode,
       final bool isInitialized,
+      final MediaQueue? queue,
       final int? textureId,
       final double? volume,
       final PlayerError? error}) = _$PlayerStateImpl;
@@ -416,6 +436,8 @@ abstract class _PlayerState extends PlayerState {
   bool get isInPipMode;
   @override
   bool get isInitialized;
+  @override
+  MediaQueue? get queue;
   @override
   int? get textureId;
   @override
