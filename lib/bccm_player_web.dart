@@ -115,9 +115,39 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   Future<int> getAndroidPerformanceClass() {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<pigeon.MediaQueue> getQueue(String playerId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> clearQueue(String playerId) {
+    // TODO: implement clearQueue
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> moveQueueItem(String playerId, int fromIndex, int toIndex) {
+    // TODO: implement moveQueueItem
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> removeQueueItem(String playerId, String id) {
+    // TODO: implement removeQueueItem
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> replaceQueueItems(String playerId, List<pigeon.MediaItem> items, int fromIndex, int toIndex) {
+    // TODO: implement replaceQueueItems
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setCurrentQueueItem(String playerId, String id) {
+    // TODO: implement setCurrentQueueItem
     throw UnimplementedError();
   }
 }
