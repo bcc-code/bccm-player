@@ -51,10 +51,6 @@ abstract class PlaybackPlatformPigeon {
   void queueMediaItem(String playerId, MediaItem mediaItem);
 
   @async
-  @ObjCSelector("updateQueueOrder:itemIds:")
-  void updateQueueOrder(String playerId, List<String> items);
-
-  @async
   @ObjCSelector("moveQueueItem:fromIndex:toIndex:")
   void moveQueueItem(String playerId, int fromIndex, int toIndex);
 
@@ -67,8 +63,20 @@ abstract class PlaybackPlatformPigeon {
   void clearQueue(String playerId);
 
   @async
-  @ObjCSelector("replaceQueueItems:items:fromIndex:toIndex:")
-  void replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex);
+  @ObjCSelector("setNextUpList:items:")
+  void setNextUpList(String playerId, List<MediaItem> items);
+
+  @async
+  @ObjCSelector("skipToNext:")
+  void skipToNext(String playerId);
+
+  @async
+  @ObjCSelector("skipToPrevious:")
+  void skipToPrevious(String playerId);
+
+  @async
+  @ObjCSelector("setShuffleEnabled:mode:")
+  void setShuffleEnabled(String playerId, bool enabled);
 
   @async
   @ObjCSelector("setCurrentQueueItem:id:")
@@ -216,8 +224,9 @@ class MediaMetadata {
 }
 
 class MediaQueue {
-  late List<MediaItem?> items;
-  int? currentIndex;
+  late List<MediaItem?> queue;
+  late List<MediaItem?> nextUp;
+  late bool shuffleEnabled;
 }
 
 class PlayerStateSnapshot {
@@ -286,6 +295,12 @@ class Track {
   late int? height;
   late bool? downloaded;
   late bool isSelected;
+}
+
+@FlutterApi()
+abstract class QueueListenerPigeon {
+  @ObjCSelector("onQueueChanged:")
+  void onQueueChanged(QueueChangedEvent event);
 }
 
 ////////////////// Playback Listener

@@ -61,6 +61,7 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
                 event.setMediaItem(null)
             }
             plugin.playbackPigeon?.onPlaybackEnded(event.build(), NoOpVoidResult())
+            playerController.playNext()
         }
         onIsPlayingChanged(playerController.player.isPlaying)
         Log.d("bccm", "playbackState: " + playerController.player.playbackState.toString())
@@ -90,13 +91,6 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
                 .toString()
         );
         plugin.playbackPigeon?.onMediaItemTransition(event.build(), NoOpVoidResult())
-        plugin.playbackPigeon?.onQueueChanged(
-            PlaybackPlatformApi.QueueChangedEvent.Builder()
-                .setPlayerId(playerController.id)
-                .setQueue(playerController.getQueue())
-                .build(),
-            NoOpVoidResult()
-        )
     }
 
     override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
@@ -110,13 +104,6 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
         onMediaItemTransition(
             playerController.player.currentMediaItem,
             Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
-        )
-        plugin.playbackPigeon?.onQueueChanged(
-            PlaybackPlatformApi.QueueChangedEvent.Builder()
-                .setPlayerId(playerController.id)
-                .setQueue(playerController.getQueue())
-                .build(),
-            NoOpVoidResult()
         )
     }
 

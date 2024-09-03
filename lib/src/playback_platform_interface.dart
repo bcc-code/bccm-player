@@ -155,6 +155,9 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   Future<void> moveQueueItem(String playerId, int fromIndex, int toIndex);
   Future<void> removeQueueItem(String playerId, String id);
   Future<void> clearQueue(String playerId);
-  Future<void> replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex);
   Future<void> setCurrentQueueItem(String playerId, String id);
+  Future<void> setNextUpList(String playerId, List<MediaItem> items);
+  Future<void> skipToNext(String playerId);
+  Future<void> skipToPrevious(String playerId);
+  Future<void> setShuffleEnabled(String playerId, bool enabled);
 }

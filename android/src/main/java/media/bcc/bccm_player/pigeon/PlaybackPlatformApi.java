@@ -789,27 +789,43 @@ public class PlaybackPlatformApi {
 
   /** Generated class from Pigeon that represents data sent in messages. */
   public static final class MediaQueue {
-    private @NonNull List<MediaItem> items;
+    private @NonNull List<MediaItem> queue;
 
-    public @NonNull List<MediaItem> getItems() {
-      return items;
+    public @NonNull List<MediaItem> getQueue() {
+      return queue;
     }
 
-    public void setItems(@NonNull List<MediaItem> setterArg) {
+    public void setQueue(@NonNull List<MediaItem> setterArg) {
       if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"items\" is null.");
+        throw new IllegalStateException("Nonnull field \"queue\" is null.");
       }
-      this.items = setterArg;
+      this.queue = setterArg;
     }
 
-    private @Nullable Long currentIndex;
+    private @NonNull List<MediaItem> nextUp;
 
-    public @Nullable Long getCurrentIndex() {
-      return currentIndex;
+    public @NonNull List<MediaItem> getNextUp() {
+      return nextUp;
     }
 
-    public void setCurrentIndex(@Nullable Long setterArg) {
-      this.currentIndex = setterArg;
+    public void setNextUp(@NonNull List<MediaItem> setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"nextUp\" is null.");
+      }
+      this.nextUp = setterArg;
+    }
+
+    private @NonNull Boolean shuffleEnabled;
+
+    public @NonNull Boolean getShuffleEnabled() {
+      return shuffleEnabled;
+    }
+
+    public void setShuffleEnabled(@NonNull Boolean setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"shuffleEnabled\" is null.");
+      }
+      this.shuffleEnabled = setterArg;
     }
 
     /** Constructor is non-public to enforce null safety; use Builder. */
@@ -820,54 +836,66 @@ public class PlaybackPlatformApi {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
       MediaQueue that = (MediaQueue) o;
-      return items.equals(that.items) && Objects.equals(currentIndex, that.currentIndex);
+      return queue.equals(that.queue) && nextUp.equals(that.nextUp) && shuffleEnabled.equals(that.shuffleEnabled);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(items, currentIndex);
+      return Objects.hash(queue, nextUp, shuffleEnabled);
     }
 
     public static final class Builder {
 
-      private @Nullable List<MediaItem> items;
+      private @Nullable List<MediaItem> queue;
 
       @CanIgnoreReturnValue
-      public @NonNull Builder setItems(@NonNull List<MediaItem> setterArg) {
-        this.items = setterArg;
+      public @NonNull Builder setQueue(@NonNull List<MediaItem> setterArg) {
+        this.queue = setterArg;
         return this;
       }
 
-      private @Nullable Long currentIndex;
+      private @Nullable List<MediaItem> nextUp;
 
       @CanIgnoreReturnValue
-      public @NonNull Builder setCurrentIndex(@Nullable Long setterArg) {
-        this.currentIndex = setterArg;
+      public @NonNull Builder setNextUp(@NonNull List<MediaItem> setterArg) {
+        this.nextUp = setterArg;
+        return this;
+      }
+
+      private @Nullable Boolean shuffleEnabled;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setShuffleEnabled(@NonNull Boolean setterArg) {
+        this.shuffleEnabled = setterArg;
         return this;
       }
 
       public @NonNull MediaQueue build() {
         MediaQueue pigeonReturn = new MediaQueue();
-        pigeonReturn.setItems(items);
-        pigeonReturn.setCurrentIndex(currentIndex);
+        pigeonReturn.setQueue(queue);
+        pigeonReturn.setNextUp(nextUp);
+        pigeonReturn.setShuffleEnabled(shuffleEnabled);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(2);
-      toListResult.add(items);
-      toListResult.add(currentIndex);
+      ArrayList<Object> toListResult = new ArrayList<>(3);
+      toListResult.add(queue);
+      toListResult.add(nextUp);
+      toListResult.add(shuffleEnabled);
       return toListResult;
     }
 
     static @NonNull MediaQueue fromList(@NonNull ArrayList<Object> pigeonVar_list) {
       MediaQueue pigeonResult = new MediaQueue();
-      Object items = pigeonVar_list.get(0);
-      pigeonResult.setItems((List<MediaItem>) items);
-      Object currentIndex = pigeonVar_list.get(1);
-      pigeonResult.setCurrentIndex((currentIndex == null) ? null : ((currentIndex instanceof Integer) ? (Integer) currentIndex : (Long) currentIndex));
+      Object queue = pigeonVar_list.get(0);
+      pigeonResult.setQueue((List<MediaItem>) queue);
+      Object nextUp = pigeonVar_list.get(1);
+      pigeonResult.setNextUp((List<MediaItem>) nextUp);
+      Object shuffleEnabled = pigeonVar_list.get(2);
+      pigeonResult.setShuffleEnabled((Boolean) shuffleEnabled);
       return pigeonResult;
     }
   }
@@ -2800,15 +2828,19 @@ public class PlaybackPlatformApi {
 
     void queueMediaItem(@NonNull String playerId, @NonNull MediaItem mediaItem, @NonNull VoidResult result);
 
-    void updateQueueOrder(@NonNull String playerId, @NonNull List<String> items, @NonNull VoidResult result);
-
     void moveQueueItem(@NonNull String playerId, @NonNull Long fromIndex, @NonNull Long toIndex, @NonNull VoidResult result);
 
     void removeQueueItem(@NonNull String playerId, @NonNull String id, @NonNull VoidResult result);
 
     void clearQueue(@NonNull String playerId, @NonNull VoidResult result);
 
-    void replaceQueueItems(@NonNull String playerId, @NonNull List<MediaItem> items, @NonNull Long fromIndex, @NonNull Long toIndex, @NonNull VoidResult result);
+    void setNextUpList(@NonNull String playerId, @NonNull List<MediaItem> items, @NonNull VoidResult result);
+
+    void skipToNext(@NonNull String playerId, @NonNull VoidResult result);
+
+    void skipToPrevious(@NonNull String playerId, @NonNull VoidResult result);
+
+    void setShuffleEnabled(@NonNull String playerId, @NonNull Boolean enabled, @NonNull VoidResult result);
 
     void setCurrentQueueItem(@NonNull String playerId, @NonNull String id, @NonNull VoidResult result);
 
@@ -3075,36 +3107,6 @@ public class PlaybackPlatformApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.updateQueueOrder" + messageChannelSuffix, getCodec());
-        if (api != null) {
-          channel.setMessageHandler(
-              (message, reply) -> {
-                ArrayList<Object> wrapped = new ArrayList<>();
-                ArrayList<Object> args = (ArrayList<Object>) message;
-                String playerIdArg = (String) args.get(0);
-                List<String> itemsArg = (List<String>) args.get(1);
-                VoidResult resultCallback =
-                    new VoidResult() {
-                      public void success() {
-                        wrapped.add(0, null);
-                        reply.reply(wrapped);
-                      }
-
-                      public void error(Throwable error) {
-                        ArrayList<Object> wrappedError = wrapError(error);
-                        reply.reply(wrappedError);
-                      }
-                    };
-
-                api.updateQueueOrder(playerIdArg, itemsArg, resultCallback);
-              });
-        } else {
-          channel.setMessageHandler(null);
-        }
-      }
-      {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(
                 binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.moveQueueItem" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
@@ -3195,7 +3197,7 @@ public class PlaybackPlatformApi {
       {
         BasicMessageChannel<Object> channel =
             new BasicMessageChannel<>(
-                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.replaceQueueItems" + messageChannelSuffix, getCodec());
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setNextUpList" + messageChannelSuffix, getCodec());
         if (api != null) {
           channel.setMessageHandler(
               (message, reply) -> {
@@ -3203,8 +3205,6 @@ public class PlaybackPlatformApi {
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 String playerIdArg = (String) args.get(0);
                 List<MediaItem> itemsArg = (List<MediaItem>) args.get(1);
-                Number fromIndexArg = (Number) args.get(2);
-                Number toIndexArg = (Number) args.get(3);
                 VoidResult resultCallback =
                     new VoidResult() {
                       public void success() {
@@ -3218,7 +3218,95 @@ public class PlaybackPlatformApi {
                       }
                     };
 
-                api.replaceQueueItems(playerIdArg, itemsArg, (fromIndexArg == null) ? null : fromIndexArg.longValue(), (toIndexArg == null) ? null : toIndexArg.longValue(), resultCallback);
+                api.setNextUpList(playerIdArg, itemsArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.skipToNext" + messageChannelSuffix, getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                VoidResult resultCallback =
+                    new VoidResult() {
+                      public void success() {
+                        wrapped.add(0, null);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.skipToNext(playerIdArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.skipToPrevious" + messageChannelSuffix, getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                VoidResult resultCallback =
+                    new VoidResult() {
+                      public void success() {
+                        wrapped.add(0, null);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.skipToPrevious(playerIdArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setShuffleEnabled" + messageChannelSuffix, getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                Boolean enabledArg = (Boolean) args.get(1);
+                VoidResult resultCallback =
+                    new VoidResult() {
+                      public void success() {
+                        wrapped.add(0, null);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.setShuffleEnabled(playerIdArg, enabledArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
@@ -3895,6 +3983,47 @@ public class PlaybackPlatformApi {
           channel.setMessageHandler(null);
         }
       }
+    }
+  }
+  /** Generated class from Pigeon that represents Flutter messages that can be called from Java. */
+  public static class QueueListenerPigeon {
+    private final @NonNull BinaryMessenger binaryMessenger;
+    private final String messageChannelSuffix;
+
+    public QueueListenerPigeon(@NonNull BinaryMessenger argBinaryMessenger) {
+      this(argBinaryMessenger, "");
+    }
+    public QueueListenerPigeon(@NonNull BinaryMessenger argBinaryMessenger, @NonNull String messageChannelSuffix) {
+      this.binaryMessenger = argBinaryMessenger;
+      this.messageChannelSuffix = messageChannelSuffix.isEmpty() ? "" : "." + messageChannelSuffix;
+    }
+
+    /**
+     * Public interface for sending reply.
+     * The codec used by QueueListenerPigeon.
+     */
+    static @NonNull MessageCodec<Object> getCodec() {
+      return PigeonCodec.INSTANCE;
+    }
+    public void onQueueChanged(@NonNull QueueChangedEvent eventArg, @NonNull VoidResult result) {
+      final String channelName = "dev.flutter.pigeon.bccm_player.QueueListenerPigeon.onQueueChanged" + messageChannelSuffix;
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, channelName, getCodec());
+      channel.send(
+          new ArrayList<>(Collections.singletonList(eventArg)),
+          channelReply -> {
+            if (channelReply instanceof List) {
+              List<Object> listReply = (List<Object>) channelReply;
+              if (listReply.size() > 1) {
+                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
+              } else {
+                result.success();
+              }
+            }  else {
+              result.error(createConnectionError(channelName));
+            } 
+          });
     }
   }
   /**

@@ -247,12 +247,27 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
-  Future<void> replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex) {
-    return _pigeon.replaceQueueItems(playerId, items, fromIndex, toIndex);
+  Future<void> setCurrentQueueItem(String playerId, String id) {
+    return _pigeon.setCurrentQueueItem(playerId, id);
   }
 
   @override
-  Future<void> setCurrentQueueItem(String playerId, String id) {
-    return _pigeon.setCurrentQueueItem(playerId, id);
+  Future<void> setNextUpList(String playerId, List<MediaItem> items) {
+    return _pigeon.setNextUpList(playerId, items);
+  }
+
+  @override
+  Future<void> skipToNext(String playerId) {
+    return _pigeon.skipToNext(playerId);
+  }
+
+  @override
+  Future<void> skipToPrevious(String playerId) {
+    return _pigeon.skipToPrevious(playerId);
+  }
+
+  @override
+  Future<void> setShuffleEnabled(String playerId, bool enabled) {
+    return _pigeon.setShuffleEnabled(playerId, enabled);
   }
 }

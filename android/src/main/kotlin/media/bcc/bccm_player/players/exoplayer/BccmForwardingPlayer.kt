@@ -66,6 +66,10 @@ class BccmForwardingPlayer(private val playerController: ExoPlayerController) :
         seekToOffset(seekForwardIncrement)
     }
 
+    override fun seekToNextMediaItem() {
+        playerController.playNext()
+    }
+
     private fun seekToOffset(offsetMs: Long) {
         var positionMs = currentPosition + offsetMs
         val durationMs = duration

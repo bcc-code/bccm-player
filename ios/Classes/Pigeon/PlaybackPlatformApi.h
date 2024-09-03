@@ -154,10 +154,12 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @interface MediaQueue : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
 - (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithItems:(NSArray<MediaItem *> *)items
-    currentIndex:(nullable NSNumber *)currentIndex;
-@property(nonatomic, copy) NSArray<MediaItem *> * items;
-@property(nonatomic, strong, nullable) NSNumber * currentIndex;
++ (instancetype)makeWithQueue:(NSArray<MediaItem *> *)queue
+    nextUp:(NSArray<MediaItem *> *)nextUp
+    shuffleEnabled:(BOOL )shuffleEnabled;
+@property(nonatomic, copy) NSArray<MediaItem *> * queue;
+@property(nonatomic, copy) NSArray<MediaItem *> * nextUp;
+@property(nonatomic, assign) BOOL  shuffleEnabled;
 @end
 
 @interface PlayerStateSnapshot : NSObject
@@ -341,11 +343,13 @@ NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 - (void)switchToVideoTextureForPlayer:(NSString *)playerId textureId:(NSInteger)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)disposePlayer:(NSString *)playerId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)queueMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)updateQueueOrder:(NSString *)playerId itemIds:(NSArray<NSString *> *)items completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)moveQueueItem:(NSString *)playerId fromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)removeQueueItem:(NSString *)playerId id:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)clearQueue:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)replaceQueueItems:(NSString *)playerId items:(NSArray<MediaItem *> *)items fromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)setNextUpList:(NSString *)playerId items:(NSArray<MediaItem *> *)items completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)skipToNext:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)skipToPrevious:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)setShuffleEnabled:(NSString *)playerId mode:(BOOL)enabled completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setCurrentQueueItem:(NSString *)playerId id:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)getQueue:(NSString *)playerId completion:(void (^)(MediaQueue *_Nullable, FlutterError *_Nullable))completion;
 - (void)replaceCurrentMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem playbackPositionFromPrimary:(nullable NSNumber *)playbackPositionFromPrimary autoplay:(nullable NSNumber *)autoplay completion:(void (^)(FlutterError *_Nullable))completion;
@@ -376,6 +380,13 @@ NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 extern void SetUpPlaybackPlatformPigeon(id<FlutterBinaryMessenger> binaryMessenger, NSObject<PlaybackPlatformPigeon> *_Nullable api);
 
 extern void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMessenger, NSObject<PlaybackPlatformPigeon> *_Nullable api, NSString *messageChannelSuffix);
+
+
+@interface QueueListenerPigeon : NSObject
+- (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger;
+- (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger messageChannelSuffix:(nullable NSString *)messageChannelSuffix;
+- (void)onQueueChanged:(QueueChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
+@end
 
 
 ////////////////// Playback Listener

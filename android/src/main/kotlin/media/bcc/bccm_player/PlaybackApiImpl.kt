@@ -224,16 +224,6 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         result.success()
     }
 
-    override fun updateQueueOrder(playerId: String, items: MutableList<String>, result: PlaybackPlatformApi.VoidResult) {
-        val playerController = getController(playerId)
-        if (playerController == null) {
-            result.error(Error("Player with id $playerId does not exist."))
-            return
-        }
-        playerController.updateQueueOrder(items)
-        result.success()
-    }
-
     override fun moveQueueItem(playerId: String, fromIndex: Long, toIndex: Long, result: PlaybackPlatformApi.VoidResult) {
         val playerController = getController(playerId)
         if (playerController == null) {
@@ -264,21 +254,46 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         result.success()
     }
 
-    override fun replaceQueueItems(
-        playerId: String,
-        items: MutableList<PlaybackPlatformApi.MediaItem>,
-        fromIndex: Long,
-        toIndex: Long,
-        result: PlaybackPlatformApi.VoidResult
-    ) {
+    override fun setNextUpList(playerId: String, items: MutableList<PlaybackPlatformApi.MediaItem>, result: PlaybackPlatformApi.VoidResult) {
         val playerController = getController(playerId)
         if (playerController == null) {
             result.error(Error("Player with id $playerId does not exist."))
             return
         }
-        playerController.replaceQueueItems(fromIndex.toInt(), toIndex.toInt(), items)
+        playerController.setNextUp(items)
         result.success()
     }
+
+    override fun skipToNext(playerId: String, result: PlaybackPlatformApi.VoidResult) {
+        val playerController = getController(playerId)
+        if (playerController == null) {
+            result.error(Error("Player with id $playerId does not exist."))
+            return
+        }
+        playerController.playNext()
+        result.success()
+    }
+
+    override fun skipToPrevious(playerId: String, result: PlaybackPlatformApi.VoidResult) {
+        val playerController = getController(playerId)
+        if (playerController == null) {
+            result.error(Error("Player with id $playerId does not exist."))
+            return
+        }
+        playerController.playPrevious()
+        result.success()
+    }
+
+    override fun setShuffleEnabled(playerId: String, enabled: Boolean, result: PlaybackPlatformApi.VoidResult) {
+        val playerController = getController(playerId)
+        if (playerController == null) {
+            result.error(Error("Player with id $playerId does not exist."))
+            return
+        }
+        playerController.setShuffleEnabled(enabled)
+        result.success()
+    }
+
 
     override fun setCurrentQueueItem(playerId: String, id: String, result: PlaybackPlatformApi.VoidResult) {
         val playerController = getController(playerId)

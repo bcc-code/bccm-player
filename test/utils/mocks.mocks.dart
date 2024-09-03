@@ -680,27 +680,6 @@ class MockBccmPlayerInterface extends _i1.Mock
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> replaceQueueItems(
-    String? playerId,
-    List<_i2.MediaItem>? items,
-    int? fromIndex,
-    int? toIndex,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #replaceQueueItems,
-          [
-            playerId,
-            items,
-            fromIndex,
-            toIndex,
-          ],
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
-
-  @override
   _i4.Future<void> setCurrentQueueItem(
     String? playerId,
     String? id,
@@ -711,6 +690,60 @@ class MockBccmPlayerInterface extends _i1.Mock
           [
             playerId,
             id,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> setNextUpList(
+    String? playerId,
+    List<_i2.MediaItem>? items,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setNextUpList,
+          [
+            playerId,
+            items,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> skipToNext(String? playerId) => (super.noSuchMethod(
+        Invocation.method(
+          #skipToNext,
+          [playerId],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> skipToPrevious(String? playerId) => (super.noSuchMethod(
+        Invocation.method(
+          #skipToPrevious,
+          [playerId],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> setShuffleEnabled(
+    String? playerId,
+    bool? enabled,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setShuffleEnabled,
+          [
+            playerId,
+            enabled,
           ],
         ),
         returnValue: _i4.Future<void>.value(),

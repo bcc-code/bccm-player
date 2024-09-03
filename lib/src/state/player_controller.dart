@@ -339,24 +339,23 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   }
 
   // Go to next item in the queue.
-  Future<void> next() async {
-    final queue = value.queue;
-    final currentIndex = queue?.currentIndex;
-    if (currentIndex == null || queue == null || queue.items.isEmpty) return;
-    final nextIndex = (currentIndex + 1) % queue.items.length;
-    final id = queue.items[nextIndex]?.id;
-    if (id == null) return;
-    await setCurrentQueueItem(id);
+  Future<void> skipToNext() async {
+    return BccmPlayerInterface.instance.skipToNext(value.playerId);
   }
 
-  /// Replaces the items in the queue.
-  Future<void> replaceQueueItems(List<MediaItem> items, int fromIndex, int toIndex) {
-    return BccmPlayerInterface.instance.replaceQueueItems(value.playerId, items, fromIndex, toIndex);
+  // Go to the previous item in the queue.
+  Future<void> skipToPrevious() async {
+    return BccmPlayerInterface.instance.skipToPrevious(value.playerId);
   }
 
   /// Sets the current item in the queue.
   Future<void> setCurrentQueueItem(String id) {
     return BccmPlayerInterface.instance.setCurrentQueueItem(value.playerId, id);
+  }
+
+  /// Sets the shuffle mode.
+  Future<void> setShuffleEnabled(bool enabled) {
+    return BccmPlayerInterface.instance.setShuffleEnabled(value.playerId, enabled);
   }
 
   /// @internal as you probably don't need to use this.
@@ -383,4 +382,8 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
           return false; // hacky try-catch because pigeon doesn't support inheritance: https://github.com/flutter/flutter/issues/117819
         }
       });
+
+  void setNextUpItems(List<MediaItem> items) {
+    BccmPlayerInterface.instance.setNextUpList(value.playerId, items);
+  }
 }
