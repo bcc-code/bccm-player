@@ -58,6 +58,7 @@ class QueueExample extends HookWidget {
       } else if (currentPlaylistId.value == PlaylistId.playlist2) {
         controller.setNextUpItems(playlist2);
       }
+      return null;
     }, [currentPlaylistId]);
 
     return SafeArea(
@@ -88,7 +89,7 @@ class QueueExample extends HookWidget {
                         onCloseTap: () => controller.stop(reset: true),
                       ),
               ),
-              Row(
+              Wrap(
                 children: [
                   ElevatedButton.icon(
                     label: const Text('Clear queue'),
@@ -116,7 +117,7 @@ class QueueExample extends HookWidget {
                   const SizedBox(width: 16),
                   ElevatedButton.icon(
                     label: const Text('Shuffle'),
-                    icon: const Icon(Icons.shuffle),
+                    icon: Icon(controller.value.queue?.shuffleEnabled == true ? Icons.shuffle_on_outlined : Icons.shuffle),
                     onPressed: () {
                       controller.setShuffleEnabled(!(controller.value.queue?.shuffleEnabled ?? false));
                     },

@@ -474,6 +474,7 @@ abstract class PlayerController : Player.Listener {
         return queue
             .setQueue(queueManager.queue.value)
             .setNextUp(queueManager.nextUp.value)
+            .setShuffleEnabled(queueManager.shuffle.value)
             .build()
     }
 
