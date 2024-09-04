@@ -47,46 +47,6 @@ abstract class PlaybackPlatformPigeon {
   bool disposePlayer(String playerId);
 
   @async
-  @ObjCSelector("queueMediaItem:mediaItem:")
-  void queueMediaItem(String playerId, MediaItem mediaItem);
-
-  @async
-  @ObjCSelector("moveQueueItem:fromIndex:toIndex:")
-  void moveQueueItem(String playerId, int fromIndex, int toIndex);
-
-  @async
-  @ObjCSelector("removeQueueItem:id:")
-  void removeQueueItem(String playerId, String id);
-
-  @async
-  @ObjCSelector("clearQueue:")
-  void clearQueue(String playerId);
-
-  @async
-  @ObjCSelector("setNextUpList:items:")
-  void setNextUpList(String playerId, List<MediaItem> items);
-
-  @async
-  @ObjCSelector("skipToNext:")
-  void skipToNext(String playerId);
-
-  @async
-  @ObjCSelector("skipToPrevious:")
-  void skipToPrevious(String playerId);
-
-  @async
-  @ObjCSelector("setShuffleEnabled:enabled:")
-  void setShuffleEnabled(String playerId, bool enabled);
-
-  @async
-  @ObjCSelector("setCurrentQueueItem:id:")
-  void setCurrentQueueItem(String playerId, String id);
-
-  @async
-  @ObjCSelector("getQueue:")
-  MediaQueue getQueue(String playerId);
-
-  @async
   @ObjCSelector("replaceCurrentMediaItem:mediaItem:playbackPositionFromPrimary:autoplay:")
   void replaceCurrentMediaItem(String playerId, MediaItem mediaItem, bool? playbackPositionFromPrimary, bool? autoplay);
 
@@ -223,12 +183,6 @@ class MediaMetadata {
   Map<String?, String?>? extras;
 }
 
-class MediaQueue {
-  late List<MediaItem?> queue;
-  late List<MediaItem?> nextUp;
-  late bool shuffleEnabled;
-}
-
 class PlayerStateSnapshot {
   late String playerId;
   late PlaybackState playbackState;
@@ -298,9 +252,18 @@ class Track {
 }
 
 @FlutterApi()
-abstract class QueueListenerPigeon {
-  @ObjCSelector("onQueueChanged:")
-  void onQueueChanged(QueueChangedEvent event);
+abstract class QueueManagerPigeon {
+  @async
+  @ObjCSelector("handlePlaybackEnded:mediaItem:")
+  void handlePlaybackEnded(String playerId, MediaItem? current);
+
+  @async
+  @ObjCSelector("skipToNext:")
+  void skipToNext(String playerId);
+
+  @async
+  @ObjCSelector("skipToPrevious:")
+  void skipToPrevious(String playerId);
 }
 
 ////////////////// Playback Listener
@@ -323,13 +286,6 @@ abstract class PlaybackListenerPigeon {
   void onMediaItemTransition(MediaItemTransitionEvent event);
   @ObjCSelector("onPictureInPictureModeChanged:")
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
-  @ObjCSelector("onQueueChanged:")
-  void onQueueChanged(QueueChangedEvent event);
-}
-
-class QueueChangedEvent {
-  late String playerId;
-  late MediaQueue? queue;
 }
 
 class PrimaryPlayerChangedEvent {

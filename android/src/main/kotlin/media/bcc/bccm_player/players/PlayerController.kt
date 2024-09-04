@@ -18,12 +18,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
 import media.bcc.bccm_player.DOWNLOADED_URL_SCHEME
 import media.bcc.bccm_player.Downloader
-import media.bcc.bccm_player.QueueManager
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.RepeatMode
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.VideoSize
@@ -44,7 +42,6 @@ abstract class PlayerController : Player.Listener {
     abstract val player: Player
     abstract var currentPlayerViewController: BccmPlayerViewController?
     open var plugin: BccmPlayerPlugin? = null
-    private var queueManager = QueueManager()
     var pluginPlayerListener: PlayerListener? = null
     var isLive: Boolean = false
     var texture: SurfaceTextureEntry? = null
@@ -59,16 +56,6 @@ abstract class PlayerController : Player.Listener {
         PlayerListener(this, newPlugin).also {
             pluginPlayerListener = it
             player.addListener(it)
-        }
-
-        pluginMainScope?.launch {
-            queueManager.changeFlow.collect {
-                val queueChangedEvent = PlaybackPlatformApi.QueueChangedEvent.Builder()
-                    .setPlayerId(id)
-                    .setQueue(getQueue())
-                    .build()
-                plugin?.playbackPigeon?.onQueueChanged(queueChangedEvent, NoOpVoidResult())
-            }
         }
     }
 
@@ -440,7 +427,7 @@ abstract class PlayerController : Player.Listener {
         }
     }
 
-    private fun getCurrentMediaItem(): PlaybackPlatformApi.MediaItem? {
+    fun getCurrentMediaItem(): PlaybackPlatformApi.MediaItem? {
         val current = player.currentMediaItem;
         if (current != null) {
             return mapMediaItem(current)
@@ -460,58 +447,17 @@ abstract class PlayerController : Player.Listener {
         pluginPlayerListener?.onManualPlayerStateUpdate()
     }
 
-    fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
-        queueManager.addQueueItem(mediaItem)
-    }
-
-    fun moveQueueItem(fromIndex: Int, toIndex: Int) {
-        queueManager.moveQueueItem(fromIndex, toIndex)
-    }
-
-    fun getQueue(): PlaybackPlatformApi.MediaQueue {
-        val queue = PlaybackPlatformApi.MediaQueue.Builder()
-        return queue
-            .setQueue(queueManager.queue.value)
-            .setNextUp(queueManager.nextUp.value)
-            .setShuffleEnabled(queueManager.shuffle.value)
-            .build()
-    }
-
-    fun removeQueueItem(id: String) {
-        return queueManager.removeQueueItem(id)
-    }
-
-    fun clearQueue() {
-        queueManager.clearQueue()
-    }
-
-    fun setShuffleEnabled(shuffle: Boolean) {
-        queueManager.setShuffleEnabled(shuffle)
-    }
-
-    fun setNextUp(items: List<PlaybackPlatformApi.MediaItem>) {
-        queueManager.setNextUp(items)
-    }
-
-    fun setCurrentQueueItem(id: String) {
-        queueManager.consumeSpecific(id)
-    }
-
     fun playNext() {
-        val next = queueManager.consumeNext(getCurrentMediaItem())
-        if (next != null) {
-            replaceCurrentMediaItem(next, true)
-        } else {
-            player.stop()
-        }
+        plugin?.queueManagerPigeon?.skipToNext(this.id, NoOpVoidResult())
     }
 
     fun playPrevious() {
-        val previous = queueManager.consumePrevious(getCurrentMediaItem())
-        if (previous != null) {
-            replaceCurrentMediaItem(previous, true)
-        } else {
-            player.seekTo(0)
+        plugin?.queueManagerPigeon?.skipToPrevious(this.id, NoOpVoidResult())
+    }
+
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        if (playbackState == Player.STATE_ENDED) {
+            plugin?.queueManagerPigeon?.handlePlaybackEnded(this.id, getCurrentMediaItem(), NoOpVoidResult());
         }
     }
 

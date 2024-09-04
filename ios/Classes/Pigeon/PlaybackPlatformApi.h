@@ -74,7 +74,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class AppConfig;
 @class MediaItem;
 @class MediaMetadata;
-@class MediaQueue;
 @class PlayerStateSnapshot;
 @class PlayerError;
 @class VideoSize;
@@ -82,7 +81,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class MediaInfo;
 @class PlayerTracksSnapshot;
 @class Track;
-@class QueueChangedEvent;
 @class PrimaryPlayerChangedEvent;
 @class PlayerStateUpdateEvent;
 @class PositionDiscontinuityEvent;
@@ -149,17 +147,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, copy, nullable) NSString * artist;
 @property(nonatomic, strong, nullable) NSNumber * durationMs;
 @property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * extras;
-@end
-
-@interface MediaQueue : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithQueue:(NSArray<MediaItem *> *)queue
-    nextUp:(NSArray<MediaItem *> *)nextUp
-    shuffleEnabled:(BOOL )shuffleEnabled;
-@property(nonatomic, copy) NSArray<MediaItem *> * queue;
-@property(nonatomic, copy) NSArray<MediaItem *> * nextUp;
-@property(nonatomic, assign) BOOL  shuffleEnabled;
 @end
 
 @interface PlayerStateSnapshot : NSObject
@@ -261,15 +248,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, assign) BOOL  isSelected;
 @end
 
-@interface QueueChangedEvent : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithPlayerId:(NSString *)playerId
-    queue:(nullable MediaQueue *)queue;
-@property(nonatomic, copy) NSString * playerId;
-@property(nonatomic, strong, nullable) MediaQueue * queue;
-@end
-
 @interface PrimaryPlayerChangedEvent : NSObject
 + (instancetype)makeWithPlayerId:(nullable NSString *)playerId;
 @property(nonatomic, copy, nullable) NSString * playerId;
@@ -342,16 +320,6 @@ NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 - (void)disposeVideoTexture:(NSInteger)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)switchToVideoTextureForPlayer:(NSString *)playerId textureId:(NSInteger)textureId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 - (void)disposePlayer:(NSString *)playerId completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
-- (void)queueMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)moveQueueItem:(NSString *)playerId fromIndex:(NSInteger)fromIndex toIndex:(NSInteger)toIndex completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)removeQueueItem:(NSString *)playerId id:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)clearQueue:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)setNextUpList:(NSString *)playerId items:(NSArray<MediaItem *> *)items completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)skipToNext:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)skipToPrevious:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)setShuffleEnabled:(NSString *)playerId enabled:(BOOL)enabled completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)setCurrentQueueItem:(NSString *)playerId id:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)getQueue:(NSString *)playerId completion:(void (^)(MediaQueue *_Nullable, FlutterError *_Nullable))completion;
 - (void)replaceCurrentMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem playbackPositionFromPrimary:(nullable NSNumber *)playbackPositionFromPrimary autoplay:(nullable NSNumber *)autoplay completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setPlayerViewVisibility:(NSInteger)viewId visible:(BOOL)visible error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setPrimary:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
@@ -382,10 +350,12 @@ extern void SetUpPlaybackPlatformPigeon(id<FlutterBinaryMessenger> binaryMesseng
 extern void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMessenger, NSObject<PlaybackPlatformPigeon> *_Nullable api, NSString *messageChannelSuffix);
 
 
-@interface QueueListenerPigeon : NSObject
+@interface QueueManagerPigeon : NSObject
 - (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger;
 - (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger messageChannelSuffix:(nullable NSString *)messageChannelSuffix;
-- (void)onQueueChanged:(QueueChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)handlePlaybackEnded:(NSString *)playerId mediaItem:(nullable MediaItem *)current completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)skipToNext:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)skipToPrevious:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
 @end
 
 
@@ -400,7 +370,6 @@ extern void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> bin
 - (void)onPlaybackEnded:(PlaybackEndedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onMediaItemTransition:(MediaItemTransitionEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onPictureInPictureModeChanged:(PictureInPictureModeChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)onQueueChanged:(QueueChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 @end
 
 NS_ASSUME_NONNULL_END

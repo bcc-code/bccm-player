@@ -444,33 +444,6 @@ class CastPlayerController: NSObject, PlayerController {
         return mediaItem
     }
     
-    func moveQueueItem(from fromIndex: Int, to toIndex: Int) {}
-    
-    func removeQueueItem(id: String) {}
-    
-    func clearQueue() {}
-    
-    func setCurrentQueueItem(id: String) {}
-    
-    func getQueue() -> MediaQueue {
-        return MediaQueue.make(withQueue: [], nextUp: [], shuffleEnabled: false)
-    }
-    
-    func skipToNext() {
-        
-    }
-    
-    func skipToPrevious() {
-        
-    }
-    
-    func setShuffleEnabled(enabled: Bool) {
-        
-    }
-    
-    func setNextUpList(items: [MediaItem]) {
-        
-    }
 }
 
 extension CastPlayerController: GCKRemoteMediaClientListener {

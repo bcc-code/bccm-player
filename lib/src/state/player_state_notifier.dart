@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
+import 'package:bccm_player/src/queue/queue_controller.dart';
 import 'package:bccm_player/src/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:state_notifier/state_notifier.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../queue/default_queue_controller.dart';
 
 part 'player_state_notifier.freezed.dart';
 
@@ -13,8 +16,14 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
   final void Function()? onDispose;
   final bool keepAlive;
   late Timer positionUpdateTimer;
+  QueueManager queueManager = DefaultQueueManager();
 
-  PlayerStateNotifier({PlayerState? player, this.onDispose, required this.keepAlive}) : super(player ?? const PlayerState(playerId: 'unknown')) {
+  PlayerStateNotifier({
+    PlayerState? player,
+    this.onDispose,
+    required this.keepAlive,
+  }) : super(player ?? const PlayerState(playerId: 'unknown')) {
+    queueManager.setPlayer(this);
     positionUpdateTimer = Timer.periodic(const Duration(seconds: 1), _updatePosition);
   }
 
@@ -35,6 +44,7 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     if (!keepAlive || force == true) {
       onDispose?.call();
       positionUpdateTimer.cancel();
+      queueManager.dispose();
       super.dispose();
     }
   }
@@ -51,6 +61,10 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
   void resyncPlaybackPositionTimer() {
     positionUpdateTimer.cancel();
     positionUpdateTimer = Timer.periodic(const Duration(seconds: 1), _updatePosition);
+  }
+
+  PlayerState getState() {
+    return state;
   }
 
   void setMediaItem(MediaItem? mediaItem) {
@@ -77,10 +91,6 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(isBuffering: isBuffering);
   }
 
-  void setQueue(MediaQueue? queue) {
-    state = state.copyWith(queue: queue);
-  }
-
   void setStateFromSnapshot(PlayerStateSnapshot snapshot) {
     state = state.copyWithSnapshot(snapshot);
   }
@@ -100,7 +110,6 @@ class PlayerState with _$PlayerState {
     @Default(false) bool isBuffering,
     @Default(false) bool isInPipMode,
     @Default(false) bool isInitialized,
-    MediaQueue? queue,
     int? textureId,
     double? volume,
     PlayerError? error,
@@ -128,7 +137,6 @@ extension on PlayerState {
   PlayerState copyWithSnapshot(PlayerStateSnapshot snapshot) {
     return PlayerState.fromPlayerStateSnapshot(snapshot).copyWith(
       isInPipMode: isInPipMode, // not part of snapshot
-      queue: queue, // not part of snapshot
       isInitialized: true,
     );
   }

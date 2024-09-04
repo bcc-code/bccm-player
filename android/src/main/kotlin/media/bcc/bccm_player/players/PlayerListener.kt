@@ -53,10 +53,9 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
             val event =
                 PlaybackPlatformApi.PlaybackEndedEvent.Builder()
                     .setPlayerId(playerController.id)
-            val mediaItem = playerController.player.currentMediaItem;
+            val mediaItem = playerController.getCurrentMediaItem();
             if (mediaItem != null) {
-                val bccmMediaItem = playerController.mapMediaItem(mediaItem)
-                event.setMediaItem(bccmMediaItem)
+                event.setMediaItem(mediaItem)
             } else {
                 event.setMediaItem(null)
             }

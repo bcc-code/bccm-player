@@ -105,12 +105,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 - (NSArray<id> *)toList;
 @end
 
-@interface MediaQueue ()
-+ (MediaQueue *)fromList:(NSArray<id> *)list;
-+ (nullable MediaQueue *)nullableFromList:(NSArray<id> *)list;
-- (NSArray<id> *)toList;
-@end
-
 @interface PlayerStateSnapshot ()
 + (PlayerStateSnapshot *)fromList:(NSArray<id> *)list;
 + (nullable PlayerStateSnapshot *)nullableFromList:(NSArray<id> *)list;
@@ -150,12 +144,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 @interface Track ()
 + (Track *)fromList:(NSArray<id> *)list;
 + (nullable Track *)nullableFromList:(NSArray<id> *)list;
-- (NSArray<id> *)toList;
-@end
-
-@interface QueueChangedEvent ()
-+ (QueueChangedEvent *)fromList:(NSArray<id> *)list;
-+ (nullable QueueChangedEvent *)nullableFromList:(NSArray<id> *)list;
 - (NSArray<id> *)toList;
 @end
 
@@ -357,35 +345,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.artist ?: [NSNull null],
     self.durationMs ?: [NSNull null],
     self.extras ?: [NSNull null],
-  ];
-}
-@end
-
-@implementation MediaQueue
-+ (instancetype)makeWithQueue:(NSArray<MediaItem *> *)queue
-    nextUp:(NSArray<MediaItem *> *)nextUp
-    shuffleEnabled:(BOOL )shuffleEnabled {
-  MediaQueue* pigeonResult = [[MediaQueue alloc] init];
-  pigeonResult.queue = queue;
-  pigeonResult.nextUp = nextUp;
-  pigeonResult.shuffleEnabled = shuffleEnabled;
-  return pigeonResult;
-}
-+ (MediaQueue *)fromList:(NSArray<id> *)list {
-  MediaQueue *pigeonResult = [[MediaQueue alloc] init];
-  pigeonResult.queue = GetNullableObjectAtIndex(list, 0);
-  pigeonResult.nextUp = GetNullableObjectAtIndex(list, 1);
-  pigeonResult.shuffleEnabled = [GetNullableObjectAtIndex(list, 2) boolValue];
-  return pigeonResult;
-}
-+ (nullable MediaQueue *)nullableFromList:(NSArray<id> *)list {
-  return (list) ? [MediaQueue fromList:list] : nil;
-}
-- (NSArray<id> *)toList {
-  return @[
-    self.queue ?: [NSNull null],
-    self.nextUp ?: [NSNull null],
-    @(self.shuffleEnabled),
   ];
 }
 @end
@@ -643,31 +602,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 }
 @end
 
-@implementation QueueChangedEvent
-+ (instancetype)makeWithPlayerId:(NSString *)playerId
-    queue:(nullable MediaQueue *)queue {
-  QueueChangedEvent* pigeonResult = [[QueueChangedEvent alloc] init];
-  pigeonResult.playerId = playerId;
-  pigeonResult.queue = queue;
-  return pigeonResult;
-}
-+ (QueueChangedEvent *)fromList:(NSArray<id> *)list {
-  QueueChangedEvent *pigeonResult = [[QueueChangedEvent alloc] init];
-  pigeonResult.playerId = GetNullableObjectAtIndex(list, 0);
-  pigeonResult.queue = GetNullableObjectAtIndex(list, 1);
-  return pigeonResult;
-}
-+ (nullable QueueChangedEvent *)nullableFromList:(NSArray<id> *)list {
-  return (list) ? [QueueChangedEvent fromList:list] : nil;
-}
-- (NSArray<id> *)toList {
-  return @[
-    self.playerId ?: [NSNull null],
-    self.queue ?: [NSNull null],
-  ];
-}
-@end
-
 @implementation PrimaryPlayerChangedEvent
 + (instancetype)makeWithPlayerId:(nullable NSString *)playerId {
   PrimaryPlayerChangedEvent* pigeonResult = [[PrimaryPlayerChangedEvent alloc] init];
@@ -878,36 +812,32 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     case 137: 
       return [MediaMetadata fromList:[self readValue]];
     case 138: 
-      return [MediaQueue fromList:[self readValue]];
-    case 139: 
       return [PlayerStateSnapshot fromList:[self readValue]];
-    case 140: 
+    case 139: 
       return [PlayerError fromList:[self readValue]];
-    case 141: 
+    case 140: 
       return [VideoSize fromList:[self readValue]];
-    case 142: 
+    case 141: 
       return [ChromecastState fromList:[self readValue]];
-    case 143: 
+    case 142: 
       return [MediaInfo fromList:[self readValue]];
-    case 144: 
+    case 143: 
       return [PlayerTracksSnapshot fromList:[self readValue]];
-    case 145: 
+    case 144: 
       return [Track fromList:[self readValue]];
-    case 146: 
-      return [QueueChangedEvent fromList:[self readValue]];
-    case 147: 
+    case 145: 
       return [PrimaryPlayerChangedEvent fromList:[self readValue]];
-    case 148: 
+    case 146: 
       return [PlayerStateUpdateEvent fromList:[self readValue]];
-    case 149: 
+    case 147: 
       return [PositionDiscontinuityEvent fromList:[self readValue]];
-    case 150: 
+    case 148: 
       return [PlaybackStateChangedEvent fromList:[self readValue]];
-    case 151: 
+    case 149: 
       return [PlaybackEndedEvent fromList:[self readValue]];
-    case 152: 
+    case 150: 
       return [PictureInPictureModeChangedEvent fromList:[self readValue]];
-    case 153: 
+    case 151: 
       return [MediaItemTransitionEvent fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
@@ -951,53 +881,47 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   } else if ([value isKindOfClass:[MediaMetadata class]]) {
     [self writeByte:137];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[MediaQueue class]]) {
+  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
     [self writeByte:138];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerStateSnapshot class]]) {
+  } else if ([value isKindOfClass:[PlayerError class]]) {
     [self writeByte:139];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerError class]]) {
+  } else if ([value isKindOfClass:[VideoSize class]]) {
     [self writeByte:140];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[VideoSize class]]) {
+  } else if ([value isKindOfClass:[ChromecastState class]]) {
     [self writeByte:141];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[ChromecastState class]]) {
+  } else if ([value isKindOfClass:[MediaInfo class]]) {
     [self writeByte:142];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[MediaInfo class]]) {
+  } else if ([value isKindOfClass:[PlayerTracksSnapshot class]]) {
     [self writeByte:143];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerTracksSnapshot class]]) {
+  } else if ([value isKindOfClass:[Track class]]) {
     [self writeByte:144];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[Track class]]) {
+  } else if ([value isKindOfClass:[PrimaryPlayerChangedEvent class]]) {
     [self writeByte:145];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[QueueChangedEvent class]]) {
+  } else if ([value isKindOfClass:[PlayerStateUpdateEvent class]]) {
     [self writeByte:146];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PrimaryPlayerChangedEvent class]]) {
+  } else if ([value isKindOfClass:[PositionDiscontinuityEvent class]]) {
     [self writeByte:147];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerStateUpdateEvent class]]) {
+  } else if ([value isKindOfClass:[PlaybackStateChangedEvent class]]) {
     [self writeByte:148];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PositionDiscontinuityEvent class]]) {
+  } else if ([value isKindOfClass:[PlaybackEndedEvent class]]) {
     [self writeByte:149];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlaybackStateChangedEvent class]]) {
+  } else if ([value isKindOfClass:[PictureInPictureModeChangedEvent class]]) {
     [self writeByte:150];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlaybackEndedEvent class]]) {
-    [self writeByte:151];
-    [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PictureInPictureModeChangedEvent class]]) {
-    [self writeByte:152];
-    [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[MediaItemTransitionEvent class]]) {
-    [self writeByte:153];
+    [self writeByte:151];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -1136,203 +1060,6 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
         NSArray<id> *args = message;
         NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
         [api disposePlayer:arg_playerId completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
-          callback(wrapResult(output, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.queueMediaItem", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(queueMediaItem:mediaItem:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(queueMediaItem:mediaItem:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        MediaItem *arg_mediaItem = GetNullableObjectAtIndex(args, 1);
-        [api queueMediaItem:arg_playerId mediaItem:arg_mediaItem completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.moveQueueItem", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(moveQueueItem:fromIndex:toIndex:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(moveQueueItem:fromIndex:toIndex:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        NSInteger arg_fromIndex = [GetNullableObjectAtIndex(args, 1) integerValue];
-        NSInteger arg_toIndex = [GetNullableObjectAtIndex(args, 2) integerValue];
-        [api moveQueueItem:arg_playerId fromIndex:arg_fromIndex toIndex:arg_toIndex completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.removeQueueItem", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(removeQueueItem:id:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(removeQueueItem:id:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        NSString *arg_id = GetNullableObjectAtIndex(args, 1);
-        [api removeQueueItem:arg_playerId id:arg_id completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.clearQueue", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(clearQueue:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(clearQueue:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        [api clearQueue:arg_playerId completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setNextUpList", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(setNextUpList:items:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setNextUpList:items:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        NSArray<MediaItem *> *arg_items = GetNullableObjectAtIndex(args, 1);
-        [api setNextUpList:arg_playerId items:arg_items completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.skipToNext", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(skipToNext:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(skipToNext:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        [api skipToNext:arg_playerId completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.skipToPrevious", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(skipToPrevious:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(skipToPrevious:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        [api skipToPrevious:arg_playerId completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setShuffleEnabled", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(setShuffleEnabled:enabled:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setShuffleEnabled:enabled:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        BOOL arg_enabled = [GetNullableObjectAtIndex(args, 1) boolValue];
-        [api setShuffleEnabled:arg_playerId enabled:arg_enabled completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setCurrentQueueItem", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(setCurrentQueueItem:id:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setCurrentQueueItem:id:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        NSString *arg_id = GetNullableObjectAtIndex(args, 1);
-        [api setCurrentQueueItem:arg_playerId id:arg_id completion:^(FlutterError *_Nullable error) {
-          callback(wrapResult(nil, error));
-        }];
-      }];
-    } else {
-      [channel setMessageHandler:nil];
-    }
-  }
-  {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.getQueue", messageChannelSuffix]
-        binaryMessenger:binaryMessenger
-        codec:nullGetPlaybackPlatformApiCodec()];
-    if (api) {
-      NSCAssert([api respondsToSelector:@selector(getQueue:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(getQueue:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray<id> *args = message;
-        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
-        [api getQueue:arg_playerId completion:^(MediaQueue *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
@@ -1785,12 +1512,12 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
     }
   }
 }
-@interface QueueListenerPigeon ()
+@interface QueueManagerPigeon ()
 @property(nonatomic, strong) NSObject<FlutterBinaryMessenger> *binaryMessenger;
 @property(nonatomic, strong) NSString *messageChannelSuffix;
 @end
 
-@implementation QueueListenerPigeon
+@implementation QueueManagerPigeon
 
 - (instancetype)initWithBinaryMessenger:(NSObject<FlutterBinaryMessenger> *)binaryMessenger {
   return [self initWithBinaryMessenger:binaryMessenger messageChannelSuffix:@""];
@@ -1803,14 +1530,52 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
   }
   return self;
 }
-- (void)onQueueChanged:(QueueChangedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
-  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.QueueListenerPigeon.onQueueChanged", _messageChannelSuffix];
+- (void)handlePlaybackEnded:(NSString *)arg_playerId mediaItem:(nullable MediaItem *)arg_current completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.QueueManagerPigeon.handlePlaybackEnded", _messageChannelSuffix];
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
       messageChannelWithName:channelName
       binaryMessenger:self.binaryMessenger
       codec:nullGetPlaybackPlatformApiCodec()];
-  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+  [channel sendMessage:@[arg_playerId ?: [NSNull null], arg_current ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+- (void)skipToNext:(NSString *)arg_playerId completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.QueueManagerPigeon.skipToNext", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_playerId ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+- (void)skipToPrevious:(NSString *)arg_playerId completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.QueueManagerPigeon.skipToPrevious", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_playerId ?: [NSNull null]] reply:^(NSArray<id> *reply) {
     if (reply != nil) {
       if (reply.count > 1) {
         completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
@@ -1958,25 +1723,6 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
 }
 - (void)onPictureInPictureModeChanged:(PictureInPictureModeChangedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
   NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onPictureInPictureModeChanged", _messageChannelSuffix];
-  FlutterBasicMessageChannel *channel =
-    [FlutterBasicMessageChannel
-      messageChannelWithName:channelName
-      binaryMessenger:self.binaryMessenger
-      codec:nullGetPlaybackPlatformApiCodec()];
-  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
-    if (reply != nil) {
-      if (reply.count > 1) {
-        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
-      } else {
-        completion(nil);
-      }
-    } else {
-      completion(createConnectionError(channelName));
-    } 
-  }];
-}
-- (void)onQueueChanged:(QueueChangedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
-  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onQueueChanged", _messageChannelSuffix];
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
       messageChannelWithName:channelName
