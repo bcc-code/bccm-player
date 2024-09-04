@@ -75,7 +75,7 @@ abstract class PlaybackPlatformPigeon {
   void skipToPrevious(String playerId);
 
   @async
-  @ObjCSelector("setShuffleEnabled:mode:")
+  @ObjCSelector("setShuffleEnabled:enabled:")
   void setShuffleEnabled(String playerId, bool enabled);
 
   @async

@@ -33,7 +33,10 @@ public protocol PlayerController {
     func moveQueueItem(from fromIndex: Int, to toIndex: Int)
     func removeQueueItem(id: String)
     func clearQueue()
-    func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int)
     func setCurrentQueueItem(id: String)
     func getQueue() -> MediaQueue
+    func skipToNext()
+    func skipToPrevious()
+    func setShuffleEnabled(enabled: Bool)
+    func setNextUpList(items: [MediaItem])
 }

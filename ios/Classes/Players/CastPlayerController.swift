@@ -3,6 +3,7 @@ import Foundation
 import GoogleCast
 
 class CastPlayerController: NSObject, PlayerController {
+    
     static let DEFAULT_ID = "chromecast"
     var id: String
     var playbackApi: PlaybackApiImpl
@@ -449,12 +450,26 @@ class CastPlayerController: NSObject, PlayerController {
     
     func clearQueue() {}
     
-    func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int) {}
-    
     func setCurrentQueueItem(id: String) {}
     
     func getQueue() -> MediaQueue {
-        return MediaQueue.make(with: [], currentIndex: nil)
+        return MediaQueue.make(withQueue: [], nextUp: [], shuffleEnabled: false)
+    }
+    
+    func skipToNext() {
+        
+    }
+    
+    func skipToPrevious() {
+        
+    }
+    
+    func setShuffleEnabled(enabled: Bool) {
+        
+    }
+    
+    func setNextUpList(items: [MediaItem]) {
+        
     }
 }
 

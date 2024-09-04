@@ -349,7 +349,7 @@ NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 - (void)setNextUpList:(NSString *)playerId items:(NSArray<MediaItem *> *)items completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)skipToNext:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)skipToPrevious:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)setShuffleEnabled:(NSString *)playerId mode:(BOOL)enabled completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)setShuffleEnabled:(NSString *)playerId enabled:(BOOL)enabled completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setCurrentQueueItem:(NSString *)playerId id:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)getQueue:(NSString *)playerId completion:(void (^)(MediaQueue *_Nullable, FlutterError *_Nullable))completion;
 - (void)replaceCurrentMediaItem:(NSString *)playerId mediaItem:(MediaItem *)mediaItem playbackPositionFromPrimary:(nullable NSNumber *)playbackPositionFromPrimary autoplay:(nullable NSNumber *)autoplay completion:(void (^)(FlutterError *_Nullable))completion;

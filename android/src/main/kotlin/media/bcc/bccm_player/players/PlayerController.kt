@@ -153,10 +153,6 @@ abstract class PlayerController : Player.Listener {
         plugin?.playbackPigeon?.onPlayerStateUpdate(event.build(), NoOpVoidResult())
     }
 
-    fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
-        queueManager.addQueueItem(mediaItem)
-    }
-
     fun extractExtrasFromAndroid(source: Bundle): Map<String, String> {
         val extraMeta = mutableMapOf<String, String>()
         for (sourceKey in source.keySet()) {
@@ -464,6 +460,9 @@ abstract class PlayerController : Player.Listener {
         pluginPlayerListener?.onManualPlayerStateUpdate()
     }
 
+    fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
+        queueManager.addQueueItem(mediaItem)
+    }
 
     fun moveQueueItem(fromIndex: Int, toIndex: Int) {
         queueManager.moveQueueItem(fromIndex, toIndex)

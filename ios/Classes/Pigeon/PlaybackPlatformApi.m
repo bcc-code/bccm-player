@@ -1288,12 +1288,12 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
         binaryMessenger:binaryMessenger
         codec:nullGetPlaybackPlatformApiCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(setShuffleEnabled:mode:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setShuffleEnabled:mode:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(setShuffleEnabled:enabled:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(setShuffleEnabled:enabled:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray<id> *args = message;
         NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
         BOOL arg_enabled = [GetNullableObjectAtIndex(args, 1) boolValue];
-        [api setShuffleEnabled:arg_playerId mode:arg_enabled completion:^(FlutterError *_Nullable error) {
+        [api setShuffleEnabled:arg_playerId enabled:arg_enabled completion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));
         }];
       }];
