@@ -5,13 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 class DefaultQueueManager implements QueueManager {
-  DefaultQueueManager();
-
   PlayerStateNotifier? _playerNotifier;
 
   final QueueList _queue = QueueList();
   final QueueList _history = QueueList();
   final ShuffleQueueList _nextUp = ShuffleQueueList();
+  void Function()? stopPlayerListener;
 
   @override
   ValueNotifier<bool> get shuffleEnabled => _nextUp.shuffleNotifier;
@@ -22,6 +21,7 @@ class DefaultQueueManager implements QueueManager {
   @override
   ValueNotifier<List<MediaItem>> get nextUp => _nextUp.itemsNotifier;
 
+  @override
   void dispose() {
     _queue.dispose();
     _history.dispose();
@@ -30,7 +30,25 @@ class DefaultQueueManager implements QueueManager {
 
   @override
   void setPlayer(PlayerStateNotifier playerStateNotifier) {
+    stopPlayerListener?.call();
     _playerNotifier = playerStateNotifier;
+    stopPlayerListener = _playerNotifier?.addListener(_onPlayerStateChanged);
+  }
+
+  void _onPlayerStateChanged(PlayerState state) {
+    final currentId = state.currentMediaItem?.id;
+    if (currentId != null) {
+      _removeIfUpcoming(currentId);
+    }
+  }
+
+  void _removeIfUpcoming(String id) {
+    if (_queue.items.any((i) => i.id == id)) {
+      _queue.remove(id);
+    }
+    if (_nextUp.items.any((i) => i.id == id)) {
+      _nextUp.remove(id);
+    }
   }
 
   @override
@@ -77,15 +95,21 @@ class DefaultQueueManager implements QueueManager {
 
   @override
   Future<void> setNextUp(List<MediaItem> mediaItems) async {
-    for (var item in mediaItems) {
-      item.id ??= const Uuid().v4();
+    for (var i = 0; i < mediaItems.length; i++) {
+      if (mediaItems[i].id == null) {
+        mediaItems[i] = MediaItem.decode(mediaItems[i].encode());
+        mediaItems[i].id = const Uuid().v4();
+      }
     }
     _nextUp.setItems(mediaItems);
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    mediaItem.id ??= const Uuid().v4();
+    if (mediaItem.id == null) {
+      mediaItem = MediaItem.decode(mediaItem.encode());
+      mediaItem.id = const Uuid().v4();
+    }
     _queue.add(mediaItem);
   }
 
