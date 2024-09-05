@@ -280,8 +280,6 @@ abstract class PlaybackListenerPigeon {
   void onPlaybackStateChanged(PlaybackStateChangedEvent event);
   @ObjCSelector("onPlaybackEnded:")
   void onPlaybackEnded(PlaybackEndedEvent event);
-  //@ObjCSelector("onPlayerErrorChanged:")
-  //void onPlayerErrorChanged(PlayerErrorChangedEvent event);
   @ObjCSelector("onMediaItemTransition:")
   void onMediaItemTransition(MediaItemTransitionEvent event);
   @ObjCSelector("onPictureInPictureModeChanged:")
@@ -321,13 +319,6 @@ class PlaybackEndedEvent implements PlayerEvent {
   String playerId;
   MediaItem? mediaItem;
   PlaybackEndedEvent({required this.playerId, required this.mediaItem});
-}
-
-class PlayerErrorChangedEvent implements PlayerEvent {
-  @override
-  String playerId;
-  String error;
-  PlayerErrorChangedEvent({required this.playerId, required this.error});
 }
 
 class PictureInPictureModeChangedEvent implements PlayerEvent {

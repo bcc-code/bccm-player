@@ -2423,94 +2423,6 @@ public class PlaybackPlatformApi {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
-  public static final class PlayerErrorChangedEvent {
-    private @NonNull String playerId;
-
-    public @NonNull String getPlayerId() {
-      return playerId;
-    }
-
-    public void setPlayerId(@NonNull String setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"playerId\" is null.");
-      }
-      this.playerId = setterArg;
-    }
-
-    private @NonNull String error;
-
-    public @NonNull String getError() {
-      return error;
-    }
-
-    public void setError(@NonNull String setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"error\" is null.");
-      }
-      this.error = setterArg;
-    }
-
-    /** Constructor is non-public to enforce null safety; use Builder. */
-    PlayerErrorChangedEvent() {}
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) { return true; }
-      if (o == null || getClass() != o.getClass()) { return false; }
-      PlayerErrorChangedEvent that = (PlayerErrorChangedEvent) o;
-      return playerId.equals(that.playerId) && error.equals(that.error);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(playerId, error);
-    }
-
-    public static final class Builder {
-
-      private @Nullable String playerId;
-
-      @CanIgnoreReturnValue
-      public @NonNull Builder setPlayerId(@NonNull String setterArg) {
-        this.playerId = setterArg;
-        return this;
-      }
-
-      private @Nullable String error;
-
-      @CanIgnoreReturnValue
-      public @NonNull Builder setError(@NonNull String setterArg) {
-        this.error = setterArg;
-        return this;
-      }
-
-      public @NonNull PlayerErrorChangedEvent build() {
-        PlayerErrorChangedEvent pigeonReturn = new PlayerErrorChangedEvent();
-        pigeonReturn.setPlayerId(playerId);
-        pigeonReturn.setError(error);
-        return pigeonReturn;
-      }
-    }
-
-    @NonNull
-    ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(2);
-      toListResult.add(playerId);
-      toListResult.add(error);
-      return toListResult;
-    }
-
-    static @NonNull PlayerErrorChangedEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
-      PlayerErrorChangedEvent pigeonResult = new PlayerErrorChangedEvent();
-      Object playerId = pigeonVar_list.get(0);
-      pigeonResult.setPlayerId((String) playerId);
-      Object error = pigeonVar_list.get(1);
-      pigeonResult.setError((String) error);
-      return pigeonResult;
-    }
-  }
-
-  /** Generated class from Pigeon that represents data sent in messages. */
   public static final class PictureInPictureModeChangedEvent {
     private @NonNull String playerId;
 
@@ -2748,10 +2660,8 @@ public class PlaybackPlatformApi {
         case (byte) 151:
           return PlaybackEndedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 152:
-          return PlayerErrorChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
-        case (byte) 153:
           return PictureInPictureModeChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
-        case (byte) 154:
+        case (byte) 153:
           return MediaItemTransitionEvent.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -2829,14 +2739,11 @@ public class PlaybackPlatformApi {
       } else if (value instanceof PlaybackEndedEvent) {
         stream.write(151);
         writeValue(stream, ((PlaybackEndedEvent) value).toList());
-      } else if (value instanceof PlayerErrorChangedEvent) {
-        stream.write(152);
-        writeValue(stream, ((PlayerErrorChangedEvent) value).toList());
       } else if (value instanceof PictureInPictureModeChangedEvent) {
-        stream.write(153);
+        stream.write(152);
         writeValue(stream, ((PictureInPictureModeChangedEvent) value).toList());
       } else if (value instanceof MediaItemTransitionEvent) {
-        stream.write(154);
+        stream.write(153);
         writeValue(stream, ((MediaItemTransitionEvent) value).toList());
       } else {
         super.writeValue(stream, value);

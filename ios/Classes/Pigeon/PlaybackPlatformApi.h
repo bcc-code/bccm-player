@@ -88,7 +88,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class PositionDiscontinuityEvent;
 @class PlaybackStateChangedEvent;
 @class PlaybackEndedEvent;
-@class PlayerErrorChangedEvent;
 @class PictureInPictureModeChangedEvent;
 @class MediaItemTransitionEvent;
 
@@ -308,15 +307,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     mediaItem:(nullable MediaItem *)mediaItem;
 @property(nonatomic, copy) NSString * playerId;
 @property(nonatomic, strong, nullable) MediaItem * mediaItem;
-@end
-
-@interface PlayerErrorChangedEvent : NSObject
-/// `init` unavailable to enforce nonnull fields, see the `make` class method.
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithPlayerId:(NSString *)playerId
-    error:(NSString *)error;
-@property(nonatomic, copy) NSString * playerId;
-@property(nonatomic, copy) NSString * error;
 @end
 
 @interface PictureInPictureModeChangedEvent : NSObject

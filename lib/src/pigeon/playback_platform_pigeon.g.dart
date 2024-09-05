@@ -693,32 +693,6 @@ class PlaybackEndedEvent {
   }
 }
 
-class PlayerErrorChangedEvent {
-  PlayerErrorChangedEvent({
-    required this.playerId,
-    required this.error,
-  });
-
-  String playerId;
-
-  String error;
-
-  Object encode() {
-    return <Object?>[
-      playerId,
-      error,
-    ];
-  }
-
-  static PlayerErrorChangedEvent decode(Object result) {
-    result as List<Object?>;
-    return PlayerErrorChangedEvent(
-      playerId: result[0]! as String,
-      error: result[1]! as String,
-    );
-  }
-}
-
 class PictureInPictureModeChangedEvent {
   PictureInPictureModeChangedEvent({
     required this.playerId,
@@ -848,14 +822,11 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is PlaybackEndedEvent) {
       buffer.putUint8(151);
       writeValue(buffer, value.encode());
-    }    else if (value is PlayerErrorChangedEvent) {
+    }    else if (value is PictureInPictureModeChangedEvent) {
       buffer.putUint8(152);
       writeValue(buffer, value.encode());
-    }    else if (value is PictureInPictureModeChangedEvent) {
-      buffer.putUint8(153);
-      writeValue(buffer, value.encode());
     }    else if (value is MediaItemTransitionEvent) {
-      buffer.putUint8(154);
+      buffer.putUint8(153);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -917,10 +888,8 @@ class _PigeonCodec extends StandardMessageCodec {
       case 151: 
         return PlaybackEndedEvent.decode(readValue(buffer)!);
       case 152: 
-        return PlayerErrorChangedEvent.decode(readValue(buffer)!);
-      case 153: 
         return PictureInPictureModeChangedEvent.decode(readValue(buffer)!);
-      case 154: 
+      case 153: 
         return MediaItemTransitionEvent.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);

@@ -189,12 +189,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 - (NSArray<id> *)toList;
 @end
 
-@interface PlayerErrorChangedEvent ()
-+ (PlayerErrorChangedEvent *)fromList:(NSArray<id> *)list;
-+ (nullable PlayerErrorChangedEvent *)nullableFromList:(NSArray<id> *)list;
-- (NSArray<id> *)toList;
-@end
-
 @interface PictureInPictureModeChangedEvent ()
 + (PictureInPictureModeChangedEvent *)fromList:(NSArray<id> *)list;
 + (nullable PictureInPictureModeChangedEvent *)nullableFromList:(NSArray<id> *)list;
@@ -796,31 +790,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 }
 @end
 
-@implementation PlayerErrorChangedEvent
-+ (instancetype)makeWithPlayerId:(NSString *)playerId
-    error:(NSString *)error {
-  PlayerErrorChangedEvent* pigeonResult = [[PlayerErrorChangedEvent alloc] init];
-  pigeonResult.playerId = playerId;
-  pigeonResult.error = error;
-  return pigeonResult;
-}
-+ (PlayerErrorChangedEvent *)fromList:(NSArray<id> *)list {
-  PlayerErrorChangedEvent *pigeonResult = [[PlayerErrorChangedEvent alloc] init];
-  pigeonResult.playerId = GetNullableObjectAtIndex(list, 0);
-  pigeonResult.error = GetNullableObjectAtIndex(list, 1);
-  return pigeonResult;
-}
-+ (nullable PlayerErrorChangedEvent *)nullableFromList:(NSArray<id> *)list {
-  return (list) ? [PlayerErrorChangedEvent fromList:list] : nil;
-}
-- (NSArray<id> *)toList {
-  return @[
-    self.playerId ?: [NSNull null],
-    self.error ?: [NSNull null],
-  ];
-}
-@end
-
 @implementation PictureInPictureModeChangedEvent
 + (instancetype)makeWithPlayerId:(NSString *)playerId
     isInPipMode:(BOOL )isInPipMode {
@@ -933,10 +902,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     case 151: 
       return [PlaybackEndedEvent fromList:[self readValue]];
     case 152: 
-      return [PlayerErrorChangedEvent fromList:[self readValue]];
-    case 153: 
       return [PictureInPictureModeChangedEvent fromList:[self readValue]];
-    case 154: 
+    case 153: 
       return [MediaItemTransitionEvent fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
@@ -1022,14 +989,11 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   } else if ([value isKindOfClass:[PlaybackEndedEvent class]]) {
     [self writeByte:151];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PlayerErrorChangedEvent class]]) {
+  } else if ([value isKindOfClass:[PictureInPictureModeChangedEvent class]]) {
     [self writeByte:152];
     [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[PictureInPictureModeChangedEvent class]]) {
-    [self writeByte:153];
-    [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[MediaItemTransitionEvent class]]) {
-    [self writeByte:154];
+    [self writeByte:153];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
