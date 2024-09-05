@@ -1,10 +1,10 @@
 import AVFoundation
 import AVKit
+import Combine
 import Foundation
 import MediaPlayer
 import YouboraAVPlayerAdapter
 import YouboraLib
-import Combine
 
 public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewControllerDelegate {
     lazy var player: AVQueuePlayer = .init()
@@ -159,12 +159,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     public func skipToNext() {
-        queueManagerPigeon.skip(toNext: self.id, completion: {_ in})
+        queueManagerPigeon.skip(toNext: id, completion: { _ in })
     }
     
-    
     public func skipToPrevious() {
-        queueManagerPigeon.skip(toPrevious: self.id, completion: {_ in})
+        queueManagerPigeon.skip(toPrevious: id, completion: { _ in })
     }
     
     public func setSelectedTrack(type: TrackType, trackId: String?) {
@@ -263,7 +262,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     
     var fastStartupTimer: Timer?
     public func play() {
-        if (player.currentItem == nil) {
+        if player.currentItem == nil {
             skipToNext()
         }
         if bufferMode == .fastStartShortForm {
