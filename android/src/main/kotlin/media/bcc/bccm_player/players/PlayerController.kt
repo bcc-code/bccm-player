@@ -3,7 +3,6 @@ package media.bcc.bccm_player.players
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Surface
 import androidx.annotation.CallSuper
 import androidx.core.math.MathUtils.clamp
@@ -46,7 +45,7 @@ abstract class PlayerController : Player.Listener {
     var manuallySelectedAudioLanguage: String? = null
 
     fun attachPlugin(newPlugin: BccmPlayerPlugin) {
-        if (this.plugin != null) detachPlugin()
+        detachPlugin()
         this.plugin = newPlugin;
         PlayerListener(this, newPlugin).also {
             pluginPlayerListener = it
@@ -132,12 +131,6 @@ abstract class PlayerController : Player.Listener {
             .setPlayerId(id)
             .setSnapshot(getPlayerStateSnapshot())
         plugin?.playbackPigeon?.onPlayerStateUpdate(event.build(), NoOpVoidResult())
-    }
-
-    fun queueMediaItem(mediaItem: PlaybackPlatformApi.MediaItem) {
-        val androidMi = mapMediaItem(mediaItem)
-        player.addMediaItem(androidMi)
-        player.prepare()
     }
 
     fun extractExtrasFromAndroid(source: Bundle): Map<String, String> {
@@ -427,7 +420,7 @@ abstract class PlayerController : Player.Listener {
         }
     }
 
-    private fun getCurrentMediaItem(): PlaybackPlatformApi.MediaItem? {
+    fun getCurrentMediaItem(): PlaybackPlatformApi.MediaItem? {
         val current = player.currentMediaItem;
         if (current != null) {
             return mapMediaItem(current)
@@ -447,75 +440,19 @@ abstract class PlayerController : Player.Listener {
         pluginPlayerListener?.onManualPlayerStateUpdate()
     }
 
-    fun updateQueueOrder(ids: List<String>) {
-        val current = getPlaylist()
-        if (current == ids) return;
-
-        if (current.size != ids.size) {
-            Log.e("bccm", "updateQueueOrder: playlist size mismatch")
-            return
-        }
-
-        for (newIndex in ids.indices) {
-            val mediaId = ids[newIndex]
-            val currentIndex = current.indexOf(mediaId)
-
-            if (currentIndex != newIndex && currentIndex >= 0) {
-                player.moveMediaItem(currentIndex, newIndex)
-            }
-        }
+    fun playNext() {
+        plugin?.queueManagerPigeon?.skipToNext(this.id, NoOpVoidResult())
     }
 
-    fun moveQueueItem(fromIndex: Int, toIndex: Int) {
-        player.moveMediaItem(fromIndex, toIndex)
+    fun playPrevious() {
+        plugin?.queueManagerPigeon?.skipToPrevious(this.id, NoOpVoidResult())
     }
 
-    private fun getPlaylist(): List<String> {
-        val count = player.mediaItemCount
-        val playlist = mutableListOf<String>()
-        for (i in 0 until count) {
-            val mediaItem = player.getMediaItemAt(i)
-            playlist.add(mediaItem.mediaId)
-        }
-
-        return playlist;
-    }
-
-    fun getQueue(): PlaybackPlatformApi.MediaQueue {
-        val queue = PlaybackPlatformApi.MediaQueue.Builder()
-        val temp = mutableListOf<PlaybackPlatformApi.MediaItem>()
-        val count = player.mediaItemCount
-        for (i in 0 until count) {
-            val mediaItem = player.getMediaItemAt(i)
-            temp.add(mapMediaItem(mediaItem))
-        }
-        queue.setItems(temp)
-        queue.setCurrentIndex(player.currentMediaItemIndex.toLong())
-        return queue.build()
-    }
-
-
-    fun removeQueueItem(id: String) {
-        val index = getPlaylist().indexOf(id)
-        if (index >= 0) {
-            player.removeMediaItem(index)
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        if (playbackState == Player.STATE_ENDED) {
+            plugin?.queueManagerPigeon?.handlePlaybackEnded(this.id, getCurrentMediaItem(), NoOpVoidResult());
         }
     }
 
     abstract fun setMixWithOthers(mixWithOthers: Boolean);
-
-    fun replaceQueueItems(fromIndex: Int, toIndex: Int, items: MutableList<PlaybackPlatformApi.MediaItem>) {
-        player.replaceMediaItems(fromIndex, toIndex, items.map { mapMediaItem(it) })
-    }
-
-    fun clearQueue() {
-        player.clearMediaItems()
-    }
-
-    fun setCurrentQueueItem(id: String) {
-        val index = getPlaylist().indexOf(id)
-        if (index >= 0) {
-            player.seekTo(index, 0)
-        }
-    }
 }

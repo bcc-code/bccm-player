@@ -47,38 +47,6 @@ abstract class PlaybackPlatformPigeon {
   bool disposePlayer(String playerId);
 
   @async
-  @ObjCSelector("queueMediaItem:mediaItem:")
-  void queueMediaItem(String playerId, MediaItem mediaItem);
-
-  @async
-  @ObjCSelector("updateQueueOrder:itemIds:")
-  void updateQueueOrder(String playerId, List<String> items);
-
-  @async
-  @ObjCSelector("moveQueueItem:fromIndex:toIndex:")
-  void moveQueueItem(String playerId, int fromIndex, int toIndex);
-
-  @async
-  @ObjCSelector("removeQueueItem:id:")
-  void removeQueueItem(String playerId, String id);
-
-  @async
-  @ObjCSelector("clearQueue:")
-  void clearQueue(String playerId);
-
-  @async
-  @ObjCSelector("replaceQueueItems:items:fromIndex:toIndex:")
-  void replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex);
-
-  @async
-  @ObjCSelector("setCurrentQueueItem:id:")
-  void setCurrentQueueItem(String playerId, String id);
-
-  @async
-  @ObjCSelector("getQueue:")
-  MediaQueue getQueue(String playerId);
-
-  @async
   @ObjCSelector("replaceCurrentMediaItem:mediaItem:playbackPositionFromPrimary:autoplay:")
   void replaceCurrentMediaItem(String playerId, MediaItem mediaItem, bool? playbackPositionFromPrimary, bool? autoplay);
 
@@ -215,11 +183,6 @@ class MediaMetadata {
   Map<String?, String?>? extras;
 }
 
-class MediaQueue {
-  late List<MediaItem?> items;
-  int? currentIndex;
-}
-
 class PlayerStateSnapshot {
   late String playerId;
   late PlaybackState playbackState;
@@ -288,6 +251,21 @@ class Track {
   late bool isSelected;
 }
 
+@FlutterApi()
+abstract class QueueManagerPigeon {
+  @async
+  @ObjCSelector("handlePlaybackEnded:mediaItem:")
+  void handlePlaybackEnded(String playerId, MediaItem? current);
+
+  @async
+  @ObjCSelector("skipToNext:")
+  void skipToNext(String playerId);
+
+  @async
+  @ObjCSelector("skipToPrevious:")
+  void skipToPrevious(String playerId);
+}
+
 ////////////////// Playback Listener
 
 @FlutterApi()
@@ -302,19 +280,10 @@ abstract class PlaybackListenerPigeon {
   void onPlaybackStateChanged(PlaybackStateChangedEvent event);
   @ObjCSelector("onPlaybackEnded:")
   void onPlaybackEnded(PlaybackEndedEvent event);
-  //@ObjCSelector("onPlayerErrorChanged:")
-  //void onPlayerErrorChanged(PlayerErrorChangedEvent event);
   @ObjCSelector("onMediaItemTransition:")
   void onMediaItemTransition(MediaItemTransitionEvent event);
   @ObjCSelector("onPictureInPictureModeChanged:")
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
-  @ObjCSelector("onQueueChanged:")
-  void onQueueChanged(QueueChangedEvent event);
-}
-
-class QueueChangedEvent {
-  late String playerId;
-  late MediaQueue? queue;
 }
 
 class PrimaryPlayerChangedEvent {
@@ -350,13 +319,6 @@ class PlaybackEndedEvent implements PlayerEvent {
   String playerId;
   MediaItem? mediaItem;
   PlaybackEndedEvent({required this.playerId, required this.mediaItem});
-}
-
-class PlayerErrorChangedEvent implements PlayerEvent {
-  @override
-  String playerId;
-  String error;
-  PlayerErrorChangedEvent({required this.playerId, required this.error});
 }
 
 class PictureInPictureModeChangedEvent implements PlayerEvent {

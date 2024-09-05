@@ -26,7 +26,9 @@ class BccmForwardingPlayer(private val playerController: ExoPlayerController) :
 
     override fun getAvailableCommands(): Player.Commands {
         if (!playerController.isLive) {
-            return super.getAvailableCommands()
+            return super.getAvailableCommands().buildUpon()
+                .addAll(*navigateCommands.toIntArray())
+                .build()
         }
         val availableCommands = super.getAvailableCommands()
         return Player.Commands.Builder()
@@ -44,6 +46,15 @@ class BccmForwardingPlayer(private val playerController: ExoPlayerController) :
             return false
         }
         return super.isCommandAvailable(command)
+    }
+
+    override fun play() {
+        if (currentMediaItem != null) {
+            super.play()
+        } else {
+            playerController.playNext()
+            super.play()
+        }
     }
 
     override fun getDuration(): Long {
@@ -64,6 +75,26 @@ class BccmForwardingPlayer(private val playerController: ExoPlayerController) :
 
     override fun seekForward() {
         seekToOffset(seekForwardIncrement)
+    }
+
+    override fun seekToPrevious() {
+        seekToPreviousMediaItem()
+    }
+
+    override fun seekToNextMediaItem() {
+        playerController.playNext()
+    }
+
+    override fun seekToPreviousMediaItem() {
+        playerController.playPrevious()
+    }
+
+    override fun hasNextMediaItem(): Boolean {
+        return true;
+    }
+
+    override fun hasPreviousMediaItem(): Boolean {
+        return true;
     }
 
     private fun seekToOffset(offsetMs: Long) {

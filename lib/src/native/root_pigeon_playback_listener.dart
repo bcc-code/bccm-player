@@ -74,11 +74,4 @@ class RootPigeonPlaybackListener implements PlaybackListenerPigeon {
       listener.onPrimaryPlayerChanged(playerId);
     }
   }
-  
-  @override
-  void onQueueChanged(QueueChangedEvent event) {
-    for (var listener in _listeners) {
-      listener.onQueueChanged(event);
-    }
-  }
 }

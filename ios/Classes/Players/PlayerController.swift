@@ -22,7 +22,6 @@ public protocol PlayerController {
     func setRepeatMode(_ repeatMode: RepeatMode)
     func getPlayerStateSnapshot() -> PlayerStateSnapshot
     func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: ((FlutterError?) -> Void)?)
-    func queueItem(_ mediaItem: MediaItem)
     func play()
     func seekTo(_ positionMs: Int64, _ completion: @escaping (Bool) -> Void)
     func pause()
@@ -30,10 +29,4 @@ public protocol PlayerController {
     func exitFullscreen()
     func enterFullscreen()
     func hasBecomePrimary()
-    func moveQueueItem(from fromIndex: Int, to toIndex: Int)
-    func removeQueueItem(id: String)
-    func clearQueue()
-    func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int)
-    func setCurrentQueueItem(id: String)
-    func getQueue() -> MediaQueue
 }

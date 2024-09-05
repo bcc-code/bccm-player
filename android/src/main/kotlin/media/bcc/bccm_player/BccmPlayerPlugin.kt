@@ -36,6 +36,7 @@ import media.bcc.bccm_player.pigeon.DownloaderApi
 import media.bcc.bccm_player.pigeon.DownloaderApi.DownloaderPigeon
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlaybackPlatformPigeon
+import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.QueueManagerPigeon
 import media.bcc.bccm_player.utils.DevicePerformanceManager
 import media.bcc.bccm_player.utils.DownloaderApiNoOpVoidResult
 import media.bcc.bccm_player.utils.NoOpVoidResult
@@ -87,6 +88,8 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
     private var activityBinding: ActivityPluginBinding? = null
     private val mainScope = CoroutineScope(Dispatchers.Main)
     var playbackPigeon: PlaybackPlatformApi.PlaybackListenerPigeon? = null
+        private set
+    var queueManagerPigeon: PlaybackPlatformApi.QueueManagerPigeon? = null
         private set
     var chromecastPigeon: ChromecastControllerPigeon.ChromecastPigeon? = null
         private set
@@ -152,6 +155,8 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
             ChromecastControllerPigeon.ChromecastPigeon(flutterPluginBinding.binaryMessenger)
         downloaderPigeon =
             DownloaderApi.DownloaderListenerPigeon(flutterPluginBinding.binaryMessenger)
+        queueManagerPigeon =
+            QueueManagerPigeon(flutterPluginBinding.binaryMessenger)
 
         if (!mBound) {
             Intent(pluginBinding?.applicationContext, PlaybackService::class.java).also { intent ->

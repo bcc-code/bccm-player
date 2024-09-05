@@ -44,10 +44,6 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('setUrl() has not been implemented.');
   }
 
-  Future<void> queueMediaItem(String playerId, MediaItem mediaItem) async {
-    throw UnimplementedError('addMediaItem() has not been implemented.');
-  }
-
   Future<ChromecastState?> getChromecastState() async {
     throw UnimplementedError('getChromecastState() has not been implemented.');
   }
@@ -150,11 +146,4 @@ abstract class BccmPlayerInterface extends PlatformInterface {
 
   /// Gets the performance class of the device. See https://developer.android.com/topic/performance/performance-class
   Future<int> getAndroidPerformanceClass();
-
-  Future<MediaQueue> getQueue(String playerId);
-  Future<void> moveQueueItem(String playerId, int fromIndex, int toIndex);
-  Future<void> removeQueueItem(String playerId, String id);
-  Future<void> clearQueue(String playerId);
-  Future<void> replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex);
-  Future<void> setCurrentQueueItem(String playerId, String id);
 }

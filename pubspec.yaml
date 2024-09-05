@@ -26,6 +26,7 @@ dependencies:
   riverpod: ^2.2.0
   state_notifier: ^1.0.0
   universal_io: ^2.0.4
+  uuid: ^4.5.0
   wakelock_plus: ^1.1.1
 
 dev_dependencies:

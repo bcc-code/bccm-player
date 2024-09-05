@@ -3,6 +3,7 @@ import Foundation
 import GoogleCast
 
 class CastPlayerController: NSObject, PlayerController {
+    
     static let DEFAULT_ID = "chromecast"
     var id: String
     var playbackApi: PlaybackApiImpl
@@ -443,19 +444,6 @@ class CastPlayerController: NSObject, PlayerController {
         return mediaItem
     }
     
-    func moveQueueItem(from fromIndex: Int, to toIndex: Int) {}
-    
-    func removeQueueItem(id: String) {}
-    
-    func clearQueue() {}
-    
-    func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int) {}
-    
-    func setCurrentQueueItem(id: String) {}
-    
-    func getQueue() -> MediaQueue {
-        return MediaQueue.make(with: [], currentIndex: nil)
-    }
 }
 
 extension CastPlayerController: GCKRemoteMediaClientListener {

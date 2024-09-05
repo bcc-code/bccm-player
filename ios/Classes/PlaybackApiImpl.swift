@@ -7,45 +7,6 @@ import GoogleCast
 // TODO: this file should be a pure api towards flutter,
 // we should move the "players" array and state into a dedicated class
 public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
-    public func updateQueueOrder(_ playerId: String, itemIds items: [String], completion: @escaping (FlutterError?) -> Void) {
-        completion(nil)
-    }
-
-    public func moveQueueItem(_ playerId: String, from fromIndex: Int, to toIndex: Int, completion: @escaping (FlutterError?) -> Void) {
-        let player = getPlayer(playerId)
-        player?.moveQueueItem(from: fromIndex, to: toIndex)
-        completion(nil)
-    }
-
-    public func removeQueueItem(_ playerId: String, id: String, completion: @escaping (FlutterError?) -> Void) {
-        let player = getPlayer(playerId)
-        player?.removeQueueItem(id: id)
-        completion(nil)
-    }
-
-    public func clearQueue(_ playerId: String, completion: @escaping (FlutterError?) -> Void) {
-        let player = getPlayer(playerId)
-        player?.clearQueue()
-        completion(nil)
-    }
-
-    public func replaceQueueItems(_ playerId: String, items: [MediaItem], from fromIndex: Int, to toIndex: Int, completion: @escaping (FlutterError?) -> Void) {
-        let player = getPlayer(playerId)
-        player?.replaceQueueItems(items: items, from: fromIndex, to: toIndex)
-        completion(nil)
-    }
-
-    public func setCurrentQueueItem(_ playerId: String, id: String, completion: @escaping (FlutterError?) -> Void) {
-        let player = getPlayer(playerId)
-        player?.setCurrentQueueItem(id: id)
-        completion(nil)
-    }
-
-    public func getQueue(_ playerId: String, completion: @escaping (MediaQueue?, FlutterError?) -> Void) {
-        let player = getPlayer(playerId)
-        let queue = player?.getQueue()
-        completion(queue, nil)
-    }
 
     public func getAndroidPerformanceClass(completion: @escaping (NSNumber?, FlutterError?) -> Void) {
         completion(nil, nil)
@@ -68,12 +29,14 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     private var previousPrimaryPlayerId: String? = nil
     let playbackListener: PlaybackListenerPigeon
     let chromecastPigeon: ChromecastPigeon
+    let queueManagerPigeon: QueueManagerPigeon
     var npawConfig: NpawConfig? = nil
     var appConfig: AppConfig? = nil
 
-    init(chromecastPigeon: ChromecastPigeon, playbackListener: PlaybackListenerPigeon) {
+    init(chromecastPigeon: ChromecastPigeon, playbackListener: PlaybackListenerPigeon, queueManagerPigeon: QueueManagerPigeon) {
         self.playbackListener = playbackListener
         self.chromecastPigeon = chromecastPigeon
+        self.queueManagerPigeon = queueManagerPigeon
         super.init()
         let castPlayerController = CastPlayerController(playbackApi: self)
         players.append(castPlayerController)
@@ -133,7 +96,14 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
 
     public func newPlayer(_ bufferModeBoxed: BufferModeBox?, disableNpaw: NSNumber?, completion: @escaping (String?, FlutterError?) -> Void) {
         let bufferMode = bufferModeBoxed?.value ?? BufferMode.standard
-        let player = AVQueuePlayerController(playbackListener: playbackListener, bufferMode: bufferMode, npawConfig: npawConfig, appConfig: appConfig, disableNpaw: disableNpaw?.boolValue)
+        let player = AVQueuePlayerController(
+            playbackListener: playbackListener,
+            bufferMode: bufferMode,
+            npawConfig: npawConfig,
+            appConfig: appConfig,
+            disableNpaw: disableNpaw?.boolValue,
+            queueManagerPigeon: queueManagerPigeon
+        )
         players.append(player)
 
         completion(player.id, nil)
@@ -168,12 +138,6 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
 
     public func openCastDialog(_ error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
         GCKCastContext.sharedInstance().presentCastDialog()
-    }
-
-    public func queueMediaItem(_ playerId: String, mediaItem: MediaItem, completion: (FlutterError?) -> Void) {
-        let player = getPlayer(playerId)
-        player?.queueItem(mediaItem)
-        completion(nil)
     }
 
     public func replaceCurrentMediaItem(_ playerId: String, mediaItem: MediaItem, playbackPositionFromPrimary: NSNumber?, autoplay: NSNumber?, completion: @escaping (FlutterError?) -> Void) {

@@ -1,4 +1,4 @@
-import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
+import 'package:bccm_player/src/queue/queue_controller.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:state_notifier/state_notifier.dart';
@@ -30,6 +30,13 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   bool _isDisposed = false;
   final BufferMode? _bufferMode;
   final bool? _disableNpaw;
+
+  QueueManager get queue {
+    if (_stateNotifier == null) {
+      throw Exception('Player is not initialized');
+    }
+    return _stateNotifier!.queueManager;
+  }
 
   static BccmPlayerController get primary => BccmPlayerInterface.instance.primaryController;
 
@@ -321,42 +328,6 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   /// Exits native fullscreen. You might be looking for [BccmPlayerViewController.exitFullscreen].
   Future exitNativeFullscreen() async {
     BccmPlayerInterface.instance.exitFullscreen(value.playerId);
-  }
-
-  /// Moves an item in the queue to a new position.
-  Future<void> moveQueueItem(int fromIndex, int toIndex) {
-    return BccmPlayerInterface.instance.moveQueueItem(value.playerId, fromIndex, toIndex);
-  }
-
-  /// Removes an item in the queue.
-  Future<void> removeQueueItem(String id) {
-    return BccmPlayerInterface.instance.removeQueueItem(value.playerId, id);
-  }
-
-  /// Clears the queue.
-  Future<void> clearQueue() {
-    return BccmPlayerInterface.instance.clearQueue(value.playerId);
-  }
-
-  // Go to next item in the queue.
-  Future<void> next() async {
-    final queue = value.queue;
-    final currentIndex = queue?.currentIndex;
-    if (currentIndex == null || queue == null || queue.items.isEmpty) return;
-    final nextIndex = (currentIndex + 1) % queue.items.length;
-    final id = queue.items[nextIndex]?.id;
-    if (id == null) return;
-    await setCurrentQueueItem(id);
-  }
-
-  /// Replaces the items in the queue.
-  Future<void> replaceQueueItems(List<MediaItem> items, int fromIndex, int toIndex) {
-    return BccmPlayerInterface.instance.replaceQueueItems(value.playerId, items, fromIndex, toIndex);
-  }
-
-  /// Sets the current item in the queue.
-  Future<void> setCurrentQueueItem(String id) {
-    return BccmPlayerInterface.instance.setCurrentQueueItem(value.playerId, id);
   }
 
   /// @internal as you probably don't need to use this.

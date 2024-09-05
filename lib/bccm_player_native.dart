@@ -1,3 +1,4 @@
+import 'package:bccm_player/src/native/root_queue_manager_pigeon.dart';
 import 'package:bccm_player/src/pigeon/chromecast_pigeon.g.dart';
 import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/native/chromecast_pigeon_listener.dart';
@@ -12,6 +13,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
   final PlaybackPlatformPigeon _pigeon = PlaybackPlatformPigeon();
   late final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener();
   final ChromecastPigeonListener _chromecastListener = ChromecastPigeonListener();
+  final QueueManagerPigeon _queueManagerPigeon = RootQueueManagerPigeon();
   BccmPlayerController? _primaryController;
   void Function()? _removePrimaryPlayerListener;
   Future<void>? setupFuture;
@@ -59,6 +61,7 @@ class BccmPlayerNative extends BccmPlayerInterface {
     WidgetsFlutterBinding.ensureInitialized();
     await _pigeon.attach();
     _rootPlaybackListener.addListener(StatePlaybackListener(stateNotifier));
+    QueueManagerPigeon.setUp(_queueManagerPigeon);
     ChromecastPigeon.setUp(_chromecastListener);
     PlaybackListenerPigeon.setUp(_rootPlaybackListener);
     // load primary player state
@@ -66,8 +69,6 @@ class BccmPlayerNative extends BccmPlayerInterface {
     if (initialState != null) {
       stateNotifier.getOrAddPlayerNotifier(initialState.playerId).setStateFromSnapshot(initialState);
       stateNotifier.setPrimaryPlayer(initialState.playerId);
-      final queue = await getQueue(initialState.playerId);
-      stateNotifier.getPlayerNotifier(initialState.playerId)?.setQueue(queue);
     }
   }
 
@@ -93,11 +94,6 @@ class BccmPlayerNative extends BccmPlayerInterface {
   Future<void> replaceCurrentMediaItem(String playerId, MediaItem mediaItem, {bool? playbackPositionFromPrimary, bool? autoplay = true}) async {
     debugPrint('player replace');
     await _pigeon.replaceCurrentMediaItem(playerId, mediaItem, playbackPositionFromPrimary, autoplay);
-  }
-
-  @override
-  Future<void> queueMediaItem(String playerId, MediaItem mediaItem) {
-    return _pigeon.queueMediaItem(playerId, mediaItem);
   }
 
   @override
@@ -224,35 +220,5 @@ class BccmPlayerNative extends BccmPlayerInterface {
   @override
   Future<int> getAndroidPerformanceClass() {
     return _pigeon.getAndroidPerformanceClass();
-  }
-
-  @override
-  Future<MediaQueue> getQueue(String playerId) {
-    return _pigeon.getQueue(playerId);
-  }
-
-  @override
-  Future<void> moveQueueItem(String playerId, int fromIndex, int toIndex) {
-    return _pigeon.moveQueueItem(playerId, fromIndex, toIndex);
-  }
-
-  @override
-  Future<void> removeQueueItem(String playerId, String id) {
-    return _pigeon.removeQueueItem(playerId, id);
-  }
-
-  @override
-  Future<void> clearQueue(String playerId) {
-    return _pigeon.clearQueue(playerId);
-  }
-
-  @override
-  Future<void> replaceQueueItems(String playerId, List<MediaItem> items, int fromIndex, int toIndex) {
-    return _pigeon.replaceQueueItems(playerId, items, fromIndex, toIndex);
-  }
-
-  @override
-  Future<void> setCurrentQueueItem(String playerId, String id) {
-    return _pigeon.setCurrentQueueItem(playerId, id);
   }
 }

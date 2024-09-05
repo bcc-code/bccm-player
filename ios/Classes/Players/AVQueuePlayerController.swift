@@ -1,5 +1,6 @@
 import AVFoundation
 import AVKit
+import Combine
 import Foundation
 import MediaPlayer
 import YouboraAVPlayerAdapter
@@ -9,12 +10,13 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     lazy var player: AVQueuePlayer = .init()
     public final let id: String
     final let playbackListener: PlaybackListenerPigeon
+    final let queueManagerPigeon: QueueManagerPigeon
     final var currentItemObservers = [NSKeyValueObservation]()
     final var observers = [NSKeyValueObservation]()
+    var cancellables = Set<AnyCancellable>()
     final var notificationObservers = [NSObjectProtocol]()
     public var mixWithOthers = false
     final lazy var peakBitRateController = PeakBitrateController(player: player)
-    final lazy var queue = MediaQueueController(playerController: self)
     
     var temporaryStatusObserver: NSKeyValueObservation? = nil
     var youboraPlugin: YBPlugin?
@@ -53,9 +55,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
 
-    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?, disableNpaw: Bool?) {
+    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?, disableNpaw: Bool?, queueManagerPigeon: QueueManagerPigeon) {
         self.id = id ?? UUID().uuidString
         self.playbackListener = playbackListener
+        self.queueManagerPigeon = queueManagerPigeon
         self.bufferMode = bufferMode
         self.disableNpaw = disableNpaw ?? false
         super.init()
@@ -155,9 +158,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         )
     }
     
-    public func onQueueChanged() {
-        let event = QueueChangedEvent.make(withPlayerId: id, queue: queue.toMediaQueue())
-        playbackListener.onQueueChanged(event, completion: { _ in })
+    public func skipToNext() {
+        queueManagerPigeon.skip(toNext: id, completion: { _ in })
+    }
+    
+    public func skipToPrevious() {
+        queueManagerPigeon.skip(toPrevious: id, completion: { _ in })
     }
     
     public func setSelectedTrack(type: TrackType, trackId: String?) {
@@ -256,6 +262,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     
     var fastStartupTimer: Timer?
     public func play() {
+        if player.currentItem == nil {
+            skipToNext()
+        }
         if bufferMode == .fastStartShortForm {
             playImmediately()
         } else {
@@ -272,30 +281,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         self.onManualPlayerStateUpdate()
                         completion(result)
                     })
-    }
-    
-    public func moveQueueItem(from fromIndex: Int, to toIndex: Int) {
-        queue.moveQueueItem(from: fromIndex, to: toIndex)
-    }
-    
-    public func removeQueueItem(id: String) {
-        queue.removeQueueItem(id: id)
-    }
-    
-    public func clearQueue() {
-        queue.clearQueue()
-    }
-    
-    public func replaceQueueItems(items: [MediaItem], from fromIndex: Int, to toIndex: Int) {
-        queue.replaceQueueItems(items: items, from: fromIndex, to: toIndex)
-    }
-    
-    public func setCurrentQueueItem(id: String) {
-        queue.setCurrentQueueItem(id: id)
-    }
-    
-    public func getQueue() -> MediaQueue {
-        return queue.toMediaQueue()
     }
     
     public func pause() {
@@ -390,13 +375,23 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     func setupCommandCenter() {
         let commandCenter = MPRemoteCommandCenter.shared()
         commandCenter.playCommand.isEnabled = true
-        commandCenter.pauseCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
-            self?.player.play()
+            self?.play()
             return .success
         }
+        commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
-            self?.player.pause()
+            self?.pause()
+            return .success
+        }
+        commandCenter.nextTrackCommand.isEnabled = true
+        commandCenter.nextTrackCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
+            self?.skipToNext()
+            return .success
+        }
+        commandCenter.previousTrackCommand.isEnabled = true
+        commandCenter.previousTrackCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
+            self?.skipToPrevious()
             return .success
         }
         
@@ -539,10 +534,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     
     public func getPlayer() -> AVQueuePlayer {
         return player
-    }
-
-    public func queueItem(_ mediaItem: MediaItem) {
-        queue.add(mediaItem)
     }
     
     func takeOwnership(_ playerViewController: AVPlayerViewController) {
@@ -751,7 +742,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                             self?.player.play()
                         })
         } else {
-            queue.playNext()
+            skipToNext()
         }
         let endedEvent = PlaybackEndedEvent.make(withPlayerId: id, mediaItem: getCurrentItem())
         playbackListener.onPlaybackEnded(endedEvent, completion: { _ in })
