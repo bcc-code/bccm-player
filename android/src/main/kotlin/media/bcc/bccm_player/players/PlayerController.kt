@@ -14,10 +14,6 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import io.flutter.view.TextureRegistry.SurfaceTextureEntry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
 import media.bcc.bccm_player.DOWNLOADED_URL_SCHEME
@@ -47,11 +43,9 @@ abstract class PlayerController : Player.Listener {
     var texture: SurfaceTextureEntry? = null
     var surface: Surface? = null
     var manuallySelectedAudioLanguage: String? = null
-    private var pluginMainScope: CoroutineScope? = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     fun attachPlugin(newPlugin: BccmPlayerPlugin) {
         detachPlugin()
-        pluginMainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         this.plugin = newPlugin;
         PlayerListener(this, newPlugin).also {
             pluginPlayerListener = it
@@ -66,7 +60,6 @@ abstract class PlayerController : Player.Listener {
             it.stop()
             player.removeListener(it)
         }
-        pluginMainScope?.cancel()
         this.plugin = null;
     }
 
