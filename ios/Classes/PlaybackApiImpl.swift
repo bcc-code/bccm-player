@@ -233,12 +233,10 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     }
 
     func updateAudioSession() {
-        if players.contains(where: { $0.mixWithOthers }) {
-            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
-        } else {
-            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-        }
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        try? AVAudioSession.sharedInstance().setActive(true)
     }
+
 }
 
 public extension PlaybackApiImpl {

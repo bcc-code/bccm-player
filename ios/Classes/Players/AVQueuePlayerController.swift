@@ -258,6 +258,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     public func hasBecomePrimary() {
         isPrimary = true
         setupCommandCenter()
+        
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = [:]
+        updateNowPlayingBaseInfo(playerItem: player.currentItem)
     }
     
     var fastStartupTimer: Timer?
@@ -394,9 +397,23 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             self?.skipToPrevious()
             return .success
         }
-        
-        let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-        nowPlayingInfoCenter.nowPlayingInfo = [:]
+        commandCenter.seekForwardCommand.isEnabled = true
+        commandCenter.seekForwardCommand.addTarget { [weak self] _ -> MPRemoteCommandHandlerStatus in
+            guard let currentTime = self?.player.currentTime() else {
+                return .commandFailed
+            }
+            
+            self?.seekTo(Int64((currentTime.seconds + 10.0)) * 1000, { _ in  });
+            return .success
+        }
+        commandCenter.changePlaybackPositionCommand.isEnabled = true
+        commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event -> MPRemoteCommandHandlerStatus in
+            guard let changeEvent = event as? MPChangePlaybackPositionCommandEvent else {
+                return .commandFailed
+            }
+            self?.seekTo(Int64(changeEvent.positionTime) * 1000, { _ in })
+            return .success
+        }
     }
     
     private func initYoubora(_ npawConfig: NpawConfig) {
@@ -492,14 +509,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 self.player.removeAllItems()
                 self.player.replaceCurrentItem(with: playerItem)
                 if autoplay?.boolValue == true {
-                    debugPrint("\(self.id) autoplaying")
                     self.play()
                 }
                 self.temporaryStatusObserver = playerItem.observe(\.status, options: [.new, .old]) {
                     playerItem, _ in
                     if playerItem.status == .readyToPlay {
                         if autoplay?.boolValue == true && !self.isPlaying() {
-                            debugPrint("\(self.id) q 2")
                             self.play()
                         }
                         var audioLanguages: [String] = []
@@ -519,7 +534,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         // This is the initial signal. If this is not set the language is generally empty in NPAW
                         self.youboraPlugin?.options.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
                         self.youboraPlugin?.options.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
-                        debugPrint("\(self.id) readyToPlay")
                         completion?(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")
@@ -625,6 +639,43 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         
         return playerItem
     }
+    
+    func resetNowPlayinginfo() {
+        let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
+        nowPlayingInfoCenter.nowPlayingInfo = [:]
+    }
+    
+    func updateNowPlayingBaseInfo(playerItem: AVPlayerItem?) {
+        let npic = MPNowPlayingInfoCenter.default()
+        if !isPrimary {
+            return
+        }
+        guard let playerItem = playerItem else {
+            npic.nowPlayingInfo = [:]
+            return
+        }
+        let metadata = playerItem.externalMetadata
+        let artist = metadata.first(where: { $0.identifier == AVMetadataIdentifier.commonIdentifierArtist })?.stringValue;
+        let title = metadata.first(where: { $0.identifier == AVMetadataIdentifier.commonIdentifierTitle })?.stringValue;
+        npic.nowPlayingInfo?[MPMediaItemPropertyArtist] = artist
+        npic.nowPlayingInfo?[MPMediaItemPropertyTitle] = title
+        
+        if let imageData = metadata.first(where: { $0.identifier == AVMetadataIdentifier.commonIdentifierArtwork })?.value as? Data {
+            if let image = UIImage(data: imageData) {
+                let nowPlayingArtwork = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (_: CGSize) -> UIImage in
+                    image
+                })
+                npic.nowPlayingInfo?[MPMediaItemPropertyArtwork] = nowPlayingArtwork
+            }
+        }
+    }
+    
+    func updateNowPlayingPlaybackInfo(playerItem: AVPlayerItem?) {
+        let npic = MPNowPlayingInfoCenter.default();
+        npic.nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] = player.currentItem?.duration.seconds
+        npic.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = player.rate
+        npic.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
+    }
 
     func addObservers() {
         notificationObservers.append(NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] notification in
@@ -642,7 +693,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             self.playbackListener.onMediaItemTransition(event, completion: { _ in })
             
             self.updateYouboraOptions(mediaItemOverride: mediaItem)
-
+            if self.isPrimary {
+                self.updateNowPlayingBaseInfo(playerItem: player.currentItem)
+            }
+            
             for observer in self.currentItemObservers {
                 observer.invalidate()
             }
@@ -650,11 +704,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             self.currentItemObservers = [
                 player.observe(\.currentItem?.duration, options: [.old, .new]) {
                     player, _ in
-                    MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] = player.currentItem?.duration.seconds
+                    if self.isPrimary {
+                        self.updateNowPlayingPlaybackInfo(playerItem: player.currentItem)
+                    }
                 },
                 player.observe(\.currentItem?.currentMediaSelection, options: [.old, .new]) {
                     player, _ in
-                    // Update language in NPAW
                     self.youboraPlugin?.options.contentLanguage = player.currentItem?.getSelectedAudioLanguage()
                     self.youboraPlugin?.options.contentSubtitles = player.currentItem?.getSelectedSubtitleLanguage()
                 },
@@ -671,17 +726,17 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         })
         observers.append(player.observe(\.rate, options: [.old, .new]) {
             player, change in
-            let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = change.newValue
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
+            if self.isPrimary {
+                self.updateNowPlayingPlaybackInfo(playerItem: player.currentItem)
+            }
             let positionDiscontinuityEvent = PositionDiscontinuityEvent.make(withPlayerId: self.id, playbackPositionMs: (player.currentTime().seconds * 1000).rounded() as NSNumber)
             self.playbackListener.onPositionDiscontinuity(positionDiscontinuityEvent, completion: { _ in })
         })
         observers.append(player.observe(\.timeControlStatus, options: [.old, .new]) {
             player, _ in
-            let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = player.rate
-            nowPlayingInfoCenter.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime().seconds
+            if self.isPrimary {
+                self.updateNowPlayingPlaybackInfo(playerItem: player.currentItem)
+            }
             let isPlayingEvent = PlaybackStateChangedEvent.make(
                 withPlayerId: self.id,
                 playbackState: self.isPlaying() ? PlaybackState.playing : PlaybackState.stopped,
@@ -727,6 +782,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         var externalMetadata = playerItem.externalMetadata
                         externalMetadata.append(artworkItem)
                         playerItem.externalMetadata = externalMetadata
+                        if (self.isPrimary) {
+                            self.updateNowPlayingBaseInfo(playerItem: playerItem)
+                        }
                     }
                 }
             }
