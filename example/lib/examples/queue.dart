@@ -165,7 +165,7 @@ class QueueExample extends HookWidget {
                   return ListTile(
                     key: ValueKey(tempQueueItems.value[index].id),
                     onTap: () {
-                      controller.replaceCurrentMediaItem(tempQueueItems.value[index]!);
+                      controller.replaceCurrentMediaItem(tempQueueItems.value[index]);
                     },
                     trailing: GestureDetector(
                       onTap: () {
@@ -214,5 +214,5 @@ class MediaQueueManager {
   final List<MediaItem> queue = [];
   final List<MediaItem> upNext = [];
 
-  MediaQueueManager() {}
+  MediaQueueManager();
 }
