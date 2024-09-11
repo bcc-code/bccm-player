@@ -143,6 +143,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
                 playerViewController.speeds = speeds
                 playerViewController.allowsVideoFrameAnalysis = _allowsVideoFrameAnalysis
             }
+            playerViewController.allowsPictureInPicturePlayback = _pipOnLeave
             if #available(iOS 14.2, *) {
                 playerViewController.canStartPictureInPictureAutomaticallyFromInline = _pipOnLeave
             }
