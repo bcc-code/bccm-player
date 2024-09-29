@@ -44,7 +44,7 @@ class FlutterExoPlayerView(
     private var setupDone = false
     override val isFullscreen = false
     override val shouldPipAutomatically
-        get() = pipOnLeave && (playerController?.player?.isPlaying ?: false)
+        get() = pipOnLeave && (playerController?.player?.isPlaying ?: false) && (playerController?.player?.volume?.toDouble() ?: 0.0) > 0
 
     class Factory(private val plugin: BccmPlayerPlugin?) :
         PlatformViewFactory(StandardMessageCodec.INSTANCE) {
