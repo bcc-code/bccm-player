@@ -44,7 +44,7 @@ class MiniPlayer extends HookWidget {
     this.loadingIndicator,
     this.playSemanticLabel,
     this.pauseSemanticLabel,
-  })  : assert(artworkUri != null || artwork != null, "Artwork must be set");
+  }) : assert(artworkUri != null || artwork != null, "Artwork must be set");
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class MiniPlayer extends HookWidget {
 
     return Container(
       height: kMiniPlayerHeight,
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery.sizeOf(context).width,
       decoration: BoxDecoration(
         color: theme.backgroundColor,
         border: showBorder ? Border(top: BorderSide(color: theme.topBorderColor ?? Colors.transparent, width: 1)) : null,
