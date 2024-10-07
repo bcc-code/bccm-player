@@ -26,7 +26,7 @@ A new Flutter plugin project.
 
   # Protobuf is for cast
   s.dependency 'Protobuf', '~> 3.13'
-  s.dependency 'google-cast-sdk-dynamic-xcframework-no-bluetooth', '4.7.1'
+  s.dependency 'google-cast-sdk', '4.8.3'
 
 end
 
