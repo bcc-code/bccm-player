@@ -37,6 +37,7 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.NpawConfig
 import media.bcc.bccm_player.players.PlayerController
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
+import media.bcc.bccm_player.utils.LanguageUtils
 import java.util.UUID
 
 @UnstableApi
@@ -231,9 +232,9 @@ class ExoPlayerController(
             if (!t.isSelected) continue
 
             if (t.type == C.TRACK_TYPE_TEXT) {
-                youboraPlugin.options?.contentSubtitles = t.mediaTrackGroup.getFormat(0).language
+                youboraPlugin.options?.contentSubtitles = LanguageUtils.toThreeLetterLanguageCode(t.mediaTrackGroup.getFormat(0).language)
             } else if (t.type == C.TRACK_TYPE_AUDIO) {
-                youboraPlugin.options?.contentLanguage = t.mediaTrackGroup.getFormat(0).language
+                youboraPlugin.options?.contentLanguage = LanguageUtils.toThreeLetterLanguageCode(t.mediaTrackGroup.getFormat(0).language)
             }
         }
     }
