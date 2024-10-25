@@ -463,6 +463,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
         youboraPlugin.options.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
         youboraPlugin.options.contentType = extras?["npaw.content.type"] as? String
+        youboraPlugin.options.contentLanguage = extras?["npaw.content.language"] as? String
         youboraPlugin.options.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId?.stringValue : nil
         youboraPlugin.options.contentCustomDimension2 = extras?["npaw.content.customDimension2"] as? String
     }
