@@ -201,6 +201,42 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 - (NSArray<id> *)toList;
 @end
 
+@interface NpawVideoStartEvent ()
++ (NpawVideoStartEvent *)fromList:(NSArray<id> *)list;
++ (nullable NpawVideoStartEvent *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
+@interface NpawVideoStopEvent ()
++ (NpawVideoStopEvent *)fromList:(NSArray<id> *)list;
++ (nullable NpawVideoStopEvent *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
+@interface NpawVideoPauseEvent ()
++ (NpawVideoPauseEvent *)fromList:(NSArray<id> *)list;
++ (nullable NpawVideoPauseEvent *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
+@interface NpawVideoResumeEvent ()
++ (NpawVideoResumeEvent *)fromList:(NSArray<id> *)list;
++ (nullable NpawVideoResumeEvent *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
+@interface NpawVideoSeekEvent ()
++ (NpawVideoSeekEvent *)fromList:(NSArray<id> *)list;
++ (nullable NpawVideoSeekEvent *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
+@interface NpawVideoPingEvent ()
++ (NpawVideoPingEvent *)fromList:(NSArray<id> *)list;
++ (nullable NpawVideoPingEvent *)nullableFromList:(NSArray<id> *)list;
+- (NSArray<id> *)toList;
+@end
+
 @implementation NpawConfig
 + (instancetype)makeWithAppName:(nullable NSString *)appName
     appReleaseVersion:(nullable NSString *)appReleaseVersion
@@ -840,6 +876,132 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 }
 @end
 
+@implementation NpawVideoStartEvent
++ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data {
+  NpawVideoStartEvent* pigeonResult = [[NpawVideoStartEvent alloc] init];
+  pigeonResult.data = data;
+  return pigeonResult;
+}
++ (NpawVideoStartEvent *)fromList:(NSArray<id> *)list {
+  NpawVideoStartEvent *pigeonResult = [[NpawVideoStartEvent alloc] init];
+  pigeonResult.data = GetNullableObjectAtIndex(list, 0);
+  return pigeonResult;
+}
++ (nullable NpawVideoStartEvent *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [NpawVideoStartEvent fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.data ?: [NSNull null],
+  ];
+}
+@end
+
+@implementation NpawVideoStopEvent
++ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data {
+  NpawVideoStopEvent* pigeonResult = [[NpawVideoStopEvent alloc] init];
+  pigeonResult.data = data;
+  return pigeonResult;
+}
++ (NpawVideoStopEvent *)fromList:(NSArray<id> *)list {
+  NpawVideoStopEvent *pigeonResult = [[NpawVideoStopEvent alloc] init];
+  pigeonResult.data = GetNullableObjectAtIndex(list, 0);
+  return pigeonResult;
+}
++ (nullable NpawVideoStopEvent *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [NpawVideoStopEvent fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.data ?: [NSNull null],
+  ];
+}
+@end
+
+@implementation NpawVideoPauseEvent
++ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data {
+  NpawVideoPauseEvent* pigeonResult = [[NpawVideoPauseEvent alloc] init];
+  pigeonResult.data = data;
+  return pigeonResult;
+}
++ (NpawVideoPauseEvent *)fromList:(NSArray<id> *)list {
+  NpawVideoPauseEvent *pigeonResult = [[NpawVideoPauseEvent alloc] init];
+  pigeonResult.data = GetNullableObjectAtIndex(list, 0);
+  return pigeonResult;
+}
++ (nullable NpawVideoPauseEvent *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [NpawVideoPauseEvent fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.data ?: [NSNull null],
+  ];
+}
+@end
+
+@implementation NpawVideoResumeEvent
++ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data {
+  NpawVideoResumeEvent* pigeonResult = [[NpawVideoResumeEvent alloc] init];
+  pigeonResult.data = data;
+  return pigeonResult;
+}
++ (NpawVideoResumeEvent *)fromList:(NSArray<id> *)list {
+  NpawVideoResumeEvent *pigeonResult = [[NpawVideoResumeEvent alloc] init];
+  pigeonResult.data = GetNullableObjectAtIndex(list, 0);
+  return pigeonResult;
+}
++ (nullable NpawVideoResumeEvent *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [NpawVideoResumeEvent fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.data ?: [NSNull null],
+  ];
+}
+@end
+
+@implementation NpawVideoSeekEvent
++ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data {
+  NpawVideoSeekEvent* pigeonResult = [[NpawVideoSeekEvent alloc] init];
+  pigeonResult.data = data;
+  return pigeonResult;
+}
++ (NpawVideoSeekEvent *)fromList:(NSArray<id> *)list {
+  NpawVideoSeekEvent *pigeonResult = [[NpawVideoSeekEvent alloc] init];
+  pigeonResult.data = GetNullableObjectAtIndex(list, 0);
+  return pigeonResult;
+}
++ (nullable NpawVideoSeekEvent *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [NpawVideoSeekEvent fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.data ?: [NSNull null],
+  ];
+}
+@end
+
+@implementation NpawVideoPingEvent
++ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data {
+  NpawVideoPingEvent* pigeonResult = [[NpawVideoPingEvent alloc] init];
+  pigeonResult.data = data;
+  return pigeonResult;
+}
++ (NpawVideoPingEvent *)fromList:(NSArray<id> *)list {
+  NpawVideoPingEvent *pigeonResult = [[NpawVideoPingEvent alloc] init];
+  pigeonResult.data = GetNullableObjectAtIndex(list, 0);
+  return pigeonResult;
+}
++ (nullable NpawVideoPingEvent *)nullableFromList:(NSArray<id> *)list {
+  return (list) ? [NpawVideoPingEvent fromList:list] : nil;
+}
+- (NSArray<id> *)toList {
+  return @[
+    self.data ?: [NSNull null],
+  ];
+}
+@end
+
 @interface nullPlaybackPlatformApiPigeonCodecReader : FlutterStandardReader
 @end
 @implementation nullPlaybackPlatformApiPigeonCodecReader
@@ -905,6 +1067,18 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
       return [PictureInPictureModeChangedEvent fromList:[self readValue]];
     case 153: 
       return [MediaItemTransitionEvent fromList:[self readValue]];
+    case 154: 
+      return [NpawVideoStartEvent fromList:[self readValue]];
+    case 155: 
+      return [NpawVideoStopEvent fromList:[self readValue]];
+    case 156: 
+      return [NpawVideoPauseEvent fromList:[self readValue]];
+    case 157: 
+      return [NpawVideoResumeEvent fromList:[self readValue]];
+    case 158: 
+      return [NpawVideoSeekEvent fromList:[self readValue]];
+    case 159: 
+      return [NpawVideoPingEvent fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -994,6 +1168,24 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[MediaItemTransitionEvent class]]) {
     [self writeByte:153];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[NpawVideoStartEvent class]]) {
+    [self writeByte:154];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[NpawVideoStopEvent class]]) {
+    [self writeByte:155];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[NpawVideoPauseEvent class]]) {
+    [self writeByte:156];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[NpawVideoResumeEvent class]]) {
+    [self writeByte:157];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[NpawVideoSeekEvent class]]) {
+    [self writeByte:158];
+    [self writeValue:[value toList]];
+  } else if ([value isKindOfClass:[NpawVideoPingEvent class]]) {
+    [self writeByte:159];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -1795,6 +1987,140 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
 }
 - (void)onPictureInPictureModeChanged:(PictureInPictureModeChangedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
   NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onPictureInPictureModeChanged", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+@end
+
+@interface NpawListenerPigeon ()
+@property(nonatomic, strong) NSObject<FlutterBinaryMessenger> *binaryMessenger;
+@property(nonatomic, strong) NSString *messageChannelSuffix;
+@end
+
+@implementation NpawListenerPigeon
+
+- (instancetype)initWithBinaryMessenger:(NSObject<FlutterBinaryMessenger> *)binaryMessenger {
+  return [self initWithBinaryMessenger:binaryMessenger messageChannelSuffix:@""];
+}
+- (instancetype)initWithBinaryMessenger:(NSObject<FlutterBinaryMessenger> *)binaryMessenger messageChannelSuffix:(nullable NSString*)messageChannelSuffix{
+  self = [self init];
+  if (self) {
+    _binaryMessenger = binaryMessenger;
+    _messageChannelSuffix = [messageChannelSuffix length] == 0 ? @"" : [NSString stringWithFormat: @".%@", messageChannelSuffix];
+  }
+  return self;
+}
+- (void)onVideoStart:(NpawVideoStartEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStart", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+- (void)onVideoStop:(NpawVideoStopEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStop", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+- (void)onVideoPause:(NpawVideoPauseEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPause", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+- (void)onVideoResume:(NpawVideoResumeEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoResume", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+- (void)onVideoSeek:(NpawVideoSeekEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoSeek", _messageChannelSuffix];
+  FlutterBasicMessageChannel *channel =
+    [FlutterBasicMessageChannel
+      messageChannelWithName:channelName
+      binaryMessenger:self.binaryMessenger
+      codec:nullGetPlaybackPlatformApiCodec()];
+  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
+    if (reply != nil) {
+      if (reply.count > 1) {
+        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
+      } else {
+        completion(nil);
+      }
+    } else {
+      completion(createConnectionError(channelName));
+    } 
+  }];
+}
+- (void)onVideoPing:(NpawVideoPingEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
+  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPing", _messageChannelSuffix];
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
       messageChannelWithName:channelName

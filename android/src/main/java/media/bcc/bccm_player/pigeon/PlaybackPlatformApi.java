@@ -2595,6 +2595,348 @@ public class PlaybackPlatformApi {
     }
   }
 
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class NpawVideoStartEvent {
+    private @Nullable Map<String, String> data;
+
+    public @Nullable Map<String, String> getData() {
+      return data;
+    }
+
+    public void setData(@Nullable Map<String, String> setterArg) {
+      this.data = setterArg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) { return true; }
+      if (o == null || getClass() != o.getClass()) { return false; }
+      NpawVideoStartEvent that = (NpawVideoStartEvent) o;
+      return Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(data);
+    }
+
+    public static final class Builder {
+
+      private @Nullable Map<String, String> data;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setData(@Nullable Map<String, String> setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+
+      public @NonNull NpawVideoStartEvent build() {
+        NpawVideoStartEvent pigeonReturn = new NpawVideoStartEvent();
+        pigeonReturn.setData(data);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<>(1);
+      toListResult.add(data);
+      return toListResult;
+    }
+
+    static @NonNull NpawVideoStartEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      NpawVideoStartEvent pigeonResult = new NpawVideoStartEvent();
+      Object data = pigeonVar_list.get(0);
+      pigeonResult.setData((Map<String, String>) data);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class NpawVideoStopEvent {
+    private @Nullable Map<String, String> data;
+
+    public @Nullable Map<String, String> getData() {
+      return data;
+    }
+
+    public void setData(@Nullable Map<String, String> setterArg) {
+      this.data = setterArg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) { return true; }
+      if (o == null || getClass() != o.getClass()) { return false; }
+      NpawVideoStopEvent that = (NpawVideoStopEvent) o;
+      return Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(data);
+    }
+
+    public static final class Builder {
+
+      private @Nullable Map<String, String> data;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setData(@Nullable Map<String, String> setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+
+      public @NonNull NpawVideoStopEvent build() {
+        NpawVideoStopEvent pigeonReturn = new NpawVideoStopEvent();
+        pigeonReturn.setData(data);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<>(1);
+      toListResult.add(data);
+      return toListResult;
+    }
+
+    static @NonNull NpawVideoStopEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      NpawVideoStopEvent pigeonResult = new NpawVideoStopEvent();
+      Object data = pigeonVar_list.get(0);
+      pigeonResult.setData((Map<String, String>) data);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class NpawVideoPauseEvent {
+    private @Nullable Map<String, String> data;
+
+    public @Nullable Map<String, String> getData() {
+      return data;
+    }
+
+    public void setData(@Nullable Map<String, String> setterArg) {
+      this.data = setterArg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) { return true; }
+      if (o == null || getClass() != o.getClass()) { return false; }
+      NpawVideoPauseEvent that = (NpawVideoPauseEvent) o;
+      return Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(data);
+    }
+
+    public static final class Builder {
+
+      private @Nullable Map<String, String> data;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setData(@Nullable Map<String, String> setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+
+      public @NonNull NpawVideoPauseEvent build() {
+        NpawVideoPauseEvent pigeonReturn = new NpawVideoPauseEvent();
+        pigeonReturn.setData(data);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<>(1);
+      toListResult.add(data);
+      return toListResult;
+    }
+
+    static @NonNull NpawVideoPauseEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      NpawVideoPauseEvent pigeonResult = new NpawVideoPauseEvent();
+      Object data = pigeonVar_list.get(0);
+      pigeonResult.setData((Map<String, String>) data);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class NpawVideoResumeEvent {
+    private @Nullable Map<String, String> data;
+
+    public @Nullable Map<String, String> getData() {
+      return data;
+    }
+
+    public void setData(@Nullable Map<String, String> setterArg) {
+      this.data = setterArg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) { return true; }
+      if (o == null || getClass() != o.getClass()) { return false; }
+      NpawVideoResumeEvent that = (NpawVideoResumeEvent) o;
+      return Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(data);
+    }
+
+    public static final class Builder {
+
+      private @Nullable Map<String, String> data;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setData(@Nullable Map<String, String> setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+
+      public @NonNull NpawVideoResumeEvent build() {
+        NpawVideoResumeEvent pigeonReturn = new NpawVideoResumeEvent();
+        pigeonReturn.setData(data);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<>(1);
+      toListResult.add(data);
+      return toListResult;
+    }
+
+    static @NonNull NpawVideoResumeEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      NpawVideoResumeEvent pigeonResult = new NpawVideoResumeEvent();
+      Object data = pigeonVar_list.get(0);
+      pigeonResult.setData((Map<String, String>) data);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class NpawVideoSeekEvent {
+    private @Nullable Map<String, String> data;
+
+    public @Nullable Map<String, String> getData() {
+      return data;
+    }
+
+    public void setData(@Nullable Map<String, String> setterArg) {
+      this.data = setterArg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) { return true; }
+      if (o == null || getClass() != o.getClass()) { return false; }
+      NpawVideoSeekEvent that = (NpawVideoSeekEvent) o;
+      return Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(data);
+    }
+
+    public static final class Builder {
+
+      private @Nullable Map<String, String> data;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setData(@Nullable Map<String, String> setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+
+      public @NonNull NpawVideoSeekEvent build() {
+        NpawVideoSeekEvent pigeonReturn = new NpawVideoSeekEvent();
+        pigeonReturn.setData(data);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<>(1);
+      toListResult.add(data);
+      return toListResult;
+    }
+
+    static @NonNull NpawVideoSeekEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      NpawVideoSeekEvent pigeonResult = new NpawVideoSeekEvent();
+      Object data = pigeonVar_list.get(0);
+      pigeonResult.setData((Map<String, String>) data);
+      return pigeonResult;
+    }
+  }
+
+  /** Generated class from Pigeon that represents data sent in messages. */
+  public static final class NpawVideoPingEvent {
+    private @Nullable Map<String, String> data;
+
+    public @Nullable Map<String, String> getData() {
+      return data;
+    }
+
+    public void setData(@Nullable Map<String, String> setterArg) {
+      this.data = setterArg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) { return true; }
+      if (o == null || getClass() != o.getClass()) { return false; }
+      NpawVideoPingEvent that = (NpawVideoPingEvent) o;
+      return Objects.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(data);
+    }
+
+    public static final class Builder {
+
+      private @Nullable Map<String, String> data;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setData(@Nullable Map<String, String> setterArg) {
+        this.data = setterArg;
+        return this;
+      }
+
+      public @NonNull NpawVideoPingEvent build() {
+        NpawVideoPingEvent pigeonReturn = new NpawVideoPingEvent();
+        pigeonReturn.setData(data);
+        return pigeonReturn;
+      }
+    }
+
+    @NonNull
+    ArrayList<Object> toList() {
+      ArrayList<Object> toListResult = new ArrayList<>(1);
+      toListResult.add(data);
+      return toListResult;
+    }
+
+    static @NonNull NpawVideoPingEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      NpawVideoPingEvent pigeonResult = new NpawVideoPingEvent();
+      Object data = pigeonVar_list.get(0);
+      pigeonResult.setData((Map<String, String>) data);
+      return pigeonResult;
+    }
+  }
+
   private static class PigeonCodec extends StandardMessageCodec {
     public static final PigeonCodec INSTANCE = new PigeonCodec();
 
@@ -2663,6 +3005,18 @@ public class PlaybackPlatformApi {
           return PictureInPictureModeChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 153:
           return MediaItemTransitionEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 154:
+          return NpawVideoStartEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 155:
+          return NpawVideoStopEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 156:
+          return NpawVideoPauseEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 157:
+          return NpawVideoResumeEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 158:
+          return NpawVideoSeekEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 159:
+          return NpawVideoPingEvent.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
       }
@@ -2745,6 +3099,24 @@ public class PlaybackPlatformApi {
       } else if (value instanceof MediaItemTransitionEvent) {
         stream.write(153);
         writeValue(stream, ((MediaItemTransitionEvent) value).toList());
+      } else if (value instanceof NpawVideoStartEvent) {
+        stream.write(154);
+        writeValue(stream, ((NpawVideoStartEvent) value).toList());
+      } else if (value instanceof NpawVideoStopEvent) {
+        stream.write(155);
+        writeValue(stream, ((NpawVideoStopEvent) value).toList());
+      } else if (value instanceof NpawVideoPauseEvent) {
+        stream.write(156);
+        writeValue(stream, ((NpawVideoPauseEvent) value).toList());
+      } else if (value instanceof NpawVideoResumeEvent) {
+        stream.write(157);
+        writeValue(stream, ((NpawVideoResumeEvent) value).toList());
+      } else if (value instanceof NpawVideoSeekEvent) {
+        stream.write(158);
+        writeValue(stream, ((NpawVideoSeekEvent) value).toList());
+      } else if (value instanceof NpawVideoPingEvent) {
+        stream.write(159);
+        writeValue(stream, ((NpawVideoPingEvent) value).toList());
       } else {
         super.writeValue(stream, value);
       }
@@ -3864,6 +4236,151 @@ public class PlaybackPlatformApi {
     }
     public void onPictureInPictureModeChanged(@NonNull PictureInPictureModeChangedEvent eventArg, @NonNull VoidResult result) {
       final String channelName = "dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onPictureInPictureModeChanged" + messageChannelSuffix;
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, channelName, getCodec());
+      channel.send(
+          new ArrayList<>(Collections.singletonList(eventArg)),
+          channelReply -> {
+            if (channelReply instanceof List) {
+              List<Object> listReply = (List<Object>) channelReply;
+              if (listReply.size() > 1) {
+                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
+              } else {
+                result.success();
+              }
+            }  else {
+              result.error(createConnectionError(channelName));
+            } 
+          });
+    }
+  }
+  /**
+   * /////////////// Npaw Listener
+   *
+   * Generated class from Pigeon that represents Flutter messages that can be called from Java.
+   */
+  public static class NpawListenerPigeon {
+    private final @NonNull BinaryMessenger binaryMessenger;
+    private final String messageChannelSuffix;
+
+    public NpawListenerPigeon(@NonNull BinaryMessenger argBinaryMessenger) {
+      this(argBinaryMessenger, "");
+    }
+    public NpawListenerPigeon(@NonNull BinaryMessenger argBinaryMessenger, @NonNull String messageChannelSuffix) {
+      this.binaryMessenger = argBinaryMessenger;
+      this.messageChannelSuffix = messageChannelSuffix.isEmpty() ? "" : "." + messageChannelSuffix;
+    }
+
+    /**
+     * Public interface for sending reply.
+     * The codec used by NpawListenerPigeon.
+     */
+    static @NonNull MessageCodec<Object> getCodec() {
+      return PigeonCodec.INSTANCE;
+    }
+    public void onVideoStart(@NonNull NpawVideoStartEvent eventArg, @NonNull VoidResult result) {
+      final String channelName = "dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStart" + messageChannelSuffix;
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, channelName, getCodec());
+      channel.send(
+          new ArrayList<>(Collections.singletonList(eventArg)),
+          channelReply -> {
+            if (channelReply instanceof List) {
+              List<Object> listReply = (List<Object>) channelReply;
+              if (listReply.size() > 1) {
+                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
+              } else {
+                result.success();
+              }
+            }  else {
+              result.error(createConnectionError(channelName));
+            } 
+          });
+    }
+    public void onVideoStop(@NonNull NpawVideoStopEvent eventArg, @NonNull VoidResult result) {
+      final String channelName = "dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStop" + messageChannelSuffix;
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, channelName, getCodec());
+      channel.send(
+          new ArrayList<>(Collections.singletonList(eventArg)),
+          channelReply -> {
+            if (channelReply instanceof List) {
+              List<Object> listReply = (List<Object>) channelReply;
+              if (listReply.size() > 1) {
+                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
+              } else {
+                result.success();
+              }
+            }  else {
+              result.error(createConnectionError(channelName));
+            } 
+          });
+    }
+    public void onVideoPause(@NonNull NpawVideoPauseEvent eventArg, @NonNull VoidResult result) {
+      final String channelName = "dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPause" + messageChannelSuffix;
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, channelName, getCodec());
+      channel.send(
+          new ArrayList<>(Collections.singletonList(eventArg)),
+          channelReply -> {
+            if (channelReply instanceof List) {
+              List<Object> listReply = (List<Object>) channelReply;
+              if (listReply.size() > 1) {
+                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
+              } else {
+                result.success();
+              }
+            }  else {
+              result.error(createConnectionError(channelName));
+            } 
+          });
+    }
+    public void onVideoResume(@NonNull NpawVideoResumeEvent eventArg, @NonNull VoidResult result) {
+      final String channelName = "dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoResume" + messageChannelSuffix;
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, channelName, getCodec());
+      channel.send(
+          new ArrayList<>(Collections.singletonList(eventArg)),
+          channelReply -> {
+            if (channelReply instanceof List) {
+              List<Object> listReply = (List<Object>) channelReply;
+              if (listReply.size() > 1) {
+                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
+              } else {
+                result.success();
+              }
+            }  else {
+              result.error(createConnectionError(channelName));
+            } 
+          });
+    }
+    public void onVideoSeek(@NonNull NpawVideoSeekEvent eventArg, @NonNull VoidResult result) {
+      final String channelName = "dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoSeek" + messageChannelSuffix;
+      BasicMessageChannel<Object> channel =
+          new BasicMessageChannel<>(
+              binaryMessenger, channelName, getCodec());
+      channel.send(
+          new ArrayList<>(Collections.singletonList(eventArg)),
+          channelReply -> {
+            if (channelReply instanceof List) {
+              List<Object> listReply = (List<Object>) channelReply;
+              if (listReply.size() > 1) {
+                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
+              } else {
+                result.success();
+              }
+            }  else {
+              result.error(createConnectionError(channelName));
+            } 
+          });
+    }
+    public void onVideoPing(@NonNull NpawVideoPingEvent eventArg, @NonNull VoidResult result) {
+      final String channelName = "dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPing" + messageChannelSuffix;
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(
               binaryMessenger, channelName, getCodec());

@@ -28,15 +28,17 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     private var primaryPlayerId: String? = nil
     private var previousPrimaryPlayerId: String? = nil
     let playbackListener: PlaybackListenerPigeon
+    let npawListener: NpawListenerPigeon
     let chromecastPigeon: ChromecastPigeon
     let queueManagerPigeon: QueueManagerPigeon
     var npawConfig: NpawConfig? = nil
     var appConfig: AppConfig? = nil
 
-    init(chromecastPigeon: ChromecastPigeon, playbackListener: PlaybackListenerPigeon, queueManagerPigeon: QueueManagerPigeon) {
+    init(chromecastPigeon: ChromecastPigeon, playbackListener: PlaybackListenerPigeon, queueManagerPigeon: QueueManagerPigeon, npawListener: NpawListenerPigeon) {
         self.playbackListener = playbackListener
         self.chromecastPigeon = chromecastPigeon
         self.queueManagerPigeon = queueManagerPigeon
+        self.npawListener = npawListener
         super.init()
         let castPlayerController = CastPlayerController(playbackApi: self)
         players.append(castPlayerController)
@@ -102,7 +104,8 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
             npawConfig: npawConfig,
             appConfig: appConfig,
             disableNpaw: disableNpaw?.boolValue,
-            queueManagerPigeon: queueManagerPigeon
+            queueManagerPigeon: queueManagerPigeon,
+            npawListener: npawListener
         )
         players.append(player)
 

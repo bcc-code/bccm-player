@@ -2,6 +2,7 @@
 // of your plugin as a separate package, instead of inlining it in the same
 // package as the core of your plugin.
 
+import 'package:bccm_player/src/native/root_pigeon_npaw_listener.dart';
 import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart' as pigeon;
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
@@ -15,6 +16,7 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   NpawConfig? npawConfig;
   Map<String, VideoJsPlayer> webVideoPlayers = {};
   final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener();
+  final RootPigeonNpawListener _rootNpawListener = RootPigeonNpawListener();
 
   @override
   BccmPlayerController get primaryController => throw UnimplementedError('primaryController has not been implemented for web.');
@@ -31,6 +33,9 @@ class BccmPlayerWeb extends BccmPlayerInterface {
 
   @override
   get playerEventStream => _rootPlaybackListener.stream;
+
+  @override
+  get npawEventStream => _rootNpawListener.stream;
 
   @override
   Future<String> newPlayer({BufferMode? bufferMode, bool? disableNpaw}) async {
@@ -74,6 +79,11 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   @override
   Future<void> addPlaybackListener(pigeon.PlaybackListenerPigeon listener) async {
     _rootPlaybackListener.addListener(listener);
+  }
+
+  @override
+  Future<void> addNpawListener(pigeon.NpawListenerPigeon listener) async {
+    _rootNpawListener.addListener(listener);
   }
 
   @override
