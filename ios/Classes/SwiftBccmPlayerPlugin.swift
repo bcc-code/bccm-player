@@ -17,10 +17,9 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
 
         let playbackListener = PlaybackListenerPigeon(binaryMessenger: messenger)
         let queueManagerPigeon = QueueManagerPigeon(binaryMessenger: messenger)
-        let npawListener = NpawListenerPigeon(binaryMessenger: messenger)
 
         let chromecastPigeon = ChromecastPigeon(binaryMessenger: messenger)
-        let playbackApi = PlaybackApiImpl(chromecastPigeon: chromecastPigeon, playbackListener: playbackListener, queueManagerPigeon: queueManagerPigeon, npawListener: npawListener)
+        let playbackApi = PlaybackApiImpl(chromecastPigeon: chromecastPigeon, playbackListener: playbackListener, queueManagerPigeon: queueManagerPigeon)
 
         let downloaderListener = DownloaderListenerPigeon(binaryMessenger: messenger)
         let downloader = Downloader()

@@ -90,12 +90,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class PlaybackEndedEvent;
 @class PictureInPictureModeChangedEvent;
 @class MediaItemTransitionEvent;
-@class NpawVideoStartEvent;
-@class NpawVideoStopEvent;
-@class NpawVideoPauseEvent;
-@class NpawVideoResumeEvent;
-@class NpawVideoSeekEvent;
-@class NpawVideoPingEvent;
+@class AnalyticsEvent;
 
 @interface NpawConfig : NSObject
 + (instancetype)makeWithAppName:(nullable NSString *)appName
@@ -333,32 +328,7 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) MediaItem * mediaItem;
 @end
 
-@interface NpawVideoStartEvent : NSObject
-+ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data;
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * data;
-@end
-
-@interface NpawVideoStopEvent : NSObject
-+ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data;
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * data;
-@end
-
-@interface NpawVideoPauseEvent : NSObject
-+ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data;
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * data;
-@end
-
-@interface NpawVideoResumeEvent : NSObject
-+ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data;
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * data;
-@end
-
-@interface NpawVideoSeekEvent : NSObject
-+ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data;
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * data;
-@end
-
-@interface NpawVideoPingEvent : NSObject
+@interface AnalyticsEvent : NSObject
 + (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data;
 @property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * data;
 @end
@@ -424,19 +394,7 @@ extern void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> bin
 - (void)onPlaybackEnded:(PlaybackEndedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onMediaItemTransition:(MediaItemTransitionEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onPictureInPictureModeChanged:(PictureInPictureModeChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-@end
-
-
-////////////////// Npaw Listener
-@interface NpawListenerPigeon : NSObject
-- (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger;
-- (instancetype)initWithBinaryMessenger:(id<FlutterBinaryMessenger>)binaryMessenger messageChannelSuffix:(nullable NSString *)messageChannelSuffix;
-- (void)onVideoStart:(NpawVideoStartEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)onVideoStop:(NpawVideoStopEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)onVideoPause:(NpawVideoPauseEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)onVideoResume:(NpawVideoResumeEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)onVideoSeek:(NpawVideoSeekEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)onVideoPing:(NpawVideoPingEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)onAnalyticsEvent:(AnalyticsEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 @end
 
 NS_ASSUME_NONNULL_END

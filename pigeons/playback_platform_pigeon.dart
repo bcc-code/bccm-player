@@ -284,6 +284,8 @@ abstract class PlaybackListenerPigeon {
   void onMediaItemTransition(MediaItemTransitionEvent event);
   @ObjCSelector("onPictureInPictureModeChanged:")
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
+  @ObjCSelector("onAnalyticsEvent:")
+  void onAnalyticsEvent(AnalyticsEvent event);
 }
 
 class PrimaryPlayerChangedEvent {
@@ -335,60 +337,6 @@ class MediaItemTransitionEvent implements PlayerEvent {
   MediaItemTransitionEvent({required this.playerId, this.mediaItem});
 }
 
-////////////////// Npaw Listener
-
-@FlutterApi()
-abstract class NpawListenerPigeon {
-  @ObjCSelector("onVideoStart:")
-  void onVideoStart(NpawVideoStartEvent event);
-  @ObjCSelector("onVideoStop:")
-  void onVideoStop(NpawVideoStopEvent event);
-  @ObjCSelector("onVideoPause:")
-  void onVideoPause(NpawVideoPauseEvent event);
-  @ObjCSelector("onVideoResume:")
-  void onVideoResume(NpawVideoResumeEvent event);
-  @ObjCSelector("onVideoSeek:")
-  void onVideoSeek(NpawVideoSeekEvent event);
-  @ObjCSelector("onVideoPing:")
-  void onVideoPing(NpawVideoPingEvent event);
-}
-
-abstract class NpawEvent {
+class AnalyticsEvent {
   late Map<String?, String?>? data;
-}
-
-class NpawVideoStartEvent implements NpawEvent {
-  @override
-  Map<String?, String?>? data;
-  NpawVideoStartEvent({this.data});
-}
-
-class NpawVideoStopEvent implements NpawEvent {
-  @override
-  Map<String?, String?>? data;
-  NpawVideoStopEvent({this.data});
-}
-
-class NpawVideoPauseEvent implements NpawEvent {
-  @override
-  Map<String?, String?>? data;
-  NpawVideoPauseEvent({this.data});
-}
-
-class NpawVideoResumeEvent implements NpawEvent {
-  @override
-  Map<String?, String?>? data;
-  NpawVideoResumeEvent({this.data});
-}
-
-class NpawVideoSeekEvent implements NpawEvent {
-  @override
-  Map<String?, String?>? data;
-  NpawVideoSeekEvent({this.data});
-}
-
-class NpawVideoPingEvent implements NpawEvent {
-  @override
-  Map<String?, String?>? data;
-  NpawVideoPingEvent({this.data});
 }

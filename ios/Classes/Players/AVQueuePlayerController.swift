@@ -28,7 +28,6 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     var repeatMode = RepeatMode.off
     let bufferMode: BufferMode
     let disableNpaw: Bool
-    final let npawListener: NpawListenerPigeon
 
     var audioOnlyTimer: Timer?
     var currentViewController: AVPlayerViewController? {
@@ -56,13 +55,12 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
 
-    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?, disableNpaw: Bool?, queueManagerPigeon: QueueManagerPigeon, npawListener: NpawListenerPigeon) {
+    init(id: String? = nil, playbackListener: PlaybackListenerPigeon, bufferMode: BufferMode, npawConfig: NpawConfig?, appConfig: AppConfig?, disableNpaw: Bool?, queueManagerPigeon: QueueManagerPigeon) {
         self.id = id ?? UUID().uuidString
         self.playbackListener = playbackListener
         self.queueManagerPigeon = queueManagerPigeon
         self.bufferMode = bufferMode
         self.disableNpaw = disableNpaw ?? false
-        self.npawListener = npawListener
         super.init()
         updateAutomaticAudioOnlyTimer()
         player.actionAtItemEnd = .none
@@ -441,40 +439,14 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     func addEventListeners(youboraPlugin: YBPlugin){
+        func sendEvent(params: NSMutableDictionary) {
+            let params_dict = params as! Dictionary<String, String>
+            let event = AnalyticsEvent.make(withData: params_dict)
+            self.playbackListener.onAnalyticsEvent(event, completion: { _ in })
+        }
+        
         youboraPlugin.addWillSendStartListener { service, plugin, params in
-            let params_dict = params as! Dictionary<String, String>
-            let event = NpawVideoStartEvent.make(withData: params_dict)
-            self.npawListener.onVideoStart(event, completion: { _ in })
-        }
-        
-        youboraPlugin.addWillSendStopListener { service, plugin, params in
-            let params_dict = params as! Dictionary<String, String>
-            let event = NpawVideoStopEvent.make(withData: params_dict)
-            self.npawListener.onVideoStop(event, completion: { _ in })
-        }
-        
-        youboraPlugin.addWillSendPauseListener { service, plugin, params in
-            let params_dict = params as! Dictionary<String, String>
-            let event = NpawVideoPauseEvent.make(withData: params_dict)
-            self.npawListener.onVideoPause(event, completion: { _ in })
-        }
-        
-        youboraPlugin.addWillSendResumeListener { service, plugin, params in
-            let params_dict = params as! Dictionary<String, String>
-            let event = NpawVideoResumeEvent.make(withData: params_dict)
-            self.npawListener.onVideoResume(event, completion: { _ in })
-        }
-        
-        youboraPlugin.addWillSendPingListener { service, plugin, params in
-            let params_dict = params as! Dictionary<String, String>
-            let event = NpawVideoPingEvent.make(withData: params_dict)
-            self.npawListener.onVideoPing(event, completion: { _ in })
-        }
-        
-        youboraPlugin.addWillSendSeekListener { service, plugin, params in
-            let params_dict = params as! Dictionary<String, String>
-            let event = NpawVideoSeekEvent.make(withData: params_dict)
-            self.npawListener.onVideoSeek(event, completion: { _ in })
+            sendEvent(params: params)
         }
     }
     
@@ -507,7 +479,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.contentLanguage = extras?["npaw.content.language"] as? String
         youboraPlugin.options.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId?.stringValue : nil
         youboraPlugin.options.contentCustomDimension2 = extras?["npaw.content.customDimension2"] as? String
-        youboraPlugin.options.contentTransactionCode = UUID().uuidString
+        youboraPlugin.options.contentTransactionCode = (extras?["npaw.content.transactionCode"] as? String) ?? UUID().uuidString
     }
 
     public func setNpawConfig(npawConfig: NpawConfig?) {

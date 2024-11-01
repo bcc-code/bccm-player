@@ -146,13 +146,6 @@ class MockBccmPlayerInterface extends _i1.Mock
       ) as _i3.Stream<dynamic>);
 
   @override
-  _i3.Stream<dynamic> get npawEventStream => (super.noSuchMethod(
-        Invocation.getter(#npawEventStream),
-        returnValue: _i3.Stream<dynamic>.empty(),
-        returnValueForMissingStub: _i3.Stream<dynamic>.empty(),
-      ) as _i3.Stream<dynamic>);
-
-  @override
   _i2.BccmPlayerController get primaryController => (super.noSuchMethod(
         Invocation.getter(#primaryController),
         returnValue: _FakeBccmPlayerController_1(
@@ -315,17 +308,6 @@ class MockBccmPlayerInterface extends _i1.Mock
       (super.noSuchMethod(
         Invocation.method(
           #addPlaybackListener,
-          [listener],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
-
-  @override
-  _i3.Future<void> addNpawListener(_i7.NpawListenerPigeon? listener) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #addNpawListener,
           [listener],
         ),
         returnValue: _i3.Future<void>.value(),

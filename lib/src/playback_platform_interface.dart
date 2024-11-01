@@ -15,7 +15,6 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   final PlayerPluginStateNotifier stateNotifier = PlayerPluginStateNotifier(keepAlive: true);
   Stream<ChromecastEvent> get chromecastEventStream;
   Stream<dynamic> get playerEventStream;
-  Stream<dynamic> get npawEventStream;
   BccmPlayerController get primaryController;
 
   /// Platform-specific implementations should set this with their own
@@ -69,10 +68,6 @@ abstract class BccmPlayerInterface extends PlatformInterface {
 
   Future<void> addPlaybackListener(PlaybackListenerPigeon listener) async {
     throw UnimplementedError('addPlaybackListener() has not been implemented.');
-  }
-
-  Future<void> addNpawListener(NpawListenerPigeon listener) async {
-    throw UnimplementedError('addNpawListener() has not been implemented.');
   }
 
   Future<void> removePlaybackListener(PlaybackListenerPigeon listener) async {

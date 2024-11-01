@@ -1,4 +1,3 @@
-import 'package:bccm_player/src/native/root_pigeon_npaw_listener.dart';
 import 'package:bccm_player/src/native/root_queue_manager_pigeon.dart';
 import 'package:bccm_player/src/pigeon/chromecast_pigeon.g.dart';
 import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
@@ -13,7 +12,6 @@ import 'bccm_player.dart';
 class BccmPlayerNative extends BccmPlayerInterface {
   final PlaybackPlatformPigeon _pigeon = PlaybackPlatformPigeon();
   late final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener();
-  late final RootPigeonNpawListener _rootNpawListener = RootPigeonNpawListener();
   final ChromecastPigeonListener _chromecastListener = ChromecastPigeonListener();
   final QueueManagerPigeon _queueManagerPigeon = RootQueueManagerPigeon();
   BccmPlayerController? _primaryController;
@@ -55,9 +53,6 @@ class BccmPlayerNative extends BccmPlayerInterface {
   get playerEventStream => _rootPlaybackListener.stream;
 
   @override
-  get npawEventStream => _rootNpawListener.stream;
-
-  @override
   Future<void> setup() async {
     return setupFuture ??= _setup();
   }
@@ -69,7 +64,6 @@ class BccmPlayerNative extends BccmPlayerInterface {
     QueueManagerPigeon.setUp(_queueManagerPigeon);
     ChromecastPigeon.setUp(_chromecastListener);
     PlaybackListenerPigeon.setUp(_rootPlaybackListener);
-    NpawListenerPigeon.setUp(_rootNpawListener);
     // load primary player state
     final initialState = await getPlayerState();
     if (initialState != null) {
@@ -130,11 +124,6 @@ class BccmPlayerNative extends BccmPlayerInterface {
   @override
   Future<void> addPlaybackListener(PlaybackListenerPigeon listener) async {
     _rootPlaybackListener.addListener(listener);
-  }
-
-  @override
-  Future<void> addNpawListener(NpawListenerPigeon listener) async {
-    _rootNpawListener.addListener(listener);
   }
 
   @override

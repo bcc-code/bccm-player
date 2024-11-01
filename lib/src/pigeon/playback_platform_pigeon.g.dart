@@ -745,8 +745,8 @@ class MediaItemTransitionEvent {
   }
 }
 
-class NpawVideoStartEvent {
-  NpawVideoStartEvent({
+class AnalyticsEvent {
+  AnalyticsEvent({
     this.data,
   });
 
@@ -758,114 +758,9 @@ class NpawVideoStartEvent {
     ];
   }
 
-  static NpawVideoStartEvent decode(Object result) {
+  static AnalyticsEvent decode(Object result) {
     result as List<Object?>;
-    return NpawVideoStartEvent(
-      data: (result[0] as Map<Object?, Object?>?)?.cast<String?, String?>(),
-    );
-  }
-}
-
-class NpawVideoStopEvent {
-  NpawVideoStopEvent({
-    this.data,
-  });
-
-  Map<String?, String?>? data;
-
-  Object encode() {
-    return <Object?>[
-      data,
-    ];
-  }
-
-  static NpawVideoStopEvent decode(Object result) {
-    result as List<Object?>;
-    return NpawVideoStopEvent(
-      data: (result[0] as Map<Object?, Object?>?)?.cast<String?, String?>(),
-    );
-  }
-}
-
-class NpawVideoPauseEvent {
-  NpawVideoPauseEvent({
-    this.data,
-  });
-
-  Map<String?, String?>? data;
-
-  Object encode() {
-    return <Object?>[
-      data,
-    ];
-  }
-
-  static NpawVideoPauseEvent decode(Object result) {
-    result as List<Object?>;
-    return NpawVideoPauseEvent(
-      data: (result[0] as Map<Object?, Object?>?)?.cast<String?, String?>(),
-    );
-  }
-}
-
-class NpawVideoResumeEvent {
-  NpawVideoResumeEvent({
-    this.data,
-  });
-
-  Map<String?, String?>? data;
-
-  Object encode() {
-    return <Object?>[
-      data,
-    ];
-  }
-
-  static NpawVideoResumeEvent decode(Object result) {
-    result as List<Object?>;
-    return NpawVideoResumeEvent(
-      data: (result[0] as Map<Object?, Object?>?)?.cast<String?, String?>(),
-    );
-  }
-}
-
-class NpawVideoSeekEvent {
-  NpawVideoSeekEvent({
-    this.data,
-  });
-
-  Map<String?, String?>? data;
-
-  Object encode() {
-    return <Object?>[
-      data,
-    ];
-  }
-
-  static NpawVideoSeekEvent decode(Object result) {
-    result as List<Object?>;
-    return NpawVideoSeekEvent(
-      data: (result[0] as Map<Object?, Object?>?)?.cast<String?, String?>(),
-    );
-  }
-}
-
-class NpawVideoPingEvent {
-  NpawVideoPingEvent({
-    this.data,
-  });
-
-  Map<String?, String?>? data;
-
-  Object encode() {
-    return <Object?>[
-      data,
-    ];
-  }
-
-  static NpawVideoPingEvent decode(Object result) {
-    result as List<Object?>;
-    return NpawVideoPingEvent(
+    return AnalyticsEvent(
       data: (result[0] as Map<Object?, Object?>?)?.cast<String?, String?>(),
     );
   }
@@ -954,23 +849,8 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is MediaItemTransitionEvent) {
       buffer.putUint8(153);
       writeValue(buffer, value.encode());
-    }    else if (value is NpawVideoStartEvent) {
+    }    else if (value is AnalyticsEvent) {
       buffer.putUint8(154);
-      writeValue(buffer, value.encode());
-    }    else if (value is NpawVideoStopEvent) {
-      buffer.putUint8(155);
-      writeValue(buffer, value.encode());
-    }    else if (value is NpawVideoPauseEvent) {
-      buffer.putUint8(156);
-      writeValue(buffer, value.encode());
-    }    else if (value is NpawVideoResumeEvent) {
-      buffer.putUint8(157);
-      writeValue(buffer, value.encode());
-    }    else if (value is NpawVideoSeekEvent) {
-      buffer.putUint8(158);
-      writeValue(buffer, value.encode());
-    }    else if (value is NpawVideoPingEvent) {
-      buffer.putUint8(159);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -1036,17 +916,7 @@ class _PigeonCodec extends StandardMessageCodec {
       case 153: 
         return MediaItemTransitionEvent.decode(readValue(buffer)!);
       case 154: 
-        return NpawVideoStartEvent.decode(readValue(buffer)!);
-      case 155: 
-        return NpawVideoStopEvent.decode(readValue(buffer)!);
-      case 156: 
-        return NpawVideoPauseEvent.decode(readValue(buffer)!);
-      case 157: 
-        return NpawVideoResumeEvent.decode(readValue(buffer)!);
-      case 158: 
-        return NpawVideoSeekEvent.decode(readValue(buffer)!);
-      case 159: 
-        return NpawVideoPingEvent.decode(readValue(buffer)!);
+        return AnalyticsEvent.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1849,6 +1719,8 @@ abstract class PlaybackListenerPigeon {
 
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
 
+  void onAnalyticsEvent(AnalyticsEvent event);
+
   static void setUp(PlaybackListenerPigeon? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
@@ -2026,168 +1898,22 @@ abstract class PlaybackListenerPigeon {
         });
       }
     }
-  }
-}
-
-////////////////// Npaw Listener
-abstract class NpawListenerPigeon {
-  static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
-
-  void onVideoStart(NpawVideoStartEvent event);
-
-  void onVideoStop(NpawVideoStopEvent event);
-
-  void onVideoPause(NpawVideoPauseEvent event);
-
-  void onVideoResume(NpawVideoResumeEvent event);
-
-  void onVideoSeek(NpawVideoSeekEvent event);
-
-  void onVideoPing(NpawVideoPingEvent event);
-
-  static void setUp(NpawListenerPigeon? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
-    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStart$messageChannelSuffix', pigeonChannelCodec,
+          'dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent$messageChannelSuffix', pigeonChannelCodec,
           binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
         pigeonVar_channel.setMessageHandler((Object? message) async {
           assert(message != null,
-          'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStart was null.');
+          'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent was null.');
           final List<Object?> args = (message as List<Object?>?)!;
-          final NpawVideoStartEvent? arg_event = (args[0] as NpawVideoStartEvent?);
+          final AnalyticsEvent? arg_event = (args[0] as AnalyticsEvent?);
           assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStart was null, expected non-null NpawVideoStartEvent.');
+              'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent was null, expected non-null AnalyticsEvent.');
           try {
-            api.onVideoStart(arg_event!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStop$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (api == null) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStop was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final NpawVideoStopEvent? arg_event = (args[0] as NpawVideoStopEvent?);
-          assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoStop was null, expected non-null NpawVideoStopEvent.');
-          try {
-            api.onVideoStop(arg_event!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPause$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (api == null) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPause was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final NpawVideoPauseEvent? arg_event = (args[0] as NpawVideoPauseEvent?);
-          assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPause was null, expected non-null NpawVideoPauseEvent.');
-          try {
-            api.onVideoPause(arg_event!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoResume$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (api == null) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoResume was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final NpawVideoResumeEvent? arg_event = (args[0] as NpawVideoResumeEvent?);
-          assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoResume was null, expected non-null NpawVideoResumeEvent.');
-          try {
-            api.onVideoResume(arg_event!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoSeek$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (api == null) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoSeek was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final NpawVideoSeekEvent? arg_event = (args[0] as NpawVideoSeekEvent?);
-          assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoSeek was null, expected non-null NpawVideoSeekEvent.');
-          try {
-            api.onVideoSeek(arg_event!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPing$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (api == null) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPing was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final NpawVideoPingEvent? arg_event = (args[0] as NpawVideoPingEvent?);
-          assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.NpawListenerPigeon.onVideoPing was null, expected non-null NpawVideoPingEvent.');
-          try {
-            api.onVideoPing(arg_event!);
+            api.onAnalyticsEvent(arg_event!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
