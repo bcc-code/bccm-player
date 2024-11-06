@@ -23,14 +23,12 @@ import androidx.media3.ui.PlayerView
 import com.npaw.youbora.lib6.media3.Media3Adapter
 import com.npaw.youbora.lib6.plugin.Options
 import com.npaw.youbora.lib6.plugin.Plugin
-import com.npaw.youbora.lib6.plugin.Plugin.WillSendRequestListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
 import media.bcc.bccm_player.Downloader
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
@@ -40,8 +38,6 @@ import media.bcc.bccm_player.players.PlayerController
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_LIVE
 import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_IS_OFFLINE
 import media.bcc.bccm_player.utils.LanguageUtils
-import media.bcc.bccm_player.utils.NoOpVoidResult
-import org.json.JSONObject
 import java.util.UUID
 
 @UnstableApi
@@ -176,26 +172,6 @@ class ExoPlayerController(
         initYoubora(npawConfig)
     }
 
-    class AnalyticsEventListener(plugin: BccmPlayerPlugin?) : WillSendRequestListener {
-        private var _plugin: BccmPlayerPlugin? = null
-
-        init {
-            _plugin = plugin
-        }
-
-        override fun willSendRequest(serviceName: String?, youboraPlugin: Plugin?, params: MutableMap<String, String>) {
-            Log.d("bccm", "Analytics event listener: map")
-            val event = PlaybackPlatformApi.AnalyticsEvent()
-            event.data = params
-            _plugin?.playbackPigeon?.onAnalyticsEvent(event, NoOpVoidResult())
-        }
-
-        // Not used, but needed to correctly implement the WillSendRequestListener interface
-        override fun willSendRequest(serviceName: String?, plugin: Plugin?, params: ArrayList<JSONObject>?) {
-            Log.d("bccm", "Analytics event listener: arraylist")
-        }
-    }
-
     private fun initYoubora(config: NpawConfig) {
         if (disableNpaw) {
             Log.d("bccm", "ExoPlayerController: Youbora is disabled")
@@ -214,8 +190,6 @@ class ExoPlayerController(
         youboraPlugin = Plugin(options, context).also {
             it.adapter = Media3Adapter(exoPlayer)
         }
-        val listener = AnalyticsEventListener(plugin)
-        youboraPlugin?.addOnWillSendStartListener(listener)
         updateYouboraOptions()
     }
 
@@ -246,7 +220,7 @@ class ExoPlayerController(
                 ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_OFFLINE)
                     ?.toBooleanStrictOrNull() ?: false
         youboraPlugin.options.contentType = extras?.get("npaw.content.type")
-        youboraPlugin.options.contentTransactionCode = extras?.get("npaw.content.transactionCode") ?: UUID.randomUUID().toString()
+        youboraPlugin.options.contentTransactionCode = extras?.get("npaw.content.transactionCode")
 
         // App config based options
         val appConfig = BccmPlayerPluginSingleton.appConfigState.value

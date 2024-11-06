@@ -201,12 +201,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 - (NSArray<id> *)toList;
 @end
 
-@interface AnalyticsEvent ()
-+ (AnalyticsEvent *)fromList:(NSArray<id> *)list;
-+ (nullable AnalyticsEvent *)nullableFromList:(NSArray<id> *)list;
-- (NSArray<id> *)toList;
-@end
-
 @implementation NpawConfig
 + (instancetype)makeWithAppName:(nullable NSString *)appName
     appReleaseVersion:(nullable NSString *)appReleaseVersion
@@ -846,27 +840,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
 }
 @end
 
-@implementation AnalyticsEvent
-+ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data {
-  AnalyticsEvent* pigeonResult = [[AnalyticsEvent alloc] init];
-  pigeonResult.data = data;
-  return pigeonResult;
-}
-+ (AnalyticsEvent *)fromList:(NSArray<id> *)list {
-  AnalyticsEvent *pigeonResult = [[AnalyticsEvent alloc] init];
-  pigeonResult.data = GetNullableObjectAtIndex(list, 0);
-  return pigeonResult;
-}
-+ (nullable AnalyticsEvent *)nullableFromList:(NSArray<id> *)list {
-  return (list) ? [AnalyticsEvent fromList:list] : nil;
-}
-- (NSArray<id> *)toList {
-  return @[
-    self.data ?: [NSNull null],
-  ];
-}
-@end
-
 @interface nullPlaybackPlatformApiPigeonCodecReader : FlutterStandardReader
 @end
 @implementation nullPlaybackPlatformApiPigeonCodecReader
@@ -932,8 +905,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
       return [PictureInPictureModeChangedEvent fromList:[self readValue]];
     case 153: 
       return [MediaItemTransitionEvent fromList:[self readValue]];
-    case 154: 
-      return [AnalyticsEvent fromList:[self readValue]];
     default:
       return [super readValueOfType:type];
   }
@@ -1023,9 +994,6 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     [self writeValue:[value toList]];
   } else if ([value isKindOfClass:[MediaItemTransitionEvent class]]) {
     [self writeByte:153];
-    [self writeValue:[value toList]];
-  } else if ([value isKindOfClass:[AnalyticsEvent class]]) {
-    [self writeByte:154];
     [self writeValue:[value toList]];
   } else {
     [super writeValue:value];
@@ -1827,25 +1795,6 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
 }
 - (void)onPictureInPictureModeChanged:(PictureInPictureModeChangedEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
   NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onPictureInPictureModeChanged", _messageChannelSuffix];
-  FlutterBasicMessageChannel *channel =
-    [FlutterBasicMessageChannel
-      messageChannelWithName:channelName
-      binaryMessenger:self.binaryMessenger
-      codec:nullGetPlaybackPlatformApiCodec()];
-  [channel sendMessage:@[arg_event ?: [NSNull null]] reply:^(NSArray<id> *reply) {
-    if (reply != nil) {
-      if (reply.count > 1) {
-        completion([FlutterError errorWithCode:reply[0] message:reply[1] details:reply[2]]);
-      } else {
-        completion(nil);
-      }
-    } else {
-      completion(createConnectionError(channelName));
-    } 
-  }];
-}
-- (void)onAnalyticsEvent:(AnalyticsEvent *)arg_event completion:(void (^)(FlutterError *_Nullable))completion {
-  NSString *channelName = [NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent", _messageChannelSuffix];
   FlutterBasicMessageChannel *channel =
     [FlutterBasicMessageChannel
       messageChannelWithName:channelName

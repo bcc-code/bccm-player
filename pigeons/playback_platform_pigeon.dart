@@ -284,8 +284,6 @@ abstract class PlaybackListenerPigeon {
   void onMediaItemTransition(MediaItemTransitionEvent event);
   @ObjCSelector("onPictureInPictureModeChanged:")
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
-  @ObjCSelector("onAnalyticsEvent:")
-  void onAnalyticsEvent(AnalyticsEvent event);
 }
 
 class PrimaryPlayerChangedEvent {
@@ -335,8 +333,4 @@ class MediaItemTransitionEvent implements PlayerEvent {
   String playerId;
   MediaItem? mediaItem;
   MediaItemTransitionEvent({required this.playerId, this.mediaItem});
-}
-
-class AnalyticsEvent {
-  late Map<String?, String?>? data;
 }

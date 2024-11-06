@@ -90,7 +90,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @class PlaybackEndedEvent;
 @class PictureInPictureModeChangedEvent;
 @class MediaItemTransitionEvent;
-@class AnalyticsEvent;
 
 @interface NpawConfig : NSObject
 + (instancetype)makeWithAppName:(nullable NSString *)appName
@@ -328,11 +327,6 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) MediaItem * mediaItem;
 @end
 
-@interface AnalyticsEvent : NSObject
-+ (instancetype)makeWithData:(nullable NSDictionary<NSString *, NSString *> *)data;
-@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * data;
-@end
-
 /// The codec used by all APIs.
 NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 
@@ -394,7 +388,6 @@ extern void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> bin
 - (void)onPlaybackEnded:(PlaybackEndedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onMediaItemTransition:(MediaItemTransitionEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)onPictureInPictureModeChanged:(PictureInPictureModeChangedEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
-- (void)onAnalyticsEvent:(AnalyticsEvent *)event completion:(void (^)(FlutterError *_Nullable))completion;
 @end
 
 NS_ASSUME_NONNULL_END

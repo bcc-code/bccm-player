@@ -2595,63 +2595,6 @@ public class PlaybackPlatformApi {
     }
   }
 
-  /** Generated class from Pigeon that represents data sent in messages. */
-  public static final class AnalyticsEvent {
-    private @Nullable Map<String, String> data;
-
-    public @Nullable Map<String, String> getData() {
-      return data;
-    }
-
-    public void setData(@Nullable Map<String, String> setterArg) {
-      this.data = setterArg;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) { return true; }
-      if (o == null || getClass() != o.getClass()) { return false; }
-      AnalyticsEvent that = (AnalyticsEvent) o;
-      return Objects.equals(data, that.data);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(data);
-    }
-
-    public static final class Builder {
-
-      private @Nullable Map<String, String> data;
-
-      @CanIgnoreReturnValue
-      public @NonNull Builder setData(@Nullable Map<String, String> setterArg) {
-        this.data = setterArg;
-        return this;
-      }
-
-      public @NonNull AnalyticsEvent build() {
-        AnalyticsEvent pigeonReturn = new AnalyticsEvent();
-        pigeonReturn.setData(data);
-        return pigeonReturn;
-      }
-    }
-
-    @NonNull
-    ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(1);
-      toListResult.add(data);
-      return toListResult;
-    }
-
-    static @NonNull AnalyticsEvent fromList(@NonNull ArrayList<Object> pigeonVar_list) {
-      AnalyticsEvent pigeonResult = new AnalyticsEvent();
-      Object data = pigeonVar_list.get(0);
-      pigeonResult.setData((Map<String, String>) data);
-      return pigeonResult;
-    }
-  }
-
   private static class PigeonCodec extends StandardMessageCodec {
     public static final PigeonCodec INSTANCE = new PigeonCodec();
 
@@ -2720,8 +2663,6 @@ public class PlaybackPlatformApi {
           return PictureInPictureModeChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 153:
           return MediaItemTransitionEvent.fromList((ArrayList<Object>) readValue(buffer));
-        case (byte) 154:
-          return AnalyticsEvent.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
       }
@@ -2804,9 +2745,6 @@ public class PlaybackPlatformApi {
       } else if (value instanceof MediaItemTransitionEvent) {
         stream.write(153);
         writeValue(stream, ((MediaItemTransitionEvent) value).toList());
-      } else if (value instanceof AnalyticsEvent) {
-        stream.write(154);
-        writeValue(stream, ((AnalyticsEvent) value).toList());
       } else {
         super.writeValue(stream, value);
       }
@@ -3926,26 +3864,6 @@ public class PlaybackPlatformApi {
     }
     public void onPictureInPictureModeChanged(@NonNull PictureInPictureModeChangedEvent eventArg, @NonNull VoidResult result) {
       final String channelName = "dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onPictureInPictureModeChanged" + messageChannelSuffix;
-      BasicMessageChannel<Object> channel =
-          new BasicMessageChannel<>(
-              binaryMessenger, channelName, getCodec());
-      channel.send(
-          new ArrayList<>(Collections.singletonList(eventArg)),
-          channelReply -> {
-            if (channelReply instanceof List) {
-              List<Object> listReply = (List<Object>) channelReply;
-              if (listReply.size() > 1) {
-                result.error(new FlutterError((String) listReply.get(0), (String) listReply.get(1), listReply.get(2)));
-              } else {
-                result.success();
-              }
-            }  else {
-              result.error(createConnectionError(channelName));
-            } 
-          });
-    }
-    public void onAnalyticsEvent(@NonNull AnalyticsEvent eventArg, @NonNull VoidResult result) {
-      final String channelName = "dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent" + messageChannelSuffix;
       BasicMessageChannel<Object> channel =
           new BasicMessageChannel<>(
               binaryMessenger, channelName, getCodec());

@@ -9,9 +9,9 @@ class BccmPlaybackListener {
   Ref ref;
   final progressDebouncer = Debouncer(milliseconds: 1000);
   final void Function(String episodeId, int progressSeconds) updateProgress;
-  final void Function(AnalyticsEvent event)? onAnalyticsEvent;
+  final void Function(MediaItemTransitionEvent event)? onMediaItemTransition;
 
-  BccmPlaybackListener({required this.ref, required this.updateProgress, this.onAnalyticsEvent}) {
+  BccmPlaybackListener({required this.ref, required this.updateProgress, this.onMediaItemTransition}) {
     final stream = BccmPlayerInterface.instance.playerEventStream;
     final listener = stream.listen((event) {
       switch (event.runtimeType) {
@@ -21,9 +21,9 @@ class BccmPlaybackListener {
         case PlayerStateUpdateEvent:
           onPlayerStateUpdate(event as PlayerStateUpdateEvent);
           break;
-        case AnalyticsEvent:
-          if (onAnalyticsEvent != null) {
-            onAnalyticsEvent!(event as AnalyticsEvent);
+        case MediaItemTransitionEvent:
+          if (onMediaItemTransition != null) {
+            onMediaItemTransition!(event);
           }
           break;
       }

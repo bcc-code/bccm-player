@@ -745,27 +745,6 @@ class MediaItemTransitionEvent {
   }
 }
 
-class AnalyticsEvent {
-  AnalyticsEvent({
-    this.data,
-  });
-
-  Map<String?, String?>? data;
-
-  Object encode() {
-    return <Object?>[
-      data,
-    ];
-  }
-
-  static AnalyticsEvent decode(Object result) {
-    result as List<Object?>;
-    return AnalyticsEvent(
-      data: (result[0] as Map<Object?, Object?>?)?.cast<String?, String?>(),
-    );
-  }
-}
-
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -849,9 +828,6 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is MediaItemTransitionEvent) {
       buffer.putUint8(153);
       writeValue(buffer, value.encode());
-    }    else if (value is AnalyticsEvent) {
-      buffer.putUint8(154);
-      writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
     }
@@ -915,8 +891,6 @@ class _PigeonCodec extends StandardMessageCodec {
         return PictureInPictureModeChangedEvent.decode(readValue(buffer)!);
       case 153: 
         return MediaItemTransitionEvent.decode(readValue(buffer)!);
-      case 154: 
-        return AnalyticsEvent.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1719,8 +1693,6 @@ abstract class PlaybackListenerPigeon {
 
   void onPictureInPictureModeChanged(PictureInPictureModeChangedEvent event);
 
-  void onAnalyticsEvent(AnalyticsEvent event);
-
   static void setUp(PlaybackListenerPigeon? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
@@ -1889,31 +1861,6 @@ abstract class PlaybackListenerPigeon {
               'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onPictureInPictureModeChanged was null, expected non-null PictureInPictureModeChangedEvent.');
           try {
             api.onPictureInPictureModeChanged(arg_event!);
-            return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-    {
-      final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (api == null) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final AnalyticsEvent? arg_event = (args[0] as AnalyticsEvent?);
-          assert(arg_event != null,
-              'Argument for dev.flutter.pigeon.bccm_player.PlaybackListenerPigeon.onAnalyticsEvent was null, expected non-null AnalyticsEvent.');
-          try {
-            api.onAnalyticsEvent(arg_event!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
