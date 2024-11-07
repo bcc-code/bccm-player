@@ -466,6 +466,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.contentLanguage = extras?["npaw.content.language"] as? String
         youboraPlugin.options.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId?.stringValue : nil
         youboraPlugin.options.contentCustomDimension2 = extras?["npaw.content.customDimension2"] as? String
+        youboraPlugin.options.contentTransactionCode = extras?["npaw.content.transactionCode"] as? String
     }
 
     public func setNpawConfig(npawConfig: NpawConfig?) {
@@ -535,6 +536,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         // This is the initial signal. If this is not set the language is generally empty in NPAW
                         self.youboraPlugin?.options.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
                         self.youboraPlugin?.options.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
+                        self.youboraPlugin?.options.contentTransactionCode = mediaItem.metadata?.extras?["npaw.content.transactionCode"]
                         completion?(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")

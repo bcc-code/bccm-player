@@ -220,6 +220,7 @@ class ExoPlayerController(
                 ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_OFFLINE)
                     ?.toBooleanStrictOrNull() ?: false
         youboraPlugin.options.contentType = extras?.get("npaw.content.type")
+        youboraPlugin.options.contentTransactionCode = extras?.get("npaw.content.transactionCode")
 
         // App config based options
         val appConfig = BccmPlayerPluginSingleton.appConfigState.value
