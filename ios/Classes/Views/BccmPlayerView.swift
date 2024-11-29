@@ -97,7 +97,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
         // code to execute
         print("willBecomeActive")
         createNativeView()
-        // perform(#selector(pipFix), with: nil, afterDelay: 1)
+        perform(#selector(pipFix), with: nil, afterDelay: 1)
     }
 
     func view() -> UIView {
@@ -152,7 +152,6 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
         }
     }
 
-    // TODO: remove if no longer needed
     @objc func pipFix() {
         let rate = _playerController.player.rate
         _playerController.player.pause()
