@@ -536,7 +536,10 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         // This is the initial signal. If this is not set the language is generally empty in NPAW
                         self.youboraPlugin?.options.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
                         self.youboraPlugin?.options.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
-                        self.youboraPlugin?.options.contentTransactionCode = mediaItem.metadata?.extras?["npaw.content.transactionCode"]
+                        if let metadata = mediaItem.metadata, let extras = metadata.safeExtras(), let transactionCode = extras["npaw.content.transactionCode"] {
+                            let _transactionCode = String(describing: transactionCode)
+                            self.youboraPlugin?.options.contentTransactionCode = _transactionCode
+                        }
                         completion?(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
                         print("Mediaitem failed to play")
