@@ -63,7 +63,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         self.disableNpaw = disableNpaw ?? false
         super.init()
         updateAutomaticAudioOnlyTimer()
-        player.actionAtItemEnd = .none
+        player.actionAtItemEnd = .pause
         if bufferMode == .fastStartShortForm {
             player.automaticallyWaitsToMinimizeStalling = false
         }
