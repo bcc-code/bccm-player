@@ -21,7 +21,7 @@ class PlaybackService : MediaSessionService() {
     private val playerControllers = mutableListOf<PlayerController>()
     private var castPlayerController: CastPlayerController? = null
     private var primaryPlayerController: PlayerController? = null
-    private lateinit var mediaSession: MediaSession
+    private var mediaSession: MediaSession? = null
     private var binder: LocalBinder = LocalBinder()
     private var previousPrimaryPlayerId: String? = null
 
@@ -80,7 +80,10 @@ class PlaybackService : MediaSessionService() {
         playerControllers.clear()
         primaryPlayerController = null
         this.plugin = null
-        mediaSession.release()
+        mediaSession?.run {
+            release()
+        }
+        mediaSession = null
         stopSelf()
     }
 
@@ -121,7 +124,9 @@ class PlaybackService : MediaSessionService() {
         if (pc?.player != null) {
             previousPrimaryPlayerId = primaryPlayerController?.id
             primaryPlayerController = pc
-            mediaSession.player = pc.player
+            mediaSession?.run {
+                player = pc.player
+            }
             if (plugin != null) {
                 plugin!!.playbackPigeon?.onPrimaryPlayerChanged(
                     PrimaryPlayerChangedEvent.Builder().setPlayerId(playerId).build(), NoOpVoidResult()
@@ -174,7 +179,7 @@ class PlaybackService : MediaSessionService() {
 
     // Return a MediaSession to link with the MediaController that is making
     // this request.
-    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession =
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? =
         mediaSession
 
     override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
@@ -187,7 +192,10 @@ class PlaybackService : MediaSessionService() {
             it.release()
         }
         playerControllers.clear()
-        mediaSession.release()
+        mediaSession?.run {
+            release()
+        }
+        mediaSession = null
         super.onDestroy()
     }
 
