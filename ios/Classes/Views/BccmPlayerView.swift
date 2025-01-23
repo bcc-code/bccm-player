@@ -117,15 +117,16 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
     func createNativeView() {
         if _playerController.pipController != nil && _playerController.fullscreenViewController == nil {
             print("starting with existing pipController")
-            let viewController = (UIApplication.shared.delegate?.window??.rootViewController)!
-            playerViewController = _playerController.pipController!
-            viewController.addChild(playerViewController!)
+            playerViewController = _playerController.pipController
+            if let viewController = (UIApplication.shared.delegate?.window??.rootViewController)  {
+                viewController.addChild(playerViewController!)
+            }
         } else {
             print("starting with new avplayerviewcontroller")
             playerViewController = LandscapeAVPlayerViewController()
-
-            let viewController = (UIApplication.shared.delegate?.window??.rootViewController)!
-            viewController.addChild(playerViewController!)
+            if let viewController = (UIApplication.shared.delegate?.window??.rootViewController) {
+                viewController.addChild(playerViewController!)
+            }
         }
 
         if let playerViewController = playerViewController {
@@ -133,7 +134,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
             playerViewController.showsPlaybackControls = _showControls
             playerViewController.delegate = _playerController
             playerViewController.exitsFullScreenWhenPlaybackEnds = false
-            playerViewController.allowsPictureInPicturePlayback = true
+            playerViewController.allowsPictureInPicturePlayback = _pipOnLeave
             playerViewController.updatesNowPlayingInfoCenter = false
             playerViewController.view.backgroundColor = UIColor(white: 0, alpha: 0)
             if #available(iOS 16.0, *) {
@@ -143,7 +144,6 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
                 playerViewController.speeds = speeds
                 playerViewController.allowsVideoFrameAnalysis = _allowsVideoFrameAnalysis
             }
-            playerViewController.allowsPictureInPicturePlayback = _pipOnLeave
             if #available(iOS 14.2, *) {
                 playerViewController.canStartPictureInPictureAutomaticallyFromInline = _pipOnLeave
             }
