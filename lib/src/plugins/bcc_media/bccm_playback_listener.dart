@@ -8,7 +8,7 @@ import '../../utils/extensions.dart';
 class BccmPlaybackListener {
   Ref ref;
   final progressDebouncer = Debouncer(milliseconds: 1000);
-  final void Function(String episodeId, int progressSeconds) updateProgress;
+  final void Function(String episodeId, int progressSeconds, int? durationSeconds) updateProgress;
   final void Function(MediaItemTransitionEvent event)? onMediaItemTransition;
 
   BccmPlaybackListener({required this.ref, required this.updateProgress, this.onMediaItemTransition}) {
@@ -38,20 +38,24 @@ class BccmPlaybackListener {
     _updateProgress(
       episodeId: player?.currentMediaItem?.metadata?.extras?['id']?.asOrNull<String>(),
       positionMs: event.playbackPositionMs?.finiteOrNull()?.round(),
+      durationMs: player?.currentMediaItem?.metadata?.durationMs?.round(),
     );
   }
 
   void onPlayerStateUpdate(PlayerStateUpdateEvent event) {
     if (event.snapshot.playbackState != PlaybackState.playing) return;
+    var player = ref.read(playerProviderFor(event.playerId));
     _updateProgress(
       episodeId: event.snapshot.currentMediaItem?.metadata?.extras?['id']?.asOrNull<String>(),
       positionMs: event.snapshot.playbackPositionMs?.finiteOrNull()?.round(),
+      durationMs: player?.currentMediaItem?.metadata?.durationMs?.round(),
     );
   }
 
-  void _updateProgress({required String? episodeId, required int? positionMs}) {
+  void _updateProgress({required String? episodeId, required int? positionMs, int? durationMs}) {
     if (episodeId == null || positionMs == null) return;
     final progressSeconds = positionMs / 1000;
-    progressDebouncer.run(() => updateProgress(episodeId, progressSeconds.round()));
+    final durationSeconds = durationMs != null ? durationMs / 1000 : null;
+    progressDebouncer.run(() => updateProgress(episodeId, progressSeconds.round(), durationSeconds?.round()));
   }
 }
