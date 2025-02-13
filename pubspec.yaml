@@ -20,20 +20,21 @@ dependencies:
     sdk: flutter
   freezed: ^2.3.2
   freezed_annotation: ^2.2.0
-  js: ^0.7.1
+  js: ^0.6.3
   meta: ^1.9.1
   plugin_platform_interface: ^2.0.2
   riverpod: ^2.2.0
   state_notifier: ^1.0.0
   universal_io: ^2.0.4
   uuid: ^4.5.0
-  wakelock_plus: ^1.1.1
+  wakelock_plus: ^1.2.10
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  pigeon: ^22.3.0
+  # pigeon: ^22.2.0
+  pigeon: ^21.2.0
   build_runner: ^2.3.3
   mockito: ^5.4.2
 

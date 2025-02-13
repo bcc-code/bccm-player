@@ -170,15 +170,15 @@ class FullscreenPlayerView(
             playerView.setShowFastForwardButton(false)
             playerView.setShowRewindButton(false)
             playerView.setShowMultiWindowTimeBar(false)
-            playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.GONE
-            playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.GONE
+            // playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.GONE
+            // playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.GONE
             findViewById<View?>(R.id.live_indicator)?.visibility = View.VISIBLE
         } else {
             playerView.setShowFastForwardButton(true)
             playerView.setShowRewindButton(true)
             playerView.setShowMultiWindowTimeBar(true)
-            playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.VISIBLE
-            playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.VISIBLE
+            // playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.VISIBLE
+            // playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.VISIBLE
             findViewById<View?>(R.id.live_indicator)?.visibility = View.GONE
         }
     }

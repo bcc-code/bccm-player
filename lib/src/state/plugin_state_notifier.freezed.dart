@@ -20,9 +20,7 @@ mixin _$PlayerPluginState {
   Map<String, PlayerStateNotifier> get players =>
       throw _privateConstructorUsedError;
 
-  /// Create a copy of PlayerPluginState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $PlayerPluginStateCopyWith<PlayerPluginState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -47,8 +45,6 @@ class _$PlayerPluginStateCopyWithImpl<$Res, $Val extends PlayerPluginState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of PlayerPluginState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -88,8 +84,6 @@ class __$$PlayerPluginStateImplCopyWithImpl<$Res>
       $Res Function(_$PlayerPluginStateImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of PlayerPluginState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -146,9 +140,7 @@ class _$PlayerPluginStateImpl implements _PlayerPluginState {
   int get hashCode => Object.hash(runtimeType, primaryPlayerId,
       const DeepCollectionEquality().hash(_players));
 
-  /// Create a copy of PlayerPluginState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$PlayerPluginStateImplCopyWith<_$PlayerPluginStateImpl> get copyWith =>
@@ -166,11 +158,8 @@ abstract class _PlayerPluginState implements PlayerPluginState {
   String? get primaryPlayerId;
   @override
   Map<String, PlayerStateNotifier> get players;
-
-  /// Create a copy of PlayerPluginState
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$PlayerPluginStateImplCopyWith<_$PlayerPluginStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -9,6 +9,7 @@ import androidx.core.math.MathUtils.clamp
 import androidx.media3.common.C
 import androidx.media3.common.C.TRACK_TYPE_AUDIO
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaItem.DrmConfiguration
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
@@ -31,6 +32,14 @@ import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.utils.NoOpVoidResult
 import media.bcc.bccm_player.utils.TrackUtils
 import java.util.UUID
+
+import android.util.Log
+import org.json.JSONArray
+import org.json.JSONObject
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_DRM_LICENSE_SERVER_URL
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_CAST_URL
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_CAST_CUSTOM_DATA
+import media.bcc.bccm_player.players.chromecast.CastMediaItemConverter.Companion.PLAYER_DATA_DRM_LICENSE_REQUEST_HEADERS
 
 
 abstract class PlayerController : Player.Listener {
@@ -110,20 +119,28 @@ abstract class PlayerController : Player.Listener {
 
     @SuppressLint("UnsafeOptInUsageError")
     fun replaceCurrentMediaItem(mediaItem: PlaybackPlatformApi.MediaItem, autoplay: Boolean?) {
-        this.isLive = mediaItem.isLive ?: false
-        var androidMi = mapMediaItem(mediaItem)
-        var playbackStartPositionMs: Double? = null
-        if (!this.isLive && mediaItem.playbackStartPositionMs != null) {
-            playbackStartPositionMs = mediaItem.playbackStartPositionMs
-        }
+        try {
+            this.isLive = mediaItem.isLive ?: false
+            var androidMi = mapMediaItem(mediaItem)
+            var playbackStartPositionMs: Double? = null
+            if (!this.isLive && mediaItem.playbackStartPositionMs != null) {
+                playbackStartPositionMs = mediaItem.playbackStartPositionMs
+            }
 
-        player.setMediaItem(androidMi, playbackStartPositionMs?.toLong() ?: 0)
-        if (playbackStartPositionMs != null) {
-            player.seekTo(playbackStartPositionMs.toLong())
+            player.setMediaItem(androidMi, playbackStartPositionMs?.toLong() ?: 0)
+            if (playbackStartPositionMs != null) {
+                player.seekTo(playbackStartPositionMs.toLong())
+            }
+            manualUpdateEvent()
+            player.playWhenReady = autoplay == true
+            player.prepare()
+        } catch (e: Exception) {
+            Log.e(
+                "bccm-@PlayerController-replaceCurrentMediaItem",
+                "Something went wrong: $e"
+            );
+            throw e;
         }
-        manualUpdateEvent()
-        player.playWhenReady = autoplay == true
-        player.prepare()
     }
 
     fun manualUpdateEvent() {
@@ -189,6 +206,24 @@ abstract class PlayerController : Player.Listener {
             }
         }
 
+        var drmConfiguration: DrmConfiguration? = null
+        if (mediaItem.drmConfiguration != null && mediaItem.drmConfiguration?.drmType != null && mediaItem.drmConfiguration?.drmType == PlaybackPlatformApi.DrmType.WIDEVINE && mediaItem.drmConfiguration?.licenseServerUrl != null && mediaItem.drmConfiguration?.licenseServerUrl?.isNotEmpty() == true) {
+            exoExtras.putString(PLAYER_DATA_DRM_LICENSE_SERVER_URL, mediaItem.drmConfiguration?.licenseServerUrl)
+            if (!mediaItem.drmConfiguration?.licenseRequestHeaders.isNullOrEmpty()) {
+                exoExtras.putString(
+                    PLAYER_DATA_DRM_LICENSE_REQUEST_HEADERS,
+                    if (mediaItem.drmConfiguration?.licenseRequestHeaders != null) JSONObject(
+                        mediaItem.drmConfiguration?.licenseRequestHeaders as Map<String, String>
+                    ).toString() else null
+                )
+            }
+
+            drmConfiguration = DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                .setLicenseUri(mediaItem.drmConfiguration?.licenseServerUrl)
+                .setLicenseRequestHeaders(mediaItem.drmConfiguration?.licenseRequestHeaders as Map<String, String>)
+                .build()
+        }
+
         metaBuilder
             .setTitle(mediaItem.metadata?.title)
             .setArtist(mediaItem.metadata?.artist)
@@ -218,7 +253,9 @@ abstract class PlayerController : Player.Listener {
             .setUri(mediaItem.url)
             .setMimeType(mimeType)
             .setMediaId(mediaItem.id ?: UUID.randomUUID().toString())
-            .setMediaMetadata(metaBuilder.build()).build()
+            .setMediaMetadata(metaBuilder.build())
+            .setDrmConfiguration(drmConfiguration)
+            .build()
     }
 
     fun mapMediaItem(mediaItem: MediaItem): PlaybackPlatformApi.MediaItem {
@@ -253,12 +290,45 @@ abstract class PlayerController : Player.Listener {
         } else if (mediaItem.localConfiguration?.mimeType != null) {
             miBuilder.setMimeType(mediaItem.localConfiguration?.mimeType)
         }
+
+        if (extraMeta.containsKey(PLAYER_DATA_DRM_LICENSE_SERVER_URL)) {
+            var drmLicenseRequestHeaders: Map<String, String>? = null
+
+            if (extraMeta.containsKey(PLAYER_DATA_DRM_LICENSE_REQUEST_HEADERS) && !extraMeta[PLAYER_DATA_DRM_LICENSE_REQUEST_HEADERS].isNullOrEmpty()) {
+                drmLicenseRequestHeaders = JSONObject(extraMeta[PLAYER_DATA_DRM_LICENSE_REQUEST_HEADERS]!!).toMap() as Map<String, String>
+            }
+
+            val drmConfiguration = PlaybackPlatformApi.DrmConfiguration.Builder()
+                .setDrmType(PlaybackPlatformApi.DrmType.WIDEVINE)
+                .setFpsCertificateUrl(null)
+                .setLicenseServerUrl(extraMeta[PLAYER_DATA_DRM_LICENSE_SERVER_URL]!!)
+                .setLicenseRequestHeaders(drmLicenseRequestHeaders)
+                .build()
+            miBuilder.setDrmConfiguration(drmConfiguration)
+        }
+        if (extraMeta.containsKey(PLAYER_DATA_CAST_URL)) {
+            var customData: Map<String, String>? = null
+
+            if (extraMeta.containsKey(PLAYER_DATA_CAST_CUSTOM_DATA) && !extraMeta[PLAYER_DATA_CAST_CUSTOM_DATA].isNullOrEmpty()) {
+                customData = JSONObject(extraMeta[PLAYER_DATA_CAST_CUSTOM_DATA]!!).toMap() as Map<String, String>
+            }
+
+            val castMedia = PlaybackPlatformApi.CastMedia.Builder()
+                .setUrl(extraMeta[PLAYER_DATA_CAST_URL]!!)
+                .setCustomData(customData)
+                .build()
+            miBuilder.setCastMedia(castMedia)
+        }
+
         miBuilder.setId(mediaItem.mediaId)
 
         return miBuilder.build()
     }
 
     fun getPlaybackState(): PlaybackPlatformApi.PlaybackState {
+        if (player.playbackState == Player.STATE_ENDED) {
+            return PlaybackPlatformApi.PlaybackState.STOPPED
+        }
         return if (player.isPlaying || player.playWhenReady && !arrayOf(
                 Player.STATE_ENDED,
                 Player.STATE_IDLE
@@ -455,4 +525,18 @@ abstract class PlayerController : Player.Listener {
     }
 
     abstract fun setMixWithOthers(mixWithOthers: Boolean);
+
+    private fun JSONObject.toMap(): Map<String, *> = keys().asSequence().associateWith {
+        when (val value = this[it])
+        {
+            is JSONArray ->
+            {
+                val map = (0 until value.length()).associate { Pair(it.toString(), value[it]) }
+                JSONObject(map).toMap().values.toList()
+            }
+            is JSONObject -> value.toMap()
+            JSONObject.NULL -> null
+            else            -> value
+        }
+    }
 }
