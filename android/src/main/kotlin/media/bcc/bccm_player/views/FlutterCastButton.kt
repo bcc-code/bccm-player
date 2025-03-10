@@ -38,7 +38,7 @@ internal class FlutterCastButton(
 
     init {
         val targetColor = color ?: Color.WHITE
-        val wrappedContext = ContextThemeWrapper(context, R.style.Theme_AppCompat_NoActionBar)
+        val wrappedContext = ContextThemeWrapper(context, androidx.appcompat.R.style.Theme_AppCompat_NoActionBar)
         val btn = MediaRouteButton(wrappedContext)
 
         val castTheme =
