@@ -360,9 +360,22 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     func updatePipController(_ playerView: AVPlayerViewController?) {
+        let wasPip = pipController != nil
         pipController = playerView
+        
+        // Notify Flutter about PiP mode change
         let event = PictureInPictureModeChangedEvent.make(withPlayerId: id, isInPipMode: playerView != nil)
         playbackListener.onPicture(inPictureModeChanged: event, completion: { _ in })
+        
+        // Add special handling when exiting PiP mode
+        if wasPip && playerView == nil {
+            print("Exiting PiP mode - forcing state resync")
+            // Force a full state resync when exiting PiP
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self = self else { return }
+                self.onManualPlayerStateUpdate()
+            }
+        }
     }
     
     func releasePlayerView(_ playerView: AVPlayerViewController) {
