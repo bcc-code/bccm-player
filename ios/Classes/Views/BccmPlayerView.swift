@@ -92,7 +92,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
             _playerController.stop(reset: true)
         }
     }
-
+    
     @objc func willBecomeActive(_ notification: Notification) {
         print("willBecomeActive")
         
@@ -100,7 +100,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
         if _playerController.pipController != nil {
             print("willBecomeActive - returning from PiP")
             // Ensure we're on the main thread and add a slight delay to allow UI to settle
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 guard let self = self else { return }
                 self.performImprovedPipFix()
             }
@@ -183,7 +183,7 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
         reset()
         
         // Small delay to ensure proper view hierarchy setup
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.00) { [weak self] in
             guard let self = self else { return }
             
             // Recreate the view
