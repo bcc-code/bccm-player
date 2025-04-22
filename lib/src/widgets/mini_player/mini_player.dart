@@ -23,7 +23,7 @@ class MiniPlayer extends HookWidget {
   final VoidCallback? onCloseTap;
   final bool? hideCloseButton;
   final bool showBorder;
-  final double? progress;
+  final BccmPlayerController? playerController;
 
   final Key? titleKey;
   final Widget? loadingIndicator;
@@ -47,13 +47,13 @@ class MiniPlayer extends HookWidget {
     this.loadingIndicator,
     this.playSemanticLabel,
     this.pauseSemanticLabel,
-    this.progress,
+    this.playerController,
   }) : assert(artworkUri != null || artwork != null, "Artwork must be set");
 
   @override
   Widget build(BuildContext context) {
     final theme = BccmPlayerTheme.safeOf(context).miniPlayer!;
-    final controller = BccmPlayerController.primary;
+    final controller = playerController ?? BccmPlayerInterface.instance.primaryController;
 
     return Stack(
       alignment: Alignment.topLeft,
@@ -122,14 +122,21 @@ class MiniPlayer extends HookWidget {
                 ),
               ),
               if (loading == true)
-                Container(margin: const EdgeInsets.only(left: 16), height: 36, child: loadingIndicator ?? const LoadingIndicator(height: 24))
+                Container(
+                  margin: const EdgeInsets.only(left: 16),
+                  height: 36,
+                  width: 36,
+                  child: loadingIndicator ?? const LoadingIndicator(height: 24),
+                )
               else
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => isPlaying ? onPauseTap?.call() : onPlayTap?.call(),
                   child: Container(
                     margin: const EdgeInsets.only(left: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     height: 36,
+                    width: 36,
                     child: isPlaying
                         ? SvgPicture.string(
                             SvgIcons.pause,
@@ -148,8 +155,9 @@ class MiniPlayer extends HookWidget {
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onCloseTap?.call(),
                   child: Container(
-                    margin: const EdgeInsets.only(left: 7),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     height: 36,
+                    width: 48,
                     child: SvgPicture.string(
                       SvgIcons.close,
                       colorFilter: ColorFilter.mode(theme.iconColor ?? Colors.transparent, BlendMode.srcIn),
@@ -159,26 +167,31 @@ class MiniPlayer extends HookWidget {
             ],
           ),
         ),
-        SizedBox(
-          width: double.infinity,
-          height: 2,
-          child: LayoutBuilder(builder: (context, constraints) {
-            return Align(
-              alignment: Alignment.bottomLeft,
-              child: SmoothVideoProgress(
-                controller: controller,
-                builder: (context, position, duration, child) {
-                  if (duration.inMilliseconds == 0) {
-                    return const SizedBox.shrink();
-                  }
-                  return Container(
-                    decoration: BoxDecoration(color: theme.progressColor),
-                    width: constraints.maxWidth * clampDouble(position.inMilliseconds / duration.inMilliseconds, 0, 1),
-                  );
-                },
-              ),
-            );
-          }),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutExpo,
+          opacity: controller.value.playbackPositionMs != null ? 1 : 0,
+          child: SizedBox(
+            width: double.infinity,
+            height: 2,
+            child: LayoutBuilder(builder: (context, constraints) {
+              return Align(
+                alignment: Alignment.bottomLeft,
+                child: SmoothVideoProgress(
+                  controller: controller,
+                  builder: (context, position, duration, child) {
+                    if (duration.inMilliseconds == 0) {
+                      return const SizedBox.shrink();
+                    }
+                    return Container(
+                      decoration: BoxDecoration(color: theme.progressColor),
+                      width: constraints.maxWidth * clampDouble(position.inMilliseconds / duration.inMilliseconds, 0, 1),
+                    );
+                  },
+                ),
+              );
+            }),
+          ),
         ),
       ],
     );
