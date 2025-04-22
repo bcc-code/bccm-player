@@ -76,7 +76,7 @@ class MiniPlayer extends HookWidget {
             children: [
               Container(
                 margin: const EdgeInsets.only(right: 16),
-                width: 64,
+                width: 36,
                 height: 36,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
@@ -89,9 +89,9 @@ class MiniPlayer extends HookWidget {
                         child: FadeInImage(
                           fadeInDuration: const Duration(milliseconds: 200),
                           placeholder: MemoryImage(kTransparentImage),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.contain,
                           image: artwork ?? ResizeImage.resizeIfNeeded(null, 64, NetworkImage(artworkUri!)),
-                          width: 64,
+                          width: 36,
                           height: 36,
                         )),
               ),
