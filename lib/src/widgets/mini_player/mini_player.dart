@@ -74,27 +74,26 @@ class MiniPlayer extends HookWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                margin: const EdgeInsets.only(right: 16),
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: theme.thumbnailBorderColor ?? Colors.transparent, width: 1),
+              if (!(artworkUri == null || artworkUri == ''))
+                Container(
+                  margin: const EdgeInsets.only(right: 16),
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: theme.thumbnailBorderColor ?? Colors.transparent, width: 1),
+                  ),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: FadeInImage(
+                        fadeInDuration: const Duration(milliseconds: 200),
+                        placeholder: MemoryImage(kTransparentImage),
+                        fit: BoxFit.contain,
+                        image: artwork ?? ResizeImage.resizeIfNeeded(null, 64, NetworkImage(artworkUri!)),
+                        width: 36,
+                        height: 36,
+                      )),
                 ),
-                child: artworkUri == null
-                    ? null
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: FadeInImage(
-                          fadeInDuration: const Duration(milliseconds: 200),
-                          placeholder: MemoryImage(kTransparentImage),
-                          fit: BoxFit.contain,
-                          image: artwork ?? ResizeImage.resizeIfNeeded(null, 64, NetworkImage(artworkUri!)),
-                          width: 36,
-                          height: 36,
-                        )),
-              ),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
