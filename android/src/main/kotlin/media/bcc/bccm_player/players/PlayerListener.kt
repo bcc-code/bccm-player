@@ -84,26 +84,7 @@ class PlayerListener(private val playerController: PlayerController, val plugin:
         } else {
             event.setMediaItem(null)
         }
-        Log.d(
-            "bccm",
-            "onMediaItemTransition" + plugin.playbackPigeon.toString() + "event:" + event.build()
-                .toString()
-        );
         plugin.playbackPigeon?.onMediaItemTransition(event.build(), NoOpVoidResult())
-    }
-
-    override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-        onMediaItemTransition(
-            playerController.player.currentMediaItem,
-            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
-        )
-    }
-
-    override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-        onMediaItemTransition(
-            playerController.player.currentMediaItem,
-            Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
-        )
     }
 
     override fun onPositionDiscontinuity(
