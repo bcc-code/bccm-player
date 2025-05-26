@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.0'
+    ext.kotlin_version = '2.1.0'
     repositories {
         google()
         mavenCentral()
@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath 'com.android.tools.build:gradle:8.10.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 
@@ -32,15 +32,16 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
 android {
-    compileSdkVersion 33
+    namespace "media.bcc.bccm_player"
+    compileSdk 35
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 
     sourceSets {
@@ -57,21 +58,21 @@ android {
 }
 
 dependencies {
-    def youboraVersion = "6.8.0"
+    def youboraVersion = "6.8.1"
     implementation "com.nicepeopleatwork:youboralib:$youboraVersion"
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    def media3_version = "1.3.1"
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    def media3_version = "1.7.1"
     implementation "androidx.media3:media3-exoplayer:$media3_version"
     implementation "androidx.media3:media3-exoplayer-hls:$media3_version"
     implementation "androidx.media3:media3-cast:$media3_version"
     implementation "androidx.media3:media3-test-utils:$media3_version"
     implementation "androidx.media3:media3-session:$media3_version"
     implementation "androidx.media3:media3-ui:$media3_version"
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.nicepeopleatwork:media3-adapter:6.8.0'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0"
-    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'androidx.core:core-performance:1.0.0'
     implementation 'androidx.core:core-performance-play-services:1.0.0'
-    implementation 'com.google.android.gms:play-services-cast-framework:21.5.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:22.1.0'
 }
