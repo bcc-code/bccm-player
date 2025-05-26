@@ -1,6 +1,6 @@
 # bccm_player_example
 
-Demonstrates how to use the bccm_player plugin.
+A new Flutter project.
 
 ## Getting Started
 

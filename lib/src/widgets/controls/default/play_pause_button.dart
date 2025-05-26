@@ -6,10 +6,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 
 class PlayPauseButton extends HookWidget {
-  const PlayPauseButton({super.key, required this.player, this.onPressed});
+  const PlayPauseButton({super.key, required this.player, this.onPressed, this.iconSize = 68});
 
   final BccmPlayerController player;
   final void Function(bool newState)? onPressed;
+  final double? iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class PlayPauseButton extends HookWidget {
     if (state != PlaybackState.playing) {
       return IconButton(
         autofocus: true,
-        constraints: const BoxConstraints.tightFor(width: 68, height: 68),
+        constraints: BoxConstraints.tightFor(width: iconSize, height: iconSize),
         icon: Padding(
           padding: const EdgeInsets.only(left: 4),
           child: SvgPicture.string(
@@ -36,7 +37,7 @@ class PlayPauseButton extends HookWidget {
       );
     } else {
       return IconButton(
-        constraints: const BoxConstraints.tightFor(width: 68, height: 68),
+        constraints: BoxConstraints.tightFor(width: iconSize, height: iconSize),
         icon: player.value.isBuffering == true
             ? LoadingIndicator(
                 width: 42,

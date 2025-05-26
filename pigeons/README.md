@@ -11,4 +11,7 @@ dart run pigeon --input pigeons/playback_platform_pigeon.dart
 # When you change chromecast_pigeon.dart, run:
 dart run pigeon --input pigeons/chromecast_pigeon.dart
 
+# When you change downloader_pigeon.dart, run:
+dart run pigeon --input pigeons/downloader_pigeon.dart
+
 ```
