@@ -60,7 +60,9 @@ android {
 dependencies {
     def youboraVersion = "6.8.1"
     implementation "com.nicepeopleatwork:youboralib:$youboraVersion"
+    implementation "com.nicepeopleatwork:media3-adapter:$youboraVersion"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+
     def media3_version = "1.7.1"
     implementation "androidx.media3:media3-exoplayer:$media3_version"
     implementation "androidx.media3:media3-exoplayer-hls:$media3_version"
@@ -68,8 +70,9 @@ dependencies {
     implementation "androidx.media3:media3-test-utils:$media3_version"
     implementation "androidx.media3:media3-session:$media3_version"
     implementation "androidx.media3:media3-ui:$media3_version"
+    implementation "androidx.media3:media3-datasource:$media3_version"
+
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.nicepeopleatwork:media3-adapter:6.8.0'
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0"
     implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'androidx.core:core-performance:1.0.0'

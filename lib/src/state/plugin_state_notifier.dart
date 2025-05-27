@@ -69,7 +69,7 @@ class PlayerPluginStateNotifier extends StateNotifier<PlayerPluginState> {
 }
 
 @freezed
-class PlayerPluginState with _$PlayerPluginState {
+abstract class PlayerPluginState with _$PlayerPluginState {
   const factory PlayerPluginState({
     required String? primaryPlayerId,
     required Map<String, PlayerStateNotifier> players,

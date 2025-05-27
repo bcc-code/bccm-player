@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.util.DebugTextViewHelper
 import androidx.media3.ui.PlayerView
 import io.flutter.plugin.common.StandardMessageCodec
@@ -27,6 +28,7 @@ import media.bcc.bccm_player.players.exoplayer.ExoPlayerController
 import media.bcc.bccm_player.utils.SystemGestureExcludedLinearLayout
 
 
+@UnstableApi
 class FlutterExoPlayerView(
     private val playbackService: PlaybackService,
     private val context: Context,
@@ -155,15 +157,15 @@ class FlutterExoPlayerView(
             playerView.setShowFastForwardButton(false)
             playerView.setShowRewindButton(false)
             playerView.setShowMultiWindowTimeBar(false)
-            playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.GONE
-            playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.GONE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_progress)?.visibility = View.GONE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_time)?.visibility = View.GONE
             _v.findViewById<View?>(R.id.live_indicator)?.visibility = View.VISIBLE
         } else {
             playerView.setShowFastForwardButton(true)
             playerView.setShowRewindButton(true)
             playerView.setShowMultiWindowTimeBar(true)
-            playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.VISIBLE
-            playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.VISIBLE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_progress)?.visibility = View.VISIBLE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_time)?.visibility = View.VISIBLE
             _v.findViewById<View?>(R.id.live_indicator)?.visibility = View.GONE
         }
     }

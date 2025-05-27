@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.google.android.gms.cast.framework.CastContext
@@ -25,6 +26,7 @@ class PlaybackService : MediaSessionService() {
     private var binder: LocalBinder = LocalBinder()
     private var previousPrimaryPlayerId: String? = null
 
+    @UnstableApi
     fun attachPlugin(plugin: BccmPlayerPlugin) {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::attachPlugin called")
         this.plugin = plugin
@@ -87,6 +89,7 @@ class PlaybackService : MediaSessionService() {
         stopSelf()
     }
 
+    @UnstableApi
     fun newPlayer(bufferMode: BufferMode, disableNpaw: Boolean): PlayerController {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::newPlayer called")
         val pc = ExoPlayerController(this, bufferMode, disableNpaw)
@@ -97,6 +100,7 @@ class PlaybackService : MediaSessionService() {
         return pc
     }
 
+    @UnstableApi
     fun disposePlayer(playerId: String): Boolean {
         val controller = getController(playerId);
         if (controller != null) {
@@ -141,6 +145,7 @@ class PlaybackService : MediaSessionService() {
         }
     }
 
+    @UnstableApi
     fun unclaimIfPrimary(playerController: PlayerController) {
         if (primaryPlayerController != playerController) return
         if (previousPrimaryPlayerId != null && playerControllers.any { it.id == previousPrimaryPlayerId }) {
@@ -168,6 +173,7 @@ class PlaybackService : MediaSessionService() {
     }
 
     // Create your Player and MediaSession in the onCreate lifecycle event
+    @UnstableApi
     override fun onCreate() {
         Log.d("bccm", "PlaybackService(${this.hashCode()})::onCreate called")
         super.onCreate()

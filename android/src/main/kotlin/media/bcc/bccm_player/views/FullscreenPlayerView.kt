@@ -10,14 +10,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 import media.bcc.bccm_player.BccmPlayerPluginSingleton
 import media.bcc.bccm_player.PictureInPictureModeChangedEvent
 import media.bcc.bccm_player.R
@@ -25,7 +32,8 @@ import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.players.exoplayer.ExoPlayerController
 import media.bcc.bccm_player.utils.SwipeTouchListener
 
-class FullscreenPlayerView(
+class FullscreenPlayerView @OptIn(UnstableApi::class) constructor
+    (
     val activity: Activity,
     val playerController: ExoPlayerController,
     forceLandscape: Boolean = true,
@@ -124,10 +132,12 @@ class FullscreenPlayerView(
         }
     }
 
+    @UnstableApi
     override fun onOwnershipLost() {
         exit()
     }
 
+    @UnstableApi
     override fun exitFullscreen() {
         exit()
     }
@@ -151,6 +161,7 @@ class FullscreenPlayerView(
         );
     }
 
+    @UnstableApi
     fun exit() {
         activity.requestedOrientation = orientationBeforeGoingFullscreen;
         WindowCompat.setDecorFitsSystemWindows(activity.window, true)
@@ -164,25 +175,27 @@ class FullscreenPlayerView(
         release();
     }
 
+    @UnstableApi
     fun setLiveUIEnabled(enabled: Boolean) {
         val playerView = playerView ?: return
         if (enabled) {
             playerView.setShowFastForwardButton(false)
             playerView.setShowRewindButton(false)
             playerView.setShowMultiWindowTimeBar(false)
-            playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.GONE
-            playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.GONE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_progress)?.visibility = View.GONE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_time)?.visibility = View.GONE
             findViewById<View?>(R.id.live_indicator)?.visibility = View.VISIBLE
         } else {
             playerView.setShowFastForwardButton(true)
             playerView.setShowRewindButton(true)
             playerView.setShowMultiWindowTimeBar(true)
-            playerView.findViewById<View?>(R.id.exo_progress)?.visibility = View.VISIBLE
-            playerView.findViewById<View?>(R.id.exo_time)?.visibility = View.VISIBLE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_progress)?.visibility = View.VISIBLE
+            playerView.findViewById<View?>(androidx.media3.ui.R.id.exo_time)?.visibility = View.VISIBLE
             findViewById<View?>(R.id.live_indicator)?.visibility = View.GONE
         }
     }
 
+    @UnstableApi
     @RequiresApi(Build.VERSION_CODES.O)
     override fun enterPictureInPicture() {
         Log.d("Bccm", "enterPictureInPicture fullscreenplayerView")
@@ -204,12 +217,14 @@ class FullscreenPlayerView(
         }
     }
 
+    @UnstableApi
     @RequiresApi(Build.VERSION_CODES.O)
     fun enterPictureInPicture(exitAfter: Boolean) {
         exitAfterPictureInPicture = exitAfter
         enterPictureInPicture()
     }
 
+    @UnstableApi
     private fun release() {
         playerView?.let {
             playerController.releasePlayerView(it)

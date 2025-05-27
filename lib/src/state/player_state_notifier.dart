@@ -97,7 +97,7 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
 }
 
 @freezed
-class PlayerState with _$PlayerState {
+abstract class PlayerState with _$PlayerState {
   const PlayerState._();
   const factory PlayerState({
     required String playerId,

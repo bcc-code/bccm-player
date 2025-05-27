@@ -8,17 +8,16 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.MediaInfo
-import media.bcc.bccm_player.players.PlayerController
-import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.utils.TrackUtils
-import kotlin.coroutines.suspendCoroutine
 
 object MediaInfoFetcher {
+    @UnstableApi
     suspend fun fetchMediaInfo(context: Context, url: String, mimeType: String?): MediaInfo {
         val trackSelector = DefaultTrackSelector(context);
         trackSelector.setParameters(
