@@ -164,6 +164,7 @@ abstract class PlayerController : Player.Listener {
         return extraMeta
     }
 
+    // map for android
     @SuppressLint("UnsafeOptInUsageError")
     private fun mapMediaItem(mediaItem: PlaybackPlatformApi.MediaItem): MediaItem {
         val metaBuilder = MediaMetadata.Builder()
@@ -258,6 +259,7 @@ abstract class PlayerController : Player.Listener {
             .build()
     }
 
+    // map for dart
     fun mapMediaItem(mediaItem: MediaItem): PlaybackPlatformApi.MediaItem {
         val metaBuilder = PlaybackPlatformApi.MediaMetadata.Builder()
         if (mediaItem.mediaMetadata.artworkUri != null) {
