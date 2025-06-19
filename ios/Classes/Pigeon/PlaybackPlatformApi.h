@@ -109,12 +109,12 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     audioLanguages:(NSArray<NSString *> *)audioLanguages
     subtitleLanguages:(NSArray<NSString *> *)subtitleLanguages
     analyticsId:(nullable NSString *)analyticsId
-    sessionId:(nullable NSNumber *)sessionId;
+    sessionId:(nullable NSString *)sessionId;
 @property(nonatomic, copy, nullable) NSString * appLanguage;
 @property(nonatomic, copy) NSArray<NSString *> * audioLanguages;
 @property(nonatomic, copy) NSArray<NSString *> * subtitleLanguages;
 @property(nonatomic, copy, nullable) NSString * analyticsId;
-@property(nonatomic, strong, nullable) NSNumber * sessionId;
+@property(nonatomic, copy, nullable) NSString * sessionId;
 @end
 
 @interface User : NSObject

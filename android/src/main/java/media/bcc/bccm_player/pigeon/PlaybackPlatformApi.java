@@ -303,13 +303,13 @@ public class PlaybackPlatformApi {
       this.analyticsId = setterArg;
     }
 
-    private @Nullable Long sessionId;
+    private @Nullable String sessionId;
 
-    public @Nullable Long getSessionId() {
+    public @Nullable String getSessionId() {
       return sessionId;
     }
 
-    public void setSessionId(@Nullable Long setterArg) {
+    public void setSessionId(@Nullable String setterArg) {
       this.sessionId = setterArg;
     }
 
@@ -363,10 +363,10 @@ public class PlaybackPlatformApi {
         return this;
       }
 
-      private @Nullable Long sessionId;
+      private @Nullable String sessionId;
 
       @CanIgnoreReturnValue
-      public @NonNull Builder setSessionId(@Nullable Long setterArg) {
+      public @NonNull Builder setSessionId(@Nullable String setterArg) {
         this.sessionId = setterArg;
         return this;
       }
@@ -404,7 +404,7 @@ public class PlaybackPlatformApi {
       Object analyticsId = pigeonVar_list.get(3);
       pigeonResult.setAnalyticsId((String) analyticsId);
       Object sessionId = pigeonVar_list.get(4);
-      pigeonResult.setSessionId((Long) sessionId);
+      pigeonResult.setSessionId((String) sessionId);
       return pigeonResult;
     }
   }

@@ -239,7 +239,7 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     audioLanguages:(NSArray<NSString *> *)audioLanguages
     subtitleLanguages:(NSArray<NSString *> *)subtitleLanguages
     analyticsId:(nullable NSString *)analyticsId
-    sessionId:(nullable NSNumber *)sessionId {
+    sessionId:(nullable NSString *)sessionId {
   AppConfig* pigeonResult = [[AppConfig alloc] init];
   pigeonResult.appLanguage = appLanguage;
   pigeonResult.audioLanguages = audioLanguages;
