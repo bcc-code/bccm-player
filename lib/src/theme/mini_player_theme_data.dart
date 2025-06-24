@@ -5,6 +5,7 @@ class BccmMiniPlayerThemeData {
   final Color? backgroundColor;
   final Color? thumbnailBorderColor;
   final Color? topBorderColor;
+  final Color? progressColor;
   final TextStyle? titleStyle;
   final TextStyle? secondaryTitleStyle;
 
@@ -13,6 +14,7 @@ class BccmMiniPlayerThemeData {
     this.backgroundColor,
     this.thumbnailBorderColor,
     this.topBorderColor,
+    this.progressColor,
     this.titleStyle,
     this.secondaryTitleStyle,
   });
@@ -24,6 +26,7 @@ class BccmMiniPlayerThemeData {
       backgroundColor: theme.colorScheme.surface,
       thumbnailBorderColor: Colors.white.withOpacity(0.01),
       topBorderColor: theme.colorScheme.onSurface.withOpacity(0.1),
+      progressColor: theme.colorScheme.onSurface,
       titleStyle: theme.textTheme.labelMedium!.copyWith(color: theme.colorScheme.onSurface),
       secondaryTitleStyle: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
     );
@@ -35,6 +38,7 @@ class BccmMiniPlayerThemeData {
       backgroundColor: backgroundColor ?? defaults.backgroundColor,
       thumbnailBorderColor: thumbnailBorderColor ?? defaults.thumbnailBorderColor,
       topBorderColor: topBorderColor ?? defaults.topBorderColor,
+      progressColor: progressColor ?? defaults.progressColor,
       titleStyle: titleStyle ?? defaults.titleStyle,
       secondaryTitleStyle: secondaryTitleStyle ?? defaults.secondaryTitleStyle,
     );
@@ -45,6 +49,7 @@ class BccmMiniPlayerThemeData {
     Color? backgroundColor,
     Color? thumbnailBorderColor,
     Color? topBorderColor,
+    Color? progressColor,
     TextStyle? titleStyle,
     TextStyle? secondaryTitleStyle,
   }) {
@@ -53,6 +58,7 @@ class BccmMiniPlayerThemeData {
       backgroundColor: backgroundColor ?? this.backgroundColor,
       thumbnailBorderColor: thumbnailBorderColor ?? this.thumbnailBorderColor,
       topBorderColor: topBorderColor ?? this.topBorderColor,
+      progressColor: progressColor ?? this.progressColor,
       titleStyle: titleStyle ?? this.titleStyle,
       secondaryTitleStyle: secondaryTitleStyle ?? this.secondaryTitleStyle,
     );

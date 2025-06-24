@@ -155,7 +155,7 @@ class AppConfig {
   late List<String?> audioLanguages;
   late List<String?> subtitleLanguages;
   late String? analyticsId;
-  late int? sessionId;
+  late String? sessionId;
 }
 
 class User {

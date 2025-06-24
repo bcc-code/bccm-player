@@ -360,9 +360,22 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     func updatePipController(_ playerView: AVPlayerViewController?) {
+        let wasPip = pipController != nil
         pipController = playerView
+        
+        // Notify Flutter about PiP mode change
         let event = PictureInPictureModeChangedEvent.make(withPlayerId: id, isInPipMode: playerView != nil)
         playbackListener.onPicture(inPictureModeChanged: event, completion: { _ in })
+        
+        // Add special handling when exiting PiP mode
+        if wasPip && playerView == nil {
+            print("Exiting PiP mode - forcing state resync")
+            // Force a full state resync when exiting PiP
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self = self else { return }
+                self.onManualPlayerStateUpdate()
+            }
+        }
     }
     
     func releasePlayerView(_ playerView: AVPlayerViewController) {
@@ -464,7 +477,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         youboraPlugin.options.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
         youboraPlugin.options.contentType = extras?["npaw.content.type"] as? String
         youboraPlugin.options.contentLanguage = extras?["npaw.content.language"] as? String
-        youboraPlugin.options.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId?.stringValue : nil
+        youboraPlugin.options.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId : nil
         youboraPlugin.options.contentCustomDimension2 = extras?["npaw.content.customDimension2"] as? String
         youboraPlugin.options.contentTransactionCode = extras?["npaw.content.transactionCode"] as? String
     }

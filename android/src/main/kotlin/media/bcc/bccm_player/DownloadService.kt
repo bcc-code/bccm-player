@@ -19,7 +19,7 @@ class DownloadService : DownloadService(
     FOREGROUND_NOTIFICATION_ID,
     DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL,
     DOWNLOAD_NOTIFICATION_CHANNEL_ID,
-    R.string.exo_download_notification_channel_name,
+    androidx.media3.exoplayer.R.string.exo_download_notification_channel_name,
     0
 ) {
     override fun getDownloadManager(): DownloadManager {

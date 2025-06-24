@@ -2,6 +2,7 @@ package media.bcc.bccm_player
 
 import android.content.Intent
 import android.util.Log
+import androidx.media3.common.util.UnstableApi
 import com.google.android.gms.cast.framework.CastButtonFactory
 import io.flutter.embedding.android.FlutterFragmentActivity
 import kotlinx.coroutines.CoroutineScope
@@ -111,6 +112,7 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         result.success()
     }
 
+    @UnstableApi
     override fun newPlayer(
         bufferMode: BufferMode?,
         disableNpaw: Boolean?,
@@ -167,6 +169,7 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         result.success(plugin.releaseTexture(textureId))
     }
 
+    @UnstableApi
     override fun disposePlayer(playerId: String, result: PlaybackPlatformApi.Result<Boolean>) {
         val playbackService = plugin.getPlaybackService()
         if (playbackService == null) {
@@ -347,6 +350,7 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         btn.showDialog()
     }
 
+    @UnstableApi
     override fun fetchMediaInfo(
         url: String,
         mimeType: String?,

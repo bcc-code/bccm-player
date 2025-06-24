@@ -92,12 +92,21 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
             _playerController.stop(reset: true)
         }
     }
-
+    
     @objc func willBecomeActive(_ notification: Notification) {
-        // code to execute
         print("willBecomeActive")
-        createNativeView()
-        perform(#selector(pipFix), with: nil, afterDelay: 1)
+        
+        // Check if we're returning from PiP
+        if _playerController.pipController != nil {
+            print("willBecomeActive - returning from PiP")
+            // Ensure we're on the main thread and add a slight delay to allow UI to settle
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                guard let self = self else { return }
+                self.performImprovedPipFix()
+            }
+        } else {
+            createNativeView()
+        }
     }
 
     func view() -> UIView {
@@ -158,6 +167,62 @@ class AVPlayerBccmPlayerView: NSObject, FlutterPlatformView {
         reset()
         createNativeView()
         _playerController.player.playImmediately(atRate: rate)
+    }
+    
+    // New improved method for handling PiP transitions
+    func performImprovedPipFix() {
+        print("Performing improved PiP fix")
+        
+        // Save current state before resetting
+        let playbackPosition = _playerController.player.currentTime()
+        let rate = _playerController.player.rate
+        let isPlaying = _playerController.isPlaying()
+        let volume = _playerController.player.volume
+        
+        // Reset the player view
+        reset()
+        
+        // Small delay to ensure proper view hierarchy setup
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.00) { [weak self] in
+            guard let self = self else { return }
+            
+            // Recreate the view
+            self.createNativeView()
+            
+            // Restore volume first to prevent any audio glitches
+            self._playerController.player.volume = volume
+            
+            // Restore player state
+            if !playbackPosition.isIndefinite {
+                self._playerController.player.seek(to: playbackPosition) { [weak self] finished in
+                    guard let self = self, finished else { return }
+                    
+                    // Restore playback if it was playing
+                    if isPlaying && rate > 0 {
+                        self._playerController.player.playImmediately(atRate: rate)
+                    }
+                    
+                    // Force layout update
+                    self.playerViewController?.view.setNeedsLayout()
+                    self.playerViewController?.view.layoutIfNeeded()
+                    
+                    // Force state update to Flutter
+                    self._playerController.onManualPlayerStateUpdate()
+                }
+            } else {
+                // If we don't have a valid position, just restore playback
+                if isPlaying && rate > 0 {
+                    self._playerController.player.playImmediately(atRate: rate)
+                }
+                
+                // Force layout update
+                self.playerViewController?.view.setNeedsLayout()
+                self.playerViewController?.view.layoutIfNeeded()
+                
+                // Force state update to Flutter
+                self._playerController.onManualPlayerStateUpdate()
+            }
+        }
     }
 
     @objc func reset() {
