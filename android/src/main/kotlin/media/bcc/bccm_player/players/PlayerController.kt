@@ -328,9 +328,6 @@ abstract class PlayerController : Player.Listener {
     }
 
     fun getPlaybackState(): PlaybackPlatformApi.PlaybackState {
-        if (player.playbackState == Player.STATE_ENDED) {
-            return PlaybackPlatformApi.PlaybackState.STOPPED
-        }
         return if (player.isPlaying || player.playWhenReady && !arrayOf(
                 Player.STATE_ENDED,
                 Player.STATE_IDLE
