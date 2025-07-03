@@ -138,6 +138,11 @@ enum RepeatMode {
   one,
 }
 
+enum DrmType {
+  widevine,
+  fairplay,
+}
+
 class NpawConfig {
   late String? appName;
   late String? appReleaseVersion;
@@ -150,7 +155,7 @@ class AppConfig {
   late List<String?> audioLanguages;
   late List<String?> subtitleLanguages;
   late String? analyticsId;
-  late int? sessionId;
+  late String? sessionId;
 }
 
 class User {
@@ -163,6 +168,19 @@ class SetUrlArgs {
   bool? isLive;
 }
 
+class DrmConfiguration {
+  late DrmType drmType;
+  String? contentKeyId;
+  String? fpsCertificateUrl;
+  late String licenseServerUrl;
+  Map<String?, String?>? licenseRequestHeaders;
+}
+
+class CastMedia {
+  late String url;
+  Map<String?, String?>? customData;
+}
+
 class MediaItem {
   String? id;
   String? url;
@@ -173,6 +191,8 @@ class MediaItem {
   double? playbackStartPositionMs;
   String? lastKnownAudioLanguage;
   String? lastKnownSubtitleLanguage;
+  DrmConfiguration? drmConfiguration;
+  CastMedia? castMedia;
 }
 
 class MediaMetadata {

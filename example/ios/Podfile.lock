@@ -1,0 +1,65 @@
+PODS:
+  - bccm_player (0.0.1):
+    - Flutter
+    - google-cast-sdk (= 4.8.3)
+    - Protobuf (~> 3.13)
+    - YouboraAVPlayerAdapter (= 6.6.8)
+    - YouboraLib (= 6.6.22)
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - Flutter (1.0.0)
+  - google-cast-sdk (4.8.3):
+    - Protobuf (~> 3.13)
+  - package_info_plus (0.4.5):
+    - Flutter
+  - Protobuf (3.28.2)
+  - wakelock_plus (0.0.1):
+    - Flutter
+  - YouboraAVPlayerAdapter (6.6.8):
+    - YouboraAVPlayerAdapter/Default (= 6.6.8)
+    - YouboraLib (~> 6.5)
+  - YouboraAVPlayerAdapter/Default (6.6.8):
+    - YouboraLib (~> 6.5)
+  - YouboraLib (6.6.22)
+
+DEPENDENCIES:
+  - bccm_player (from `.symlinks/plugins/bccm_player/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
+  - Flutter (from `Flutter`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
+
+SPEC REPOS:
+  trunk:
+    - google-cast-sdk
+    - Protobuf
+    - YouboraAVPlayerAdapter
+    - YouboraLib
+
+EXTERNAL SOURCES:
+  bccm_player:
+    :path: ".symlinks/plugins/bccm_player/ios"
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/darwin"
+  Flutter:
+    :path: Flutter
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  wakelock_plus:
+    :path: ".symlinks/plugins/wakelock_plus/ios"
+
+SPEC CHECKSUMS:
+  bccm_player: 508fbd6f79e90a6d834da4d2fde56058d9060742
+  connectivity_plus: ddd7f30999e1faaef5967c23d5b6d503d10434db
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  google-cast-sdk: 1fb6724e94cc5ff23b359176e0cf6360586bb97a
+  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
+  Protobuf: 28c89b24435762f60244e691544ed80f50d82701
+  wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
+  YouboraAVPlayerAdapter: bc898a61e09c667202a77491b677a42dfa0adc04
+  YouboraLib: fc65b030ac93499f8beb3f5daa10deb3879fb2d2
+
+PODFILE CHECKSUM: 57c8aed26fba39d3ec9424816221f294a07c58eb
+
+COCOAPODS: 1.15.2

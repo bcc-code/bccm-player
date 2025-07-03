@@ -226,7 +226,7 @@ class ExoPlayerController(
         val appConfig = BccmPlayerPluginSingleton.appConfigState.value
         youboraPlugin.options.username = appConfig?.analyticsId
         youboraPlugin.options.contentCustomDimension1 = extras?.get("npaw.content.customDimension1")
-            ?: if (appConfig?.sessionId != null) appConfig.sessionId.toString() else null
+            ?: if (appConfig?.sessionId != null) appConfig.sessionId else null
         youboraPlugin.options.contentCustomDimension2 = extras?.get("npaw.content.customDimension2")
 
         for (t in player.currentTracks.groups) {
