@@ -15,17 +15,15 @@ class _DrmPlayerState extends State<DrmPlayer> {
 
   @override
   void initState() {
-    playerController = BccmPlayerController(
-      MediaItem(
-        url: TempDrmSource.file,
-        mimeType: Platform.isAndroid ? 'application/dash+xml' : 'application/vnd.apple.mpegurl',
-        drmConfiguration: DrmConfiguration(
-          drmType: DrmType.widevine,
-          licenseServerUrl: TempDrmSource.licenseUrl,
-          licenseRequestHeaders: {'X-AxDRM-Message': TempDrmSource.token},
-        ),
+    playerController = BccmPlayerController(MediaItem(
+      url: TempDrmSource.file,
+      mimeType: Platform.isAndroid ? 'application/dash+xml' : 'application/vnd.apple.mpegurl',
+      drmConfiguration: DrmConfiguration(
+        drmType: DrmType.widevine,
+        licenseServerUrl: TempDrmSource.licenseUrl,
+        licenseRequestHeaders: {'X-AxDRM-Message': TempDrmSource.token},
       ),
-    );
+    ));
     playerController.addListener(playerListener);
     playerController.events.listen(playerEventListener);
     playerController.initialize().then((_) => playerController.setMixWithOthers(false));
@@ -50,10 +48,15 @@ class _DrmPlayerState extends State<DrmPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        BccmPlayerView(playerController),
-      ],
+    return Scaffold(
+      body: Column(
+        children: [
+          BccmPlayerView(
+            playerController,
+            config: BccmPlayerViewConfig(useSurfaceView: true),
+          ),
+        ],
+      ),
     );
   }
 }
