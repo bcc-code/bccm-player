@@ -26,7 +26,7 @@ class DefaultControls extends HookWidget {
     final player = useListenable(viewController.playerController);
     final timeline = useTimeline(viewController.playerController);
 
-    final forwardRewindDurationSec = Duration(milliseconds: timeline.duration.toInt()).inMinutes > 60 ? 30 : 15;
+    final forwardRewindDurationSec = Duration(milliseconds: timeline.duration.toInt()).inMinutes > 60 ? 15 : 5;
     final title = player.value.currentMediaItem?.metadata?.title;
 
     return FocusTraversalGroup(
