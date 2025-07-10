@@ -1,6 +1,7 @@
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player_example/example_videos.dart';
 import 'package:flutter/material.dart';
+import 'package:screen_protector/screen_protector.dart';
 
 class ListOfPlayers extends StatefulWidget {
   const ListOfPlayers({super.key});
@@ -14,6 +15,8 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
 
   @override
   void initState() {
+    ScreenProtector.preventScreenshotOn();
+    ScreenProtector.protectDataLeakageWithBlur();
     controllers = [
       BccmPlayerController.empty(),
       ...exampleVideos.map(
@@ -29,6 +32,8 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
 
   @override
   void dispose() {
+    ScreenProtector.preventScreenshotOff();
+    ScreenProtector.protectDataLeakageWithBlurOff();
     for (var element in controllers) {
       if (!element.isPrimary) element.dispose();
     }
@@ -37,21 +42,23 @@ class _ListOfPlayersState extends State<ListOfPlayers> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        ...controllers.map(
-          (controller) => Column(
-            children: [
-              BccmPlayerView(controller),
-              ElevatedButton(
-                  onPressed: () {
-                    controller.setPrimary();
-                  },
-                  child: const Text('Make primary')),
-            ],
-          ),
-        )
-      ],
+    return Scaffold(
+      body: ListView(
+        children: [
+          ...controllers.map(
+            (controller) => Column(
+              children: [
+                BccmPlayerView(controller),
+                ElevatedButton(
+                    onPressed: () {
+                      controller.setPrimary();
+                    },
+                    child: const Text('Make primary')),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }

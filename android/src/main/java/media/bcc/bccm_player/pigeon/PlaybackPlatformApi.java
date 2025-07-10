@@ -94,6 +94,17 @@ public class PlaybackPlatformApi {
     }
   }
 
+  public enum DrmType {
+    WIDEVINE(0),
+    FAIRPLAY(1);
+
+    final int index;
+
+    DrmType(final int index) {
+      this.index = index;
+    }
+  }
+
   public enum PlaybackState {
     STOPPED(0),
     PAUSED(1),
@@ -410,77 +421,161 @@ public class PlaybackPlatformApi {
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
-  public static final class User {
-    private @Nullable String id;
+  public static final class DrmConfiguration {
+    private @NonNull DrmType drmType;
 
-    public @Nullable String getId() {
-      return id;
+    public @NonNull DrmType getDrmType() {
+      return drmType;
     }
 
-    public void setId(@Nullable String setterArg) {
-      this.id = setterArg;
+    public void setDrmType(@NonNull DrmType setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"drmType\" is null.");
+      }
+      this.drmType = setterArg;
     }
+
+    private @Nullable String contentKeyId;
+
+    public @Nullable String getContentKeyId() {
+      return contentKeyId;
+    }
+
+    public void setContentKeyId(@Nullable String setterArg) {
+      this.contentKeyId = setterArg;
+    }
+
+    private @Nullable String fpsCertificateUrl;
+
+    public @Nullable String getFpsCertificateUrl() {
+      return fpsCertificateUrl;
+    }
+
+    public void setFpsCertificateUrl(@Nullable String setterArg) {
+      this.fpsCertificateUrl = setterArg;
+    }
+
+    private @NonNull String licenseServerUrl;
+
+    public @NonNull String getLicenseServerUrl() {
+      return licenseServerUrl;
+    }
+
+    public void setLicenseServerUrl(@NonNull String setterArg) {
+      if (setterArg == null) {
+        throw new IllegalStateException("Nonnull field \"licenseServerUrl\" is null.");
+      }
+      this.licenseServerUrl = setterArg;
+    }
+
+    private @Nullable Map<String, String> licenseRequestHeaders;
+
+    public @Nullable Map<String, String> getLicenseRequestHeaders() {
+      return licenseRequestHeaders;
+    }
+
+    public void setLicenseRequestHeaders(@Nullable Map<String, String> setterArg) {
+      this.licenseRequestHeaders = setterArg;
+    }
+
+    /** Constructor is non-public to enforce null safety; use Builder. */
+    DrmConfiguration() {}
 
     @Override
     public boolean equals(Object o) {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
-      User that = (User) o;
-      return Objects.equals(id, that.id);
+      DrmConfiguration that = (DrmConfiguration) o;
+      return drmType.equals(that.drmType) && Objects.equals(contentKeyId, that.contentKeyId) && Objects.equals(fpsCertificateUrl, that.fpsCertificateUrl) && licenseServerUrl.equals(that.licenseServerUrl) && Objects.equals(licenseRequestHeaders, that.licenseRequestHeaders);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(id);
+      return Objects.hash(drmType, contentKeyId, fpsCertificateUrl, licenseServerUrl, licenseRequestHeaders);
     }
 
     public static final class Builder {
 
-      private @Nullable String id;
+      private @Nullable DrmType drmType;
 
       @CanIgnoreReturnValue
-      public @NonNull Builder setId(@Nullable String setterArg) {
-        this.id = setterArg;
+      public @NonNull Builder setDrmType(@NonNull DrmType setterArg) {
+        this.drmType = setterArg;
         return this;
       }
 
-      public @NonNull User build() {
-        User pigeonReturn = new User();
-        pigeonReturn.setId(id);
+      private @Nullable String contentKeyId;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setContentKeyId(@Nullable String setterArg) {
+        this.contentKeyId = setterArg;
+        return this;
+      }
+
+      private @Nullable String fpsCertificateUrl;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setFpsCertificateUrl(@Nullable String setterArg) {
+        this.fpsCertificateUrl = setterArg;
+        return this;
+      }
+
+      private @Nullable String licenseServerUrl;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setLicenseServerUrl(@NonNull String setterArg) {
+        this.licenseServerUrl = setterArg;
+        return this;
+      }
+
+      private @Nullable Map<String, String> licenseRequestHeaders;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setLicenseRequestHeaders(@Nullable Map<String, String> setterArg) {
+        this.licenseRequestHeaders = setterArg;
+        return this;
+      }
+
+      public @NonNull DrmConfiguration build() {
+        DrmConfiguration pigeonReturn = new DrmConfiguration();
+        pigeonReturn.setDrmType(drmType);
+        pigeonReturn.setContentKeyId(contentKeyId);
+        pigeonReturn.setFpsCertificateUrl(fpsCertificateUrl);
+        pigeonReturn.setLicenseServerUrl(licenseServerUrl);
+        pigeonReturn.setLicenseRequestHeaders(licenseRequestHeaders);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(1);
-      toListResult.add(id);
+      ArrayList<Object> toListResult = new ArrayList<>(5);
+      toListResult.add(drmType);
+      toListResult.add(contentKeyId);
+      toListResult.add(fpsCertificateUrl);
+      toListResult.add(licenseServerUrl);
+      toListResult.add(licenseRequestHeaders);
       return toListResult;
     }
 
-    static @NonNull User fromList(@NonNull ArrayList<Object> pigeonVar_list) {
-      User pigeonResult = new User();
-      Object id = pigeonVar_list.get(0);
-      pigeonResult.setId((String) id);
+    static @NonNull DrmConfiguration fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      DrmConfiguration pigeonResult = new DrmConfiguration();
+      Object drmType = pigeonVar_list.get(0);
+      pigeonResult.setDrmType((DrmType) drmType);
+      Object contentKeyId = pigeonVar_list.get(1);
+      pigeonResult.setContentKeyId((String) contentKeyId);
+      Object fpsCertificateUrl = pigeonVar_list.get(2);
+      pigeonResult.setFpsCertificateUrl((String) fpsCertificateUrl);
+      Object licenseServerUrl = pigeonVar_list.get(3);
+      pigeonResult.setLicenseServerUrl((String) licenseServerUrl);
+      Object licenseRequestHeaders = pigeonVar_list.get(4);
+      pigeonResult.setLicenseRequestHeaders((Map<String, String>) licenseRequestHeaders);
       return pigeonResult;
     }
   }
 
   /** Generated class from Pigeon that represents data sent in messages. */
-  public static final class SetUrlArgs {
-    private @NonNull String playerId;
-
-    public @NonNull String getPlayerId() {
-      return playerId;
-    }
-
-    public void setPlayerId(@NonNull String setterArg) {
-      if (setterArg == null) {
-        throw new IllegalStateException("Nonnull field \"playerId\" is null.");
-      }
-      this.playerId = setterArg;
-    }
-
+  public static final class CastMedia {
     private @NonNull String url;
 
     public @NonNull String getUrl() {
@@ -494,41 +589,33 @@ public class PlaybackPlatformApi {
       this.url = setterArg;
     }
 
-    private @Nullable Boolean isLive;
+    private @Nullable Map<String, String> customData;
 
-    public @Nullable Boolean getIsLive() {
-      return isLive;
+    public @Nullable Map<String, String> getCustomData() {
+      return customData;
     }
 
-    public void setIsLive(@Nullable Boolean setterArg) {
-      this.isLive = setterArg;
+    public void setCustomData(@Nullable Map<String, String> setterArg) {
+      this.customData = setterArg;
     }
 
     /** Constructor is non-public to enforce null safety; use Builder. */
-    SetUrlArgs() {}
+    CastMedia() {}
 
     @Override
     public boolean equals(Object o) {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
-      SetUrlArgs that = (SetUrlArgs) o;
-      return playerId.equals(that.playerId) && url.equals(that.url) && Objects.equals(isLive, that.isLive);
+      CastMedia that = (CastMedia) o;
+      return url.equals(that.url) && Objects.equals(customData, that.customData);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(playerId, url, isLive);
+      return Objects.hash(url, customData);
     }
 
     public static final class Builder {
-
-      private @Nullable String playerId;
-
-      @CanIgnoreReturnValue
-      public @NonNull Builder setPlayerId(@NonNull String setterArg) {
-        this.playerId = setterArg;
-        return this;
-      }
 
       private @Nullable String url;
 
@@ -538,40 +625,36 @@ public class PlaybackPlatformApi {
         return this;
       }
 
-      private @Nullable Boolean isLive;
+      private @Nullable Map<String, String> customData;
 
       @CanIgnoreReturnValue
-      public @NonNull Builder setIsLive(@Nullable Boolean setterArg) {
-        this.isLive = setterArg;
+      public @NonNull Builder setCustomData(@Nullable Map<String, String> setterArg) {
+        this.customData = setterArg;
         return this;
       }
 
-      public @NonNull SetUrlArgs build() {
-        SetUrlArgs pigeonReturn = new SetUrlArgs();
-        pigeonReturn.setPlayerId(playerId);
+      public @NonNull CastMedia build() {
+        CastMedia pigeonReturn = new CastMedia();
         pigeonReturn.setUrl(url);
-        pigeonReturn.setIsLive(isLive);
+        pigeonReturn.setCustomData(customData);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(3);
-      toListResult.add(playerId);
+      ArrayList<Object> toListResult = new ArrayList<>(2);
       toListResult.add(url);
-      toListResult.add(isLive);
+      toListResult.add(customData);
       return toListResult;
     }
 
-    static @NonNull SetUrlArgs fromList(@NonNull ArrayList<Object> pigeonVar_list) {
-      SetUrlArgs pigeonResult = new SetUrlArgs();
-      Object playerId = pigeonVar_list.get(0);
-      pigeonResult.setPlayerId((String) playerId);
-      Object url = pigeonVar_list.get(1);
+    static @NonNull CastMedia fromList(@NonNull ArrayList<Object> pigeonVar_list) {
+      CastMedia pigeonResult = new CastMedia();
+      Object url = pigeonVar_list.get(0);
       pigeonResult.setUrl((String) url);
-      Object isLive = pigeonVar_list.get(2);
-      pigeonResult.setIsLive((Boolean) isLive);
+      Object customData = pigeonVar_list.get(1);
+      pigeonResult.setCustomData((Map<String, String>) customData);
       return pigeonResult;
     }
   }
@@ -668,17 +751,37 @@ public class PlaybackPlatformApi {
       this.lastKnownSubtitleLanguage = setterArg;
     }
 
+    private @Nullable DrmConfiguration drmConfiguration;
+
+    public @Nullable DrmConfiguration getDrmConfiguration() {
+      return drmConfiguration;
+    }
+
+    public void setDrmConfiguration(@Nullable DrmConfiguration setterArg) {
+      this.drmConfiguration = setterArg;
+    }
+
+    private @Nullable CastMedia castMedia;
+
+    public @Nullable CastMedia getCastMedia() {
+      return castMedia;
+    }
+
+    public void setCastMedia(@Nullable CastMedia setterArg) {
+      this.castMedia = setterArg;
+    }
+
     @Override
     public boolean equals(Object o) {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
       MediaItem that = (MediaItem) o;
-      return Objects.equals(id, that.id) && Objects.equals(url, that.url) && Objects.equals(mimeType, that.mimeType) && Objects.equals(metadata, that.metadata) && Objects.equals(isLive, that.isLive) && Objects.equals(isOffline, that.isOffline) && Objects.equals(playbackStartPositionMs, that.playbackStartPositionMs) && Objects.equals(lastKnownAudioLanguage, that.lastKnownAudioLanguage) && Objects.equals(lastKnownSubtitleLanguage, that.lastKnownSubtitleLanguage);
+      return Objects.equals(id, that.id) && Objects.equals(url, that.url) && Objects.equals(mimeType, that.mimeType) && Objects.equals(metadata, that.metadata) && Objects.equals(isLive, that.isLive) && Objects.equals(isOffline, that.isOffline) && Objects.equals(playbackStartPositionMs, that.playbackStartPositionMs) && Objects.equals(lastKnownAudioLanguage, that.lastKnownAudioLanguage) && Objects.equals(lastKnownSubtitleLanguage, that.lastKnownSubtitleLanguage) && Objects.equals(drmConfiguration, that.drmConfiguration) && Objects.equals(castMedia, that.castMedia);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(id, url, mimeType, metadata, isLive, isOffline, playbackStartPositionMs, lastKnownAudioLanguage, lastKnownSubtitleLanguage);
+      return Objects.hash(id, url, mimeType, metadata, isLive, isOffline, playbackStartPositionMs, lastKnownAudioLanguage, lastKnownSubtitleLanguage, drmConfiguration, castMedia);
     }
 
     public static final class Builder {
@@ -755,6 +858,22 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable DrmConfiguration drmConfiguration;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setDrmConfiguration(@Nullable DrmConfiguration setterArg) {
+        this.drmConfiguration = setterArg;
+        return this;
+      }
+
+      private @Nullable CastMedia castMedia;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setCastMedia(@Nullable CastMedia setterArg) {
+        this.castMedia = setterArg;
+        return this;
+      }
+
       public @NonNull MediaItem build() {
         MediaItem pigeonReturn = new MediaItem();
         pigeonReturn.setId(id);
@@ -766,13 +885,15 @@ public class PlaybackPlatformApi {
         pigeonReturn.setPlaybackStartPositionMs(playbackStartPositionMs);
         pigeonReturn.setLastKnownAudioLanguage(lastKnownAudioLanguage);
         pigeonReturn.setLastKnownSubtitleLanguage(lastKnownSubtitleLanguage);
+        pigeonReturn.setDrmConfiguration(drmConfiguration);
+        pigeonReturn.setCastMedia(castMedia);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(9);
+      ArrayList<Object> toListResult = new ArrayList<>(11);
       toListResult.add(id);
       toListResult.add(url);
       toListResult.add(mimeType);
@@ -782,6 +903,8 @@ public class PlaybackPlatformApi {
       toListResult.add(playbackStartPositionMs);
       toListResult.add(lastKnownAudioLanguage);
       toListResult.add(lastKnownSubtitleLanguage);
+      toListResult.add(drmConfiguration);
+      toListResult.add(castMedia);
       return toListResult;
     }
 
@@ -805,6 +928,10 @@ public class PlaybackPlatformApi {
       pigeonResult.setLastKnownAudioLanguage((String) lastKnownAudioLanguage);
       Object lastKnownSubtitleLanguage = pigeonVar_list.get(8);
       pigeonResult.setLastKnownSubtitleLanguage((String) lastKnownSubtitleLanguage);
+      Object drmConfiguration = pigeonVar_list.get(9);
+      pigeonResult.setDrmConfiguration((DrmConfiguration) drmConfiguration);
+      Object castMedia = pigeonVar_list.get(10);
+      pigeonResult.setCastMedia((CastMedia) castMedia);
       return pigeonResult;
     }
   }
@@ -1240,7 +1367,7 @@ public class PlaybackPlatformApi {
       Object playbackPositionMs = pigeonVar_list.get(7);
       pigeonResult.setPlaybackPositionMs((Double) playbackPositionMs);
       Object textureId = pigeonVar_list.get(8);
-      pigeonResult.setTextureId((Long) textureId);
+      pigeonResult.setTextureId((textureId == null) ? null : ((textureId instanceof Integer) ? (Integer) textureId : (Long) textureId));
       Object volume = pigeonVar_list.get(9);
       pigeonResult.setVolume((Double) volume);
       Object error = pigeonVar_list.get(10);
@@ -1409,9 +1536,9 @@ public class PlaybackPlatformApi {
     static @NonNull VideoSize fromList(@NonNull ArrayList<Object> pigeonVar_list) {
       VideoSize pigeonResult = new VideoSize();
       Object width = pigeonVar_list.get(0);
-      pigeonResult.setWidth((Long) width);
+      pigeonResult.setWidth((width == null) ? null : ((width instanceof Integer) ? (Integer) width : (Long) width));
       Object height = pigeonVar_list.get(1);
-      pigeonResult.setHeight((Long) height);
+      pigeonResult.setHeight((height == null) ? null : ((height instanceof Integer) ? (Integer) height : (Long) height));
       return pigeonResult;
     }
   }
@@ -1981,11 +2108,11 @@ public class PlaybackPlatformApi {
       Object frameRate = pigeonVar_list.get(3);
       pigeonResult.setFrameRate((Double) frameRate);
       Object bitrate = pigeonVar_list.get(4);
-      pigeonResult.setBitrate((Long) bitrate);
+      pigeonResult.setBitrate((bitrate == null) ? null : ((bitrate instanceof Integer) ? (Integer) bitrate : (Long) bitrate));
       Object width = pigeonVar_list.get(5);
-      pigeonResult.setWidth((Long) width);
+      pigeonResult.setWidth((width == null) ? null : ((width instanceof Integer) ? (Integer) width : (Long) width));
       Object height = pigeonVar_list.get(6);
-      pigeonResult.setHeight((Long) height);
+      pigeonResult.setHeight((height == null) ? null : ((height instanceof Integer) ? (Integer) height : (Long) height));
       Object downloaded = pigeonVar_list.get(7);
       pigeonResult.setDownloaded((Boolean) downloaded);
       Object isSelected = pigeonVar_list.get(8);
@@ -2605,63 +2732,67 @@ public class PlaybackPlatformApi {
       switch (type) {
         case (byte) 129: {
           Object value = readValue(buffer);
-          return value == null ? null : BufferMode.values()[((Long) value).intValue()];
+          return value == null ? null : BufferMode.values()[(int) value];
         }
         case (byte) 130: {
           Object value = readValue(buffer);
-          return value == null ? null : RepeatMode.values()[((Long) value).intValue()];
+          return value == null ? null : RepeatMode.values()[(int) value];
         }
         case (byte) 131: {
           Object value = readValue(buffer);
-          return value == null ? null : PlaybackState.values()[((Long) value).intValue()];
+          return value == null ? null : DrmType.values()[(int) value];
         }
         case (byte) 132: {
           Object value = readValue(buffer);
-          return value == null ? null : CastConnectionState.values()[((Long) value).intValue()];
+          return value == null ? null : PlaybackState.values()[(int) value];
         }
         case (byte) 133: {
           Object value = readValue(buffer);
-          return value == null ? null : TrackType.values()[((Long) value).intValue()];
+          return value == null ? null : CastConnectionState.values()[(int) value];
         }
-        case (byte) 134:
-          return NpawConfig.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 134: {
+          Object value = readValue(buffer);
+          return value == null ? null : TrackType.values()[(int) value];
+        }
         case (byte) 135:
-          return AppConfig.fromList((ArrayList<Object>) readValue(buffer));
+          return NpawConfig.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 136:
-          return User.fromList((ArrayList<Object>) readValue(buffer));
+          return AppConfig.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 137:
-          return SetUrlArgs.fromList((ArrayList<Object>) readValue(buffer));
+          return DrmConfiguration.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 138:
-          return MediaItem.fromList((ArrayList<Object>) readValue(buffer));
+          return CastMedia.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 139:
-          return MediaMetadata.fromList((ArrayList<Object>) readValue(buffer));
+          return MediaItem.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 140:
-          return PlayerStateSnapshot.fromList((ArrayList<Object>) readValue(buffer));
+          return MediaMetadata.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 141:
-          return PlayerError.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerStateSnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 142:
-          return VideoSize.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerError.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 143:
-          return ChromecastState.fromList((ArrayList<Object>) readValue(buffer));
+          return VideoSize.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 144:
-          return MediaInfo.fromList((ArrayList<Object>) readValue(buffer));
+          return ChromecastState.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 145:
-          return PlayerTracksSnapshot.fromList((ArrayList<Object>) readValue(buffer));
+          return MediaInfo.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 146:
-          return Track.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerTracksSnapshot.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 147:
-          return PrimaryPlayerChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return Track.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 148:
-          return PlayerStateUpdateEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PrimaryPlayerChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 149:
-          return PositionDiscontinuityEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PlayerStateUpdateEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 150:
-          return PlaybackStateChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PositionDiscontinuityEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 151:
-          return PlaybackEndedEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PlaybackStateChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 152:
-          return PictureInPictureModeChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+          return PlaybackEndedEvent.fromList((ArrayList<Object>) readValue(buffer));
         case (byte) 153:
+          return PictureInPictureModeChangedEvent.fromList((ArrayList<Object>) readValue(buffer));
+        case (byte) 154:
           return MediaItemTransitionEvent.fromList((ArrayList<Object>) readValue(buffer));
         default:
           return super.readValueOfType(type, buffer);
@@ -2676,74 +2807,77 @@ public class PlaybackPlatformApi {
       } else if (value instanceof RepeatMode) {
         stream.write(130);
         writeValue(stream, value == null ? null : ((RepeatMode) value).index);
-      } else if (value instanceof PlaybackState) {
+      } else if (value instanceof DrmType) {
         stream.write(131);
+        writeValue(stream, value == null ? null : ((DrmType) value).index);
+      } else if (value instanceof PlaybackState) {
+        stream.write(132);
         writeValue(stream, value == null ? null : ((PlaybackState) value).index);
       } else if (value instanceof CastConnectionState) {
-        stream.write(132);
+        stream.write(133);
         writeValue(stream, value == null ? null : ((CastConnectionState) value).index);
       } else if (value instanceof TrackType) {
-        stream.write(133);
+        stream.write(134);
         writeValue(stream, value == null ? null : ((TrackType) value).index);
       } else if (value instanceof NpawConfig) {
-        stream.write(134);
+        stream.write(135);
         writeValue(stream, ((NpawConfig) value).toList());
       } else if (value instanceof AppConfig) {
-        stream.write(135);
-        writeValue(stream, ((AppConfig) value).toList());
-      } else if (value instanceof User) {
         stream.write(136);
-        writeValue(stream, ((User) value).toList());
-      } else if (value instanceof SetUrlArgs) {
+        writeValue(stream, ((AppConfig) value).toList());
+      } else if (value instanceof DrmConfiguration) {
         stream.write(137);
-        writeValue(stream, ((SetUrlArgs) value).toList());
-      } else if (value instanceof MediaItem) {
+        writeValue(stream, ((DrmConfiguration) value).toList());
+      } else if (value instanceof CastMedia) {
         stream.write(138);
+        writeValue(stream, ((CastMedia) value).toList());
+      } else if (value instanceof MediaItem) {
+        stream.write(139);
         writeValue(stream, ((MediaItem) value).toList());
       } else if (value instanceof MediaMetadata) {
-        stream.write(139);
+        stream.write(140);
         writeValue(stream, ((MediaMetadata) value).toList());
       } else if (value instanceof PlayerStateSnapshot) {
-        stream.write(140);
+        stream.write(141);
         writeValue(stream, ((PlayerStateSnapshot) value).toList());
       } else if (value instanceof PlayerError) {
-        stream.write(141);
+        stream.write(142);
         writeValue(stream, ((PlayerError) value).toList());
       } else if (value instanceof VideoSize) {
-        stream.write(142);
+        stream.write(143);
         writeValue(stream, ((VideoSize) value).toList());
       } else if (value instanceof ChromecastState) {
-        stream.write(143);
+        stream.write(144);
         writeValue(stream, ((ChromecastState) value).toList());
       } else if (value instanceof MediaInfo) {
-        stream.write(144);
+        stream.write(145);
         writeValue(stream, ((MediaInfo) value).toList());
       } else if (value instanceof PlayerTracksSnapshot) {
-        stream.write(145);
+        stream.write(146);
         writeValue(stream, ((PlayerTracksSnapshot) value).toList());
       } else if (value instanceof Track) {
-        stream.write(146);
+        stream.write(147);
         writeValue(stream, ((Track) value).toList());
       } else if (value instanceof PrimaryPlayerChangedEvent) {
-        stream.write(147);
+        stream.write(148);
         writeValue(stream, ((PrimaryPlayerChangedEvent) value).toList());
       } else if (value instanceof PlayerStateUpdateEvent) {
-        stream.write(148);
+        stream.write(149);
         writeValue(stream, ((PlayerStateUpdateEvent) value).toList());
       } else if (value instanceof PositionDiscontinuityEvent) {
-        stream.write(149);
+        stream.write(150);
         writeValue(stream, ((PositionDiscontinuityEvent) value).toList());
       } else if (value instanceof PlaybackStateChangedEvent) {
-        stream.write(150);
+        stream.write(151);
         writeValue(stream, ((PlaybackStateChangedEvent) value).toList());
       } else if (value instanceof PlaybackEndedEvent) {
-        stream.write(151);
+        stream.write(152);
         writeValue(stream, ((PlaybackEndedEvent) value).toList());
       } else if (value instanceof PictureInPictureModeChangedEvent) {
-        stream.write(152);
+        stream.write(153);
         writeValue(stream, ((PictureInPictureModeChangedEvent) value).toList());
       } else if (value instanceof MediaItemTransitionEvent) {
-        stream.write(153);
+        stream.write(154);
         writeValue(stream, ((MediaItemTransitionEvent) value).toList());
       } else {
         super.writeValue(stream, value);
@@ -2944,7 +3078,7 @@ public class PlaybackPlatformApi {
               (message, reply) -> {
                 ArrayList<Object> wrapped = new ArrayList<>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
-                Long textureIdArg = (Long) args.get(0);
+                Number textureIdArg = (Number) args.get(0);
                 Result<Boolean> resultCallback =
                     new Result<Boolean>() {
                       public void success(Boolean result) {
@@ -2958,7 +3092,7 @@ public class PlaybackPlatformApi {
                       }
                     };
 
-                api.disposeVideoTexture(textureIdArg, resultCallback);
+                api.disposeVideoTexture((textureIdArg == null) ? null : textureIdArg.longValue(), resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
@@ -2974,7 +3108,7 @@ public class PlaybackPlatformApi {
                 ArrayList<Object> wrapped = new ArrayList<>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
                 String playerIdArg = (String) args.get(0);
-                Long textureIdArg = (Long) args.get(1);
+                Number textureIdArg = (Number) args.get(1);
                 Result<Long> resultCallback =
                     new Result<Long>() {
                       public void success(Long result) {
@@ -2988,7 +3122,7 @@ public class PlaybackPlatformApi {
                       }
                     };
 
-                api.switchToVideoTexture(playerIdArg, textureIdArg, resultCallback);
+                api.switchToVideoTexture(playerIdArg, (textureIdArg == null) ? null : textureIdArg.longValue(), resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
@@ -3064,10 +3198,10 @@ public class PlaybackPlatformApi {
               (message, reply) -> {
                 ArrayList<Object> wrapped = new ArrayList<>();
                 ArrayList<Object> args = (ArrayList<Object>) message;
-                Long viewIdArg = (Long) args.get(0);
+                Number viewIdArg = (Number) args.get(0);
                 Boolean visibleArg = (Boolean) args.get(1);
                 try {
-                  api.setPlayerViewVisibility(viewIdArg, visibleArg);
+                  api.setPlayerViewVisibility((viewIdArg == null) ? null : viewIdArg.longValue(), visibleArg);
                   wrapped.add(0, null);
                 }
  catch (Throwable exception) {
