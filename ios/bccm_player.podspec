@@ -21,8 +21,9 @@ A new Flutter plugin project.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
   s.static_framework = true
-  s.dependency 'YouboraLib', '6.6.22'
-  s.dependency 'YouboraAVPlayerAdapter', '6.6.8'
+  
+  # Npaw
+  s.dependency 'NpawPluginPkg', '7.3.5'
 
   # Protobuf is for cast
   s.dependency 'Protobuf', '~> 3.13'
