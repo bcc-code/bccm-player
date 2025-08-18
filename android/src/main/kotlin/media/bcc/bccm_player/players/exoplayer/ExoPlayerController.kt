@@ -129,7 +129,6 @@ class ExoPlayerController(
 
     override fun stop(reset: Boolean) {
         player.stop()
-        videoAdapter?.destroy()
         if (reset) {
             player.clearMediaItems()
         }
@@ -191,11 +190,14 @@ class ExoPlayerController(
         options.appName = config.appName
         options.deviceIsAnonymous = config.deviceIsAnonymous ?: false
         val activity = BccmPlayerPluginSingleton.activityState.value
-        NpawPluginProvider.initialize(config.accountCode, activity, options)
+        if (NpawPluginProvider.getInstance() == null) {
+            NpawPluginProvider.initialize(config.accountCode, activity, options)
+        }
         npawPlugin = NpawPluginProvider.getInstance()
         val npawPlugin = npawPlugin ?: return
-        videoAdapter = npawPlugin.videoBuilder().setPlayerAdapter(Media3ExoPlayerAdapter(context, exoPlayer)).build()
-        Log.d("bccm", "videoAdapter initialized")
+        videoAdapter = npawPlugin.videoBuilder()
+            .setPlayerAdapter(Media3ExoPlayerAdapter(context, exoPlayer))
+            .build()
         updateNpawOptions()
     }
 
