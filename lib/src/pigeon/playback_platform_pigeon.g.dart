@@ -35,6 +35,11 @@ enum RepeatMode {
   one,
 }
 
+enum DrmType {
+  widevine,
+  fairplay,
+}
+
 enum PlaybackState {
   stopped,
   paused,
@@ -132,54 +137,69 @@ class AppConfig {
   }
 }
 
-class User {
-  User({
-    this.id,
+class DrmConfiguration {
+  DrmConfiguration({
+    required this.drmType,
+    this.contentKeyId,
+    this.fpsCertificateUrl,
+    required this.licenseServerUrl,
+    this.licenseRequestHeaders,
   });
 
-  String? id;
+  DrmType drmType;
+
+  String? contentKeyId;
+
+  String? fpsCertificateUrl;
+
+  String licenseServerUrl;
+
+  Map<String?, String?>? licenseRequestHeaders;
 
   Object encode() {
     return <Object?>[
-      id,
+      drmType,
+      contentKeyId,
+      fpsCertificateUrl,
+      licenseServerUrl,
+      licenseRequestHeaders,
     ];
   }
 
-  static User decode(Object result) {
+  static DrmConfiguration decode(Object result) {
     result as List<Object?>;
-    return User(
-      id: result[0] as String?,
+    return DrmConfiguration(
+      drmType: result[0]! as DrmType,
+      contentKeyId: result[1] as String?,
+      fpsCertificateUrl: result[2] as String?,
+      licenseServerUrl: result[3]! as String,
+      licenseRequestHeaders: (result[4] as Map<Object?, Object?>?)?.cast<String?, String?>(),
     );
   }
 }
 
-class SetUrlArgs {
-  SetUrlArgs({
-    required this.playerId,
+class CastMedia {
+  CastMedia({
     required this.url,
-    this.isLive,
+    this.customData,
   });
-
-  String playerId;
 
   String url;
 
-  bool? isLive;
+  Map<String?, String?>? customData;
 
   Object encode() {
     return <Object?>[
-      playerId,
       url,
-      isLive,
+      customData,
     ];
   }
 
-  static SetUrlArgs decode(Object result) {
+  static CastMedia decode(Object result) {
     result as List<Object?>;
-    return SetUrlArgs(
-      playerId: result[0]! as String,
-      url: result[1]! as String,
-      isLive: result[2] as bool?,
+    return CastMedia(
+      url: result[0]! as String,
+      customData: (result[1] as Map<Object?, Object?>?)?.cast<String?, String?>(),
     );
   }
 }
@@ -195,6 +215,8 @@ class MediaItem {
     this.playbackStartPositionMs,
     this.lastKnownAudioLanguage,
     this.lastKnownSubtitleLanguage,
+    this.drmConfiguration,
+    this.castMedia,
   });
 
   String? id;
@@ -215,6 +237,10 @@ class MediaItem {
 
   String? lastKnownSubtitleLanguage;
 
+  DrmConfiguration? drmConfiguration;
+
+  CastMedia? castMedia;
+
   Object encode() {
     return <Object?>[
       id,
@@ -226,6 +252,8 @@ class MediaItem {
       playbackStartPositionMs,
       lastKnownAudioLanguage,
       lastKnownSubtitleLanguage,
+      drmConfiguration,
+      castMedia,
     ];
   }
 
@@ -241,6 +269,8 @@ class MediaItem {
       playbackStartPositionMs: result[6] as double?,
       lastKnownAudioLanguage: result[7] as String?,
       lastKnownSubtitleLanguage: result[8] as String?,
+      drmConfiguration: result[9] as DrmConfiguration?,
+      castMedia: result[10] as CastMedia?,
     );
   }
 }
@@ -750,83 +780,83 @@ class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is int) {
-      buffer.putUint8(4);
-      buffer.putInt64(value);
-    }    else if (value is BufferMode) {
+    if (value is BufferMode) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is RepeatMode) {
+    } else     if (value is RepeatMode) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is PlaybackState) {
+    } else     if (value is DrmType) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is CastConnectionState) {
+    } else     if (value is PlaybackState) {
       buffer.putUint8(132);
       writeValue(buffer, value.index);
-    }    else if (value is TrackType) {
+    } else     if (value is CastConnectionState) {
       buffer.putUint8(133);
       writeValue(buffer, value.index);
-    }    else if (value is NpawConfig) {
+    } else     if (value is TrackType) {
       buffer.putUint8(134);
-      writeValue(buffer, value.encode());
-    }    else if (value is AppConfig) {
+      writeValue(buffer, value.index);
+    } else     if (value is NpawConfig) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    }    else if (value is User) {
+    } else     if (value is AppConfig) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    }    else if (value is SetUrlArgs) {
+    } else     if (value is DrmConfiguration) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    }    else if (value is MediaItem) {
+    } else     if (value is CastMedia) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    }    else if (value is MediaMetadata) {
+    } else     if (value is MediaItem) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    }    else if (value is PlayerStateSnapshot) {
+    } else     if (value is MediaMetadata) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    }    else if (value is PlayerError) {
+    } else     if (value is PlayerStateSnapshot) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    }    else if (value is VideoSize) {
+    } else     if (value is PlayerError) {
       buffer.putUint8(142);
       writeValue(buffer, value.encode());
-    }    else if (value is ChromecastState) {
+    } else     if (value is VideoSize) {
       buffer.putUint8(143);
       writeValue(buffer, value.encode());
-    }    else if (value is MediaInfo) {
+    } else     if (value is ChromecastState) {
       buffer.putUint8(144);
       writeValue(buffer, value.encode());
-    }    else if (value is PlayerTracksSnapshot) {
+    } else     if (value is MediaInfo) {
       buffer.putUint8(145);
       writeValue(buffer, value.encode());
-    }    else if (value is Track) {
+    } else     if (value is PlayerTracksSnapshot) {
       buffer.putUint8(146);
       writeValue(buffer, value.encode());
-    }    else if (value is PrimaryPlayerChangedEvent) {
+    } else     if (value is Track) {
       buffer.putUint8(147);
       writeValue(buffer, value.encode());
-    }    else if (value is PlayerStateUpdateEvent) {
+    } else     if (value is PrimaryPlayerChangedEvent) {
       buffer.putUint8(148);
       writeValue(buffer, value.encode());
-    }    else if (value is PositionDiscontinuityEvent) {
+    } else     if (value is PlayerStateUpdateEvent) {
       buffer.putUint8(149);
       writeValue(buffer, value.encode());
-    }    else if (value is PlaybackStateChangedEvent) {
+    } else     if (value is PositionDiscontinuityEvent) {
       buffer.putUint8(150);
       writeValue(buffer, value.encode());
-    }    else if (value is PlaybackEndedEvent) {
+    } else     if (value is PlaybackStateChangedEvent) {
       buffer.putUint8(151);
       writeValue(buffer, value.encode());
-    }    else if (value is PictureInPictureModeChangedEvent) {
+    } else     if (value is PlaybackEndedEvent) {
       buffer.putUint8(152);
       writeValue(buffer, value.encode());
-    }    else if (value is MediaItemTransitionEvent) {
+    } else     if (value is PictureInPictureModeChangedEvent) {
       buffer.putUint8(153);
+      writeValue(buffer, value.encode());
+    } else     if (value is MediaItemTransitionEvent) {
+      buffer.putUint8(154);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -844,52 +874,55 @@ class _PigeonCodec extends StandardMessageCodec {
         return value == null ? null : RepeatMode.values[value];
       case 131: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : PlaybackState.values[value];
+        return value == null ? null : DrmType.values[value];
       case 132: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : CastConnectionState.values[value];
+        return value == null ? null : PlaybackState.values[value];
       case 133: 
         final int? value = readValue(buffer) as int?;
-        return value == null ? null : TrackType.values[value];
+        return value == null ? null : CastConnectionState.values[value];
       case 134: 
-        return NpawConfig.decode(readValue(buffer)!);
+        final int? value = readValue(buffer) as int?;
+        return value == null ? null : TrackType.values[value];
       case 135: 
-        return AppConfig.decode(readValue(buffer)!);
+        return NpawConfig.decode(readValue(buffer)!);
       case 136: 
-        return User.decode(readValue(buffer)!);
+        return AppConfig.decode(readValue(buffer)!);
       case 137: 
-        return SetUrlArgs.decode(readValue(buffer)!);
+        return DrmConfiguration.decode(readValue(buffer)!);
       case 138: 
-        return MediaItem.decode(readValue(buffer)!);
+        return CastMedia.decode(readValue(buffer)!);
       case 139: 
-        return MediaMetadata.decode(readValue(buffer)!);
+        return MediaItem.decode(readValue(buffer)!);
       case 140: 
-        return PlayerStateSnapshot.decode(readValue(buffer)!);
+        return MediaMetadata.decode(readValue(buffer)!);
       case 141: 
-        return PlayerError.decode(readValue(buffer)!);
+        return PlayerStateSnapshot.decode(readValue(buffer)!);
       case 142: 
-        return VideoSize.decode(readValue(buffer)!);
+        return PlayerError.decode(readValue(buffer)!);
       case 143: 
-        return ChromecastState.decode(readValue(buffer)!);
+        return VideoSize.decode(readValue(buffer)!);
       case 144: 
-        return MediaInfo.decode(readValue(buffer)!);
+        return ChromecastState.decode(readValue(buffer)!);
       case 145: 
-        return PlayerTracksSnapshot.decode(readValue(buffer)!);
+        return MediaInfo.decode(readValue(buffer)!);
       case 146: 
-        return Track.decode(readValue(buffer)!);
+        return PlayerTracksSnapshot.decode(readValue(buffer)!);
       case 147: 
-        return PrimaryPlayerChangedEvent.decode(readValue(buffer)!);
+        return Track.decode(readValue(buffer)!);
       case 148: 
-        return PlayerStateUpdateEvent.decode(readValue(buffer)!);
+        return PrimaryPlayerChangedEvent.decode(readValue(buffer)!);
       case 149: 
-        return PositionDiscontinuityEvent.decode(readValue(buffer)!);
+        return PlayerStateUpdateEvent.decode(readValue(buffer)!);
       case 150: 
-        return PlaybackStateChangedEvent.decode(readValue(buffer)!);
+        return PositionDiscontinuityEvent.decode(readValue(buffer)!);
       case 151: 
-        return PlaybackEndedEvent.decode(readValue(buffer)!);
+        return PlaybackStateChangedEvent.decode(readValue(buffer)!);
       case 152: 
-        return PictureInPictureModeChangedEvent.decode(readValue(buffer)!);
+        return PlaybackEndedEvent.decode(readValue(buffer)!);
       case 153: 
+        return PictureInPictureModeChangedEvent.decode(readValue(buffer)!);
+      case 154: 
         return MediaItemTransitionEvent.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);

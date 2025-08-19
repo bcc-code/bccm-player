@@ -35,6 +35,8 @@ dependencies:
   hooks_riverpod: ^2.3.6
   focus_debugger: ^0.0.1
   connectivity_plus: ^6.0.0
+  preload_page_view: ^0.2.0
+  screen_protector: ^1.4.2+1
 
   flutter_web_plugins:
     sdk: flutter

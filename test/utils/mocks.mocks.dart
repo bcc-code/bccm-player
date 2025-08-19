@@ -252,6 +252,46 @@ class MockBccmPlayerInterface extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
+  _i3.Future<void> replaceCurrentOfflineAsset(
+    String? playerId,
+    String? downloadKey, {
+    bool? playbackPositionFromPrimary,
+    bool? autoplay = true,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #replaceCurrentOfflineAsset,
+          [
+            playerId,
+            downloadKey,
+          ],
+          {
+            #playbackPositionFromPrimary: playbackPositionFromPrimary,
+            #autoplay: autoplay,
+          },
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> queueMediaItem(
+    String? playerId,
+    _i2.MediaItem? mediaItem,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #queueMediaItem,
+          [
+            playerId,
+            mediaItem,
+          ],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<_i7.ChromecastState?> getChromecastState() => (super.noSuchMethod(
         Invocation.method(
           #getChromecastState,

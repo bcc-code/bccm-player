@@ -196,10 +196,12 @@ class CastMediaItemConverter : MediaItemConverter {
         const val PLAYER_DATA_IS_OFFLINE = "$BCCM_PLAYER_DATA.is_offline"
         const val PLAYER_DATA_MIME_TYPE = "$BCCM_PLAYER_DATA.mime_type"
         const val PLAYER_DATA_DURATION = "$BCCM_PLAYER_DATA.durationMs"
-        const val PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE =
-            "$BCCM_PLAYER_DATA.last_known_audio_language"
-        const val PLAYER_DATA_LAST_KNOWN_SUBTITLE_LANGUAGE =
-            "$BCCM_PLAYER_DATA.last_known_subtitle_language"
+        const val PLAYER_DATA_LAST_KNOWN_AUDIO_LANGUAGE = "$BCCM_PLAYER_DATA.last_known_audio_language"
+        const val PLAYER_DATA_LAST_KNOWN_SUBTITLE_LANGUAGE = "$BCCM_PLAYER_DATA.last_known_subtitle_language"
+        const val PLAYER_DATA_DRM_LICENSE_SERVER_URL = "$BCCM_PLAYER_DATA.drm.license_server.url"
+        const val PLAYER_DATA_DRM_LICENSE_REQUEST_HEADERS = "$BCCM_PLAYER_DATA.drm.license_server.request_headers"
+        const val PLAYER_DATA_CAST_URL = "$BCCM_PLAYER_DATA.cast.url"
+        const val PLAYER_DATA_CAST_CUSTOM_DATA = "$BCCM_PLAYER_DATA.cast.custom_data"
 
         // Serialization.
         private fun getCustomData(mediaItem: MediaItem): JSONObject {
