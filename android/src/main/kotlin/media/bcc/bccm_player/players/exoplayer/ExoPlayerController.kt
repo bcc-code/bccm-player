@@ -180,6 +180,11 @@ class ExoPlayerController(
             Log.d("bccm", "ExoPlayerController: NPAW is disabled")
             return
         }
+        npawPlugin = NpawPluginProvider.getInstance()
+        if (npawPlugin !== null) {
+            Log.d("bccm", "ExoPlayerController: NPAW already initialized")
+            return
+        }
         Log.d("bccm", "ExoPlayerController: Initializing NPAW")
         val options = AnalyticsOptions()
         options.isAutoDetectBackground = false
@@ -189,10 +194,9 @@ class ExoPlayerController(
         options.appReleaseVersion = config.appReleaseVersion
         options.appName = config.appName
         options.deviceIsAnonymous = config.deviceIsAnonymous ?: false
+
         val activity = BccmPlayerPluginSingleton.activityState.value
-        if (NpawPluginProvider.getInstance() == null) {
-            NpawPluginProvider.initialize(config.accountCode, activity, options)
-        }
+        NpawPluginProvider.initialize(config.accountCode, activity, options)
         npawPlugin = NpawPluginProvider.getInstance()
         val npawPlugin = npawPlugin ?: return
         videoAdapter = npawPlugin.videoBuilder()
