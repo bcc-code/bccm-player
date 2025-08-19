@@ -23,7 +23,7 @@ A new Flutter plugin project.
   s.static_framework = true
   
   # Npaw
-  s.dependency 'NpawPluginPkg', '7.3.5'
+  s.dependency 'NpawPluginPkg', '7.3.6'
 
   # Protobuf is for cast
   s.dependency 'Protobuf', '~> 3.13'
