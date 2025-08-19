@@ -20,9 +20,11 @@ import androidx.media3.exoplayer.LoadControl
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
-import com.npaw.youbora.lib6.media3.Media3Adapter
-import com.npaw.youbora.lib6.plugin.Options
-import com.npaw.youbora.lib6.plugin.Plugin
+import com.npaw.NpawPlugin
+import com.npaw.NpawPluginProvider
+import com.npaw.analytics.video.VideoAdapter
+import com.npaw.core.options.AnalyticsOptions
+import com.npaw.media3.exoplayer.Media3ExoPlayerAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -93,7 +95,8 @@ class ExoPlayerController(
         }
 
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    private var youboraPlugin: Plugin? = null
+    private var npawPlugin: NpawPlugin? = null
+    private var videoAdapter: VideoAdapter? = null
 
     init {
         player = BccmForwardingPlayer(this)
@@ -157,85 +160,94 @@ class ExoPlayerController(
 
         textLanguagesThatShouldBeSelected =
             appConfigState?.subtitleLanguages?.toTypedArray()
-        updateYouboraOptions()
+        updateNpawOptions()
     }
 
     private fun handleUpdatedNpawConfig(npawConfig: NpawConfig?) {
         if (npawConfig == null) {
-            youboraPlugin?.disable()
+            npawPlugin?.analyticsOptions?.isEnabled = false
             return
         }
-        if (youboraPlugin != null) {
-            youboraPlugin?.enable()
+        if (npawPlugin != null) {
+            npawPlugin?.analyticsOptions?.isEnabled = true
             return
         }
-        initYoubora(npawConfig)
+        initNpaw(npawConfig)
     }
 
-    private fun initYoubora(config: NpawConfig) {
+    private fun initNpaw(config: NpawConfig) {
         if (disableNpaw) {
-            Log.d("bccm", "ExoPlayerController: Youbora is disabled")
+            Log.d("bccm", "ExoPlayerController: NPAW is disabled")
             return
         }
-        Log.d("bccm", "ExoPlayerController: Initializing youbora")
-        val options = Options()
+        npawPlugin = NpawPluginProvider.getInstance()
+        if (npawPlugin !== null) {
+            Log.d("bccm", "ExoPlayerController: NPAW already initialized")
+            return
+        }
+        Log.d("bccm", "ExoPlayerController: Initializing NPAW")
+        val options = AnalyticsOptions()
         options.isAutoDetectBackground = false
         options.userObfuscateIp = true
         options.isParseManifest = true
         options.isEnabled = true
-        options.accountCode = config.accountCode
         options.appReleaseVersion = config.appReleaseVersion
         options.appName = config.appName
         options.deviceIsAnonymous = config.deviceIsAnonymous ?: false
-        youboraPlugin = Plugin(options, context).also {
-            it.adapter = Media3Adapter(exoPlayer)
-        }
-        updateYouboraOptions()
+
+        val activity = BccmPlayerPluginSingleton.activityState.value
+        NpawPluginProvider.initialize(config.accountCode, activity, options)
+        npawPlugin = NpawPluginProvider.getInstance()
+        val npawPlugin = npawPlugin ?: return
+        videoAdapter = npawPlugin.videoBuilder()
+            .setPlayerAdapter(Media3ExoPlayerAdapter(context, exoPlayer))
+            .build()
+        updateNpawOptions()
     }
 
-    fun updateYouboraOptions() {
-        val youboraPlugin = youboraPlugin ?: return
+    fun updateNpawOptions() {
+        val npawPlugin = npawPlugin ?: return
         Log.d(
             "bccm",
-            "ExoPlayerController: Updating youbora options: ${player.mediaMetadata.title}"
+            "ExoPlayerController: Updating NPAW options: ${player.mediaMetadata.title}"
         )
 
         // Metadata options
         val mediaMetadata = player.mediaMetadata
         val extras = mediaMetadata.extras?.let { extractExtrasFromAndroid(it) }
-        youboraPlugin.options.contentIsLive =
+        npawPlugin.analyticsOptions.live =
             extras?.get("npaw.content.isLive")?.toBooleanStrictOrNull()
                 ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_LIVE)
                     ?.toBooleanStrictOrNull()
                         ?: player.isCurrentMediaItemLive
-        youboraPlugin.options.contentId = extras?.get("npaw.content.id")
+        npawPlugin.analyticsOptions.contentId = extras?.get("npaw.content.id")
             ?: mediaMetadata.extras?.getString("id")
-        youboraPlugin.options.contentTitle = extras?.get("npaw.content.title")
+        npawPlugin.analyticsOptions.contentTitle = extras?.get("npaw.content.title")
             ?: mediaMetadata.title?.toString() ?: mediaMetadata.displayTitle?.toString()
-        youboraPlugin.options.contentTvShow = extras?.get("npaw.content.tvShow")
-        youboraPlugin.options.contentSeason = extras?.get("npaw.content.season")
-        youboraPlugin.options.contentEpisodeTitle = extras?.get("npaw.content.episodeTitle")
-        youboraPlugin.options.isOffline =
+        npawPlugin.analyticsOptions.contentTvShow = extras?.get("npaw.content.tvShow")
+        npawPlugin.analyticsOptions.contentSeason = extras?.get("npaw.content.season")
+        npawPlugin.analyticsOptions.contentEpisodeTitle = extras?.get("npaw.content.episodeTitle")
+        npawPlugin.analyticsOptions.isOffline =
             extras?.get("npaw.isOffline")?.toBooleanStrictOrNull()
                 ?: player.mediaMetadata.extras?.getString(PLAYER_DATA_IS_OFFLINE)
                     ?.toBooleanStrictOrNull() ?: false
-        youboraPlugin.options.contentType = extras?.get("npaw.content.type")
-        youboraPlugin.options.contentTransactionCode = extras?.get("npaw.content.transactionCode")
+        npawPlugin.analyticsOptions.contentType = extras?.get("npaw.content.type")
+        npawPlugin.analyticsOptions.contentTransactionCode = extras?.get("npaw.content.transactionCode")
 
         // App config based options
         val appConfig = BccmPlayerPluginSingleton.appConfigState.value
-        youboraPlugin.options.username = appConfig?.analyticsId
-        youboraPlugin.options.contentCustomDimension1 = extras?.get("npaw.content.customDimension1")
+        npawPlugin.analyticsOptions.username = appConfig?.analyticsId
+        npawPlugin.analyticsOptions.contentCustomDimension1 = extras?.get("npaw.content.customDimension1")
             ?: if (appConfig?.sessionId != null) appConfig.sessionId else null
-        youboraPlugin.options.contentCustomDimension2 = extras?.get("npaw.content.customDimension2")
+        npawPlugin.analyticsOptions.contentCustomDimension2 = extras?.get("npaw.content.customDimension2")
 
         for (t in player.currentTracks.groups) {
             if (!t.isSelected) continue
 
             if (t.type == C.TRACK_TYPE_TEXT) {
-                youboraPlugin.options?.contentSubtitles = LanguageUtils.toThreeLetterLanguageCode(t.mediaTrackGroup.getFormat(0).language)
+                npawPlugin.analyticsOptions.contentSubtitles = LanguageUtils.toThreeLetterLanguageCode(t.mediaTrackGroup.getFormat(0).language)
             } else if (t.type == C.TRACK_TYPE_AUDIO) {
-                youboraPlugin.options?.contentLanguage = LanguageUtils.toThreeLetterLanguageCode(t.mediaTrackGroup.getFormat(0).language)
+                npawPlugin.analyticsOptions.contentLanguage = LanguageUtils.toThreeLetterLanguageCode(t.mediaTrackGroup.getFormat(0).language)
             }
         }
     }
@@ -325,7 +337,7 @@ class ExoPlayerController(
             setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true);
             textLanguagesThatShouldBeSelected = null
         }
-        updateYouboraOptions()
+        updateNpawOptions()
     }
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {

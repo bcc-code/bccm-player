@@ -3,8 +3,7 @@ import AVKit
 import Combine
 import Foundation
 import MediaPlayer
-import YouboraAVPlayerAdapter
-import YouboraLib
+import NpawPlugin
 
 public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewControllerDelegate {
     lazy var player: AVQueuePlayer = .init()
@@ -19,7 +18,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     final lazy var peakBitRateController = PeakBitrateController(player: player)
     
     var temporaryStatusObserver: NSKeyValueObservation? = nil
-    var youboraPlugin: YBPlugin?
+    var npawPlugin: NpawPluginInstance?
+    var npawPlayerAdapter: VideoAdapter?
     var pipController: AVPlayerViewController? = nil
     var appConfig: AppConfig? = nil
     var refreshStateTimer: Timer? = nil
@@ -73,7 +73,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             self.onManualPlayerStateUpdate()
         }
         if let npawConfig = npawConfig {
-            initYoubora(npawConfig)
+            initNpaw(npawConfig)
         }
         print("BTV DEBUG: end of init playerController")
     }
@@ -89,6 +89,9 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
         for observer in notificationObservers {
             NotificationCenter.default.removeObserver(observer)
+        }
+        if let npawPlayerAdapter = npawPlayerAdapter {
+            npawPlugin?.removeAdapter(adapter: npawPlayerAdapter)
         }
     }
     
@@ -429,69 +432,73 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         }
     }
     
-    private func initYoubora(_ npawConfig: NpawConfig) {
+    private func initNpaw(_ npawConfig: NpawConfig) {
         if disableNpaw {
             print("Not initializing npaw, disableNpaw is true.")
             return
         }
-        print("Initializing youbora")
-        let youboraOptions = YBOptions()
-        youboraOptions.enabled = true
-        youboraOptions.accountCode = npawConfig.accountCode
-        youboraOptions.appName = npawConfig.appName
-        youboraOptions.autoDetectBackground = false
-        youboraOptions.userObfuscateIp = true as NSValue
-        youboraOptions.appReleaseVersion = npawConfig.appReleaseVersion
+        print("Initializing npaw")
+        let npawOptions = AnalyticsOptions()
+        npawOptions.enabled = true
+        npawOptions.appName = npawConfig.appName
+        npawOptions.autoDetectBackground = false
+        npawOptions.userObfuscateIp = true
+        npawOptions.appReleaseVersion = npawConfig.appReleaseVersion
         if let deviceIsAnonymous = npawConfig.deviceIsAnonymous?.boolValue {
-            youboraOptions.deviceIsAnonymous = deviceIsAnonymous
+            npawOptions.deviceIsAnonymous = deviceIsAnonymous
         }
-        youboraPlugin = YBPlugin(options: youboraOptions)
-        youboraPlugin!.adapter = YBAVPlayerAdapterSwiftTranformer.transform(from: YBAVPlayerAdapter(player: player))
-        updateYouboraOptions()
+        if let accountCode = npawConfig.accountCode {
+            NpawPluginProvider.initialize(accountCode: accountCode, analyticsOptions: npawOptions)
+        }
+        npawPlugin = NpawPluginProvider.shared
+        npawPlayerAdapter = npawPlugin!.videoBuilder()
+            .setPlayerAdapter(playerAdapter: AVPlayerAdapter(player: player))
+            .build()
+        updateNpawOptions()
     }
     
-    func updateYouboraOptions(mediaItemOverride: MediaItem? = nil) {
-        guard let youboraPlugin = youboraPlugin else {
+    func updateNpawOptions(mediaItemOverride: MediaItem? = nil) {
+        guard let npawPlugin = npawPlugin else {
             return
         }
-        youboraPlugin.options.username = appConfig?.analyticsId
+        npawPlugin.analyticsOptions.userId = appConfig?.analyticsId
         guard let mediaItem = mediaItemOverride ?? getCurrentItem() else {
-            youboraPlugin.options.contentIsLive = nil
-            youboraPlugin.options.contentId = nil
-            youboraPlugin.options.contentTitle = nil
-            youboraPlugin.options.contentTvShow = nil
-            youboraPlugin.options.contentSeason = nil
-            youboraPlugin.options.contentEpisodeTitle = nil
-            youboraPlugin.options.offline = false
-            youboraPlugin.options.contentType = nil
+            npawPlugin.analyticsOptions.live = nil
+            npawPlugin.analyticsOptions.contentId = nil
+            npawPlugin.analyticsOptions.contentTitle = nil
+            npawPlugin.analyticsOptions.contentTvShow = nil
+            npawPlugin.analyticsOptions.contentSeason = nil
+            npawPlugin.analyticsOptions.contentEpisodeTitle = nil
+            npawPlugin.analyticsOptions.offline = false
+            npawPlugin.analyticsOptions.contentType = nil
             return
         }
         let extras = mediaItem.metadata?.safeExtras()
         let isLive = ((extras?["npaw.content.isLive"] as? String) == "true") || (mediaItem.isLive?.boolValue) == true
-        youboraPlugin.options.contentIsLive = isLive as NSValue?
-        youboraPlugin.options.contentId = extras?["npaw.content.id"] as? String ?? extras?["id"] as? String
-        youboraPlugin.options.contentTitle = extras?["npaw.content.title"] as? String ?? mediaItem.metadata?.title
-        youboraPlugin.options.contentTvShow = extras?["npaw.content.tvShow"] as? String
-        youboraPlugin.options.contentSeason = extras?["npaw.content.season"] as? String
-        youboraPlugin.options.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
-        youboraPlugin.options.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
-        youboraPlugin.options.contentType = extras?["npaw.content.type"] as? String
-        youboraPlugin.options.contentLanguage = extras?["npaw.content.language"] as? String
-        youboraPlugin.options.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId : nil
-        youboraPlugin.options.contentCustomDimension2 = extras?["npaw.content.customDimension2"] as? String
-        youboraPlugin.options.contentTransactionCode = extras?["npaw.content.transactionCode"] as? String
+        npawPlugin.analyticsOptions.live = isLive as NSNumber
+        npawPlugin.analyticsOptions.contentId = extras?["npaw.content.id"] as? String ?? extras?["id"] as? String
+        npawPlugin.analyticsOptions.contentTitle = extras?["npaw.content.title"] as? String ?? mediaItem.metadata?.title
+        npawPlugin.analyticsOptions.contentTvShow = extras?["npaw.content.tvShow"] as? String
+        npawPlugin.analyticsOptions.contentSeason = extras?["npaw.content.season"] as? String
+        npawPlugin.analyticsOptions.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
+        npawPlugin.analyticsOptions.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
+        npawPlugin.analyticsOptions.contentType = extras?["npaw.content.type"] as? String
+        npawPlugin.analyticsOptions.contentLanguage = extras?["npaw.content.language"] as? String
+        npawPlugin.analyticsOptions.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId : nil
+        npawPlugin.analyticsOptions.contentCustomDimension2 = extras?["npaw.content.customDimension2"] as? String
+        npawPlugin.analyticsOptions.contentTransactionCode = extras?["npaw.content.transactionCode"] as? String
     }
 
     public func setNpawConfig(npawConfig: NpawConfig?) {
         guard let npawConfig = npawConfig else {
-            youboraPlugin?.disable()
+            npawPlugin?.analyticsOptions.enabled = false
             return
         }
-        if youboraPlugin != nil {
-            youboraPlugin?.enable()
+        if npawPlugin != nil {
+            npawPlugin?.analyticsOptions.enabled = true
             return
         }
-        initYoubora(npawConfig)
+        initNpaw(npawConfig)
     }
 
     public func updateAppConfig(appConfig: AppConfig?) {
@@ -502,7 +509,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             }
         }
         self.appConfig = appConfig
-        updateYouboraOptions()
+        updateNpawOptions()
     }
     
     public func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: ((FlutterError?) -> Void)?) {
@@ -519,7 +526,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                                 toleranceBefore: CMTime.zero,
                                 toleranceAfter: CMTime.zero, completionHandler: nil)
             }
-            self.updateYouboraOptions(mediaItemOverride: mediaItem)
+            self.updateNpawOptions(mediaItemOverride: mediaItem)
             DispatchQueue.main.async {
                 self.player.removeAllItems()
                 self.player.replaceCurrentItem(with: playerItem)
@@ -547,11 +554,11 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         }
                         
                         // This is the initial signal. If this is not set the language is generally empty in NPAW
-                        self.youboraPlugin?.options.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
-                        self.youboraPlugin?.options.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
+                        self.npawPlugin?.analyticsOptions.contentSubtitles = self.player.currentItem?.getSelectedSubtitleLanguage()
+                        self.npawPlugin?.analyticsOptions.contentLanguage = self.player.currentItem?.getSelectedAudioLanguage()
                         if let metadata = mediaItem.metadata, let extras = metadata.safeExtras(), let transactionCode = extras["npaw.content.transactionCode"] {
                             let _transactionCode = String(describing: transactionCode)
-                            self.youboraPlugin?.options.contentTransactionCode = _transactionCode
+                            self.npawPlugin?.analyticsOptions.contentTransactionCode = _transactionCode
                         }
                         completion?(nil)
                     } else if playerItem.status == .failed || playerItem.status == .unknown {
@@ -711,7 +718,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             let event = MediaItemTransitionEvent.make(withPlayerId: self.id, mediaItem: mediaItem)
             self.playbackListener.onMediaItemTransition(event, completion: { _ in })
             
-            self.updateYouboraOptions(mediaItemOverride: mediaItem)
+            self.updateNpawOptions(mediaItemOverride: mediaItem)
             if self.isPrimary {
                 self.updateNowPlayingBaseInfo(playerItem: player.currentItem)
             }
@@ -729,8 +736,8 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                 },
                 player.observe(\.currentItem?.currentMediaSelection, options: [.old, .new]) {
                     player, _ in
-                    self.youboraPlugin?.options.contentLanguage = player.currentItem?.getSelectedAudioLanguage()
-                    self.youboraPlugin?.options.contentSubtitles = player.currentItem?.getSelectedSubtitleLanguage()
+                    self.npawPlugin?.analyticsOptions.contentLanguage = player.currentItem?.getSelectedAudioLanguage()
+                    self.npawPlugin?.analyticsOptions.contentSubtitles = player.currentItem?.getSelectedSubtitleLanguage()
                 },
                 player.observe(\.currentItem?.presentationSize, options: [.old, .new]) {
                     _, _ in
