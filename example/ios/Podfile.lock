@@ -2,46 +2,43 @@ PODS:
   - bccm_player (0.0.1):
     - Flutter
     - google-cast-sdk (= 4.8.3)
+    - NpawPluginPkg (= 7.3.6)
     - Protobuf (~> 3.13)
-    - YouboraAVPlayerAdapter (= 6.6.8)
-    - YouboraLib (= 6.6.22)
   - connectivity_plus (0.0.1):
     - Flutter
-    - FlutterMacOS
   - Flutter (1.0.0)
+  - GCDWebServer (3.5.9)
   - google-cast-sdk (4.8.3):
     - Protobuf (~> 3.13)
+  - NpawPluginPkg (7.3.6):
+    - GCDWebServer (= 3.5.9)
   - package_info_plus (0.4.5):
     - Flutter
   - Protobuf (3.28.2)
   - wakelock_plus (0.0.1):
     - Flutter
-  - YouboraAVPlayerAdapter (6.6.8):
-    - YouboraAVPlayerAdapter/Default (= 6.6.8)
-    - YouboraLib (~> 6.5)
-  - YouboraAVPlayerAdapter/Default (6.6.8):
-    - YouboraLib (~> 6.5)
-  - YouboraLib (6.6.22)
 
 DEPENDENCIES:
   - bccm_player (from `.symlinks/plugins/bccm_player/ios`)
-  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - Flutter (from `Flutter`)
+  - NpawPluginPkg (= 7.3.6)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
 
 SPEC REPOS:
+  https://repo.plugin.npaw.com/release/plugin-ios-cocoapods.git:
+    - GCDWebServer
+    - NpawPluginPkg
   trunk:
     - google-cast-sdk
     - Protobuf
-    - YouboraAVPlayerAdapter
-    - YouboraLib
 
 EXTERNAL SOURCES:
   bccm_player:
     :path: ".symlinks/plugins/bccm_player/ios"
   connectivity_plus:
-    :path: ".symlinks/plugins/connectivity_plus/darwin"
+    :path: ".symlinks/plugins/connectivity_plus/ios"
   Flutter:
     :path: Flutter
   package_info_plus:
@@ -50,16 +47,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  bccm_player: 508fbd6f79e90a6d834da4d2fde56058d9060742
-  connectivity_plus: ddd7f30999e1faaef5967c23d5b6d503d10434db
+  bccm_player: 2feedff021cdc577dbe81cb93f909db733d17d66
+  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  GCDWebServer: baef69ed4f6f8bd69b2be47e08797ab1b8cbad29
   google-cast-sdk: 1fb6724e94cc5ff23b359176e0cf6360586bb97a
-  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
+  NpawPluginPkg: 8c758cbac896f97980065f7b9fff1f62fb093004
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   Protobuf: 28c89b24435762f60244e691544ed80f50d82701
-  wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
-  YouboraAVPlayerAdapter: bc898a61e09c667202a77491b677a42dfa0adc04
-  YouboraLib: fc65b030ac93499f8beb3f5daa10deb3879fb2d2
+  wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
 
-PODFILE CHECKSUM: 57c8aed26fba39d3ec9424816221f294a07c58eb
+PODFILE CHECKSUM: b802cb6dbaaedf3105cb938ee87669263a346458
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
