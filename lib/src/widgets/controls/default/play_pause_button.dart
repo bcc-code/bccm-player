@@ -50,6 +50,7 @@ class PlayPauseButton extends HookWidget {
                   SvgIcons.pause,
                   width: double.infinity,
                   height: double.infinity,
+                  colorFilter: ColorFilter.mode(controlsTheme.iconColor ?? Colors.white, BlendMode.srcIn),
                 ),
               ),
         iconSize: 42,
