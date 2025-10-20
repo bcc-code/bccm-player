@@ -109,7 +109,7 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
           onFocusChange: (value) {
             _setVisible(value);
           },
-          onKey: (node, event) {
+          onKeyEvent: (node, event) {
             if (!widget.isTv) return KeyEventResult.ignored;
             if (_visible) return KeyEventResult.ignored;
             if (event.logicalKey != LogicalKeyboardKey.goBack) {
@@ -129,9 +129,6 @@ class ControlsWrapperState extends State<ControlsWrapper> with SingleTickerProvi
               behavior: HitTestBehavior.translucent,
               onTap: () {
                 _setVisible(!_visible);
-              },
-              onVerticalDragUpdate: (details) {
-                _setVisible(true);
               },
               child: Stack(
                 children: [
