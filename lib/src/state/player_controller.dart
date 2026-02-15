@@ -1,5 +1,5 @@
 import 'package:bccm_player/src/queue/queue_controller.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide RepeatMode;
 import 'package:meta/meta.dart';
 import 'package:state_notifier/state_notifier.dart';
 import 'package:collection/collection.dart';
