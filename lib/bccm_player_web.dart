@@ -15,9 +15,29 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   NpawConfig? npawConfig;
   Map<String, VideoJsPlayer> webVideoPlayers = {};
   final RootPigeonPlaybackListener _rootPlaybackListener = RootPigeonPlaybackListener();
+  BccmPlayerController? _primaryController;
+  void Function()? _removePrimaryPlayerListener;
 
   @override
-  BccmPlayerController get primaryController => throw UnimplementedError('primaryController has not been implemented for web.');
+  BccmPlayerController get primaryController {
+    if (_primaryController != null) {
+      return _primaryController!;
+    }
+    final controller = BccmPlayerController.empty();
+    _removePrimaryPlayerListener = BccmPlayerInterface.instance.stateNotifier.addListener((state) {
+      if (state.primaryPlayerId != controller.value.playerId) {
+        final id = state.primaryPlayerId;
+        if (id != null) {
+          final notifier = BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(id);
+          if (notifier != null) {
+            // ignore: invalid_use_of_protected_member
+            controller.swapPlayerNotifier(notifier);
+          }
+        }
+      }
+    }, fireImmediately: true);
+    return _primaryController = controller;
+  }
 
   @override
   Future setup() async {}

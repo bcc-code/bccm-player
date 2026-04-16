@@ -3,7 +3,7 @@
 import 'dart:html' as html;
 import 'dart:html';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
-import 'dart:ui' as ui;
+import 'dart:ui_web' as ui_web;
 
 import '../../bccm_player_web.dart';
 import 'js/bccm_video_player.dart';
@@ -40,8 +40,7 @@ class VideoJsPlayer {
     // use this.currentElement in registerViewFactory's callback below if we want to embed.
     // not implemented because of a fullscreen bug: https://github.com/flutter/flutter/issues/124799
 
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory('bccm-player-$playerId', (int viewId) => html.document.createElement('div'));
+    ui_web.platformViewRegistry.registerViewFactory('bccm-player-$playerId', (int viewId) => html.document.createElement('div'));
   }
 
   void replaceCurrentMediaItem(MediaItem mediaItem, {bool? autoplay}) {
