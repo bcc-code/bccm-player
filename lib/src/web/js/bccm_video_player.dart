@@ -1,7 +1,7 @@
 @JS('window.bccmVideoPlayer')
 library bccm_video_player;
 
-import 'package:js/js.dart';
+import 'dart:js_interop';
 
 @JS()
 external void createPlayer(String? elementId, Options options);
