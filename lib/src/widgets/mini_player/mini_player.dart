@@ -88,7 +88,7 @@ class MiniPlayer extends HookWidget {
                       child: FadeInImage(
                         fadeInDuration: const Duration(milliseconds: 200),
                         placeholder: MemoryImage(kTransparentImage),
-                        fit: BoxFit.contain,
+                        fit: BoxFit.cover,
                         image: artwork ?? ResizeImage.resizeIfNeeded(null, 64, NetworkImage(artworkUri!)),
                         width: 36,
                         height: 36,
