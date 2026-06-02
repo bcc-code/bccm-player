@@ -484,7 +484,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         npawPlugin.analyticsOptions.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
         npawPlugin.analyticsOptions.contentType = extras?["npaw.content.type"] as? String
         npawPlugin.analyticsOptions.contentLanguage = extras?["npaw.content.language"] as? String
-        npawPlugin.analyticsOptions.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String?) ?? appConfig?.sessionId != nil ? appConfig?.sessionId : nil
+        npawPlugin.analyticsOptions.contentCustomDimension1 = (extras?["npaw.content.customDimension1"] as? String) ?? appConfig?.sessionId
         npawPlugin.analyticsOptions.contentCustomDimension2 = extras?["npaw.content.customDimension2"] as? String
         npawPlugin.analyticsOptions.contentTransactionCode = extras?["npaw.content.transactionCode"] as? String
     }
