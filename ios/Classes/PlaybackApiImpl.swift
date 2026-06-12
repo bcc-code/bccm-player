@@ -196,6 +196,13 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         }
     }
 
+    public func seek(toLive playerId: String, completion: @escaping (FlutterError?) -> Void) {
+        let player = getPlayer(playerId)
+        player?.seekToLive { _ in
+            completion(nil)
+        }
+    }
+
     public func pause(_ playerId: String, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
         let player = getPlayer(playerId)
         player?.pause()

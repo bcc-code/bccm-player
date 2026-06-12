@@ -212,6 +212,37 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     return BccmPlayerInterface.instance.seekTo(value.playerId, moment.inMilliseconds.toDouble());
   }
 
+  /// Seeks to the live edge of the current media. For HLS / DASH live
+  /// streams this returns the player to the live position (within the
+  /// stream's target latency). No-op for non-live content.
+  ///
+  /// See also: [seekableRangeEndMs] for the live position expressed as
+  /// a playback offset.
+  Future<void> seekToLive() {
+    if (_stateNotifier == null) {
+      throw Exception("Player is not initialized");
+    }
+    return BccmPlayerInterface.instance.seekToLive(value.playerId);
+  }
+
+  /// Start of the player's seekable range in milliseconds. For HLS /
+  /// DASH live streams this is the earliest buffered moment in the DVR
+  /// window. `null` until the manifest is parsed.
+  ///
+  /// Note: these range fields live on the controller, not on
+  /// [PlayerState]. See the comment on [PlayerStateNotifier] for the
+  /// reasoning. They update on every snapshot from the native player,
+  /// so widgets that rebuild on the controller's existing listener
+  /// will see fresh values without any extra subscription.
+  int? get seekableRangeStartMs => _stateNotifier?.seekableRangeStartMs;
+
+  /// End of the player's seekable range in milliseconds — equals the
+  /// current live edge for HLS / DASH live streams. `null` until the
+  /// manifest is parsed.
+  ///
+  /// See also: [seekableRangeStartMs], [seekToLive].
+  int? get seekableRangeEndMs => _stateNotifier?.seekableRangeEndMs;
+
   /// Sets the playback speed, where 1.0 is normal speed.
   /// The setting is kept across videos.
   ///

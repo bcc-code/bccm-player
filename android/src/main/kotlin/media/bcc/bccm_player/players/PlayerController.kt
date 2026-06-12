@@ -274,6 +274,7 @@ abstract class PlayerController : Player.Listener {
                     .setMessage(it.message)
                     .build()
             }
+        val seekable = getSeekableRangeMs()
         return PlaybackPlatformApi.PlayerStateSnapshot.Builder()
             .setPlayerId(id)
             .setCurrentMediaItem(getCurrentMediaItem())
@@ -292,7 +293,32 @@ abstract class PlayerController : Player.Listener {
                     .build()
             )
             .setVolume(player.volume.toDouble())
+            .setSeekableRangeStartMs(seekable?.first)
+            .setSeekableRangeEndMs(seekable?.second)
             .build()
+    }
+
+    /**
+     * Returns the seekable range in milliseconds as (start, end), or
+     * null when no seekable range is available yet. For live (dynamic)
+     * windows the end value represents the current live edge; the
+     * window's `defaultPositionMs` gives the position the player would
+     * land on via [Player.seekToDefaultPosition], which on a live
+     * window is the live edge offset within the window.
+     */
+    fun getSeekableRangeMs(): Pair<Double, Double>? {
+        if (player.currentTimeline.isEmpty) return null
+        val window = androidx.media3.common.Timeline.Window()
+        return try {
+            player.currentTimeline.getWindow(player.currentMediaItemIndex, window)
+            val durationMs = window.durationMs
+            if (durationMs <= 0 || durationMs == androidx.media3.common.C.TIME_UNSET) return null
+            // Window-local: the seekable range starts at 0 and ends at
+            // the window's current duration (= DVR window length).
+            0.0 to durationMs.toDouble()
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun getTracksSnapshot(): PlaybackPlatformApi.PlayerTracksSnapshot {

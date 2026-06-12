@@ -422,7 +422,9 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs
     textureId:(nullable NSNumber *)textureId
     volume:(nullable NSNumber *)volume
-    error:(nullable PlayerError *)error {
+    error:(nullable PlayerError *)error
+    seekableRangeStartMs:(nullable NSNumber *)seekableRangeStartMs
+    seekableRangeEndMs:(nullable NSNumber *)seekableRangeEndMs {
   PlayerStateSnapshot* pigeonResult = [[PlayerStateSnapshot alloc] init];
   pigeonResult.playerId = playerId;
   pigeonResult.playbackState = playbackState;
@@ -435,6 +437,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.textureId = textureId;
   pigeonResult.volume = volume;
   pigeonResult.error = error;
+  pigeonResult.seekableRangeStartMs = seekableRangeStartMs;
+  pigeonResult.seekableRangeEndMs = seekableRangeEndMs;
   return pigeonResult;
 }
 + (PlayerStateSnapshot *)fromList:(NSArray<id> *)list {
@@ -451,6 +455,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
   pigeonResult.textureId = GetNullableObjectAtIndex(list, 8);
   pigeonResult.volume = GetNullableObjectAtIndex(list, 9);
   pigeonResult.error = GetNullableObjectAtIndex(list, 10);
+  pigeonResult.seekableRangeStartMs = GetNullableObjectAtIndex(list, 11);
+  pigeonResult.seekableRangeEndMs = GetNullableObjectAtIndex(list, 12);
   return pigeonResult;
 }
 + (nullable PlayerStateSnapshot *)nullableFromList:(NSArray<id> *)list {
@@ -469,6 +475,8 @@ static id GetNullableObjectAtIndex(NSArray<id> *array, NSInteger key) {
     self.textureId ?: [NSNull null],
     self.volume ?: [NSNull null],
     self.error ?: [NSNull null],
+    self.seekableRangeStartMs ?: [NSNull null],
+    self.seekableRangeEndMs ?: [NSNull null],
   ];
 }
 @end
@@ -1232,6 +1240,25 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
         NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
         double arg_positionMs = [GetNullableObjectAtIndex(args, 1) doubleValue];
         [api seek:arg_playerId positionMs:arg_positionMs completion:^(FlutterError *_Nullable error) {
+          callback(wrapResult(nil, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.seekToLive", messageChannelSuffix]
+        binaryMessenger:binaryMessenger
+        codec:nullGetPlaybackPlatformApiCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(seekToLive:completion:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(seekToLive:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray<id> *args = message;
+        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
+        [api seekToLive:arg_playerId completion:^(FlutterError *_Nullable error) {
           callback(wrapResult(nil, error));
         }];
       }];

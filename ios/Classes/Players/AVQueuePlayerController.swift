@@ -105,6 +105,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
     }
     
     public func getPlayerStateSnapshot() -> PlayerStateSnapshot {
+        let seekableRange = getSeekableRangeMs()
         return PlayerStateSnapshot.make(
             withPlayerId: id,
             playbackState: isPlaying() ? PlaybackState.playing : PlaybackState.paused,
@@ -116,8 +117,27 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             playbackPositionMs: NSNumber(value: player.currentTime().seconds * 1000),
             textureId: nil,
             volume: player.volume as NSNumber,
-            error: getCurrentError()
+            error: getCurrentError(),
+            seekableRangeStartMs: seekableRange?.start as NSNumber?,
+            seekableRangeEndMs: seekableRange?.end as NSNumber?
         )
+    }
+
+    /// Returns the seekable time range as milliseconds. For HLS live
+    /// streams this is the DVR window; the upper bound represents the
+    /// current live edge. Returns nil if no seekable range is available
+    /// yet (e.g. before the manifest is parsed).
+    public func getSeekableRangeMs() -> (start: Double, end: Double)? {
+        guard let ranges = player.currentItem?.seekableTimeRanges,
+              !ranges.isEmpty else {
+            return nil
+        }
+        let cmRanges = ranges.compactMap { ($0 as? NSValue)?.timeRangeValue }
+        guard let first = cmRanges.first, let last = cmRanges.last,
+              first.start.seconds.isFinite, last.end.seconds.isFinite else {
+            return nil
+        }
+        return (start: first.start.seconds * 1000, end: last.end.seconds * 1000)
     }
     
     public func getCurrentError() -> PlayerError? {
@@ -288,7 +308,26 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
                         completion(result)
                     })
     }
-    
+
+    public func seekToLive(_ completion: @escaping (Bool) -> Void) {
+        guard let range = player.currentItem?.seekableTimeRanges.last as? NSValue else {
+            completion(false)
+            return
+        }
+        let liveEdge = range.timeRangeValue.end
+        guard liveEdge.seconds.isFinite else {
+            completion(false)
+            return
+        }
+        player.seek(to: liveEdge,
+                    toleranceBefore: .positiveInfinity,
+                    toleranceAfter: .positiveInfinity,
+                    completionHandler: { result in
+                        self.onManualPlayerStateUpdate()
+                        completion(result)
+                    })
+    }
+
     public func pause() {
         debugPrint("\(id) pausing")
         player.pause()

@@ -248,6 +248,21 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         }
     }
 
+    override fun seekToLive(playerId: String, result: PlaybackPlatformApi.VoidResult) {
+        val playbackService = plugin.getPlaybackService() ?: return
+        val playerController = playbackService.getController(playerId)
+            ?: throw Error("Player with id $playerId does not exist.")
+        try {
+            // For live (dynamic) windows ExoPlayer's seekToDefaultPosition
+            // jumps to the configured live offset; for non-live content
+            // it's a no-op-ish "seek to start" which we still tolerate.
+            playerController.player.seekToDefaultPosition()
+            result.success()
+        } catch (e: Exception) {
+            result.error(e)
+        }
+    }
+
     override fun pause(playerId: String) {
         val playbackService = plugin.getPlaybackService() ?: return
         val playerController = playbackService.getController(playerId)

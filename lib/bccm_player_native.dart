@@ -137,6 +137,11 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
+  Future<void> seekToLive(String playerId) {
+    return _pigeon.seekToLive(playerId);
+  }
+
+  @override
   void pause(String playerId) {
     _pigeon.pause(playerId);
   }

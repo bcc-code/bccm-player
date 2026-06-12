@@ -24,6 +24,7 @@ public protocol PlayerController {
     func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: ((FlutterError?) -> Void)?)
     func play()
     func seekTo(_ positionMs: Int64, _ completion: @escaping (Bool) -> Void)
+    func seekToLive(_ completion: @escaping (Bool) -> Void)
     func pause()
     func stop(reset: Bool)
     func exitFullscreen()

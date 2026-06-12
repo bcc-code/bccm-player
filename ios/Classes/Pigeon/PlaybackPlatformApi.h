@@ -180,7 +180,9 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     playbackPositionMs:(nullable NSNumber *)playbackPositionMs
     textureId:(nullable NSNumber *)textureId
     volume:(nullable NSNumber *)volume
-    error:(nullable PlayerError *)error;
+    error:(nullable PlayerError *)error
+    seekableRangeStartMs:(nullable NSNumber *)seekableRangeStartMs
+    seekableRangeEndMs:(nullable NSNumber *)seekableRangeEndMs;
 @property(nonatomic, copy) NSString * playerId;
 @property(nonatomic, assign) PlaybackState playbackState;
 @property(nonatomic, assign) BOOL  isBuffering;
@@ -192,6 +194,8 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) NSNumber * textureId;
 @property(nonatomic, strong, nullable) NSNumber * volume;
 @property(nonatomic, strong, nullable) PlayerError * error;
+@property(nonatomic, strong, nullable) NSNumber * seekableRangeStartMs;
+@property(nonatomic, strong, nullable) NSNumber * seekableRangeEndMs;
 @end
 
 @interface PlayerError : NSObject
@@ -343,6 +347,7 @@ NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 - (void)setPrimary:(NSString *)id completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)play:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)seek:(NSString *)playerId positionMs:(double)positionMs completion:(void (^)(FlutterError *_Nullable))completion;
+- (void)seekToLive:(NSString *)playerId completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)pause:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)stop:(NSString *)playerId reset:(BOOL)reset error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setVolume:(NSString *)playerId volume:(double)volume completion:(void (^)(FlutterError *_Nullable))completion;

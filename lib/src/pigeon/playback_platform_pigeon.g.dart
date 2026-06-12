@@ -299,6 +299,8 @@ class PlayerStateSnapshot {
     this.textureId,
     this.volume,
     this.error,
+    this.seekableRangeStartMs,
+    this.seekableRangeEndMs,
   });
 
   String playerId;
@@ -323,6 +325,10 @@ class PlayerStateSnapshot {
 
   PlayerError? error;
 
+  double? seekableRangeStartMs;
+
+  double? seekableRangeEndMs;
+
   Object encode() {
     return <Object?>[
       playerId,
@@ -336,6 +342,8 @@ class PlayerStateSnapshot {
       textureId,
       volume,
       error,
+      seekableRangeStartMs,
+      seekableRangeEndMs,
     ];
   }
 
@@ -353,6 +361,8 @@ class PlayerStateSnapshot {
       textureId: result[8] as int?,
       volume: result[9] as double?,
       error: result[10] as PlayerError?,
+      seekableRangeStartMs: result[11] as double?,
+      seekableRangeEndMs: result[12] as double?,
     );
   }
 }
@@ -1165,6 +1175,28 @@ class PlaybackPlatformPigeon {
     );
     final List<Object?>? pigeonVar_replyList =
         await pigeonVar_channel.send(<Object?>[playerId, positionMs]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> seekToLive(String playerId) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.seekToLive$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId]) as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
     } else if (pigeonVar_replyList.length > 1) {

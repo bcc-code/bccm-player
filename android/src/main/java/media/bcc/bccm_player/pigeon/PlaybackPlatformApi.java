@@ -1081,6 +1081,26 @@ public class PlaybackPlatformApi {
       this.error = setterArg;
     }
 
+    private @Nullable Double seekableRangeStartMs;
+
+    public @Nullable Double getSeekableRangeStartMs() {
+      return seekableRangeStartMs;
+    }
+
+    public void setSeekableRangeStartMs(@Nullable Double setterArg) {
+      this.seekableRangeStartMs = setterArg;
+    }
+
+    private @Nullable Double seekableRangeEndMs;
+
+    public @Nullable Double getSeekableRangeEndMs() {
+      return seekableRangeEndMs;
+    }
+
+    public void setSeekableRangeEndMs(@Nullable Double setterArg) {
+      this.seekableRangeEndMs = setterArg;
+    }
+
     /** Constructor is non-public to enforce null safety; use Builder. */
     PlayerStateSnapshot() {}
 
@@ -1089,12 +1109,12 @@ public class PlaybackPlatformApi {
       if (this == o) { return true; }
       if (o == null || getClass() != o.getClass()) { return false; }
       PlayerStateSnapshot that = (PlayerStateSnapshot) o;
-      return playerId.equals(that.playerId) && playbackState.equals(that.playbackState) && isBuffering.equals(that.isBuffering) && isFullscreen.equals(that.isFullscreen) && playbackSpeed.equals(that.playbackSpeed) && Objects.equals(videoSize, that.videoSize) && Objects.equals(currentMediaItem, that.currentMediaItem) && Objects.equals(playbackPositionMs, that.playbackPositionMs) && Objects.equals(textureId, that.textureId) && Objects.equals(volume, that.volume) && Objects.equals(error, that.error);
+      return playerId.equals(that.playerId) && playbackState.equals(that.playbackState) && isBuffering.equals(that.isBuffering) && isFullscreen.equals(that.isFullscreen) && playbackSpeed.equals(that.playbackSpeed) && Objects.equals(videoSize, that.videoSize) && Objects.equals(currentMediaItem, that.currentMediaItem) && Objects.equals(playbackPositionMs, that.playbackPositionMs) && Objects.equals(textureId, that.textureId) && Objects.equals(volume, that.volume) && Objects.equals(error, that.error) && Objects.equals(seekableRangeStartMs, that.seekableRangeStartMs) && Objects.equals(seekableRangeEndMs, that.seekableRangeEndMs);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(playerId, playbackState, isBuffering, isFullscreen, playbackSpeed, videoSize, currentMediaItem, playbackPositionMs, textureId, volume, error);
+      return Objects.hash(playerId, playbackState, isBuffering, isFullscreen, playbackSpeed, videoSize, currentMediaItem, playbackPositionMs, textureId, volume, error, seekableRangeStartMs, seekableRangeEndMs);
     }
 
     public static final class Builder {
@@ -1187,6 +1207,22 @@ public class PlaybackPlatformApi {
         return this;
       }
 
+      private @Nullable Double seekableRangeStartMs;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setSeekableRangeStartMs(@Nullable Double setterArg) {
+        this.seekableRangeStartMs = setterArg;
+        return this;
+      }
+
+      private @Nullable Double seekableRangeEndMs;
+
+      @CanIgnoreReturnValue
+      public @NonNull Builder setSeekableRangeEndMs(@Nullable Double setterArg) {
+        this.seekableRangeEndMs = setterArg;
+        return this;
+      }
+
       public @NonNull PlayerStateSnapshot build() {
         PlayerStateSnapshot pigeonReturn = new PlayerStateSnapshot();
         pigeonReturn.setPlayerId(playerId);
@@ -1200,13 +1236,15 @@ public class PlaybackPlatformApi {
         pigeonReturn.setTextureId(textureId);
         pigeonReturn.setVolume(volume);
         pigeonReturn.setError(error);
+        pigeonReturn.setSeekableRangeStartMs(seekableRangeStartMs);
+        pigeonReturn.setSeekableRangeEndMs(seekableRangeEndMs);
         return pigeonReturn;
       }
     }
 
     @NonNull
     ArrayList<Object> toList() {
-      ArrayList<Object> toListResult = new ArrayList<>(11);
+      ArrayList<Object> toListResult = new ArrayList<>(13);
       toListResult.add(playerId);
       toListResult.add(playbackState);
       toListResult.add(isBuffering);
@@ -1218,6 +1256,8 @@ public class PlaybackPlatformApi {
       toListResult.add(textureId);
       toListResult.add(volume);
       toListResult.add(error);
+      toListResult.add(seekableRangeStartMs);
+      toListResult.add(seekableRangeEndMs);
       return toListResult;
     }
 
@@ -1245,6 +1285,10 @@ public class PlaybackPlatformApi {
       pigeonResult.setVolume((Double) volume);
       Object error = pigeonVar_list.get(10);
       pigeonResult.setError((PlayerError) error);
+      Object seekableRangeStartMs = pigeonVar_list.get(11);
+      pigeonResult.setSeekableRangeStartMs((Double) seekableRangeStartMs);
+      Object seekableRangeEndMs = pigeonVar_list.get(12);
+      pigeonResult.setSeekableRangeEndMs((Double) seekableRangeEndMs);
       return pigeonResult;
     }
   }
@@ -2805,6 +2849,8 @@ public class PlaybackPlatformApi {
 
     void seekTo(@NonNull String playerId, @NonNull Double positionMs, @NonNull VoidResult result);
 
+    void seekToLive(@NonNull String playerId, @NonNull VoidResult result);
+
     void pause(@NonNull String playerId);
 
     void stop(@NonNull String playerId, @NonNull Boolean reset);
@@ -3156,6 +3202,35 @@ public class PlaybackPlatformApi {
                     };
 
                 api.seekTo(playerIdArg, positionMsArg, resultCallback);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.seekToLive" + messageChannelSuffix, getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                VoidResult resultCallback =
+                    new VoidResult() {
+                      public void success() {
+                        wrapped.add(0, null);
+                        reply.reply(wrapped);
+                      }
+
+                      public void error(Throwable error) {
+                        ArrayList<Object> wrappedError = wrapError(error);
+                        reply.reply(wrappedError);
+                      }
+                    };
+
+                api.seekToLive(playerIdArg, resultCallback);
               });
         } else {
           channel.setMessageHandler(null);
