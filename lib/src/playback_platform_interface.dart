@@ -118,6 +118,10 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('setNpawConfig() has not been implemented.');
   }
 
+  Future? startNpawView(String playerId, MediaMetadata? metadata) {
+    throw UnimplementedError('startNpawView() has not been implemented.');
+  }
+
   void setAppConfig(AppConfig? config) {
     throw UnimplementedError('setAppConfig() has not been implemented.');
   }

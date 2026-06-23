@@ -180,7 +180,9 @@ class CastPlayerController: NSObject, PlayerController {
     }
     
     func setNpawConfig(npawConfig: NpawConfig?) {}
-    
+
+    func startNpawView(metadata: MediaMetadata?) {}
+
     func updateAppConfig(appConfig: AppConfig?) {
         self.appConfig = appConfig
     }

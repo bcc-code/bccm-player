@@ -349,6 +349,14 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     return BccmPlayerInterface.instance.setMixWithOthers(value.playerId, bool);
   }
 
+  /// Ends the current NPAW analytics view and starts a fresh one. Provide
+  /// [metadata] with `npaw.content.*` extras to define the new view's content
+  /// (e.g. a live program rollover: `content.id` = episode, `content.saga` =
+  /// entry); omit to reuse the current media item. Does not interrupt playback.
+  Future<void> startNpawView({MediaMetadata? metadata}) async {
+    await BccmPlayerInterface.instance.startNpawView(value.playerId, metadata);
+  }
+
   /// You are probably looking for [BccmPlayerViewController.enterFullscreen].
   ///
   /// This opens the player in native fullscreen with native controls.

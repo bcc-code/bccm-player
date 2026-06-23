@@ -2870,6 +2870,14 @@ public class PlaybackPlatformApi {
     void setMixWithOthers(@NonNull String playerId, @NonNull Boolean mixWithOthers, @NonNull VoidResult result);
 
     void setNpawConfig(@Nullable NpawConfig config);
+    /**
+     * Ends the current NPAW view and starts a fresh one for [playerId]. When
+     * [metadata] is provided, its `npaw.content.*` extras define the new view's
+     * content (id/saga/transactionCode/...); otherwise the current item is reused.
+     * Used to split a continuous live stream into one NPAW view per program,
+     * without replacing the media item.
+     */
+    void startNpawView(@NonNull String playerId, @Nullable MediaMetadata metadata);
 
     void setAppConfig(@Nullable AppConfig config);
 
@@ -3492,6 +3500,30 @@ public class PlaybackPlatformApi {
                 NpawConfig configArg = (NpawConfig) args.get(0);
                 try {
                   api.setNpawConfig(configArg);
+                  wrapped.add(0, null);
+                }
+ catch (Throwable exception) {
+                  wrapped = wrapError(exception);
+                }
+                reply.reply(wrapped);
+              });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+            new BasicMessageChannel<>(
+                binaryMessenger, "dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.startNpawView" + messageChannelSuffix, getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+              (message, reply) -> {
+                ArrayList<Object> wrapped = new ArrayList<>();
+                ArrayList<Object> args = (ArrayList<Object>) message;
+                String playerIdArg = (String) args.get(0);
+                MediaMetadata metadataArg = (MediaMetadata) args.get(1);
+                try {
+                  api.startNpawView(playerIdArg, metadataArg);
                   wrapped.add(0, null);
                 }
  catch (Throwable exception) {

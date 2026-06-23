@@ -108,6 +108,10 @@ abstract class PlayerController : Player.Listener {
 
     abstract fun stop(reset: Boolean)
 
+    /// Ends the current NPAW view and starts a fresh one (see the pigeon doc).
+    /// Default no-op; players that integrate NPAW override this.
+    open fun startNpawView(metadata: PlaybackPlatformApi.MediaMetadata?) {}
+
     @SuppressLint("UnsafeOptInUsageError")
     fun replaceCurrentMediaItem(mediaItem: PlaybackPlatformApi.MediaItem, autoplay: Boolean?) {
         this.isLive = mediaItem.isLive ?: false

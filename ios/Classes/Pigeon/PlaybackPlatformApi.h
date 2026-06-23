@@ -358,6 +358,12 @@ NSObject<FlutterMessageCodec> *nullGetPlaybackPlatformApiCodec(void);
 - (void)enterFullscreen:(NSString *)playerId error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setMixWithOthers:(NSString *)playerId mixWithOthers:(BOOL)mixWithOthers completion:(void (^)(FlutterError *_Nullable))completion;
 - (void)setNpawConfig:(nullable NpawConfig *)config error:(FlutterError *_Nullable *_Nonnull)error;
+/// Ends the current NPAW view and starts a fresh one for [playerId]. When
+/// [metadata] is provided, its `npaw.content.*` extras define the new view's
+/// content (id/saga/transactionCode/...); otherwise the current item is reused.
+/// Used to split a continuous live stream into one NPAW view per program,
+/// without replacing the media item.
+- (void)startNpawView:(NSString *)playerId metadata:(nullable MediaMetadata *)metadata error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)setAppConfig:(nullable AppConfig *)config error:(FlutterError *_Nullable *_Nonnull)error;
 - (void)getTracks:(nullable NSString *)playerId completion:(void (^)(PlayerTracksSnapshot *_Nullable, FlutterError *_Nullable))completion;
 - (void)getPlayerState:(nullable NSString *)playerId completion:(void (^)(PlayerStateSnapshot *_Nullable, FlutterError *_Nullable))completion;

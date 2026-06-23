@@ -1465,6 +1465,31 @@ void SetUpPlaybackPlatformPigeonWithSuffix(id<FlutterBinaryMessenger> binaryMess
       [channel setMessageHandler:nil];
     }
   }
+  /// Ends the current NPAW view and starts a fresh one for [playerId]. When
+  /// [metadata] is provided, its `npaw.content.*` extras define the new view's
+  /// content (id/saga/transactionCode/...); otherwise the current item is reused.
+  /// Used to split a continuous live stream into one NPAW view per program,
+  /// without replacing the media item.
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.startNpawView", messageChannelSuffix]
+        binaryMessenger:binaryMessenger
+        codec:nullGetPlaybackPlatformApiCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(startNpawView:metadata:error:)], @"PlaybackPlatformPigeon api (%@) doesn't respond to @selector(startNpawView:metadata:error:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray<id> *args = message;
+        NSString *arg_playerId = GetNullableObjectAtIndex(args, 0);
+        MediaMetadata *arg_metadata = GetNullableObjectAtIndex(args, 1);
+        FlutterError *error;
+        [api startNpawView:arg_playerId metadata:arg_metadata error:&error];
+        callback(wrapResult(nil, error));
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]

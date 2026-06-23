@@ -518,6 +518,7 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
         npawPlugin.analyticsOptions.contentId = extras?["npaw.content.id"] as? String ?? extras?["id"] as? String
         npawPlugin.analyticsOptions.contentTitle = extras?["npaw.content.title"] as? String ?? mediaItem.metadata?.title
         npawPlugin.analyticsOptions.contentTvShow = extras?["npaw.content.tvShow"] as? String
+        npawPlugin.analyticsOptions.contentSaga = extras?["npaw.content.saga"] as? String
         npawPlugin.analyticsOptions.contentSeason = extras?["npaw.content.season"] as? String
         npawPlugin.analyticsOptions.contentEpisodeTitle = extras?["npaw.content.episodeTitle"] as? String
         npawPlugin.analyticsOptions.offline = extras?["npaw.isOffline"] as? String == "true" || (mediaItem.isOffline?.boolValue) == true
@@ -538,6 +539,32 @@ public class AVQueuePlayerController: NSObject, PlayerController, AVPlayerViewCo
             return
         }
         initNpaw(npawConfig)
+    }
+
+    /// Ends the current NPAW view and starts a fresh one. When `metadata` is
+    /// given, its `npaw.content.*` extras define the new view's content (for live:
+    /// `content.id` = episode id, `content.saga` = entry id, both absent during a
+    /// gap), so a continuous live stream is recorded as one view per program.
+    public func startNpawView(metadata: MediaMetadata?) {
+        guard let npawPlugin = npawPlugin else {
+            return
+        }
+        if let metadata = metadata {
+            let extras = metadata.safeExtras()
+            npawPlugin.analyticsOptions.contentId = extras?["npaw.content.id"] as? String
+            npawPlugin.analyticsOptions.contentSaga = extras?["npaw.content.saga"] as? String
+            npawPlugin.analyticsOptions.contentTitle = extras?["npaw.content.title"] as? String ?? metadata.title
+            npawPlugin.analyticsOptions.contentTransactionCode = extras?["npaw.content.transactionCode"] as? String
+            if let isLive = extras?["npaw.content.isLive"] as? String {
+                npawPlugin.analyticsOptions.live = (isLive == "true") as NSNumber
+            }
+        }
+        if let npawPlayerAdapter = npawPlayerAdapter {
+            npawPlugin.removeAdapter(adapter: npawPlayerAdapter)
+        }
+        npawPlayerAdapter = npawPlugin.videoBuilder()
+            .setPlayerAdapter(playerAdapter: AVPlayerAdapter(player: player))
+            .build()
     }
 
     public func updateAppConfig(appConfig: AppConfig?) {

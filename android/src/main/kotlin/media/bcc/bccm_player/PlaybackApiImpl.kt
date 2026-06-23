@@ -59,6 +59,12 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         }
     }
 
+    override fun startNpawView(playerId: String, metadata: PlaybackPlatformApi.MediaMetadata?) {
+        val playbackService = plugin.getPlaybackService() ?: return
+        val playerController = playbackService.getController(playerId) ?: return
+        playerController.startNpawView(metadata)
+    }
+
     override fun getTracks(
         playerId: String?,
         result: PlaybackPlatformApi.NullableResult<PlaybackPlatformApi.PlayerTracksSnapshot>

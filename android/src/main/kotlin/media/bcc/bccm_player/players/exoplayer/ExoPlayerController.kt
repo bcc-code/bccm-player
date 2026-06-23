@@ -226,6 +226,7 @@ class ExoPlayerController(
         npawPlugin.analyticsOptions.contentTitle = extras?.get("npaw.content.title")
             ?: mediaMetadata.title?.toString() ?: mediaMetadata.displayTitle?.toString()
         npawPlugin.analyticsOptions.contentTvShow = extras?.get("npaw.content.tvShow")
+        npawPlugin.analyticsOptions.contentSaga = extras?.get("npaw.content.saga")
         npawPlugin.analyticsOptions.contentSeason = extras?.get("npaw.content.season")
         npawPlugin.analyticsOptions.contentEpisodeTitle = extras?.get("npaw.content.episodeTitle")
         npawPlugin.analyticsOptions.isOffline =
@@ -251,6 +252,27 @@ class ExoPlayerController(
                 npawPlugin.analyticsOptions.contentLanguage = LanguageUtils.toThreeLetterLanguageCode(t.mediaTrackGroup.getFormat(0).language)
             }
         }
+    }
+
+    /// Ends the current NPAW view and starts a fresh one. When [metadata] is
+    /// given, its `npaw.content.*` extras define the new view's content (for live:
+    /// `content.id` = episode id, `content.saga` = entry id, both absent during a
+    /// gap), so a continuous live stream is recorded as one view per program.
+    override fun startNpawView(metadata: PlaybackPlatformApi.MediaMetadata?) {
+        val npawPlugin = npawPlugin ?: return
+        metadata?.extras?.let { extras ->
+            npawPlugin.analyticsOptions.contentId = extras["npaw.content.id"]
+            npawPlugin.analyticsOptions.contentSaga = extras["npaw.content.saga"]
+            npawPlugin.analyticsOptions.contentTitle = extras["npaw.content.title"] ?: metadata.title
+            npawPlugin.analyticsOptions.contentTransactionCode = extras["npaw.content.transactionCode"]
+            extras["npaw.content.isLive"]?.toBooleanStrictOrNull()?.let {
+                npawPlugin.analyticsOptions.live = it
+            }
+        }
+        videoAdapter?.destroy()
+        videoAdapter = npawPlugin.videoBuilder()
+            .setPlayerAdapter(Media3ExoPlayerAdapter(context, exoPlayer))
+            .build()
     }
 
     fun getExoPlayer(): ExoPlayer {

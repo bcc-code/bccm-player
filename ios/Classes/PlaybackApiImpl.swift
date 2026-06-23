@@ -77,6 +77,10 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         }
     }
 
+    public func startNpawView(_ playerId: String, metadata: MediaMetadata?, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
+        getPlayer(playerId)?.startNpawView(metadata: metadata)
+    }
+
     public func getPlayer(_ id: String) -> PlayerController? {
         players.first(where: { $0.id == id })
     }

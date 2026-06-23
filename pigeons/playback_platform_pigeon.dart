@@ -103,6 +103,14 @@ abstract class PlaybackPlatformPigeon {
   @ObjCSelector("setNpawConfig:")
   void setNpawConfig(NpawConfig? config);
 
+  /// Ends the current NPAW view and starts a fresh one for [playerId]. When
+  /// [metadata] is provided, its `npaw.content.*` extras define the new view's
+  /// content (id/saga/transactionCode/...); otherwise the current item is reused.
+  /// Used to split a continuous live stream into one NPAW view per program,
+  /// without replacing the media item.
+  @ObjCSelector("startNpawView:metadata:")
+  void startNpawView(String playerId, MediaMetadata? metadata);
+
   @ObjCSelector("setAppConfig:")
   void setAppConfig(AppConfig? config);
 

@@ -1430,6 +1430,33 @@ class PlaybackPlatformPigeon {
     }
   }
 
+  /// Ends the current NPAW view and starts a fresh one for [playerId]. When
+  /// [metadata] is provided, its `npaw.content.*` extras define the new view's
+  /// content (id/saga/transactionCode/...); otherwise the current item is reused.
+  /// Used to split a continuous live stream into one NPAW view per program,
+  /// without replacing the media item.
+  Future<void> startNpawView(String playerId, MediaMetadata? metadata) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.startNpawView$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[playerId, metadata]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
   Future<void> setAppConfig(AppConfig? config) async {
     final String pigeonVar_channelName = 'dev.flutter.pigeon.bccm_player.PlaybackPlatformPigeon.setAppConfig$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(

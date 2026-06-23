@@ -13,6 +13,7 @@ public protocol PlayerController {
     var mixWithOthers: Bool { get set }
     var manuallySelectedAudioLanguage: String? { get set }
     func setNpawConfig(npawConfig: NpawConfig?)
+    func startNpawView(metadata: MediaMetadata?)
     func updateAppConfig(appConfig: AppConfig?)
     func getCurrentItem() -> MediaItem?
     func getPlayerTracksSnapshot() -> PlayerTracksSnapshot

@@ -183,6 +183,11 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
+  Future startNpawView(String playerId, MediaMetadata? metadata) {
+    return _pigeon.startNpawView(playerId, metadata);
+  }
+
+  @override
   void setAppConfig(AppConfig? config) {
     _pigeon.setAppConfig(config);
   }
