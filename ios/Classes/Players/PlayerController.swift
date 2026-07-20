@@ -13,6 +13,7 @@ public protocol PlayerController {
     var mixWithOthers: Bool { get set }
     var manuallySelectedAudioLanguage: String? { get set }
     func setNpawConfig(npawConfig: NpawConfig?)
+    func startNpawView(metadata: MediaMetadata?)
     func updateAppConfig(appConfig: AppConfig?)
     func getCurrentItem() -> MediaItem?
     func getPlayerTracksSnapshot() -> PlayerTracksSnapshot
@@ -24,6 +25,7 @@ public protocol PlayerController {
     func replaceCurrentMediaItem(_ mediaItem: MediaItem, autoplay: NSNumber?, completion: ((FlutterError?) -> Void)?)
     func play()
     func seekTo(_ positionMs: Int64, _ completion: @escaping (Bool) -> Void)
+    func seekToLive(_ completion: @escaping (Bool) -> Void)
     func pause()
     func stop(reset: Bool)
     func exitFullscreen()

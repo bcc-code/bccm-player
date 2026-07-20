@@ -90,6 +90,10 @@ abstract class BccmPlayerInterface extends PlatformInterface {
     throw UnimplementedError('play() has not been implemented.');
   }
 
+  Future<void> seekToLive(String playerId) {
+    throw UnimplementedError('seekToLive() has not been implemented.');
+  }
+
   void pause(String playerId) {
     throw UnimplementedError('pause() has not been implemented.');
   }
@@ -120,6 +124,10 @@ abstract class BccmPlayerInterface extends PlatformInterface {
 
   Future? setNpawConfig(NpawConfig? config) {
     throw UnimplementedError('setNpawConfig() has not been implemented.');
+  }
+
+  Future? startNpawView(String playerId, MediaMetadata? metadata) {
+    throw UnimplementedError('startNpawView() has not been implemented.');
   }
 
   void setAppConfig(AppConfig? config) {

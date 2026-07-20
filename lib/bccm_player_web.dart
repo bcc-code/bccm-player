@@ -91,6 +91,9 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   }
 
   @override
+  Future startNpawView(String playerId, pigeon.MediaMetadata? metadata) async {}
+
+  @override
   void setAppConfig(pigeon.AppConfig? config) {
     appConfig = config;
   }

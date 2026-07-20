@@ -64,6 +64,10 @@ abstract class PlaybackPlatformPigeon {
   @ObjCSelector("seek:positionMs:")
   void seekTo(String playerId, double positionMs);
 
+  @async
+  @ObjCSelector("seekToLive:")
+  void seekToLive(String playerId);
+
   @ObjCSelector("pause:")
   void pause(String playerId);
 
@@ -98,6 +102,14 @@ abstract class PlaybackPlatformPigeon {
 
   @ObjCSelector("setNpawConfig:")
   void setNpawConfig(NpawConfig? config);
+
+  /// Ends the current NPAW view and starts a fresh one for [playerId]. When
+  /// [metadata] is provided, its `npaw.content.*` extras define the new view's
+  /// content (id/saga/transactionCode/...); otherwise the current item is reused.
+  /// Used to split a continuous live stream into one NPAW view per program,
+  /// without replacing the media item.
+  @ObjCSelector("startNpawView:metadata:")
+  void startNpawView(String playerId, MediaMetadata? metadata);
 
   @ObjCSelector("setAppConfig:")
   void setAppConfig(AppConfig? config);
@@ -216,6 +228,12 @@ class PlayerStateSnapshot {
   int? textureId;
   double? volume;
   PlayerError? error;
+  // Start of the player's seekable range (DVR window start for live).
+  // Null for non-seekable / pre-roll states.
+  double? seekableRangeStartMs;
+  // End of the player's seekable range — equals the live edge for live
+  // streams. Null for non-seekable / pre-roll states.
+  double? seekableRangeEndMs;
 }
 
 class PlayerError {
@@ -310,46 +328,42 @@ class PrimaryPlayerChangedEvent {
   late String? playerId;
 }
 
-abstract class PlayerEvent {
-  late String playerId;
-}
-
-class PlayerStateUpdateEvent implements PlayerEvent {
-  @override
+// All event classes carry a `playerId`. Originally these were modelled
+// with an `abstract class PlayerEvent { late String playerId; }` base
+// + `implements PlayerEvent`, but pigeon 22.7.4 emits `extends
+// PlayerEvent` in the generated Dart while not generating the abstract
+// base, producing dangling references. Flattened to standalone classes
+// to dodge the codegen bug.
+class PlayerStateUpdateEvent {
   late String playerId;
   late PlayerStateSnapshot snapshot;
 }
 
-class PositionDiscontinuityEvent implements PlayerEvent {
-  @override
+class PositionDiscontinuityEvent {
   late String playerId;
   double? playbackPositionMs;
 }
 
-class PlaybackStateChangedEvent implements PlayerEvent {
-  @override
+class PlaybackStateChangedEvent {
   String playerId;
   PlaybackState playbackState;
   bool isBuffering;
   PlaybackStateChangedEvent({required this.playerId, required this.playbackState, required this.isBuffering});
 }
 
-class PlaybackEndedEvent implements PlayerEvent {
-  @override
+class PlaybackEndedEvent {
   String playerId;
   MediaItem? mediaItem;
   PlaybackEndedEvent({required this.playerId, required this.mediaItem});
 }
 
-class PictureInPictureModeChangedEvent implements PlayerEvent {
-  @override
+class PictureInPictureModeChangedEvent {
   String playerId;
   bool isInPipMode;
   PictureInPictureModeChangedEvent({required this.playerId, required this.isInPipMode});
 }
 
-class MediaItemTransitionEvent implements PlayerEvent {
-  @override
+class MediaItemTransitionEvent {
   String playerId;
   MediaItem? mediaItem;
   MediaItemTransitionEvent({required this.playerId, this.mediaItem});

@@ -43,7 +43,9 @@ class CastPlayerController: NSObject, PlayerController {
             playbackPositionMs: mediaStatus == nil ? nil : NSNumber(value: mediaStatus!.streamPosition * 1000),
             textureId: nil,
             volume: mediaStatus?.volume as NSNumber?,
-            error: nil
+            error: nil,
+            seekableRangeStartMs: nil,
+            seekableRangeEndMs: nil
         )
     }
     
@@ -178,7 +180,9 @@ class CastPlayerController: NSObject, PlayerController {
     }
     
     func setNpawConfig(npawConfig: NpawConfig?) {}
-    
+
+    func startNpawView(metadata: MediaMetadata?) {}
+
     func updateAppConfig(appConfig: AppConfig?) {
         self.appConfig = appConfig
     }
@@ -234,7 +238,14 @@ class CastPlayerController: NSObject, PlayerController {
         )
         request.delegate = activeSeekRequestDelegate
     }
-    
+
+    func seekToLive(_ completion: @escaping (Bool) -> Void) {
+        // Cast doesn't expose a "seek to live" primitive in the same
+        // way local AVPlayer does; jump to a far-future position and
+        // let the receiver clamp to the live edge.
+        seekTo(Int64.max / 1000, completion)
+    }
+
     func pause() {
         GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.pause()
     }

@@ -59,6 +59,12 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         }
     }
 
+    override fun startNpawView(playerId: String, metadata: PlaybackPlatformApi.MediaMetadata?) {
+        val playbackService = plugin.getPlaybackService() ?: return
+        val playerController = playbackService.getController(playerId) ?: return
+        playerController.startNpawView(metadata)
+    }
+
     override fun getTracks(
         playerId: String?,
         result: PlaybackPlatformApi.NullableResult<PlaybackPlatformApi.PlayerTracksSnapshot>
@@ -243,6 +249,21 @@ class PlaybackApiImpl(private val plugin: BccmPlayerPlugin) :
         try {
             playerController.player.seekTo(positionMs.toLong());
             result.success();
+        } catch (e: Exception) {
+            result.error(e)
+        }
+    }
+
+    override fun seekToLive(playerId: String, result: PlaybackPlatformApi.VoidResult) {
+        val playbackService = plugin.getPlaybackService() ?: return
+        val playerController = playbackService.getController(playerId)
+            ?: throw Error("Player with id $playerId does not exist.")
+        try {
+            // For live (dynamic) windows ExoPlayer's seekToDefaultPosition
+            // jumps to the configured live offset; for non-live content
+            // it's a no-op-ish "seek to start" which we still tolerate.
+            playerController.player.seekToDefaultPosition()
+            result.success()
         } catch (e: Exception) {
             result.error(e)
         }

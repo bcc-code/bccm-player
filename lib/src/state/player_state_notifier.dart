@@ -12,6 +12,19 @@ import '../queue/default_queue_controller.dart';
 
 part 'player_state_notifier.freezed.dart';
 
+// Seekable-range bounds (`seekableRangeStartMs` / `seekableRangeEndMs`)
+// are tracked as plain fields on this notifier rather than as members of
+// the freezed [PlayerState] on purpose. Adding fields to [PlayerState]
+// would require regenerating the freezed file, which currently fails
+// because `freezed` 2.x pins an analyzer version that can't parse Dart
+// 3.6+ dot-shorthand syntax used in the Flutter SDK. Upgrading to
+// `freezed` 3.x in this package would force every consumer (`bccm_core`,
+// `bcc-connect-live`, etc.) to also migrate to `freezed_annotation` 3.x
+// and re-freeze their own models — a cascade of work disproportionate to
+// adding two informational fields here. Surface them via
+// [BccmPlayerController] getters instead; consumers needing reactivity
+// can subscribe to the controller's existing listeners (these fields
+// update on every snapshot, alongside `playbackPositionMs`).
 class PlayerStateNotifier extends StateNotifier<PlayerState> {
   final void Function()? onDispose;
   final bool keepAlive;
@@ -91,7 +104,15 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     state = state.copyWith(isBuffering: isBuffering);
   }
 
+  /// Latest seekable-range bounds from the native player. NOT part of the
+  /// freezed [PlayerState] — see the note on [PlayerStateNotifier] for
+  /// why. Updates whenever a new snapshot arrives.
+  int? seekableRangeStartMs;
+  int? seekableRangeEndMs;
+
   void setStateFromSnapshot(PlayerStateSnapshot snapshot) {
+    seekableRangeStartMs = snapshot.seekableRangeStartMs?.finiteOrNull()?.round();
+    seekableRangeEndMs = snapshot.seekableRangeEndMs?.finiteOrNull()?.round();
     state = state.copyWithSnapshot(snapshot);
   }
 }

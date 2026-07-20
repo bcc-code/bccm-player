@@ -64,6 +64,8 @@ class SmoothVideoProgress extends HookWidget {
 
     final animationController = useAnimationController(duration: duration, keys: [duration]);
 
+    final lastNonZeroProgress = useRef<Duration>(position);
+
     final targetRelativePosition = position.inMilliseconds / duration.inMilliseconds;
 
     final currentPosition = Duration(milliseconds: (animationController.value * duration.inMilliseconds).round());
@@ -96,9 +98,17 @@ class SmoothVideoProgress extends HookWidget {
       animation: animationController,
       builder: (context, child) {
         final millis = animationController.value * duration.inMilliseconds;
+        final currentProgress = Duration(milliseconds: millis.round());
+
+        if (currentProgress > Duration.zero) {
+          lastNonZeroProgress.value = currentProgress;
+        }
+
+        final displayProgress = currentProgress > Duration.zero ? currentProgress : lastNonZeroProgress.value;
+
         return builder(
           context,
-          Duration(milliseconds: millis.round()),
+          displayProgress,
           duration,
           child,
         );

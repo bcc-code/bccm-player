@@ -77,6 +77,10 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
         }
     }
 
+    public func startNpawView(_ playerId: String, metadata: MediaMetadata?, error: AutoreleasingUnsafeMutablePointer<FlutterError?>) {
+        getPlayer(playerId)?.startNpawView(metadata: metadata)
+    }
+
     public func getPlayer(_ id: String) -> PlayerController? {
         players.first(where: { $0.id == id })
     }
@@ -192,6 +196,13 @@ public class PlaybackApiImpl: NSObject, PlaybackPlatformPigeon {
     public func seek(_ playerId: String, positionMs: Double, completion: @escaping (FlutterError?) -> Void) {
         let player = getPlayer(playerId)
         player?.seekTo(Int64(positionMs)) { _ in
+            completion(nil)
+        }
+    }
+
+    public func seek(toLive playerId: String, completion: @escaping (FlutterError?) -> Void) {
+        let player = getPlayer(playerId)
+        player?.seekToLive { _ in
             completion(nil)
         }
     }

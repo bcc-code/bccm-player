@@ -4,7 +4,7 @@ import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/native/chromecast_pigeon_listener.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:bccm_player/src/state/state_playback_listener.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide RepeatMode;
 
 import 'bccm_player.dart';
 
@@ -137,6 +137,11 @@ class BccmPlayerNative extends BccmPlayerInterface {
   }
 
   @override
+  Future<void> seekToLive(String playerId) {
+    return _pigeon.seekToLive(playerId);
+  }
+
+  @override
   void pause(String playerId) {
     _pigeon.pause(playerId);
   }
@@ -175,6 +180,11 @@ class BccmPlayerNative extends BccmPlayerInterface {
   @override
   Future setNpawConfig(NpawConfig? config) {
     return _pigeon.setNpawConfig(config);
+  }
+
+  @override
+  Future startNpawView(String playerId, MediaMetadata? metadata) {
+    return _pigeon.startNpawView(playerId, metadata);
   }
 
   @override

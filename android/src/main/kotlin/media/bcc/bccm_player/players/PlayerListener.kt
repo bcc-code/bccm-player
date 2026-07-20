@@ -1,39 +1,56 @@
 package media.bcc.bccm_player.players
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import androidx.media3.common.Timeline
 import androidx.media3.common.VideoSize
-import com.npaw.youbora.lib6.Timer
 import media.bcc.bccm_player.BccmPlayerPlugin
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi
 import media.bcc.bccm_player.utils.NoOpVoidResult
 
 class PlayerListener(private val playerController: PlayerController, val plugin: BccmPlayerPlugin) :
     Player.Listener {
-    private val refreshStateTimer: Timer = Timer(object : Timer.TimerEventListener {
-        override fun onTimerEvent(delta: Long) {
-            onManualPlayerStateUpdate()
+
+    private val refreshInterval: Long = 15000
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var refreshRunnable: Runnable? = null
+
+    private fun startRefreshTimer() {
+        stopRefreshTimer()
+
+        refreshRunnable = object : Runnable {
+            override fun run() {
+                onManualPlayerStateUpdate()
+                mainHandler.postDelayed(this, refreshInterval)
+            }
         }
-    }, 15000)
+        mainHandler.post(refreshRunnable!!)
+    }
+
+    private fun stopRefreshTimer() {
+        refreshRunnable?.let { runnable ->
+            mainHandler.removeCallbacks(runnable)
+            refreshRunnable = null
+        }
+    }
 
     init {
         Log.d(
             "bccm",
-            "refreshStateTimer start(), ${playerController}, hashCode:" + this@PlayerListener.hashCode()
+            "startRefreshTimer(), ${playerController}, hashCode:" + this@PlayerListener.hashCode()
         )
-        refreshStateTimer.start()
+        startRefreshTimer()
     }
 
     fun stop() {
         Log.d(
             "bccm",
-            "refreshStateTimer stop(), ${playerController}, hashCode:" + this@PlayerListener.hashCode()
+            "stopRefreshTimer(), ${playerController}, hashCode:" + this@PlayerListener.hashCode()
         )
-        refreshStateTimer.stop()
+        stopRefreshTimer()
     }
 
     override fun onVideoSizeChanged(videoSize: VideoSize) {

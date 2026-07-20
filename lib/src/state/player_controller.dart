@@ -1,5 +1,5 @@
 import 'package:bccm_player/src/queue/queue_controller.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide RepeatMode;
 import 'package:meta/meta.dart';
 import 'package:state_notifier/state_notifier.dart';
 import 'package:collection/collection.dart';
@@ -212,6 +212,37 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
     return BccmPlayerInterface.instance.seekTo(value.playerId, moment.inMilliseconds.toDouble());
   }
 
+  /// Seeks to the live edge of the current media. For HLS / DASH live
+  /// streams this returns the player to the live position (within the
+  /// stream's target latency). No-op for non-live content.
+  ///
+  /// See also: [seekableRangeEndMs] for the live position expressed as
+  /// a playback offset.
+  Future<void> seekToLive() {
+    if (_stateNotifier == null) {
+      throw Exception("Player is not initialized");
+    }
+    return BccmPlayerInterface.instance.seekToLive(value.playerId);
+  }
+
+  /// Start of the player's seekable range in milliseconds. For HLS /
+  /// DASH live streams this is the earliest buffered moment in the DVR
+  /// window. `null` until the manifest is parsed.
+  ///
+  /// Note: these range fields live on the controller, not on
+  /// [PlayerState]. See the comment on [PlayerStateNotifier] for the
+  /// reasoning. They update on every snapshot from the native player,
+  /// so widgets that rebuild on the controller's existing listener
+  /// will see fresh values without any extra subscription.
+  int? get seekableRangeStartMs => _stateNotifier?.seekableRangeStartMs;
+
+  /// End of the player's seekable range in milliseconds — equals the
+  /// current live edge for HLS / DASH live streams. `null` until the
+  /// manifest is parsed.
+  ///
+  /// See also: [seekableRangeStartMs], [seekToLive].
+  int? get seekableRangeEndMs => _stateNotifier?.seekableRangeEndMs;
+
   /// Sets the playback speed, where 1.0 is normal speed.
   /// The setting is kept across videos.
   ///
@@ -316,6 +347,14 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   /// Untested on iOS, where it might be a bit buggy because we are setting this setting multiple places.
   Future<void> setMixWithOthers(bool bool) {
     return BccmPlayerInterface.instance.setMixWithOthers(value.playerId, bool);
+  }
+
+  /// Ends the current NPAW analytics view and starts a fresh one. Provide
+  /// [metadata] with `npaw.content.*` extras to define the new view's content
+  /// (e.g. a live program rollover: `content.id` = episode, `content.saga` =
+  /// entry); omit to reuse the current media item. Does not interrupt playback.
+  Future<void> startNpawView({MediaMetadata? metadata}) async {
+    await BccmPlayerInterface.instance.startNpawView(value.playerId, metadata);
   }
 
   /// You are probably looking for [BccmPlayerViewController.enterFullscreen].
