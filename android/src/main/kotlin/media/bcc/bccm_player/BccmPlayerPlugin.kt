@@ -21,6 +21,7 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter
+import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.view.TextureRegistry
 import kotlinx.coroutines.CompletableDeferred
@@ -39,6 +40,7 @@ import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.PlaybackPlatformPigeon
 import media.bcc.bccm_player.pigeon.PlaybackPlatformApi.QueueManagerPigeon
 import media.bcc.bccm_player.utils.DevicePerformanceManager
 import media.bcc.bccm_player.utils.DownloaderApiNoOpVoidResult
+import media.bcc.bccm_player.utils.ImmersiveModeController
 import media.bcc.bccm_player.utils.NoOpVoidResult
 import media.bcc.bccm_player.views.FlutterCastButton
 import media.bcc.bccm_player.views.FlutterCastPlayerView
@@ -69,6 +71,11 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
          * This makes the back button work correctly in the native fullscreen player.
          * Returns true if the event was handled.
          */
+        @Deprecated(
+            "No longer needed: the plugin registers its own OnBackPressedCallback while the " +
+                    "fullscreen overlay is up. Activity.onBackPressed() is not called on API 33+ " +
+                    "when android:enableOnBackInvokedCallback=\"true\", so this never ran there."
+        )
         fun handleOnBackPressed(activity: Activity): Boolean {
             val rootLayout: FrameLayout =
                 activity.window.decorView.findViewById(android.R.id.content)
@@ -83,6 +90,7 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
     }
 
     private var pluginBinding: FlutterPlugin.FlutterPluginBinding? = null
+    private var systemUiChannel: MethodChannel? = null
     private lateinit var controllerFuture: ListenableFuture<MediaController>
     private var activity: Activity? = null
     private var activityBinding: ActivityPluginBinding? = null
@@ -179,6 +187,32 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
             FlutterCastButton.Factory()
         )
 
+        // Lets Dart hide/show the system bars through WindowInsetsControllerCompat. Needed because
+        // SystemChrome.setEnabledSystemUIMode(immersiveSticky) is ignored by the system when the
+        // app targets SDK 36, so the Flutter fullscreen route cannot hide the bars on its own.
+        systemUiChannel =
+            MethodChannel(flutterPluginBinding.binaryMessenger, "bccm_player/system_ui").also {
+                it.setMethodCallHandler { call, result ->
+                    val currentActivity = activity
+                    if (currentActivity == null) {
+                        result.error("no_activity", "No activity attached", null)
+                        return@setMethodCallHandler
+                    }
+                    when (call.method) {
+                        "enterImmersive" -> {
+                            ImmersiveModeController.enter(currentActivity)
+                            result.success(null)
+                        }
+
+                        "exitImmersive" -> {
+                            ImmersiveModeController.exit(currentActivity)
+                            result.success(null)
+                        }
+
+                        else -> result.notImplemented()
+                    }
+                }
+            }
     }
 
     private val textures: MutableMap<Long, TextureRegistry.SurfaceTextureEntry> = mutableMapOf()
@@ -214,6 +248,8 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         }
 
         playbackService?.stopIfAttached(this)
+        systemUiChannel?.setMethodCallHandler(null)
+        systemUiChannel = null
         pluginBinding = null
         for (texture in textures.values) {
             texture.release()
@@ -291,6 +327,12 @@ class BccmPlayerPlugin : FlutterPlugin, ActivityAware, PluginRegistry.UserLeaveH
         override fun onActivityResumed(activity: Activity) {
             Log.d("bccm", "onActivityResumed")
             stopPrimaryIfMuted();
+            // The system reveals the bars again when the activity loses and regains focus, so
+            // immersive mode has to be re-asserted. Posted so it lands after the Flutter engine's
+            // own onPostResume -> updateSystemUiOverlays().
+            activity.window.decorView.post {
+                ImmersiveModeController.reapply(activity)
+            }
         }
 
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {

@@ -55,7 +55,12 @@ class BccmPlayerViewController extends ChangeNotifier {
       return;
     }
     WakelockPlus.enable();
+    // Kept for iOS and for Android devices running API < 35, where it still works. Ignored by
+    // Android when the app targets SDK 36, which is why AndroidImmersiveMode is also needed.
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // Not awaited, like the SystemChrome calls around it: awaiting here would introduce an async
+    // gap before the BuildContext below is used. Channel calls stay ordered regardless.
+    AndroidImmersiveMode.enter();
     SystemChrome.setPreferredOrientations(_getFullscreenOrientations());
 
     context ??= playerController.currentPlayerView?.context;
@@ -84,6 +89,7 @@ class BccmPlayerViewController extends ChangeNotifier {
       notifyListeners();
     }
 
+    await AndroidImmersiveMode.exit();
     if (_config.resetSystemOverlays != null) {
       _config.resetSystemOverlays!();
     } else {

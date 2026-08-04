@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.util.DebugTextViewHelper
@@ -179,7 +181,22 @@ class FlutterExoPlayerView(
             val fullScreenPlayer =
                 FullscreenPlayerView(activity, playerController, !startInPip, pipOnLeave)
             rootLayout.addView(fullScreenPlayer)
+
+            // Handles back while the overlay is up. The legacy Activity.onBackPressed() path this
+            // used to rely on (BccmPlayerPlugin.handleOnBackPressed) is never called on API 33+
+            // once android:enableOnBackInvokedCallback="true" is set, and targeting SDK 36 rules it
+            // out entirely. The most recently added enabled callback wins, so this takes priority
+            // over Flutter's own back handling until it is removed.
+            val backCallback = (activity as? OnBackPressedDispatcherOwner)?.let { owner ->
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        fullScreenPlayer.exit()
+                    }
+                }.also { owner.onBackPressedDispatcher.addCallback(it) }
+            }
+
             fullScreenPlayer.onExitListener = {
+                backCallback?.remove()
                 setup()
                 rootLayout.removeView(fullScreenPlayer)
             }

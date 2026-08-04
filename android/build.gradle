@@ -33,7 +33,7 @@ apply plugin: 'kotlin-parcelize'
 
 android {
     namespace "media.bcc.bccm_player"
-    compileSdk 35
+    compileSdk 36
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

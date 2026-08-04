@@ -30,6 +30,7 @@ import media.bcc.bccm_player.PictureInPictureModeChangedEvent
 import media.bcc.bccm_player.R
 import media.bcc.bccm_player.players.exoplayer.BccmPlayerViewController
 import media.bcc.bccm_player.players.exoplayer.ExoPlayerController
+import media.bcc.bccm_player.utils.ImmersiveModeController
 import media.bcc.bccm_player.utils.SwipeTouchListener
 
 class FullscreenPlayerView @OptIn(UnstableApi::class) constructor
@@ -45,6 +46,7 @@ class FullscreenPlayerView @OptIn(UnstableApi::class) constructor
     val orientationBeforeGoingFullscreen = activity.requestedOrientation
     var onExitListener: (() -> Unit)? = null
     var exitAfterPictureInPicture: Boolean = false
+    private var hasExited = false
     override val isFullscreen = true
     override val shouldPipAutomatically = pipOnLeave
 
@@ -144,35 +146,46 @@ class FullscreenPlayerView @OptIn(UnstableApi::class) constructor
 
     private fun makeActivityFullscreen(forceLandscape: Boolean) {
         if (forceLandscape) {
+            // Ignored on displays with smallest width >= 600dp when targeting SDK 36.
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
         }
+        /* No-op when targeting SDK 35+ (edge-to-edge is mandatory there), but still required on
+           devices running API < 35 so this overlay draws behind the system bars. */
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
-        /* Using deprecated API because the newer API causes a bug on certain devices in fullscreen mode.
-           i.e Navigation bar / Gesture pill & status bar shows up on first interaction with screen but does not go away after few seconds.
-           Using same code used by flutter when `SystemUiMode.immersiveSticky` is used: https://github.com/flutter/engine/blob/main/shell/platform/android/io/flutter/plugin/platform/PlatformPlugin.java#L287
-        */
-        activity.window.decorView.setSystemUiVisibility(
-            SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    or SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or SYSTEM_UI_FLAG_FULLSCREEN
-        );
+        /* The legacy SYSTEM_UI_FLAG_IMMERSIVE_STICKY flags this used to set are ignored by the
+           system when targeting SDK 36, so bar hiding goes through WindowInsetsControllerCompat.
+           ImmersiveModeController sets BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE, which is what
+           reproduces sticky-immersive semantics and avoids the bar-reappearance bug that
+           motivated the old deprecated-API workaround. */
+        if (ImmersiveModeController.isActive(activity)) {
+            ImmersiveModeController.reapply(activity)
+        } else {
+            ImmersiveModeController.enter(activity)
+        }
     }
 
     @UnstableApi
     fun exit() {
+        if (hasExited) return
+        hasExited = true
         activity.requestedOrientation = orientationBeforeGoingFullscreen;
+        /* No-op when targeting SDK 35+, but kept for symmetry with makeActivityFullscreen so
+           layout behaviour is unchanged on devices running API < 35. */
         WindowCompat.setDecorFitsSystemWindows(activity.window, true)
-        /* Using same code used by flutter when `SystemUiMode.edgeToEdge` is used: https://github.com/flutter/engine/blob/main/shell/platform/android/io/flutter/plugin/platform/PlatformPlugin.java#L302 */
-        activity.window.decorView.setSystemUiVisibility(
-            SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        );
+        // Restores whatever bar visibility was in effect before this overlay appeared, so a PiP
+        // overlay opened from inside the Flutter fullscreen route no longer reveals the bars.
+        ImmersiveModeController.exit(activity)
         onExitListener?.let { listener -> listener() }
         release();
+    }
+
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        // The system reveals the bars again across focus changes (PiP transitions, dialogs, the
+        // notification shade), so re-assert immersive mode whenever focus comes back.
+        if (hasWindowFocus) {
+            ImmersiveModeController.reapply(activity)
+        }
     }
 
     @UnstableApi
