@@ -20,7 +20,10 @@ export 'src/pigeon/playback_platform_pigeon.g.dart'
         RepeatMode,
         PlayerError,
         BufferMode,
-        PictureInPictureModeChangedEvent;
+        PictureInPictureModeChangedEvent,
+        DrmType,
+        DrmConfiguration,
+        CastMedia;
 export 'src/state/player_state_notifier.dart';
 export 'src/state/plugin_state_notifier.dart';
 export 'src/state/player_controller.dart';

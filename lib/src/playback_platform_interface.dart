@@ -41,7 +41,15 @@ abstract class BccmPlayerInterface extends PlatformInterface {
   }
 
   Future<void> replaceCurrentMediaItem(String playerId, MediaItem mediaItem, {bool? playbackPositionFromPrimary, bool? autoplay = true}) {
-    throw UnimplementedError('setUrl() has not been implemented.');
+    throw UnimplementedError('replaceCurrentMediaItem() has not been implemented.');
+  }
+
+  Future<void> replaceCurrentOfflineAsset(String playerId, String downloadKey, {bool? playbackPositionFromPrimary, bool? autoplay = true}) {
+    throw UnimplementedError('replaceCurrentOfflineAsset() has not been implemented.');
+  }
+
+  Future<void> queueMediaItem(String playerId, MediaItem mediaItem) async {
+    throw UnimplementedError('addMediaItem() has not been implemented.');
   }
 
   Future<ChromecastState?> getChromecastState() async {

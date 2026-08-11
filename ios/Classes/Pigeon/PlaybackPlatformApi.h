@@ -32,6 +32,17 @@ typedef NS_ENUM(NSUInteger, RepeatMode) {
 - (instancetype)initWithValue:(RepeatMode)value;
 @end
 
+typedef NS_ENUM(NSUInteger, DrmType) {
+  DrmTypeWidevine = 0,
+  DrmTypeFairplay = 1,
+};
+
+/// Wrapper for DrmType to allow for nullability.
+@interface DrmTypeBox : NSObject
+@property(nonatomic, assign) DrmType value;
+- (instancetype)initWithValue:(DrmType)value;
+@end
+
 typedef NS_ENUM(NSUInteger, PlaybackState) {
   PlaybackStateStopped = 0,
   PlaybackStatePaused = 1,
@@ -72,8 +83,8 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 
 @class NpawConfig;
 @class AppConfig;
-@class User;
-@class SetUrlArgs;
+@class DrmConfiguration;
+@class CastMedia;
 @class MediaItem;
 @class MediaMetadata;
 @class PlayerStateSnapshot;
@@ -117,20 +128,28 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, copy, nullable) NSString * sessionId;
 @end
 
-@interface User : NSObject
-+ (instancetype)makeWithId:(nullable NSString *)id;
-@property(nonatomic, copy, nullable) NSString * id;
-@end
-
-@interface SetUrlArgs : NSObject
+@interface DrmConfiguration : NSObject
 /// `init` unavailable to enforce nonnull fields, see the `make` class method.
 - (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)makeWithPlayerId:(NSString *)playerId
-    url:(NSString *)url
-    isLive:(nullable NSNumber *)isLive;
-@property(nonatomic, copy) NSString * playerId;
++ (instancetype)makeWithDrmType:(DrmType)drmType
+    contentKeyId:(nullable NSString *)contentKeyId
+    fpsCertificateUrl:(nullable NSString *)fpsCertificateUrl
+    licenseServerUrl:(NSString *)licenseServerUrl
+    licenseRequestHeaders:(nullable NSDictionary<NSString *, NSString *> *)licenseRequestHeaders;
+@property(nonatomic, assign) DrmType drmType;
+@property(nonatomic, copy, nullable) NSString * contentKeyId;
+@property(nonatomic, copy, nullable) NSString * fpsCertificateUrl;
+@property(nonatomic, copy) NSString * licenseServerUrl;
+@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * licenseRequestHeaders;
+@end
+
+@interface CastMedia : NSObject
+/// `init` unavailable to enforce nonnull fields, see the `make` class method.
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)makeWithUrl:(NSString *)url
+    customData:(nullable NSDictionary<NSString *, NSString *> *)customData;
 @property(nonatomic, copy) NSString * url;
-@property(nonatomic, strong, nullable) NSNumber * isLive;
+@property(nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> * customData;
 @end
 
 @interface MediaItem : NSObject
@@ -142,7 +161,9 @@ typedef NS_ENUM(NSUInteger, TrackType) {
     isOffline:(nullable NSNumber *)isOffline
     playbackStartPositionMs:(nullable NSNumber *)playbackStartPositionMs
     lastKnownAudioLanguage:(nullable NSString *)lastKnownAudioLanguage
-    lastKnownSubtitleLanguage:(nullable NSString *)lastKnownSubtitleLanguage;
+    lastKnownSubtitleLanguage:(nullable NSString *)lastKnownSubtitleLanguage
+    drmConfiguration:(nullable DrmConfiguration *)drmConfiguration
+    castMedia:(nullable CastMedia *)castMedia;
 @property(nonatomic, copy, nullable) NSString * id;
 @property(nonatomic, copy, nullable) NSString * url;
 @property(nonatomic, copy, nullable) NSString * mimeType;
@@ -152,6 +173,8 @@ typedef NS_ENUM(NSUInteger, TrackType) {
 @property(nonatomic, strong, nullable) NSNumber * playbackStartPositionMs;
 @property(nonatomic, copy, nullable) NSString * lastKnownAudioLanguage;
 @property(nonatomic, copy, nullable) NSString * lastKnownSubtitleLanguage;
+@property(nonatomic, strong, nullable) DrmConfiguration * drmConfiguration;
+@property(nonatomic, strong, nullable) CastMedia * castMedia;
 @end
 
 @interface MediaMetadata : NSObject
