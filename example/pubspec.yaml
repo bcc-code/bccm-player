@@ -31,7 +31,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   riverpod: ^2.6.1
   flutter_riverpod: ^2.6.1
-  flutter_hooks: ^0.20.5
+  flutter_hooks: ^0.21.3
   hooks_riverpod: ^2.6.1
   focus_debugger: ^0.0.2
   connectivity_plus: ^7.1.1
