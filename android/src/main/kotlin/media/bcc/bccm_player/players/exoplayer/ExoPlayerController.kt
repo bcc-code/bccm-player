@@ -2,7 +2,6 @@ package media.bcc.bccm_player.players.exoplayer
 
 import android.content.Context
 import android.util.Log
-import android.view.WindowManager
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.C.VIDEO_SCALING_MODE_SCALE_TO_FIT
@@ -75,23 +74,25 @@ class ExoPlayerController(
     private var currentPlayerView: PlayerView?
         get() = _currentPlayerView
         set(value) {
+            val previous = _currentPlayerView
             _currentPlayerView = value
+            // Screen-on is held per view rather than via FLAG_KEEP_SCREEN_ON on the window: that
+            // flag is one bit shared with every other player and wakelock, so whoever clears it
+            // clears it for all of them.
+            if (previous !== value) {
+                previous?.keepScreenOn = false
+            }
             if (value == null) {
                 mainScope.launch {
                     delay(6000)
                     if (_currentPlayerView == null) {
                         setForceLowestVideoBitrate(true)
-                        val activity = BccmPlayerPluginSingleton.activityState.value
-                        Log.d("bccm", "FLAG_KEEP_SCREEN_ON cleared")
-                        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                     }
                 }
             } else {
                 Log.d("bccm", "Enabling video, playerView attached")
                 setForceLowestVideoBitrate(false)
-                val activity = BccmPlayerPluginSingleton.activityState.value
-                Log.d("bccm", "FLAG_KEEP_SCREEN_ON added")
-                activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                value.keepScreenOn = true
             }
         }
 
