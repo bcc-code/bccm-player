@@ -1,0 +1,32 @@
+name: test
+
+# Consuming apps run their own test suites, not this package's, so without this
+# workflow nothing enforces them. bcc-media-app's Semaphore `Test` block does
+# fire when `/submodules/` changes, but it only runs that app's own `test/` —
+# a regression in here reaches every consuming app unchallenged.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  bccm_player:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # Matches the `flutter: ">=3.44.0"` constraint in pubspec.yaml.
+          flutter-version: 3.44.0
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # `--no-fatal-infos` because the package carries ~20 pre-existing
+      # deprecation infos (withOpacity, dart:html, cacheExtent). Warnings and
+      # errors are still fatal. Drop the flag once those are cleaned up.
+      - run: flutter analyze --no-fatal-infos
+
+      - run: flutter test

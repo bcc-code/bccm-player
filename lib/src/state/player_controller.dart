@@ -172,7 +172,7 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   Future<void> _initialize() async {
     final playerId = await BccmPlayerInterface.instance.newPlayer(bufferMode: _bufferMode, disableNpaw: _disableNpaw);
     if (_intialMediaItem != null) {
-      await BccmPlayerInterface.instance.replaceCurrentMediaItem(playerId, _intialMediaItem!);
+      await BccmPlayerInterface.instance.replaceCurrentMediaItem(playerId, _intialMediaItem);
     }
     if (_isDisposed) {
       return;
