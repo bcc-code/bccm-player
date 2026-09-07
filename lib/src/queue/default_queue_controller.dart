@@ -173,10 +173,16 @@ class QueueList {
     itemsNotifier.value = itemsNotifier.value.where((item) => item.id != id).toList();
   }
 
+  /// Moves the item at [fromIndex] to [toIndex].
+  ///
+  /// Out-of-range indices are tolerated rather than thrown: a reorderable list
+  /// racing a queue update hands us stale indices routinely, and dropping the
+  /// move is far better than a RangeError out of a gesture handler.
   void move(int fromIndex, int toIndex) {
     final list = [...itemsNotifier.value];
+    if (fromIndex < 0 || fromIndex >= list.length) return;
     final item = list.removeAt(fromIndex);
-    list.insert(toIndex, item);
+    list.insert(toIndex.clamp(0, list.length), item);
     itemsNotifier.value = list;
   }
 
@@ -198,9 +204,18 @@ class QueueList {
   }
 }
 
+/// A [QueueList] that can present its items in a shuffled order while
+/// remembering the order they were given in, so toggling shuffle off restores
+/// it.
+///
+/// [_orderedItems] is the unshuffled backing list and must track every
+/// mutation of [itemsNotifier] — otherwise consuming an item leaves it in the
+/// backing list and toggling shuffle brings it back from the dead. Mutations
+/// deliberately do *not* re-run [_maybeShuffle]: reshuffling on every consumed
+/// track would reorder the visible queue under the user.
 class ShuffleQueueList extends QueueList {
   List<MediaItem> _orderedItems = [];
-  ValueNotifier<bool> shuffleNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> shuffleNotifier = ValueNotifier(false);
 
   ShuffleQueueList() {
     shuffleNotifier.addListener(_maybeShuffle);
@@ -228,5 +243,52 @@ class ShuffleQueueList extends QueueList {
   void setItems(List<MediaItem> items) {
     _orderedItems = [...items];
     _maybeShuffle();
+  }
+
+  /// Drops [item] from the backing list. Matches on `id` when there is one and
+  /// falls back to identity, so an id-less item can't take every other id-less
+  /// item with it.
+  void _forget(MediaItem item) {
+    _orderedItems = _orderedItems
+        .where((i) => item.id != null ? i.id != item.id : !identical(i, item))
+        .toList();
+  }
+
+  @override
+  void add(MediaItem item) {
+    _orderedItems = [..._orderedItems, item];
+    super.add(item);
+  }
+
+  @override
+  void addToStart(MediaItem item) {
+    _orderedItems = [item, ..._orderedItems];
+    super.addToStart(item);
+  }
+
+  @override
+  void clear() {
+    _orderedItems = [];
+    super.clear();
+  }
+
+  @override
+  void remove(String id) {
+    _orderedItems = _orderedItems.where((item) => item.id != id).toList();
+    super.remove(id);
+  }
+
+  @override
+  MediaItem? consumeNext() {
+    final item = super.consumeNext();
+    if (item != null) _forget(item);
+    return item;
+  }
+
+  @override
+  MediaItem? consumeSpecific(String id) {
+    final item = super.consumeSpecific(id);
+    if (item != null) _forget(item);
+    return item;
   }
 }

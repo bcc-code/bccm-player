@@ -264,6 +264,22 @@ void main() {
       expect(idsOf(queue.nextUp.value), ['id-2', 'id-3']);
     });
 
+    test('an item returned to nextUp survives unshuffling', () async {
+      // skipToPrevious is the only caller that pushes onto nextUp, so it is the
+      // only path that exercises the backing list's add side.
+      player.setMediaItem(mediaItem(id: 'a'));
+      await queue.setNextUp(mediaItems(2)); // id-1, id-2
+      await queue.setShuffleEnabled(true);
+      await queue.skipToNext(); // a -> history, one of id-1/id-2 consumed
+      player.setMediaItem(lastPlayed());
+
+      await queue.skipToPrevious(); // plays 'a', returns the consumed item
+
+      await queue.setShuffleEnabled(false);
+      expect(idsOf(queue.nextUp.value), hasLength(2));
+      expect(idsOf(queue.nextUp.value).toSet(), {'id-1', 'id-2'});
+    });
+
     test('removeQueueItem does not reach into nextUp, shuffled or not', () async {
       // The contract has no way to remove a specific nextUp item — removeQueueItem
       // only addresses `queue`. Worth pinning so a future `removeNextUpItem`
