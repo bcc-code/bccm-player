@@ -15,23 +15,18 @@ class BccmPlaybackListener {
   BccmPlaybackListener({required this.ref, required this.updateProgress, this.onMediaItemTransition, this.onPlaybackEnded}) {
     final stream = BccmPlayerInterface.instance.playerEventStream;
     final listener = stream.listen((event) {
-      switch (event.runtimeType) {
-        case PositionDiscontinuityEvent:
-          onPositionDiscontinuity(event as PositionDiscontinuityEvent);
-          break;
-        case PlayerStateUpdateEvent:
-          onPlayerStateUpdate(event as PlayerStateUpdateEvent);
-          break;
-        case MediaItemTransitionEvent:
-          if (onMediaItemTransition != null) {
-            onMediaItemTransition!(event);
-          }
-          break;
-        case PlaybackEndedEvent:
-          if (onPlaybackEnded != null) {
-            onPlaybackEnded!(event);
-          }
-          break;
+      // Object patterns rather than `switch (event.runtimeType)` with type
+      // literals: the old form compared Type objects, matched only the exact
+      // runtime type, and left `event` dynamic at every call site.
+      switch (event) {
+        case PositionDiscontinuityEvent():
+          onPositionDiscontinuity(event);
+        case PlayerStateUpdateEvent():
+          onPlayerStateUpdate(event);
+        case MediaItemTransitionEvent():
+          onMediaItemTransition?.call(event);
+        case PlaybackEndedEvent():
+          onPlaybackEnded?.call(event);
       }
     });
     ref.onDispose(() {
