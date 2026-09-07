@@ -35,6 +35,16 @@ class TimelineHelper {
   final void Function(double targetMs) scrubTo;
   final void Function(double milliseconds) scrubToRelative;
 
+  /// Converts a `[0,1]` slider fraction into an absolute position in
+  /// milliseconds. The inverse of [timeFraction], and the only correct way to
+  /// turn a seekbar value back into something to hand [scrubTo].
+  ///
+  /// For VOD ([rangeStartMs] `== 0`) this is just `fraction * rangeEndMs`. For a
+  /// live DVR window it is not: multiplying by the range *end* lands the seek
+  /// somewhere the thumb was never pointing.
+  double positionFromFraction(double fraction) =>
+      rangeStartMs + clampDouble(fraction, 0, 1) * (rangeEndMs - rangeStartMs);
+
   TimelineHelper({
     required this.seeking,
     required this.currentScrub,
@@ -156,7 +166,10 @@ TimelineHelper useTimeline(BccmPlayerController playerController) {
   useListenableSelector(
     playerController,
     () => [
-      (playerController.value.playbackPositionMs ?? 0 / 500).round(),
+      // `??` binds looser than `/`, so the parens matter: without them this
+      // read as `positionMs ?? (0 / 500)` and the 500ms bucketing never
+      // happened, rebuilding the controls on every millisecond.
+      ((playerController.value.playbackPositionMs ?? 0) / 500).round(),
       playerController.value.currentMediaItem?.metadata?.durationMs,
       playerController.seekableRangeStartMs,
       playerController.seekableRangeEndMs,
