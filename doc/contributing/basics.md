@@ -27,3 +27,33 @@ dart run pigeon --input pigeons/chromecast_pigeon.dart
 ```
 
 You will likely need to add things to the pigeons if you are building new features that require writing native code in swift/kotlin.
+
+#### Running tests
+
+The Dart suite lives in `test/` and runs on every PR via `.github/workflows/test.yml`:
+
+```sh
+flutter test
+
+# Warnings and errors are fatal; the package still carries some pre-existing
+# deprecation infos, hence the flag. This is what CI runs.
+flutter analyze --no-fatal-infos
+```
+
+There are also Kotlin unit tests (Robolectric) under `android/src/test/`. They need the
+Flutter-generated Gradle project, so they run from the example app rather than from
+`android/` directly:
+
+```sh
+cd example/android && ./gradlew :bccm_player:testDebugUnitTest
+```
+
+These are not in CI yet — run them by hand if you touch `ExoPlayerController` or the
+player-view lifecycle. iOS has no test target.
+
+When adding tests, note two things that will bite you otherwise:
+
+- `MediaItem` and `Track` are generated pigeon classes with no `==`/`hashCode`, so they
+  compare by identity. Assert on `id`/`url`, not on whole objects.
+- `PlayerStateNotifier`'s constructor starts a periodic timer. Call `dispose(force: true)`
+  or run inside `fakeAsync`, or the test fails on a pending timer.

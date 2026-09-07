@@ -68,7 +68,7 @@ class BccmPlayerViewConfig {
   /// * [deviceOrientationsFullscreen] is a callback used upon **entering** fullscreen to get the orientations to set. Return null for defaults.
   /// * [castPlayerBuilder] is a builder that will be used to build the cast player.
   const BccmPlayerViewConfig({
-    BccmPlayerControlsConfig? controlsConfig,
+    this._controlsConfig,
     this.useSurfaceView = false,
     this.allowSystemGestures = false,
     this.castPlayerBuilder,
@@ -80,7 +80,7 @@ class BccmPlayerViewConfig {
     this.pipOnLeave,
     this.videoFit,
     this.allowsVideoFrameAnalysis,
-  }) : _controlsConfig = controlsConfig;
+  });
 
   BccmPlayerViewConfig copyWith({
     BccmPlayerControlsConfig? controlsConfig,

@@ -6,4 +6,9 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   errors:
     body_might_complete_normally_nullable: ignore
-  exclude: [lib/**.freezed.dart, lib/**.g.dart]
+  exclude:
+    - lib/**.freezed.dart
+    - lib/**.g.dart
+    - build/**
+    - android/**
+    - ios/**

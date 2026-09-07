@@ -37,10 +37,10 @@ class BccmControlsThemeData {
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
         overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
         activeTrackColor: theme.colorScheme.primary,
-        inactiveTrackColor: theme.colorScheme.onSurface.withOpacity(0.2),
+        inactiveTrackColor: theme.colorScheme.onSurface.withValues(alpha: 0.2),
         thumbColor: theme.colorScheme.primary,
       ),
-      playNextButtonBackgroundColor: Colors.blue.withOpacity(0.75),
+      playNextButtonBackgroundColor: Colors.blue.withValues(alpha: 0.75),
       playNextButtonProgressColor: Colors.blue,
     );
   }
@@ -48,7 +48,11 @@ class BccmControlsThemeData {
   BccmControlsThemeData fillWithDefaults(BccmControlsThemeData defaults) {
     return BccmControlsThemeData(
       primaryColor: primaryColor ?? defaults.primaryColor,
-      iconColor: primaryColor ?? iconColor ?? defaults.iconColor,
+      // primaryColor acts as a shorthand that tints the icons, the same way it
+      // tints progressBarTheme below — but an explicitly set iconColor has to
+      // win over the shorthand. It used to be the other way round, which made
+      // iconColor unreachable for anyone who also set primaryColor.
+      iconColor: iconColor ?? primaryColor ?? defaults.iconColor,
       durationTextStyle: durationTextStyle ?? defaults.durationTextStyle,
       settingsListBackgroundColor: settingsListBackgroundColor ?? defaults.settingsListBackgroundColor,
       settingsListTextStyle: settingsListTextStyle ?? defaults.settingsListTextStyle,

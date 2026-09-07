@@ -5,6 +5,7 @@ import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/controls.dart';
 import 'package:bccm_player_example/example_videos.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class Downloader extends StatefulWidget {
@@ -162,7 +163,7 @@ class _TrackSelection extends HookWidget {
     final selectedAudioTracks = useState<List<Track>>([]);
     final selectedVideoTracks = useState<List<Track>>([]);
     return ListView(
-      cacheExtent: 10000,
+      scrollCacheExtent: const ScrollCacheExtent.pixels(10000),
       shrinkWrap: true,
       children: [
         const Text("Media info"),

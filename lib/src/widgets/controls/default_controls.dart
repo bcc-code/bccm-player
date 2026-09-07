@@ -150,7 +150,7 @@ class DefaultControls extends HookWidget {
                                           child: Slider(
                                             value: timeline.timeFraction,
                                             onChanged: (double value) {
-                                              timeline.scrubTo(value * timeline.duration);
+                                              timeline.scrubTo(timeline.positionFromFraction(value));
                                             },
                                             onChangeEnd: (double value) {
                                               //seekDebouncer.forceEarly();

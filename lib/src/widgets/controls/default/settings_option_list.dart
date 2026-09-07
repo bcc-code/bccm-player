@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../../theme/player_theme.dart';
 
@@ -46,7 +47,7 @@ class SettingsOptionList<T> extends StatelessWidget {
       color: controlsTheme?.settingsListBackgroundColor,
       child: ListView(
         shrinkWrap: true,
-        cacheExtent: 1000,
+        scrollCacheExtent: const ScrollCacheExtent.pixels(1000),
         children: [
           for (final option in options)
             ListTile(
