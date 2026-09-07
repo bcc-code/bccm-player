@@ -18,9 +18,9 @@ _Note: This is mostly to explain how things work. Even for simple use cases, we 
 final controller = BccmPlayerController.primary;
 await controller.replaceCurrentMediaItem(
       MediaItem(
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        url: 'https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4',
         mimeType: 'video/mp4',
-        metadata: MediaMetadata(title: 'Apple advanced (HLS/HDR)'),
+        metadata: MediaMetadata(title: 'Big Buck Bunny'),
       ),
     );
 

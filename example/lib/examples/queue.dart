@@ -8,12 +8,12 @@ enum PlaylistId { playlist1, playlist2 }
 final playlist1 = exampleVideos;
 final playlist2 = [
   MediaItem(
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    url: 'https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4',
     mimeType: 'video/mp4',
     metadata: MediaMetadata(
       title: 'Video 1',
       artist: 'Blender Foundation',
-      artworkUri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg',
+      artworkUri: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Big_buck_bunny_poster_big.jpg',
     ),
   ),
   MediaItem(
