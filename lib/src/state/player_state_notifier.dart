@@ -50,11 +50,19 @@ class PlayerStateNotifier extends StateNotifier<PlayerState> {
     return BccmPlayerInterface.instance.stateNotifier.getPlayerNotifier(playerId);
   }
 
+  bool _isDisposed = false;
+
   @override
   // ignore: must_call_super
   void dispose({bool? force}) {
     // prevents riverpods StateNotifierProvider from disposing it
     if (!keepAlive || force == true) {
+      // Idempotent because [onDispose] re-enters: for a notifier created by
+      // [PlayerPluginStateNotifier], it runs `_removePlayer`, which calls
+      // `dispose(force: true)` right back. Without the guard the second pass
+      // disposes `queueManager` a second time and asserts.
+      if (_isDisposed) return;
+      _isDisposed = true;
       onDispose?.call();
       positionUpdateTimer.cancel();
       queueManager.dispose();

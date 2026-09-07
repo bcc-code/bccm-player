@@ -69,9 +69,10 @@ class RootPigeonPlaybackListener implements PlaybackListenerPigeon {
   }
 
   @override
-  void onPrimaryPlayerChanged(playerId) {
+  void onPrimaryPlayerChanged(event) {
+    _streamController.add(event);
     for (var listener in _listeners) {
-      listener.onPrimaryPlayerChanged(playerId);
+      listener.onPrimaryPlayerChanged(event);
     }
   }
 }
