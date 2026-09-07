@@ -81,9 +81,15 @@ class DefaultQueueManager implements QueueManager {
 
   @override
   Future<void> handlePlaybackEnded(MediaItem? mediaItem) async {
-    if (_playerNotifier == null) return;
+    final player = _playerNotifier;
+    if (player == null) return;
+    final ended = mediaItem ?? player.getState().currentMediaItem;
     final next = _queue.consumeNext() ?? _nextUp.consumeNext();
     if (next != null) {
+      // Same as [skipToNext]: only record history when we actually move on. If
+      // there is nothing next, the ended item stays current and does not belong
+      // in history.
+      if (ended != null) _history.addToStart(ended);
       await _playMediaItem(next);
     }
   }
