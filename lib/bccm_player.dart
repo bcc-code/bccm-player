@@ -24,6 +24,11 @@ export 'src/pigeon/playback_platform_pigeon.g.dart'
 export 'src/state/player_state_notifier.dart';
 export 'src/state/plugin_state_notifier.dart';
 export 'src/state/player_controller.dart';
+// Only the value types, not QueueManager itself. Consumers need to name these
+// to render a queue; leaving the interface unexported keeps it a non-extension
+// point, so methods can keep being added to it without a breaking change —
+// which matters because more are coming when the queue moves native.
+export 'src/queue/queue_controller.dart' show QueueEntry, QueueEntryKind;
 export 'src/native/chromecast_events.dart';
 export 'src/playback_platform_interface.dart';
 export 'src/widgets/video/player_view.dart';
