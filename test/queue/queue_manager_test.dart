@@ -1,4 +1,5 @@
 import 'package:bccm_player/bccm_player.dart';
+import 'package:bccm_player/src/queue/default_queue_controller.dart';
 import 'package:bccm_player/src/queue/queue_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -31,7 +32,7 @@ void main() {
 
   group('skipToNext', () {
     test('drains queue before nextUp', () async {
-      await queue.addQueueItem(mediaItem(id: 'q1'));
+      await queue.addLast(mediaItem(id: 'q1'));
       await queue.setNextUp([mediaItem(id: 'n1')]);
 
       await queue.skipToNext();
@@ -46,7 +47,7 @@ void main() {
 
     test('pushes the outgoing item onto history', () async {
       player.setMediaItem(mediaItem(id: 'current'));
-      await queue.addQueueItem(mediaItem(id: 'q1'));
+      await queue.addLast(mediaItem(id: 'q1'));
 
       await queue.skipToNext();
 
@@ -63,7 +64,7 @@ void main() {
     });
 
     test('plays with autoplay and without inheriting the primary position', () async {
-      await queue.addQueueItem(mediaItem(id: 'q1'));
+      await queue.addLast(mediaItem(id: 'q1'));
 
       await queue.skipToNext();
 
@@ -77,10 +78,10 @@ void main() {
   group('skipToPrevious', () {
     test('pops history and returns the current item to the front of the queue', () async {
       player.setMediaItem(mediaItem(id: 'a'));
-      await queue.addQueueItem(mediaItem(id: 'q1'));
+      await queue.addLast(mediaItem(id: 'q1'));
       await queue.skipToNext(); // a -> history, q1 plays
       player.setMediaItem(mediaItem(id: 'q1'));
-      await queue.addQueueItem(mediaItem(id: 'q2'));
+      await queue.addLast(mediaItem(id: 'q2'));
 
       await queue.skipToPrevious();
 
@@ -102,18 +103,73 @@ void main() {
       expect(idsOf(queue.queue.value), isEmpty);
     });
 
-    test('no-ops with empty history', () async {
+    test('restarts rather than doing nothing when history is empty', () async {
+      // The button should never be inert: with nothing behind us, "previous"
+      // means "start this one again".
       player.setMediaItem(mediaItem(id: 'current'));
 
       await queue.skipToPrevious();
 
       expect(fake.replaceCurrentMediaItemCalls, isEmpty);
+      expect(fake.seekToCalls.single.positionMs, 0);
+    });
+
+    test('does nothing at all when there is no current item and no history', () async {
+      await queue.skipToPrevious();
+
+      expect(fake.replaceCurrentMediaItemCalls, isEmpty);
+      expect(fake.seekToCalls, isEmpty);
+    });
+
+    test('restarts the current item when past the threshold', () async {
+      // Regression: it used to always jump back, so pressing previous halfway
+      // through a track lost your place in it.
+      player.setMediaItem(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'q1'));
+      await queue.skipToNext(); // a -> history
+      player.setMediaItem(mediaItem(id: 'q1'));
+      player.setPlaybackPosition(30000);
+      fake.replaceCurrentMediaItemCalls.clear();
+
+      await queue.skipToPrevious();
+
+      expect(fake.seekToCalls.single.positionMs, 0);
+      expect(fake.replaceCurrentMediaItemCalls, isEmpty, reason: 'stays on the current item');
+      expect(idsOf(queue.history.value), ['a'], reason: 'history is untouched');
+    });
+
+    test('goes back when pressed near the start', () async {
+      player.setMediaItem(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'q1'));
+      await queue.skipToNext();
+      player.setMediaItem(mediaItem(id: 'q1'));
+      player.setPlaybackPosition(1500);
+      fake.replaceCurrentMediaItemCalls.clear();
+
+      await queue.skipToPrevious();
+
+      expect(lastPlayed()?.id, 'a');
+      expect(fake.seekToCalls, isEmpty);
+    });
+
+    test('the restart threshold is adjustable', () async {
+      (queue as DefaultQueueManager).restartThreshold = Duration.zero;
+      player.setMediaItem(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'q1'));
+      await queue.skipToNext();
+      player.setMediaItem(mediaItem(id: 'q1'));
+      player.setPlaybackPosition(1);
+      fake.replaceCurrentMediaItemCalls.clear();
+
+      await queue.skipToPrevious();
+
+      expect(fake.seekToCalls.single.positionMs, 0, reason: 'a zero threshold always restarts');
     });
   });
 
   group('handlePlaybackEnded', () {
     test('advances to the next item', () async {
-      await queue.addQueueItem(mediaItem(id: 'q1'));
+      await queue.addLast(mediaItem(id: 'q1'));
 
       await queue.handlePlaybackEnded(mediaItem(id: 'ended'));
 
@@ -126,7 +182,7 @@ void main() {
       // though skipping forward manually did record history.
       final ended = mediaItem(id: 'ended');
       player.setMediaItem(ended);
-      await queue.addQueueItem(mediaItem(id: 'q1'));
+      await queue.addLast(mediaItem(id: 'q1'));
 
       await queue.handlePlaybackEnded(ended);
 
@@ -135,7 +191,7 @@ void main() {
 
     test('falls back to the current media item when passed null', () async {
       player.setMediaItem(mediaItem(id: 'current'));
-      await queue.addQueueItem(mediaItem(id: 'q1'));
+      await queue.addLast(mediaItem(id: 'q1'));
 
       await queue.handlePlaybackEnded(null);
 
@@ -154,15 +210,15 @@ void main() {
   });
 
   group('id backfill', () {
-    test('addQueueItem assigns an id when the caller supplies none', () async {
-      await queue.addQueueItem(mediaItem(url: 'https://example.test/x.m3u8'));
+    test('addLast assigns an id when the caller supplies none', () async {
+      await queue.addLast(mediaItem(url: 'https://example.test/x.m3u8'));
 
       expect(queue.queue.value.single.id, isNotNull);
       expect(queue.queue.value.single.url, 'https://example.test/x.m3u8');
     });
 
-    test('addQueueItem preserves a caller-supplied id', () async {
-      await queue.addQueueItem(mediaItem(id: 'mine'));
+    test('addLast preserves a caller-supplied id', () async {
+      await queue.addLast(mediaItem(id: 'mine'));
 
       expect(queue.queue.value.single.id, 'mine');
     });
@@ -189,8 +245,8 @@ void main() {
 
   group('queue mutation', () {
     test('removeQueueItem removes by id', () async {
-      await queue.addQueueItem(mediaItem(id: 'a'));
-      await queue.addQueueItem(mediaItem(id: 'b'));
+      await queue.addLast(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'b'));
 
       await queue.removeQueueItem('a');
 
@@ -198,7 +254,7 @@ void main() {
     });
 
     test('clearQueue empties the queue but leaves nextUp alone', () async {
-      await queue.addQueueItem(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'a'));
       await queue.setNextUp([mediaItem(id: 'n1')]);
 
       await queue.clearQueue();
@@ -208,9 +264,9 @@ void main() {
     });
 
     test('moveQueueItem reorders', () async {
-      await queue.addQueueItem(mediaItem(id: 'a'));
-      await queue.addQueueItem(mediaItem(id: 'b'));
-      await queue.addQueueItem(mediaItem(id: 'c'));
+      await queue.addLast(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'b'));
+      await queue.addLast(mediaItem(id: 'c'));
 
       await queue.moveQueueItem(0, 2);
 
@@ -220,7 +276,7 @@ void main() {
     test('moveQueueItem tolerates stale indices instead of throwing', () async {
       // Regression: bare removeAt/insert threw RangeError. A ReorderableListView
       // racing a queue update hits this trivially.
-      await queue.addQueueItem(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'a'));
 
       await expectLater(queue.moveQueueItem(5, 0), completes);
       await expectLater(queue.moveQueueItem(0, 9), completes);
@@ -297,7 +353,7 @@ void main() {
 
   group('player state listener', () {
     test('removes an item from queue and nextUp once it becomes current', () async {
-      await queue.addQueueItem(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'a'));
       await queue.setNextUp([mediaItem(id: 'a'), mediaItem(id: 'b')]);
 
       player.setMediaItem(mediaItem(id: 'a'));
@@ -307,11 +363,227 @@ void main() {
     });
 
     test('leaves the lists alone for an item that is not queued', () async {
-      await queue.addQueueItem(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'a'));
 
       player.setMediaItem(mediaItem(id: 'unrelated'));
 
       expect(idsOf(queue.queue.value), ['a']);
+    });
+  });
+
+  group('adding items', () {
+    test('addLast appends to the end of the queue', () async {
+      await queue.addLast(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'b'));
+
+      expect(idsOf(queue.queue.value), ['a', 'b']);
+    });
+
+    test('addNext jumps the item to the front, to play right after the current one', () async {
+      await queue.addLast(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'b'));
+
+      await queue.addNext(mediaItem(id: 'urgent'));
+
+      expect(idsOf(queue.queue.value), ['urgent', 'a', 'b']);
+    });
+
+    test('addNext backfills an id like the others do', () async {
+      await queue.addNext(mediaItem());
+
+      expect(queue.queue.value.single.id, isNotNull);
+    });
+
+    test('insertAll appends in order', () async {
+      await queue.addLast(mediaItem(id: 'a'));
+
+      await queue.insertAll(mediaItems(3));
+
+      expect(idsOf(queue.queue.value), ['a', 'id-1', 'id-2', 'id-3']);
+    });
+
+    test('insertAll notifies once for the whole batch', () async {
+      var notifications = 0;
+      queue.queue.addListener(() => notifications++);
+
+      await queue.insertAll(mediaItems(5));
+
+      expect(notifications, 1, reason: 'a per-item notification would rebuild the UI five times');
+    });
+
+    test('insertAll of nothing does not notify', () async {
+      var notifications = 0;
+      queue.queue.addListener(() => notifications++);
+
+      await queue.insertAll([]);
+
+      expect(notifications, 0);
+    });
+
+    test('the deprecated addQueueItem still behaves like addLast', () async {
+      // ignore: deprecated_member_use_from_same_package
+      await queue.addQueueItem(mediaItem(id: 'a'));
+
+      expect(idsOf(queue.queue.value), ['a']);
+    });
+  });
+
+  group('max queue length', () {
+    test('drops additions past the cap instead of growing without bound', () async {
+      (queue as DefaultQueueManager).maxQueueLength = 2;
+
+      await queue.addLast(mediaItem(id: 'a'));
+      await queue.addLast(mediaItem(id: 'b'));
+      await queue.addLast(mediaItem(id: 'c'));
+      await queue.addNext(mediaItem(id: 'd'));
+
+      expect(idsOf(queue.queue.value), ['a', 'b']);
+    });
+
+    test('insertAll fills the remaining room and drops the rest', () async {
+      (queue as DefaultQueueManager).maxQueueLength = 3;
+      await queue.addLast(mediaItem(id: 'a'));
+
+      await queue.insertAll(mediaItems(5));
+
+      expect(idsOf(queue.queue.value), ['a', 'id-1', 'id-2']);
+    });
+  });
+
+  group('playItem', () {
+    test('plays an upcoming item and leaves the rest queued', () async {
+      // Tapping row 3 should not discard rows 1 and 2.
+      player.setMediaItem(mediaItem(id: 'current'));
+      await queue.insertAll(mediaItems(3));
+
+      await queue.playItem('id-3');
+
+      expect(lastPlayed()?.id, 'id-3');
+      expect(idsOf(queue.queue.value), ['id-1', 'id-2']);
+    });
+
+    test('moves the outgoing item to history', () async {
+      player.setMediaItem(mediaItem(id: 'current'));
+      await queue.insertAll(mediaItems(2));
+
+      await queue.playItem('id-2');
+
+      expect(idsOf(queue.history.value), ['current']);
+    });
+
+    test('reaches into nextUp as well as queue', () async {
+      await queue.setNextUp(mediaItems(3, prefix: 'n'));
+
+      await queue.playItem('n-2');
+
+      expect(lastPlayed()?.id, 'n-2');
+      expect(idsOf(queue.nextUp.value), ['n-1', 'n-3']);
+    });
+
+    test('ignores an id that is not upcoming', () async {
+      await queue.addLast(mediaItem(id: 'a'));
+
+      await queue.playItem('nope');
+
+      expect(fake.replaceCurrentMediaItemCalls, isEmpty);
+      expect(idsOf(queue.queue.value), ['a']);
+    });
+  });
+
+  group('playAt', () {
+    test('plays the entry at that position in the combined view', () async {
+      player.setMediaItem(mediaItem(id: 'current'));
+      await queue.insertAll(mediaItems(2));
+      await queue.setNextUp(mediaItems(2, prefix: 'n'));
+
+      // entries == [current, id-1, id-2, n-1, n-2]
+      await queue.playAt(3);
+
+      expect(lastPlayed()?.id, 'n-1');
+    });
+
+    test('ignores the current entry', () async {
+      player.setMediaItem(mediaItem(id: 'current'));
+      await queue.addLast(mediaItem(id: 'a'));
+
+      await queue.playAt(0);
+
+      expect(fake.replaceCurrentMediaItemCalls, isEmpty);
+    });
+
+    test('ignores out-of-range indices', () async {
+      await queue.addLast(mediaItem(id: 'a'));
+
+      await queue.playAt(-1);
+      await queue.playAt(99);
+
+      expect(fake.replaceCurrentMediaItemCalls, isEmpty);
+    });
+  });
+
+  group('entries', () {
+    List<String?> entryIds() => queue.entries.value.map((e) => e.mediaItem.id).toList();
+    List<QueueEntryKind> entryKinds() => queue.entries.value.map((e) => e.kind).toList();
+
+    test('is current, then queue, then nextUp', () async {
+      player.setMediaItem(mediaItem(id: 'current'));
+      await queue.insertAll(mediaItems(2));
+      await queue.setNextUp(mediaItems(2, prefix: 'n'));
+
+      expect(entryIds(), ['current', 'id-1', 'id-2', 'n-1', 'n-2']);
+      expect(entryKinds(), [
+        QueueEntryKind.current,
+        QueueEntryKind.queue,
+        QueueEntryKind.queue,
+        QueueEntryKind.nextUp,
+        QueueEntryKind.nextUp,
+      ]);
+    });
+
+    test('marks exactly one entry as current', () async {
+      player.setMediaItem(mediaItem(id: 'current'));
+      await queue.insertAll(mediaItems(2));
+
+      expect(queue.entries.value.where((e) => e.isCurrent).map((e) => e.mediaItem.id), ['current']);
+    });
+
+    test('holds only upcoming items when nothing is playing', () async {
+      await queue.insertAll(mediaItems(2));
+
+      expect(entryIds(), ['id-1', 'id-2']);
+      expect(entryKinds(), everyElement(QueueEntryKind.queue));
+    });
+
+    test('tracks a change of current item', () async {
+      await queue.setNextUp(mediaItems(2, prefix: 'n'));
+      expect(entryIds(), ['n-1', 'n-2']);
+
+      player.setMediaItem(mediaItem(id: 'now-playing'));
+
+      expect(entryIds(), ['now-playing', 'n-1', 'n-2']);
+    });
+
+    test('tracks queue mutations', () async {
+      await queue.addLast(mediaItem(id: 'a'));
+      expect(entryIds(), ['a']);
+
+      await queue.addNext(mediaItem(id: 'b'));
+      expect(entryIds(), ['b', 'a']);
+
+      await queue.removeQueueItem('a');
+      expect(entryIds(), ['b']);
+
+      await queue.clearQueue();
+      expect(entryIds(), isEmpty);
+    });
+
+    test('drops an item from the upcoming lists once it becomes current', () async {
+      await queue.setNextUp(mediaItems(2, prefix: 'n'));
+
+      player.setMediaItem(mediaItem(id: 'n-1'));
+
+      expect(entryIds(), ['n-1', 'n-2'], reason: 'it appears once, as the current entry');
+      expect(entryKinds().first, QueueEntryKind.current);
     });
   });
 }

@@ -132,7 +132,7 @@ class QueueExample extends HookWidget {
               ...exampleVideos.map(
                 (MediaItem mediaItem) => ElevatedButton(
                   onPressed: () {
-                    controller.queue.addQueueItem(mediaItem);
+                    controller.queue.addLast(mediaItem);
                   },
                   child: Text('${mediaItem.metadata?.title}'),
                 ),

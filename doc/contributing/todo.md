@@ -29,7 +29,6 @@ iOS has no test target at all — `ios/bccm_player.podspec` has no `test_spec`.
 ## Minor
 
 - `lib/src/widgets/utils/bccm_player_plugin_state_builder.dart` is dead code returning `Placeholder()` and isn't exported. Delete it.
-- `PlayerPluginStateNotifier._removePlayer` calls `debugPrint` unconditionally — noisy in test output and in release logs.
 - `StateNotifierSelectBuilder` compares selections with `!identical` rather than `!=`. Fine for enums, bools and small ints; a `select` that builds a `String` rebuilds on every notification regardless. Pinned by a test today, not a correctness bug.
 - `useWakelockWhilePlaying` holds the wakelock in every state except `paused` — including `stopped` and `error`. Needs a product decision, not just a code change.
 - The filename `lib/src/utils/use_wakelock_while_palying.dart` is misspelled.
