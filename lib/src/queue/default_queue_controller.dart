@@ -5,12 +5,26 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 class DefaultQueueManager implements QueueManager {
+  DefaultQueueManager() {
+    _queue.itemsNotifier.addListener(_recomputeEntries);
+    _nextUp.itemsNotifier.addListener(_recomputeEntries);
+  }
+
   PlayerStateNotifier? _playerNotifier;
 
   final QueueList _queue = QueueList();
   final QueueList _history = QueueList();
   final ShuffleQueueList _nextUp = ShuffleQueueList();
+  final ValueNotifier<List<QueueEntry>> _entries = ValueNotifier(const []);
   void Function()? stopPlayerListener;
+
+  /// How far into an item [skipToPrevious] stops going back and restarts
+  /// instead. Three seconds is the usual convention.
+  Duration restartThreshold = const Duration(seconds: 3);
+
+  /// Upper bound on [queue], so a runaway caller cannot grow it without limit.
+  /// Additions past this are dropped rather than throwing.
+  int maxQueueLength = 1000;
 
   @override
   ValueNotifier<bool> get shuffleEnabled => _nextUp.shuffleNotifier;
@@ -20,12 +34,17 @@ class DefaultQueueManager implements QueueManager {
   ValueNotifier<List<MediaItem>> get queue => _queue.itemsNotifier;
   @override
   ValueNotifier<List<MediaItem>> get nextUp => _nextUp.itemsNotifier;
+  @override
+  ValueNotifier<List<QueueEntry>> get entries => _entries;
 
   @override
   void dispose() {
+    _queue.itemsNotifier.removeListener(_recomputeEntries);
+    _nextUp.itemsNotifier.removeListener(_recomputeEntries);
     _queue.dispose();
     _history.dispose();
     _nextUp.dispose();
+    _entries.dispose();
   }
 
   @override
@@ -40,6 +59,21 @@ class DefaultQueueManager implements QueueManager {
     if (currentId != null) {
       _removeIfUpcoming(currentId);
     }
+    _recomputeEntries();
+  }
+
+  void _recomputeEntries() {
+    final current = _playerNotifier?.getState().currentMediaItem;
+    _entries.value = [
+      if (current != null) QueueEntry(mediaItem: current, kind: QueueEntryKind.current),
+      for (final item in _queue.items) QueueEntry(mediaItem: item, kind: QueueEntryKind.queue),
+      for (final item in _nextUp.items) QueueEntry(mediaItem: item, kind: QueueEntryKind.nextUp),
+    ];
+  }
+
+  /// Seeks the current item back to the start.
+  Future<void> _restartCurrent(PlayerState state) {
+    return BccmPlayerInterface.instance.seekTo(state.playerId, 0);
   }
 
   void _removeIfUpcoming(String id) {
@@ -67,16 +101,34 @@ class DefaultQueueManager implements QueueManager {
   Future<void> skipToPrevious() async {
     final player = _playerNotifier;
     if (player == null) return;
-    final current = player.getState().currentMediaItem;
+    final state = player.getState();
+
+    // Past the threshold, "previous" means "start this one again" — pressing it
+    // mid-track to jump backwards is almost never what was meant.
+    if ((state.playbackPositionMs ?? 0) > restartThreshold.inMilliseconds) {
+      return _restartCurrent(state);
+    }
+
+    final current = state.currentMediaItem;
     final previous = _history.consumeNext();
-    if (previous != null && current != null) {
-      if (queue.value.isNotEmpty) {
+    if (previous == null) {
+      // Nothing behind us: restart rather than doing nothing at all, so the
+      // button is never inert.
+      if (current != null) return _restartCurrent(state);
+      return;
+    }
+
+    if (current != null) {
+      // Put the outgoing item back where it will play next. It belongs at the
+      // front of `queue` if anything is queued, otherwise at the front of the
+      // automatic continuation.
+      if (_queue.items.isNotEmpty) {
         _queue.addToStart(current);
       } else {
         _nextUp.addToStart(current);
       }
-      await _playMediaItem(previous);
     }
+    await _playMediaItem(previous);
   }
 
   @override
@@ -116,10 +168,40 @@ class DefaultQueueManager implements QueueManager {
     return copy;
   }
 
+  /// Room left before [maxQueueLength] is reached.
+  int get _room => maxQueueLength - _queue.items.length;
+
   @override
-  Future<void> addQueueItem(MediaItem mediaItem) async {
+  Future<void> addLast(MediaItem mediaItem) async {
+    if (_room <= 0) {
+      debugPrint('bccm: queue is at maxQueueLength ($maxQueueLength), dropping addLast');
+      return;
+    }
     _queue.add(_withId(mediaItem));
   }
+
+  @override
+  Future<void> addNext(MediaItem mediaItem) async {
+    if (_room <= 0) {
+      debugPrint('bccm: queue is at maxQueueLength ($maxQueueLength), dropping addNext');
+      return;
+    }
+    _queue.addToStart(_withId(mediaItem));
+  }
+
+  @override
+  Future<void> insertAll(List<MediaItem> mediaItems) async {
+    if (_room <= 0) return;
+    if (mediaItems.length > _room) {
+      debugPrint('bccm: queue is near maxQueueLength ($maxQueueLength), inserting only $_room of ${mediaItems.length}');
+    }
+    // One notification for the whole batch rather than one per item.
+    _queue.addAll(mediaItems.take(_room).map(_withId).toList());
+  }
+
+  @Deprecated('Renamed to addLast, to pair with addNext. Will be removed in a future release.')
+  @override
+  Future<void> addQueueItem(MediaItem mediaItem) => addLast(mediaItem);
 
   @override
   Future<void> removeQueueItem(String id) async {
@@ -134,6 +216,30 @@ class DefaultQueueManager implements QueueManager {
   @override
   Future<void> clearQueue() async {
     _queue.clear();
+  }
+
+  @override
+  Future<void> playItem(String id) async {
+    final player = _playerNotifier;
+    if (player == null) return;
+    // Only the chosen item is consumed — everything else stays queued, which is
+    // what "tap row 5" should do.
+    final target = _queue.consumeSpecific(id) ?? _nextUp.consumeSpecific(id);
+    if (target == null) return;
+    final current = player.getState().currentMediaItem;
+    if (current != null) _history.addToStart(current);
+    await _playMediaItem(target);
+  }
+
+  @override
+  Future<void> playAt(int index) async {
+    final list = _entries.value;
+    if (index < 0 || index >= list.length) return;
+    final entry = list[index];
+    if (entry.isCurrent) return;
+    final id = entry.mediaItem.id;
+    if (id == null) return;
+    await playItem(id);
   }
 
   Future<void> _playMediaItem(MediaItem mediaItem) async {
@@ -159,6 +265,11 @@ class QueueList {
 
   void add(MediaItem item) {
     itemsNotifier.value = [...itemsNotifier.value, item];
+  }
+
+  void addAll(List<MediaItem> items) {
+    if (items.isEmpty) return;
+    itemsNotifier.value = [...itemsNotifier.value, ...items];
   }
 
   void addToStart(MediaItem item) {

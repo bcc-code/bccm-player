@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 import 'player_state_notifier.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -47,7 +46,6 @@ class PlayerPluginStateNotifier extends StateNotifier<PlayerPluginState> {
   }
 
   void _removePlayer(String playerId) {
-    debugPrint('removing playerId: $playerId');
     final player = state.players[playerId];
     if (player != null) {
       state = state.copyWith(players: {...state.players}..remove(playerId));
