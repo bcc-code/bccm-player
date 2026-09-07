@@ -101,22 +101,24 @@ class DefaultQueueManager implements QueueManager {
 
   @override
   Future<void> setNextUp(List<MediaItem> mediaItems) async {
-    for (var i = 0; i < mediaItems.length; i++) {
-      if (mediaItems[i].id == null) {
-        mediaItems[i] = MediaItem.decode(mediaItems[i].encode());
-        mediaItems[i].id = const Uuid().v4();
-      }
-    }
-    _nextUp.setItems(mediaItems);
+    // Build a new list rather than writing back into the caller's — MediaItem is
+    // a mutable pigeon class, so assigning into `mediaItems[i]` mutated the list
+    // the caller still holds.
+    _nextUp.setItems(mediaItems.map(_withId).toList());
+  }
+
+  /// Returns [item] unchanged if it already has an id, otherwise a copy with a
+  /// generated one. Ids are what the queue addresses items by.
+  MediaItem _withId(MediaItem item) {
+    if (item.id != null) return item;
+    final copy = MediaItem.decode(item.encode());
+    copy.id = const Uuid().v4();
+    return copy;
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    if (mediaItem.id == null) {
-      mediaItem = MediaItem.decode(mediaItem.encode());
-      mediaItem.id = const Uuid().v4();
-    }
-    _queue.add(mediaItem);
+    _queue.add(_withId(mediaItem));
   }
 
   @override
