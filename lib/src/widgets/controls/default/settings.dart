@@ -1,10 +1,10 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:bccm_player/bccm_player.dart';
+import 'package:bccm_player/src/model/track_selection.dart';
 import 'package:bccm_player/src/widgets/controls/default/settings_option_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 
@@ -113,36 +113,27 @@ class _SettingsBottomSheet extends HookWidget {
       return () => playerController.removeListener(listener);
     });
 
-    final tracksData = tracksSnapshot.data;
-    if (tracksData == null) {}
-
-    final audioTracks = isOffline.value
-        ? tracksData?.audioTracks.safe.where((element) => element.downloaded == null || element.downloaded == true).toList()
-        : tracksData?.audioTracks.safe.toList();
-    final textTracks = isOffline.value
-        ? tracksData?.textTracks.safe.where((element) => element.downloaded == null || element.downloaded == true).toList()
-        : tracksData?.textTracks.safe.toList();
-
-    final selectedAudioTrack = tracksData?.audioTracks.safe.firstWhereOrNull((element) => element.isSelected);
-    final selectedTextTrack = tracksData?.textTracks.safe.firstWhereOrNull((element) => element.isSelected);
-    final selectedVideoTrack = tracksData?.videoTracks.safe.firstWhereOrNull((element) => element.isSelected);
-    var uniqueHeights = <int>{};
-    final uniqueVideoTracks = tracksData?.videoTracks.safe.where((t) => uniqueHeights.add(t.height ?? 0)).toList();
-
-    if (selectedAudioTrack != null && audioTracks != null && !audioTracks.contains(selectedAudioTrack)) {
-      audioTracks.add(selectedAudioTrack);
-    }
+    final selection = TrackSelection.from(
+      tracksSnapshot.data,
+      isOffline: isOffline.value,
+      isLive: isLive.value,
+      hidePlaybackSpeed: controlsConfig.hidePlaybackSpeed,
+      hideQualitySelector: controlsConfig.hideQualitySelector,
+    );
+    final selectedAudioTrack = selection.selectedAudioTrack;
+    final selectedTextTrack = selection.selectedTextTrack;
+    final selectedVideoTrack = selection.selectedVideoTrack;
 
     final settings = [
       ...?controlsConfig.extraSettingsBuilder?.call(context),
-      if (audioTracks != null && audioTracks.length > 1)
+      if (selection.showAudioSelector)
         ListTile(
           dense: true,
           onTap: () async {
             final selected = await showModalOptionList<Track>(
               context: context,
               options: [
-                ...audioTracks.map(
+                ...selection.audioTracks.map(
                   (track) => SettingsOption(value: track, label: track.labelWithFallback, isSelected: track.isSelected),
                 )
               ],
@@ -160,7 +151,7 @@ class _SettingsBottomSheet extends HookWidget {
             style: controlsTheme.settingsListTextStyle,
           ),
         ),
-      if (textTracks?.isNotEmpty == true)
+      if (selection.showSubtitleSelector)
         ListTile(
           dense: true,
           title: Text('Subtitles: ${selectedTextTrack?.labelWithFallback ?? 'None'}', style: controlsTheme.settingsListTextStyle),
@@ -169,7 +160,7 @@ class _SettingsBottomSheet extends HookWidget {
               context: context,
               options: [
                 SettingsOption(value: null, label: "None", isSelected: selectedTextTrack == null),
-                ...textTracks!.map(
+                ...selection.textTracks.map(
                   (track) => SettingsOption(value: track, label: track.labelWithFallback, isSelected: track.isSelected),
                 )
               ],
@@ -183,7 +174,7 @@ class _SettingsBottomSheet extends HookWidget {
             }
           },
         ),
-      if (controlsConfig.hidePlaybackSpeed == false || controlsConfig.hidePlaybackSpeed == null && !isLive.value)
+      if (selection.showPlaybackSpeed)
         ListTile(
           dense: true,
           title: Text('Playback speed: ${playbackSpeed.value.toString()}x', style: controlsTheme.settingsListTextStyle),
@@ -205,7 +196,7 @@ class _SettingsBottomSheet extends HookWidget {
             }
           },
         ),
-      if (controlsConfig.hideQualitySelector != true && uniqueVideoTracks != null && uniqueVideoTracks.length > 1)
+      if (selection.showQualitySelector)
         ListTile(
           dense: true,
           title: Text('${Platform.isIOS ? 'Max ' : ''}Quality: ${selectedVideoTrack?.labelWithFallback ?? 'Auto'}',
@@ -215,7 +206,7 @@ class _SettingsBottomSheet extends HookWidget {
               context: context,
               options: [
                 SettingsOption(value: null, label: "Auto", isSelected: selectedVideoTrack == null),
-                ...uniqueVideoTracks.map(
+                ...selection.videoTracks.map(
                   (track) => SettingsOption(value: track, label: track.labelWithFallback, isSelected: track.isSelected),
                 )
               ],

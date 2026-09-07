@@ -10,12 +10,6 @@ Queue and audio work is tracked separately in [audio-support-plan.md](audio-supp
 
 Only a real web build can verify it — no Dart test reaches this file. It carries the single inline `// ignore: deprecated_member_use` in the package, so this is the last thing between us and an unqualified strict `flutter analyze`.
 
-## Extract track selection out of `_SettingsBottomSheet`
-
-[`lib/src/widgets/controls/default/settings.dart`](../../lib/src/widgets/controls/default/settings.dart) hides real logic inside a widget build method: offline filtering (`downloaded == null || downloaded == true`), unique-height video-track dedupe, the selected-track lookup, re-adding a selected-but-filtered audio track, and `autoTrackId` handling.
-
-All of it is pure and none of it is testable where it sits. Pulling it into a function is the biggest remaining coverage win in the package.
-
 ## Make `tv_controls.dart` DVR-aware
 
 [`lib/src/widgets/controls/tv/tv_controls.dart`](../../lib/src/widgets/controls/tv/tv_controls.dart) reimplements `useTimeline` inline and ignores `seekableRangeStartMs` / `seekableRangeEndMs` entirely, so seeking a live DVR window is wrong on TV.
