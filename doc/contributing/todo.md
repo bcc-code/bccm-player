@@ -16,10 +16,6 @@ Only a real web build can verify it — no Dart test reaches this file. It carri
 
 Unlike the bug fixed in `default_controls`, it is at least self-consistent — its thumb and its drag agree with each other — so this is a missing feature rather than a mismatch. The fix is to make it call `useTimeline` and `positionFromFraction`, which also removes the duplication.
 
-## Stop the riverpod providers leaking notifiers
-
-[`lib/src/plugins/riverpod/providers/player_provider.dart`](../../lib/src/plugins/riverpod/providers/player_provider.dart) — both `playerProviderFor` and `primaryPlayerProvider` fall back to `PlayerStateNotifier(keepAlive: false)` when the player is absent. That constructor starts a periodic 1 s timer, and a fresh notifier is built on every rebuild, so each one leaks.
-
 ## Native tests
 
 The six Robolectric tests in `android/src/test/` still aren't in CI. They need a JDK and the Android SDK, and run through the Flutter-generated Gradle project rather than from `android/` directly:
