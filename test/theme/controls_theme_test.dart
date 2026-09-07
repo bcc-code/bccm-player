@@ -55,7 +55,7 @@ void main() {
     });
 
     testWidgets('an explicit progressBarTheme is left alone by primaryColor', (tester) async {
-      final explicit = const SliderThemeData(activeTrackColor: Colors.purple);
+      const explicit = SliderThemeData(activeTrackColor: Colors.purple);
       final filled = BccmControlsThemeData(primaryColor: Colors.red, progressBarTheme: explicit)
           .fillWithDefaults(await defaults(tester));
 

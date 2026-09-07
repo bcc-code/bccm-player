@@ -24,8 +24,8 @@ class BccmMiniPlayerThemeData {
     return BccmMiniPlayerThemeData(
       iconColor: theme.colorScheme.onSurface,
       backgroundColor: theme.colorScheme.surface,
-      thumbnailBorderColor: Colors.white.withOpacity(0.01),
-      topBorderColor: theme.colorScheme.onSurface.withOpacity(0.1),
+      thumbnailBorderColor: Colors.white.withValues(alpha: 0.01),
+      topBorderColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
       progressColor: theme.colorScheme.onSurface,
       titleStyle: theme.textTheme.labelMedium!.copyWith(color: theme.colorScheme.onSurface),
       secondaryTitleStyle: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),

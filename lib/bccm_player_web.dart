@@ -4,7 +4,6 @@
 
 import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart' as pigeon;
-import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'bccm_player.dart';
 import 'src/web/video_js_player.dart';

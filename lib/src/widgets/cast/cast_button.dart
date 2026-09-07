@@ -15,7 +15,7 @@ class CastButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final creationParams = <String, dynamic>{
-      if (color != null) 'color': color!.value,
+      if (color != null) 'color': color!.toARGB32(),
     };
     if (Platform.isAndroid) {
       return SizedBox(

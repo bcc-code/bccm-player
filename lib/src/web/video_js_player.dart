@@ -1,7 +1,13 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, sdk_version_since
 
+// dart:html is deprecated in favour of package:web + dart:js_interop. Migrating
+// this file is a real piece of work — new dependency, ui_web instead of
+// dart:ui's platformViewRegistry, and a replacement for the trusted-HTML
+// sanitizer below — and none of it is verifiable from the Dart test suite,
+// only from an actual web build. Suppressed narrowly here so `flutter analyze`
+// can stay strict everywhere else. Tracked as its own follow-up.
+// ignore: deprecated_member_use
 import 'dart:html' as html;
-import 'dart:html';
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'dart:ui' as ui;
 
@@ -55,7 +61,7 @@ class VideoJsPlayer {
       v.style.backgroundColor = "#000000";
       v.style.position = "fixed";
       v.style.zIndex = "50";
-      v.appendHtml('''<style>#${v.id} > .video-js { width: 100%; height: 100% }</style>''', treeSanitizer: NodeTreeSanitizer.trusted);
+      v.appendHtml('''<style>#${v.id} > .video-js { width: 100%; height: 100% }</style>''', treeSanitizer: html.NodeTreeSanitizer.trusted);
       html.window.document.getElementById('primary-player-wrapper')?.append(v);
       final topLeftWrapper = html.document.createElement("div");
       topLeftWrapper.style

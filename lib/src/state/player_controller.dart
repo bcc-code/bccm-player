@@ -77,10 +77,8 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   /// See also:
   ///
   /// * [BccmPlayerController.networkUrl] for a convenience constructor to create a [BccmPlayerController] with a network url.
-  BccmPlayerController(MediaItem mediaItem, {BufferMode? bufferMode, bool? disableNpaw})
+  BccmPlayerController(MediaItem mediaItem, {this._bufferMode, this._disableNpaw})
       : _intialMediaItem = mediaItem,
-        _bufferMode = bufferMode,
-        _disableNpaw = disableNpaw,
         super(const PlayerState(
           playerId: 'unknown',
           isInitialized: false,
@@ -90,10 +88,8 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   ///
   /// Intended for internal use only.
   @protected
-  BccmPlayerController.empty({BufferMode? bufferMode, bool? disableNpaw})
+  BccmPlayerController.empty({this._bufferMode, this._disableNpaw})
       : _intialMediaItem = null,
-        _bufferMode = bufferMode,
-        _disableNpaw = disableNpaw,
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
 
   /// Convenience constructor to create a [BccmPlayerController] with a network url.
@@ -104,14 +100,12 @@ class BccmPlayerController extends ValueNotifier<PlayerState> {
   BccmPlayerController.networkUrl(
     Uri url, {
     String? mimeType,
-    BufferMode? bufferMode,
-    bool? disableNpaw,
+    this._bufferMode,
+    this._disableNpaw,
   })  : _intialMediaItem = MediaItem(
           url: url.toString(),
           mimeType: mimeType,
         ),
-        _bufferMode = bufferMode,
-        _disableNpaw = disableNpaw,
         super(const PlayerState(playerId: 'unknown', isInitialized: false));
 
   /// Checks if this player is the current primary player.

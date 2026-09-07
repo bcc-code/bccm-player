@@ -1,6 +1,5 @@
 import 'package:bccm_player/bccm_player.dart';
 import 'package:bccm_player/bccm_player_native.dart';
-import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:flutter/widgets.dart' hide RepeatMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';

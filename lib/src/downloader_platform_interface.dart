@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:bccm_player/src/pigeon/downloader_pigeon.g.dart';
-import 'package:collection/collection.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class DownloaderListener implements DownloaderListenerPigeon {
@@ -56,7 +55,7 @@ class DownloaderNative extends DownloaderInterface {
 
   @override
   Future<List<Download>> getDownloads() async {
-    return (await _pigeon.getDownloads()).whereNotNull().toList();
+    return (await _pigeon.getDownloads()).nonNulls.toList();
   }
 
   @override

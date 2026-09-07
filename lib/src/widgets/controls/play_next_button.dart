@@ -122,7 +122,7 @@ class PlayNextButton extends HookWidget {
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),

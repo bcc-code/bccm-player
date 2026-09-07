@@ -88,7 +88,7 @@ void main() {
 
   group('asOrNull', () {
     test('casts on a match and yields null otherwise', () {
-      const Object? value = 'hello';
+      const Object value = 'hello';
       expect(value.asOrNull<String>(), 'hello');
       expect(value.asOrNull<int>(), isNull);
       expect(null.asOrNull<String>(), isNull);

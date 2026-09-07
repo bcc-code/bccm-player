@@ -24,9 +24,6 @@ jobs:
 
       - run: flutter pub get
 
-      # `--no-fatal-infos` because the package carries ~20 pre-existing
-      # deprecation infos (withOpacity, dart:html, cacheExtent). Warnings and
-      # errors are still fatal. Drop the flag once those are cleaned up.
-      - run: flutter analyze --no-fatal-infos
+      - run: flutter analyze
 
       - run: flutter test

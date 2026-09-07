@@ -155,7 +155,10 @@ class QueueExample extends HookWidget {
                   }),
               Text('Queue items', style: Theme.of(context).textTheme.titleLarge),
               ReorderableListView.builder(
-                onReorder: (oldIndex, newIndex) {
+                // onReorderItem rather than the deprecated onReorder: it hands
+                // us a newIndex already adjusted for the removed item, which is
+                // what the body below (and QueueManager.moveQueueItem) assumes.
+                onReorderItem: (oldIndex, newIndex) {
                   tempQueueItems.value.insert(newIndex, tempQueueItems.value.removeAt(oldIndex));
                   controller.queue.moveQueueItem(oldIndex, newIndex);
                 },

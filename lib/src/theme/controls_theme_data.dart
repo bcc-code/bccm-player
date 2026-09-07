@@ -37,10 +37,10 @@ class BccmControlsThemeData {
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
         overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
         activeTrackColor: theme.colorScheme.primary,
-        inactiveTrackColor: theme.colorScheme.onSurface.withOpacity(0.2),
+        inactiveTrackColor: theme.colorScheme.onSurface.withValues(alpha: 0.2),
         thumbColor: theme.colorScheme.primary,
       ),
-      playNextButtonBackgroundColor: Colors.blue.withOpacity(0.75),
+      playNextButtonBackgroundColor: Colors.blue.withValues(alpha: 0.75),
       playNextButtonProgressColor: Colors.blue,
     );
   }

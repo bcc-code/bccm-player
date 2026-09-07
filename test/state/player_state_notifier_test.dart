@@ -1,5 +1,4 @@
 import 'package:bccm_player/bccm_player.dart';
-import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
