@@ -21,6 +21,11 @@ class FakeBccmPlayerInterface extends BccmPlayerInterface with MockPlatformInter
   FakeBccmPlayerInterface();
 
   /// Installs the fake and returns it. Call [restore] in `tearDown`.
+  ///
+  /// In a widget test, create players from `setUp` rather than from inside the
+  /// `testWidgets` body: [PlayerStateNotifier] starts a periodic timer, and one
+  /// created inside the body belongs to that test's fake-async zone, which trips
+  /// the pending-timer assertion before `tearDown` gets a chance to dispose it.
   static FakeBccmPlayerInterface install() {
     final fake = FakeBccmPlayerInterface();
     BccmPlayerInterface.instance = fake;

@@ -48,7 +48,11 @@ class BccmControlsThemeData {
   BccmControlsThemeData fillWithDefaults(BccmControlsThemeData defaults) {
     return BccmControlsThemeData(
       primaryColor: primaryColor ?? defaults.primaryColor,
-      iconColor: primaryColor ?? iconColor ?? defaults.iconColor,
+      // primaryColor acts as a shorthand that tints the icons, the same way it
+      // tints progressBarTheme below — but an explicitly set iconColor has to
+      // win over the shorthand. It used to be the other way round, which made
+      // iconColor unreachable for anyone who also set primaryColor.
+      iconColor: iconColor ?? primaryColor ?? defaults.iconColor,
       durationTextStyle: durationTextStyle ?? defaults.durationTextStyle,
       settingsListBackgroundColor: settingsListBackgroundColor ?? defaults.settingsListBackgroundColor,
       settingsListTextStyle: settingsListTextStyle ?? defaults.settingsListTextStyle,
