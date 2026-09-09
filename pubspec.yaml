@@ -1,12 +1,12 @@
 name: bccm_player
 description: ExoPlayer/AVPlayer via platform views, with cast, PiP, background audio, audio selection, etc.
-version: 1.3.1
+version: 2.0.0
 documentation: https://bcc-code.github.io/bccm-player/
 repository: https://github.com/bcc-code/bccm-player
 
 environment:
-  sdk: ">=3.12.0 <4.0.0"
-  flutter: ">=3.44.0"
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"
 
 dependencies:
   collection: ^1.17.1
@@ -18,8 +18,7 @@ dependencies:
   flutter_svg: ^2.0.2
   flutter_web_plugins:
     sdk: flutter
-  freezed: ^2.3.2
-  freezed_annotation: ^2.2.0
+  freezed_annotation: ^3.1.0
   js: ^0.7.1
   meta: ^1.9.1
   plugin_platform_interface: ^2.0.2
@@ -33,9 +32,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  pigeon: ^22.3.0
-  build_runner: ^2.3.3
-  mockito: ^5.4.2
+  pigeon: ^28.0.0
+  build_runner: ^2.16.0
+  freezed: ^4.0.1
+  mockito: ^5.8.1
   # Explicit rather than transitive via flutter_test: the timer-based tests
   # (Debouncer, OneAsyncAtATime, the position ticker) depend on it directly.
   fake_async: ^1.3.3
