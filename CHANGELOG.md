@@ -1,3 +1,11 @@
+## 2.0.0
+
+- Breaking: requires Dart 3.13 / Flutter 3.47.
+- Breaking: `freezed_annotation` 2 -> 3. Freezed models are now `Diagnosticable`, so their
+  `toString({DiagnosticLevel})` cannot be satisfied by mockito's `SmartFake`.
+- Breaking: `freezed` moved from dependencies to dev_dependencies.
+- Chore: `pigeon` 22 -> 28, `build_runner` 2.16, `mockito` 5.8.
+
 ## 1.1.2
 
 - Feature: setVolume(double)
