@@ -1,4 +1,4 @@
-.PHONY: publish pigeons help
+.PHONY: publish pigeons help ios-test android-test
 
 BUILD_NUMBER=$(shell grep -i -e "version: " pubspec.yaml | cut -d " " -f 2)
 
@@ -16,3 +16,29 @@ publish: ## Publish the package to pub.dev
 
 pigeons: ## Generate pigeon files
 	for f in pigeons/*.dart; do dart run pigeon --input $$f; done
+
+# Which simulator the native iOS tests run on. Defaults to the newest available
+# iPhone, so this works on a dev machine and on a CI runner with a different
+# set of runtimes installed. Override with either:
+#   make ios-test IOS_SIM_ID=<udid>
+#   make ios-test IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16,OS=latest'
+IOS_SIM_ID ?= $(shell xcrun simctl list devices available | awk '/^-- iOS /{ok=1; next} /^-- /{ok=0} ok && /iPhone/{l=$$0} END{print l}' | sed -E 's/.*\(([0-9A-Fa-f-]{36})\).*/\1/')
+IOS_DESTINATION ?= id=$(IOS_SIM_ID)
+
+ios-test: ## Run the native iOS unit tests (example/ios/RunnerTests) on a simulator
+	@test -n "$(IOS_SIM_ID)" || (echo "No iPhone simulator available. Install one via Xcode > Settings > Components."; exit 1)
+	cd example && flutter pub get && flutter build ios --simulator --debug --config-only
+	cd example/ios && xcodebuild test \
+		-workspace Runner.xcworkspace \
+		-scheme Runner \
+		-destination '$(IOS_DESTINATION)' \
+		-only-testing:RunnerTests
+
+# `--config-only` rather than `pub get`: the example app's `gradlew` and
+# `gradle-wrapper.jar` are gitignored (Flutter's template does this), so a fresh
+# clone has no wrapper at all. `flutter build --config-only` resolves
+# dependencies, writes local.properties, and injects the wrapper, leaving the
+# tracked gradle-wrapper.properties (Gradle 8.14.3) in place.
+android-test: ## Run the native Android unit tests (android/src/test)
+	cd example && flutter build apk --config-only
+	cd example/android && ./gradlew :bccm_player:testDebugUnitTest

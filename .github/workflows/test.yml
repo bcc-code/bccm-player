@@ -1,9 +1,5 @@
 name: test
 
-# Consuming apps run their own test suites, not this package's, so without this
-# workflow nothing enforces them. bcc-media-app's Semaphore `Test` block does
-# fire when `/submodules/` changes, but it only runs that app's own `test/` —
-# a regression in here reaches every consuming app unchallenged.
 on:
   push:
     branches: [main]
@@ -27,3 +23,41 @@ jobs:
       - run: flutter analyze
 
       - run: flutter test
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: make android-test
+
+  ios:
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: make ios-test

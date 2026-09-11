@@ -25,13 +25,13 @@ public class SwiftBccmPlayerPlugin: NSObject, FlutterPlugin {
         let downloader = Downloader()
         cancellables.append(contentsOf: [
             downloader.changeEvents.sink { event in
-                downloaderListener.onDownloadStatusChanged(event: event) { _ in }
+                Task { try? await downloaderListener.onDownloadStatusChanged(event: event) }
             },
             downloader.removeEvents.sink { event in
-                downloaderListener.onDownloadRemoved(event: event) { _ in }
+                Task { try? await downloaderListener.onDownloadRemoved(event: event) }
             },
             downloader.failEvents.sink { event in
-                downloaderListener.onDownloadFailed(event: event) { _ in }
+                Task { try? await downloaderListener.onDownloadFailed(event: event) }
             }
         ])
 

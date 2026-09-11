@@ -14,7 +14,8 @@ until then.
 Mechanically the migration is "move `ios/Classes/` into
 `ios/bccm_player/Sources/bccm_player/` and add a `Package.swift`". Two things
 make it more than that for this plugin: SPM forbids mixed ObjC/Swift targets
-(we have 7 ObjC files), and none of our native dependencies ship SPM today.
+(we have 7 ObjC files), and the Google Cast SDK has no official SPM
+distribution.
 
 iOS only — there is no `macos/` directory in this plugin.
 
@@ -31,18 +32,27 @@ bccm_player → google-cast-sdk 4.8.3 → Protobuf ~>3.13
 |---|---|---|
 | `google-cast-sdk` | No official SPM from Google ([issue open since 2019](https://issuetracker.google.com/issues/141729360)) | Community wrapper [`SRGSSR/google-cast-sdk`](https://github.com/SRGSSR/google-cast-sdk) (4.8.4, `GoogleCast` xcframework, **iOS 15+**), or vendor our own `.binaryTarget(url:checksum:)` against Google's official XCFramework zip |
 | `Protobuf` | n/a | Disappears — only a transitive dep of the cast *pod*; the xcframework doesn't need it |
-| `NpawPluginPkg` + `GCDWebServer` | NPAW has a `Package.swift` in their `plugin-ios` repo, but it's hosted on **private Bitbucket** | **Open question — ask NPAW** whether they publish a publicly-resolvable SPM URL |
+| `NpawPluginPkg` + `GCDWebServer` | **Ships a real SPM package** at `https://bitbucket.org/npaw/plugin-ios.git` | Depend on it directly — see below |
 
-**The NPAW item can block the whole migration.** A `Package.swift` dependency on
-a credentialed git remote is a non-starter for a public pub.dev package — every
-consumer would need NPAW Bitbucket credentials at resolve time. If NPAW has no
-public SPM endpoint, the options are:
+**NPAW is not a blocker** (verified 2026-09-11, anonymously with an isolated
+`HOME`, so no cached credentials were in play):
 
-- mirror their XCFramework ourselves as a `binaryTarget`, or
-- make NPAW optional (conditional compilation / app-provided) so SPM builds
-  don't require it.
+- `bitbucket.org/npaw/plugin-ios.git` clones anonymously, carries 108 semver
+  tags, and **7.3.6 — the exact version we pin — has a `Package.swift`**.
+- That manifest declares no external dependencies. `GCDWebServer` is vendored
+  as one of its own binary targets, so it stops being a separate dependency.
+- Its binary targets point at `artifact.plugin.npaw.com`, which serves
+  anonymously (HTTP 200).
+- Products: `NpawPlugin`, `NpawPlugin-Static`, plus Balancer/P2P variants.
+  `NpawPlugin` is the direct equivalent of today's `NpawPluginPkg` pod.
+- Platforms: iOS 13+, so it does not constrain our deployment target.
 
-Ask NPAW first; the answer shapes everything else.
+The CocoaPods spec repo (`bitbucket.org/npaw/plugin-ios-cocoapods.git`,
+referenced by `source` in `example/ios/Podfile`) is public too — nothing in this
+plugin's iOS dependency chain needs credentials.
+
+That leaves the cast SDK as the only dependency question, and it has a working
+answer rather than an open one.
 
 ### Deployment target
 
@@ -113,12 +123,13 @@ let package = Package(
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework"),
         .package(url: "https://github.com/SRGSSR/google-cast-sdk", from: "4.8.4"),
-        // NPAW — pending the question in section 1
+        .package(url: "https://bitbucket.org/npaw/plugin-ios.git", from: "7.3.6"),
     ],
     targets: [
         .target(name: "bccm_player", dependencies: [
             .product(name: "FlutterFramework", package: "FlutterFramework"),
             .product(name: "GoogleCast", package: "google-cast-sdk"),
+            .product(name: "NpawPlugin", package: "plugin-ios"),
         ])
     ]
 )
@@ -166,5 +177,7 @@ flutter config --enable-swift-package-manager
 
 `.github/workflows/test.yml` runs on `ubuntu-latest` and only does
 `flutter analyze` / `flutter test`, so it cannot catch iOS build breakage in
-either mode. Adding a macOS job that builds the example app both ways is worth
-doing as part of this.
+either mode. Adding a macOS job that builds the example app both ways — and runs
+`make ios-test` — is worth doing as part of this. Every host it needs
+(`bitbucket.org/npaw/*`, `artifact.plugin.npaw.com`, CocoaPods trunk) serves
+anonymously, so no CI secrets are required.
