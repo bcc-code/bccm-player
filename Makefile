@@ -34,6 +34,11 @@ ios-test: ## Run the native iOS unit tests (example/ios/RunnerTests) on a simula
 		-destination '$(IOS_DESTINATION)' \
 		-only-testing:RunnerTests
 
+# `--config-only` rather than `pub get`: the example app's `gradlew` and
+# `gradle-wrapper.jar` are gitignored (Flutter's template does this), so a fresh
+# clone has no wrapper at all. `flutter build --config-only` resolves
+# dependencies, writes local.properties, and injects the wrapper, leaving the
+# tracked gradle-wrapper.properties (Gradle 8.14.3) in place.
 android-test: ## Run the native Android unit tests (android/src/test)
-	cd example && flutter pub get
+	cd example && flutter build apk --config-only
 	cd example/android && ./gradlew :bccm_player:testDebugUnitTest
