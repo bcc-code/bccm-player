@@ -27,6 +27,8 @@ dependencies:
   universal_io: ^2.0.4
   uuid: ^4.5.0
   wakelock_plus: ^1.1.1
+  # Replaces dart:html in the web implementation; also what makes --wasm possible.
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -59,3 +61,6 @@ flutter:
         pluginClass: BccmPlayerPlugin
       ios:
         pluginClass: BccmPlayerPlugin
+      web:
+        pluginClass: BccmPlayerWeb
+        fileName: bccm_player_web.dart

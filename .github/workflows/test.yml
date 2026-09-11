@@ -44,6 +44,22 @@ jobs:
 
       - run: make android-test
 
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter build web
+        working-directory: example
+
   ios:
     runs-on: macos-26
     env:

@@ -1,4 +1,5 @@
 import 'package:bccm_player/bccm_player.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../controls/default_controls.dart';
@@ -58,6 +59,19 @@ class _ControlledBccmPlayerViewState extends State<ControlledBccmPlayerView> {
                     pipOnLeave: viewController.config.pipOnLeave,
                     allowsVideoFrameAnalysis: viewController.config.allowsVideoFrameAnalysis,
                   );
+          }
+
+          // On web the player draws its own controls and handles its own
+          // fullscreen. Overlaying Flutter controls would both duplicate a
+          // maintained UI and swallow the pointer events the skin needs, and
+          // Flutter's fullscreen route would re-parent the platform view's
+          // element, detaching the media. So: just the video.
+          if (kIsWeb) {
+            return VideoPlatformView(
+              playerController: viewController.playerController,
+              showControls: true,
+              aspectRatioOverride: viewController.config.aspectRatioOverride,
+            );
           }
 
           return Stack(
