@@ -1,6 +1,6 @@
 name: bccm_player
 description: ExoPlayer/AVPlayer via platform views, with cast, PiP, background audio, audio selection, etc.
-version: 2.2.0
+version: 2.2.1
 documentation: https://bcc-code.github.io/bccm-player/
 repository: https://github.com/bcc-code/bccm-player
 
@@ -19,7 +19,6 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   freezed_annotation: ^3.1.0
-  js: ^0.7.1
   meta: ^1.9.1
   plugin_platform_interface: ^2.0.2
   riverpod: ^2.6.1
