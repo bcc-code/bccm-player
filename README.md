@@ -29,7 +29,20 @@ This means the video is rendered in the native view hierarchy without any interm
 
 - [x] iOS
 - [x] Android
-- [ ] ~~Web~~. Some groundwork is there, but it's not complete and it's not supported.
+- [x] Web — with caveats, see below.
+
+### Web
+
+Web plays back through [`bccm-video-player`](https://www.npmjs.com/package/bccm-video-player),
+which the host page has to load (see the "Web" section of the docs). Differences
+from iOS and Android:
+
+- **The player draws its own controls**, so `controlsConfig` and custom control
+  builders do not apply. Fullscreen is the player's, not the Flutter route.
+- **No downloads and no Chromecast.** Neither has a web equivalent.
+- **A single player in a page**, not feed-style playback. The video is not
+  clipped by ancestor scroll views, so layouts that crop it with
+  `ClipRect`/`OverflowBox` — short-form feeds in particular — do not work.
 
 ## Features
 

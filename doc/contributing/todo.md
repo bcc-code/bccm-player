@@ -4,27 +4,26 @@ Known gaps, roughly in order of value. Each is self-contained — none blocks th
 
 Queue and audio work is tracked separately in [audio-support-plan.md](audio-support-plan.md); this list is everything outside that.
 
-## Migrate the web player off `dart:html`
-
-[`lib/src/web/video_js_player.dart`](../../lib/src/web/video_js_player.dart) is ~120 lines of DOM code on the deprecated `dart:html`. Moving to `package:web` + `dart:js_interop` needs a new dependency, `ui_web.platformViewRegistry` in place of `dart:ui`'s, and a replacement for `NodeTreeSanitizer.trusted`.
-
-Only a real web build can verify it — no Dart test reaches this file. It carries the single inline `// ignore: deprecated_member_use` in the package, so this is the last thing between us and an unqualified strict `flutter analyze`.
-
 ## Make `tv_controls.dart` DVR-aware
 
 [`lib/src/widgets/controls/tv/tv_controls.dart`](../../lib/src/widgets/controls/tv/tv_controls.dart) reimplements `useTimeline` inline and ignores `seekableRangeStartMs` / `seekableRangeEndMs` entirely, so seeking a live DVR window is wrong on TV.
 
 Unlike the bug fixed in `default_controls`, it is at least self-consistent — its thumb and its drag agree with each other — so this is a missing feature rather than a mismatch. The fix is to make it call `useTimeline` and `positionFromFraction`, which also removes the duplication.
 
-## Native tests
+## Web
 
-The six Robolectric tests in `android/src/test/` still aren't in CI. They need a JDK and the Android SDK, and run through the Flutter-generated Gradle project rather than from `android/` directly:
+The player is embedded as a platform view hosted in the root overlay
+([`web_player_overlay.dart`](../../lib/src/widgets/video/web_player_overlay.dart)),
+which is what stops the element being re-parented — re-parenting costs the media
+element its source, so the video reloads. Remaining gaps:
 
-```sh
-cd example/android && ./gradlew :bccm_player:testDebugUnitTest
-```
-
-iOS has no test target at all — `ios/bccm_player.podspec` has no `test_spec`.
+- The video is not clipped by ancestor scroll views, so a player scrolled past
+  its viewport paints over whatever is beside it.
+- `getPlayerTracks` reports `isSelected: false` for every track: the JS package
+  exposes track lists but not which one is current. Only matters if an app reads
+  tracks from Dart rather than using the player's own picker.
+- Web uses the player's own skin rather than the Flutter controls, deliberately —
+  see the comment in `controlled_player_view.dart`.
 
 ## Minor
 

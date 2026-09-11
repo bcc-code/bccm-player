@@ -1,5 +1,7 @@
 # Offline
 
+> **Not available on web.** See [Web](../web.md).
+
 To support offlining, you need to add the DATA_SYNC permission to your AndroidManifest:
 
 ```xml

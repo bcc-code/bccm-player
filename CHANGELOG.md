@@ -1,3 +1,30 @@
+## 2.2.0
+
+- Feature: web support. The player is embedded as a platform view and plays back through
+  [`bccm-video-player`](https://www.npmjs.com/package/bccm-video-player), which the host
+  page must load as `window.bccmVideoPlayer` — see the Web docs.
+  - The web player draws its own controls and owns fullscreen, so `controlsConfig` and
+    custom control builders do not apply there.
+  - Downloads and Chromecast are unavailable on web and degrade rather than throwing
+    channel errors.
+  - Known limitation: the video is painted from the root `Overlay` so that it is never
+    re-parented, which means it is not clipped by ancestor scroll views.
+- Feature: `BccmPlayerView.native`, a factory the docs already referenced but which was
+  never added. Uses the platform's own controls and fullscreen.
+- Fix: the web implementation no longer uses `dart:html`, so `flutter build web --wasm`
+  works and the package has no analyzer suppressions left.
+
+## 2.1.0
+
+- Chore: `pigeon` 22 -> 28. Swift `@async` host APIs moved from completion handlers to
+  `async throws`; `ios/Classes/DownloaderApiImpl.swift` was updated to match.
+- Feature: native test suites for iOS (`example/ios/RunnerTests`) and Android
+  (`android/src/test`), covering pigeon codec round-trips, enum ordinals, the downloader
+  state schema, and track/media-item mapping.
+- Fix: `CastMediaItemConverter` wrote `KEY_ALBUM_TITLE` into `setArtist`, so a cast item
+  carrying both lost its artist.
+- CI: separate `android`, `ios` and `web` jobs; nothing compiled the native code before.
+
 ## 2.0.0
 
 - Breaking: requires Dart 3.13 / Flutter 3.47.

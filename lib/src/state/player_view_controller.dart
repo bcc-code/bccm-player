@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -52,6 +53,19 @@ class BccmPlayerViewController extends ChangeNotifier {
   Future<void> enterFullscreen({BuildContext? context}) async {
     if (isFullscreen) {
       debugPrint("bccm: Already in fullscreen, ignoring enterFullscreen() call.");
+      return;
+    }
+    if (kIsWeb) {
+      // Pushing the fullscreen route would build a second platform view for the
+      // same player, which moves the element in the DOM and detaches the media.
+      // The web player fullscreens itself in place instead.
+      _isFullscreen = true;
+      notifyListeners();
+      // Resolves when the browser leaves fullscreen, however that happened —
+      // the player's own exit button, Esc, or exitFullscreen() below.
+      await BccmPlayerInterface.instance.enterFullscreen(playerController.value.playerId);
+      _isFullscreen = false;
+      if (!_isDisposed) notifyListeners();
       return;
     }
     WakelockPlus.enable();
@@ -136,6 +150,10 @@ class BccmPlayerViewController extends ChangeNotifier {
   Future<void> exitFullscreen() async {
     _isFullscreen = false;
     notifyListeners();
+    if (kIsWeb) {
+      BccmPlayerInterface.instance.exitFullscreen(playerController.value.playerId);
+      return;
+    }
     _currentFullscreenNavigator?.maybePop();
     _currentFullscreenNavigator = null;
   }

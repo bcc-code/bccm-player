@@ -1,6 +1,6 @@
 name: bccm_player
 description: ExoPlayer/AVPlayer via platform views, with cast, PiP, background audio, audio selection, etc.
-version: 2.1.0
+version: 2.2.0
 documentation: https://bcc-code.github.io/bccm-player/
 repository: https://github.com/bcc-code/bccm-player
 
@@ -27,6 +27,8 @@ dependencies:
   universal_io: ^2.0.4
   uuid: ^4.5.0
   wakelock_plus: ^1.1.1
+  # Replaces dart:html in the web implementation; also what makes --wasm possible.
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -59,3 +61,6 @@ flutter:
         pluginClass: BccmPlayerPlugin
       ios:
         pluginClass: BccmPlayerPlugin
+      web:
+        pluginClass: BccmPlayerWeb
+        fileName: bccm_player_web.dart

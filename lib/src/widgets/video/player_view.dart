@@ -57,6 +57,19 @@ abstract class BccmPlayerView extends Widget {
     BccmPlayerViewController viewController, {
     Key? key,
   }) = ControlledBccmPlayerView;
+
+  /// Displays the video with the *platform's* own controls and fullscreening
+  /// instead of the Flutter ones: AVPlayerViewController on iOS, and on web the
+  /// video player's own skin.
+  ///
+  /// Use this if you would rather track the player's built-in UI than keep a
+  /// Flutter control design in sync with it. Note that the plugin's controls
+  /// configuration ([BccmPlayerViewConfig.controlsConfig]) does not apply here,
+  /// because it is not drawing the controls.
+  const factory BccmPlayerView.native(
+    BccmPlayerController playerController, {
+    Key? key,
+  }) = NativeBccmPlayerView;
 }
 
 /// Creates and manages the lifetime of a [BccmPlayerViewController] to use with a [ControlledBccmPlayerView].
