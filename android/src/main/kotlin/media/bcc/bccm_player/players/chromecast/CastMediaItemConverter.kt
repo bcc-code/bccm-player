@@ -38,7 +38,7 @@ class CastMediaItemConverter : MediaItemConverter {
                 metadataBuilder.setAlbumArtist(metadata.getString(com.google.android.gms.cast.MediaMetadata.KEY_ALBUM_ARTIST))
             }
             if (metadata.containsKey(com.google.android.gms.cast.MediaMetadata.KEY_ALBUM_TITLE)) {
-                metadataBuilder.setArtist(metadata.getString(com.google.android.gms.cast.MediaMetadata.KEY_ALBUM_TITLE))
+                metadataBuilder.setAlbumTitle(metadata.getString(com.google.android.gms.cast.MediaMetadata.KEY_ALBUM_TITLE))
             }
             if (metadata.images.isNotEmpty()) {
                 metadataBuilder.setArtworkUri(metadata.images[0].url)
