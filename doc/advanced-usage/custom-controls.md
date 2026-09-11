@@ -1,5 +1,8 @@
 ### Custom controls
 
+> **Not applicable on web.** The web player draws its own controls, so
+> `controlsConfig` and `customBuilder` are ignored there. See [Web](../web.md).
+
 #### Controls customization
 
 For colors, etc, see "Styling".

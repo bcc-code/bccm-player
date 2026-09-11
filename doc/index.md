@@ -47,4 +47,19 @@
             ...
 ```
 
-4. For chromecast support, you need to do a few more things, check out the "Chromecast" docs.
+4. (Web) Load the player bundle in `web/index.html`, before Flutter starts. The
+   plugin calls `window.bccmVideoPlayer`, and nothing plays without it:
+
+   ```html
+   <link rel="stylesheet" href="https://unpkg.com/bccm-video-player@3.4.0/build/bccm-video-player.css">
+   <script src="https://unpkg.com/bccm-video-player@3.4.0/build/bccm-video-player.umd.js"></script>
+   <script>window.bccmVideoPlayer = window['btv-video'];</script>
+   ```
+
+   The UMD build registers itself as `window['btv-video']`, hence the alias. A
+   real app should bundle [`bccm-video-player`](https://www.npmjs.com/package/bccm-video-player)
+   rather than load it from a CDN.
+
+   Read the "Web" page for what differs from iOS and Android.
+
+5. For chromecast support, you need to do a few more things, check out the "Chromecast" docs.
