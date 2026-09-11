@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 
 import '../../../bccm_player.dart';
 import '../cast/cast_player.dart';
+import 'web_player_overlay.dart';
 
 class VideoPlatformView extends StatefulWidget implements BccmPlayerView {
   final BccmPlayerController playerController;
@@ -134,7 +135,12 @@ class _VideoPlatformViewState extends State<VideoPlatformView> {
   }
 }
 
-class _WebPlayer extends StatelessWidget {
+/// A stand-in for the video, which is actually painted by [WebPlayerOverlay].
+///
+/// This reserves the space and reports where it is; the platform view itself
+/// lives in the root overlay so that it is never re-parented. See
+/// [WebPlayerOverlay] for why.
+class _WebPlayer extends StatefulWidget {
   const _WebPlayer({
     required this.parent,
   });
@@ -142,13 +148,49 @@ class _WebPlayer extends StatelessWidget {
   final VideoPlatformView parent;
 
   @override
+  State<_WebPlayer> createState() => _WebPlayerState();
+}
+
+class _WebPlayerState extends State<_WebPlayer> {
+  final LayerLink _link = LayerLink();
+  String get _playerId => widget.parent.playerController.value.playerId;
+
+  @override
+  void dispose() {
+    WebPlayerOverlay.hide(_playerId, _link);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // One view type for every player, with the player id passed as creation
-    // params — see VideoJsPlayer.viewType for why it isn't one type per player.
-    // Not imported from there: that file is web-only.
-    return HtmlElementView(
-      viewType: 'bccm-player',
-      creationParams: parent.playerController.value.playerId,
+    return CompositedTransformTarget(
+      link: _link,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The overlay has to be told where and how big to be, and the size is
+          // only known during layout — hence after the frame rather than in build.
+          final size = constraints.biggest;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            WebPlayerOverlay.show(
+              context,
+              playerId: _playerId,
+              link: _link,
+              size: size,
+              showControls: widget.parent.showControls,
+              // One view type for every player, with the player id passed as
+              // creation params — see VideoJsPlayer.viewType for why it is not
+              // one type per player. Not imported from there: that file is
+              // web-only.
+              viewBuilder: (creationParams) => HtmlElementView(
+                viewType: 'bccm-player',
+                creationParams: creationParams,
+              ),
+            );
+          });
+          return const SizedBox.expand();
+        },
+      ),
     );
   }
 }

@@ -48,6 +48,7 @@ class VideoJsPlayer {
   js.Player? _player;
   MediaItem? _currentMediaItem;
   bool _isBuffering = false;
+  bool _showPlayerControls = false;
   PlaybackState _playbackState = PlaybackState.stopped;
 
   /// The underlying `<video>`, once the player has been created. Playback
@@ -74,6 +75,73 @@ class VideoJsPlayer {
 
   static final Map<String, VideoJsPlayer> _byPlayerId = {};
   static bool _viewFactoryRegistered = false;
+  static bool _stylesInjected = false;
+
+  static const _containerClass = 'bccm-player-container';
+  static const _hideUiClass = 'bccm-player-hide-ui';
+
+  /// One stylesheet for the plugin rather than one per player.
+  ///
+  /// The class names are the skin's own (`media-controls`, `media-overlay`,
+  /// `bccm-center-controls`). It is a fully custom skin with no `vjs-` classes
+  /// anywhere, so anything matching on those silently does nothing.
+  static void _ensureStylesInjected() {
+    if (_stylesInjected) return;
+    _stylesInjected = true;
+    final style = web.document.createElement('style') as web.HTMLStyleElement;
+    style.textContent = '''
+.$_containerClass > * { width: 100%; height: 100%; }
+
+/* Inline, Flutter draws the controls, so the skin's own UI is hidden. It comes
+   back in fullscreen, where the Flutter overlay is outside the fullscreened
+   element and therefore not visible. */
+.$_hideUiClass .media-controls,
+.$_hideUiClass .media-overlay,
+.$_hideUiClass .bccm-center-controls { display: none !important; }
+''';
+    web.document.head?.appendChild(style);
+  }
+
+  /// Keeps the skin's visibility and interactivity in step with fullscreen.
+  ///
+  /// Driven from Dart rather than CSS: Flutter's `IgnorePointer` cannot stop a
+  /// platform view from receiving events, because it is a real DOM element
+  /// getting real browser events. That is what made a single tap hit both the
+  /// Flutter button and the skin's.
+  ///
+  /// `inert` rather than `pointer-events: none`, because the skin can still
+  /// hold keyboard focus while hidden. Flutter marks the platform view
+  /// `aria-hidden`, so a focused element inside it is a real accessibility
+  /// violation — browsers warn about exactly this and suggest `inert`, which
+  /// blocks pointer events, focus and assistive-tech access together.
+  void _syncPlayerUi([web.HTMLElement? element]) {
+    final container = element ?? _container;
+    if (container == null) return;
+    // Fullscreen always needs them: the Flutter overlay sits outside the
+    // fullscreened element, so its controls are not visible there.
+    final showSkin = _showPlayerControls || _isFullscreen;
+    if (showSkin) {
+      container.classList.remove(_hideUiClass);
+    } else {
+      container.classList.add(_hideUiClass);
+    }
+    container.inert = !showSkin;
+    // Something inside may already hold focus when the skin is hidden. Only
+    // blur if the focus is actually ours — never steal it from the app.
+    final focused = web.document.activeElement;
+    if (!showSkin && focused != null && container.contains(focused)) {
+      (focused as web.HTMLElement).blur();
+    }
+  }
+
+  /// Whether the player draws its own controls, as [VideoPlatformView.showControls]
+  /// asks for. Applied when the view is created, so a player shown in two views
+  /// at once follows whichever was built last.
+  void setShowPlayerControls(bool value) {
+    if (_showPlayerControls == value) return;
+    _showPlayerControls = value;
+    _syncPlayerUi();
+  }
 
   static void _ensureViewFactoryRegistered() {
     if (_viewFactoryRegistered) return;
@@ -81,13 +149,20 @@ class VideoJsPlayer {
     ui_web.platformViewRegistry.registerViewFactory(
       viewType,
       (int viewId, {Object? params}) {
-        final player = _byPlayerId[params];
+        final args = params as Map<Object?, Object?>?;
+        final player = _byPlayerId[args?['playerId']];
+        player?.setShowPlayerControls(args?['showControls'] == true);
         // A view can outlive its player (a stale widget rebuilding, say). An
         // empty div keeps that a blank frame rather than an exception.
         return player?._obtainContainer() ?? web.document.createElement('div');
       },
     );
   }
+
+  /// True while this player's container is the fullscreen element. Tracked
+  /// from the document rather than from our own calls, because the user can
+  /// leave fullscreen with Esc or the player's own button.
+  bool get _isFullscreen => _container != null && web.document.fullscreenElement == _container;
 
   /// The DOM id of this player's container. Distinct per player because
   /// `createPlayer` resolves the container by id.
@@ -99,7 +174,15 @@ class VideoJsPlayer {
     required this.plugin,
   }) {
     _ensureViewFactoryRegistered();
+    _ensureStylesInjected();
     _byPlayerId[playerId] = this;
+
+    // Entering or leaving fullscreen changes which controls are showing, so the
+    // state has to be republished even though no media event fired.
+    web.document.addEventListener('fullscreenchange', ((web.Event _) {
+      _syncPlayerUi();
+      _emitState();
+    }).toJS);
 
     // VideoPlatformView refuses to mount the platform view until the player
     // reports `isInitialized`, and the container only exists once it mounts.
@@ -119,10 +202,8 @@ class VideoJsPlayer {
       ..height = '100%'
       ..backgroundColor = '#000000';
 
-    // video.js sizes itself from its own element, not the container.
-    final style = web.document.createElement('style') as web.HTMLStyleElement;
-    style.textContent = '#$elementId > .video-js { width: 100%; height: 100% }';
-    container.appendChild(style);
+    container.classList.add(_containerClass);
+    _syncPlayerUi(container);
 
     _container = container;
     if (!_containerReady.isCompleted) {
@@ -290,7 +371,7 @@ class VideoJsPlayer {
       playerId: playerId,
       playbackState: _playbackState,
       isBuffering: _isBuffering,
-      isFullscreen: false,
+      isFullscreen: _isFullscreen,
       playbackSpeed: media?.playbackRate ?? 1.0,
       videoSize: media != null && media.videoWidth > 0 && media.videoHeight > 0
           ? VideoSize(width: media.videoWidth, height: media.videoHeight)

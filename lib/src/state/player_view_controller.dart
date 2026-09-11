@@ -61,7 +61,11 @@ class BccmPlayerViewController extends ChangeNotifier {
       // The web player fullscreens itself in place instead.
       _isFullscreen = true;
       notifyListeners();
+      // Resolves when the browser leaves fullscreen, however that happened —
+      // the player's own exit button, Esc, or exitFullscreen() below.
       await BccmPlayerInterface.instance.enterFullscreen(playerController.value.playerId);
+      _isFullscreen = false;
+      if (!_isDisposed) notifyListeners();
       return;
     }
     WakelockPlus.enable();

@@ -2,11 +2,13 @@
 // of your plugin as a separate package, instead of inlining it in the same
 // package as the core of your plugin.
 
+import 'dart:async';
 import 'dart:js_interop';
 
 import 'package:bccm_player/src/native/root_pigeon_playback_listener.dart';
 import 'package:bccm_player/src/state/state_playback_listener.dart';
 import 'package:bccm_player/src/web/downloader_web.dart';
+import 'package:bccm_player/src/widgets/video/web_player_overlay.dart';
 import 'package:web/web.dart' as web;
 import 'package:bccm_player/src/web/js/bccm_video_player.dart' as js;
 import 'package:bccm_player/src/pigeon/playback_platform_pigeon.g.dart' as pigeon;
@@ -167,6 +169,7 @@ class BccmPlayerWeb extends BccmPlayerInterface {
   @override
   Future<void> disposePlayer(String playerId) async {
     webVideoPlayers.remove(playerId)?.dispose();
+    WebPlayerOverlay.disposeFor(playerId);
     // Disposing the notifier is what unregisters it from the plugin state.
     stateNotifier.getPlayerNotifier(playerId)?.dispose(force: true);
   }
@@ -253,6 +256,20 @@ class BccmPlayerWeb extends BccmPlayerInterface {
     final container = webVideoPlayers[playerId]?.container;
     if (container == null) return;
     await container.requestFullscreen().toDart;
+
+    // Resolve only once fullscreen ends, so callers can await it the same way
+    // they await the fullscreen route on other platforms. The user can leave
+    // via Esc or the player's own button, so the document is the source of
+    // truth rather than our own exitFullscreen call.
+    final exited = Completer<void>();
+    late final JSFunction onChange;
+    onChange = ((web.Event _) {
+      if (web.document.fullscreenElement == container) return;
+      web.document.removeEventListener('fullscreenchange', onChange);
+      if (!exited.isCompleted) exited.complete();
+    }).toJS;
+    web.document.addEventListener('fullscreenchange', onChange);
+    return exited.future;
   }
 
   @override
