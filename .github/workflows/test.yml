@@ -35,7 +35,17 @@ jobs:
   # the whole plugin, so this covers "does iOS still build" as well as the
   # assertions in example/ios/RunnerTests.
   ios:
-    runs-on: macos-15
+    # macos-26 rather than macos-15: the example app's `connectivity_plus`
+    # needs the iOS 26 SDK (`NWPath.isUltraConstrained`), and macos-15 defaults
+    # to Xcode 16.4 / iOS 18.5. This image is macOS 26.6.1 with Xcode 26.6
+    # (17F113) — the same macOS and Xcode builds these tests were developed
+    # against.
+    runs-on: macos-26
+    # Pinned explicitly rather than inherited: relying on the image's *default*
+    # Xcode is what broke this job in the first place, and the default moves
+    # without notice.
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
