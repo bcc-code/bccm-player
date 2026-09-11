@@ -27,3 +27,27 @@ jobs:
       - run: flutter analyze
 
       - run: flutter test
+
+  # Nothing else compiles this plugin's Swift. `flutter analyze` and
+  # `flutter test` are Dart-only, so a codegen bump that breaks a hand-written
+  # native implementation (as the Pigeon v22 -> v28 `@async` change did) reaches
+  # consumers untested without this job. Building the test host also compiles
+  # the whole plugin, so this covers "does iOS still build" as well as the
+  # assertions in example/ios/RunnerTests.
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # Matches the `flutter: ">=3.44.0"` constraint in pubspec.yaml.
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # Picks the newest iPhone simulator the runner image happens to ship.
+      - run: make ios-test

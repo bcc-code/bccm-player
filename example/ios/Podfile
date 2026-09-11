@@ -37,10 +37,19 @@ target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
   pod 'NpawPluginPkg', '7.3.6'
+
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # `@testable import bccm_player` in RunnerTests needs the pod's module
+    # built with testing enabled.
+    target.build_configurations.each do |config|
+      config.build_settings['ENABLE_TESTABILITY'] = 'YES' if config.name == 'Debug'
+    end
   end
 end
