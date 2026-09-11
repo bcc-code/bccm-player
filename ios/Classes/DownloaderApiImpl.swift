@@ -6,50 +6,28 @@ class DownloaderApiImpl: NSObject, DownloaderPigeon {
         self.downloader = downloader
     }
 
-    func startDownload(downloadConfig: DownloadConfig, completion: @escaping (Result<Download, Error>) -> Void) {
-        Task {
-            do {
-                let download = try await downloader.startDownload(config: downloadConfig)
-                completion(.success(download))
-            } catch {
-                completion(.failure(error))
-            }
-        }
+    func startDownload(downloadConfig: DownloadConfig) async throws -> Download {
+        return try await downloader.startDownload(config: downloadConfig)
     }
 
-    func getDownloadStatus(downloadKey: String, completion: @escaping (Result<Double, Error>) -> Void) {
-        Task {
-            do {
-                let progress = try await downloader.progress(forKey: downloadKey)
-                completion(.success(progress))
-            } catch {
-                completion(.failure(error))
-            }
-        }
+    func getDownloadStatus(downloadKey: String) async throws -> Double {
+        return try await downloader.progress(forKey: downloadKey)
     }
 
-    func getDownloads(completion: @escaping (Result<[Download], Error>) -> Void) {
-        completion(Result(catching: {
-            downloader.getAll()
-        }))
+    func getDownloads() async throws -> [Download] {
+        return downloader.getAll()
     }
 
-    func getDownload(downloadKey: String, completion: @escaping (Result<Download?, Error>) -> Void) {
-        completion(Result(catching: {
-            downloader.get(forKey: downloadKey)
-        }))
+    func getDownload(downloadKey: String) async throws -> Download? {
+        return downloader.get(forKey: downloadKey)
     }
 
-    func removeDownload(downloadKey: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(Result(catching: {
-            try downloader.remove(download: downloadKey)
-        }))
+    func removeDownload(downloadKey: String) async throws {
+        try downloader.remove(download: downloadKey)
     }
 
-    func getFreeDiskSpace(completion: @escaping (Result<Double, Error>) -> Void) {
-        completion(Result(catching: {
-            try _getFreeDiskSpace()
-        }))
+    func getFreeDiskSpace() async throws -> Double {
+        return try _getFreeDiskSpace()
     }
 
     private func _getFreeDiskSpace() throws -> Double {
