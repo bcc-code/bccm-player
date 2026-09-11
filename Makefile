@@ -1,4 +1,4 @@
-.PHONY: publish pigeons help ios-test
+.PHONY: publish pigeons help ios-test android-test
 
 BUILD_NUMBER=$(shell grep -i -e "version: " pubspec.yaml | cut -d " " -f 2)
 
@@ -33,3 +33,6 @@ ios-test: ## Run the native iOS unit tests (example/ios/RunnerTests) on a simula
 		-scheme Runner \
 		-destination '$(IOS_DESTINATION)' \
 		-only-testing:RunnerTests
+
+android-test: ## Run the native Android unit tests (android/src/test)
+	cd example/android && ./gradlew :bccm_player:testDebugUnitTest

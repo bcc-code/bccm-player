@@ -28,6 +28,18 @@ jobs:
 
       - run: flutter test
 
+      # Nothing else compiles this plugin's Kotlin. Same gap as the `ios` job
+      # below, but it runs on the cheap Linux runner.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - run: flutter pub get
+        working-directory: example
+
+      - run: make android-test
+
   # Nothing else compiles this plugin's Swift. `flutter analyze` and
   # `flutter test` are Dart-only, so a codegen bump that breaks a hand-written
   # native implementation (as the Pigeon v22 -> v28 `@async` change did) reaches
