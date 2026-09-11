@@ -62,41 +62,73 @@ class VideoJsPlayer {
   /// visible while fullscreen.
   web.HTMLElement? get container => _container;
 
-  String get viewType => 'bccm-player-$playerId';
+  /// The single view type for every player. It must match the one
+  /// `_WebPlayer` passes to [HtmlElementView].
+  ///
+  /// One registration for the whole plugin rather than one per player:
+  /// [PlatformViewRegistry] has no unregister, and its factory map lives for the
+  /// process, so a per-player view type leaks an entry — and, through the
+  /// closure, the whole player — for every player ever created. The player id
+  /// travels as `creationParams` instead.
+  static const viewType = 'bccm-player';
+
+  static final Map<String, VideoJsPlayer> _byPlayerId = {};
+  static bool _viewFactoryRegistered = false;
+
+  static void _ensureViewFactoryRegistered() {
+    if (_viewFactoryRegistered) return;
+    _viewFactoryRegistered = true;
+    ui_web.platformViewRegistry.registerViewFactory(
+      viewType,
+      (int viewId, {Object? params}) {
+        final player = _byPlayerId[params];
+        // A view can outlive its player (a stale widget rebuilding, say). An
+        // empty div keeps that a blank frame rather than an exception.
+        return player?._obtainContainer() ?? web.document.createElement('div');
+      },
+    );
+  }
+
+  /// The DOM id of this player's container. Distinct per player because
+  /// `createPlayer` resolves the container by id.
+  String get elementId => 'bccm-player-$playerId';
 
   VideoJsPlayer(
     this.playerId, {
     required this.listener,
     required this.plugin,
   }) {
-    ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
-      final existing = _container;
-      if (existing != null) {
-        return existing;
-      }
-      final container = web.document.createElement('div') as web.HTMLElement;
-      container.id = viewType;
-      container.style
-        ..width = '100%'
-        ..height = '100%'
-        ..backgroundColor = '#000000';
-
-      // video.js sizes itself from its own element, not the container.
-      final style = web.document.createElement('style') as web.HTMLStyleElement;
-      style.textContent = '#$viewType > .video-js { width: 100%; height: 100% }';
-      container.appendChild(style);
-
-      _container = container;
-      if (!_containerReady.isCompleted) {
-        _containerReady.complete(container);
-      }
-      return container;
-    });
+    _ensureViewFactoryRegistered();
+    _byPlayerId[playerId] = this;
 
     // VideoPlatformView refuses to mount the platform view until the player
     // reports `isInitialized`, and the container only exists once it mounts.
     // Emitting an empty snapshot up front breaks that circular wait.
     _emitState();
+  }
+
+  web.HTMLElement _obtainContainer() {
+    final existing = _container;
+    if (existing != null) {
+      return existing;
+    }
+    final container = web.document.createElement('div') as web.HTMLElement;
+    container.id = elementId;
+    container.style
+      ..width = '100%'
+      ..height = '100%'
+      ..backgroundColor = '#000000';
+
+    // video.js sizes itself from its own element, not the container.
+    final style = web.document.createElement('style') as web.HTMLStyleElement;
+    style.textContent = '#$elementId > .video-js { width: 100%; height: 100% }';
+    container.appendChild(style);
+
+    _container = container;
+    if (!_containerReady.isCompleted) {
+      _containerReady.complete(container);
+    }
+    return container;
   }
 
   Future<void> replaceCurrentMediaItem(MediaItem mediaItem, {bool? autoplay}) async {
@@ -131,7 +163,7 @@ class VideoJsPlayer {
     final npawOverrides = npawExtraEntries != null ? Map.fromEntries(npawExtraEntries).jsify() as JSObject? : null;
 
     return js.createPlayer(
-      viewType,
+      elementId,
       js.Options(
         src: js.SrcOptions(src: mediaItem.url!, type: mediaItem.mimeType ?? 'application/x-mpegURL'),
         languagePreferenceDefaults: js.LanguagePreferenceDefaults(
@@ -303,6 +335,7 @@ class VideoJsPlayer {
   }
 
   void dispose() {
+    _byPlayerId.remove(playerId);
     _player?.dispose();
     _player = null;
     _container?.remove();

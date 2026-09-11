@@ -143,7 +143,13 @@ class _WebPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(viewType: 'bccm-player-${parent.playerController.value.playerId}');
+    // One view type for every player, with the player id passed as creation
+    // params — see VideoJsPlayer.viewType for why it isn't one type per player.
+    // Not imported from there: that file is web-only.
+    return HtmlElementView(
+      viewType: 'bccm-player',
+      creationParams: parent.playerController.value.playerId,
+    );
   }
 }
 
