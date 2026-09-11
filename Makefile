@@ -35,4 +35,5 @@ ios-test: ## Run the native iOS unit tests (example/ios/RunnerTests) on a simula
 		-only-testing:RunnerTests
 
 android-test: ## Run the native Android unit tests (android/src/test)
+	cd example && flutter pub get
 	cd example/android && ./gradlew :bccm_player:testDebugUnitTest

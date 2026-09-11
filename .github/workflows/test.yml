@@ -28,15 +28,27 @@ jobs:
 
       - run: flutter test
 
-      # Nothing else compiles this plugin's Kotlin. Same gap as the `ios` job
-      # below, but it runs on the cheap Linux runner.
+  # Nothing else compiles this plugin's Kotlin — `flutter analyze` and
+  # `flutter test` are Dart-only. Same gap the `ios` job covers, but on the
+  # cheap Linux runner.
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # Matches the `flutter: ">=3.44.0"` constraint in pubspec.yaml.
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
 
       - run: flutter pub get
-        working-directory: example
 
       - run: make android-test
 
